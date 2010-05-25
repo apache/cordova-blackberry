@@ -1,0 +1,6 @@
+# Eclipse
+#
+*/bin/
+*/build/
+*/.preprocessed/
+*/.settings/
