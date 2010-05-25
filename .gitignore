@@ -1,6 +1,6 @@
 # Eclipse
 #
-*/bin/
-*/build/
-*/.preprocessed/
-*/.settings/
+bin/
+build/
+.preprocessed/
+.settings/
