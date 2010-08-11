@@ -1,5 +1,4 @@
 <project name="PhoneGap BlackBerry Ant Build" default="build">
-	<taskdef resource="bb-ant-defs.xml" />
 	<!-- PROPERTY DEFINITION - FILL THESE OUT! -->
 	<!-- rapc and sigtool require the jde.home property to be set (5.0+ JRE ONLY)-->
 	<property name="jre.home" location="C:\eclipse-blackberry\plugins\net.rim.eide.componentpack4.6.1_4.6.1.27\components" />
@@ -7,50 +6,37 @@
 	<property name="simulator.home" location="${jre.home}\simulator\" />
 	<!-- directory of MDS-CS to allow XHR in the simulator -->
 	<property name="mds.home" location="${jre.home}\MDS\" />
-	<!-- directory of your phonegap assets (HTML/CSS/JS) - PhoneGap convention is to keep in a folder called 'www'. -->
-	<!-- defaults to the stock application located under the 'example' dir -->
-	<property name="www.dir" location="example" />
+	<!-- directory of your BlackBerry Widget project-->
+	<property name="widget.dir" location="" />
 	<!-- directory where you want the final binaries to be copied to. -->
 	<property name="build.dir" location="build" />
 	<!-- name of the binaries to generate (i.e. <blah>.cod, <blah>.jar, etc.) -->
 	<property name="cod.name" value="PhoneGap_Sample" />
 	<!-- password for the Signature Tool -->
-	<property name="password" value="some_password" />
-	<!-- package name - used by the alx task to build the .alx file for desktop-based app loading -->
-	<property name="package.name" value="com.test.example" />
+	<property name="password" value="" />
 	<!-- name of the application, as it appears in the BlackBerry menu -->
 	<property name="application.name" value="PhoneGap Sample" />
  
  	<target name="build" depends="clean, buildjavascript, setupwidget">
+		<!-- create build directory -->
+		<mkdir dir="${build.dir}" />
 		<!-- Create .jar from WidgetExtension -->
-		<jar update="no" destfile="lib/phonegap.jar" basedir="framework/ext" includes="src/* res/*" />
-		<!-- Calls the RIM compiler -->
-		<!--
-		<rapc output="${cod.name}" generatesourcelist="true">
-			<src>
-	      		<fileset dir="src" />
-	      		<fileset dir="www" />
-			</src>
-			<jdp title="${application.name}" />
-			<jdp icon="${www.dir}/icon.png" />
-		</rapc>
- 		<copy todir="${build.dir}">
- 			<fileset dir="" includes="*.cod,*.cso,*.debug,*.jad,*.jar,*.csl,*.rapc" />
- 		</copy>
- 		<delete file="${cod.name}.cod" />
- 		<delete file="${cod.name}.cso" />
- 		<delete file="${cod.name}.debug" />
- 		<delete file="${cod.name}.jad" />
- 		<delete file="${cod.name}.jar" />
-		<delete dir="www" />
-		<delete file="phonegap.js" />-->
+		<jar update="no" destfile="${widget.dir}/ext/phonegap.jar" basedir="framework/ext" includes="src/* res/*" />
+		<!-- Package the widget project. First zip up widget dir then run widget packager tool.-->
+		<zip destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" />
+		<exec executable="bbwp">
+			<arg file="${build.dir}/${cod.name}.zip" />
+			<arg value="/g ${password}" />
+			<arg value="/o ${build.dir}" />
+		</exec>
+		<!-- Delete zip file-->
+		<delete file="${build.dir}/${cod.name}.zip" />
 	</target>
 	
 	<target name="setupwidget">
-		<!-- create build directory -->
-		<mkdir dir="${build.dir}" />
+		
 		<!-- copy over config.xml from example 'www' directory and replace tokens in it with application properties defined at the top here.-->
-		<copy todir="${build.dir}" overwrite="true">
+		<copy todir="${widget.dir}" overwrite="true">
 			<fileset file="www/config.xml" />
 		</copy>
 		<replace file="${build.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
@@ -75,7 +61,7 @@
    	</target>
  
 	<target name="buildjavascript">
-		<concat destfile="phonegap.js" append="true">
+		<concat destfile="${widget.dir}/phonegap.js" append="true">
 			<fileset dir="js/">
 				<include name="*.js" />
 			</fileset>
@@ -84,7 +70,7 @@
  
 	<target name="load-simulator" depends="sign">
 		<copy todir="${simulator.home}">
-			<fileset dir="${build.dir}" includes="*.cod,*.cso,*.debug,*.jad,*.jar,*.csl,*.rapc" />
+			<fileset dir="${build.dir}/StandardInstall" includes="*.cod,*.cso,*.csl,*.alx" />
 		</copy>
 		<exec executable="${mds.home}/run.bat" dir="${mds.home}" spawn="true"></exec>
 		<exec executable="${simulator.home}/defaultSimulator.bat" dir="${simulator.home}" spawn="true"></exec>
@@ -93,7 +79,7 @@
 		<exec executable="${jre.home}/bin/JavaLoader.exe" dir="." failonerror="true">
 			<arg value="-u" />
 			<arg value="load" />
-			<arg value="${build.dir}/${cod.name}.cod" />
+			<arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
 		</exec>
 	</target>
 </project>
