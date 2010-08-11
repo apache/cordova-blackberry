@@ -1,23 +1,28 @@
 PhoneGap BlackBerry Widget
 ==========================
+
 [PhoneGap framework](http://www.phonegap.com/) for the BlackBerry Web Widget platform. 
 
 Directory Structure
 -------------------
-<pre>
-  example/ ....... An example BlackBerry Widget project using the PhoneGap framework
-  framework/ ..... PhoneGap framework source code. Only needed for contributors.
-  lib/ ........... Libraries necessary for your own BlackBerry Widget projects
-</pre>
 
-Requirements
-------------
 
-Setup
------
+    framework/ ..... BlackBerry Widget Extension (PhoneGap native code).
+    js/ ............ PhoneGap JavaScript
+    lib/ ........... Compiled Extension
+    www/ ........... App
 
-Getting Started
----------------
+
+Setup Extension Project
+-----------------------
+
+1. Open Eclipse
+2. File -> Import -> `phonegap-blackberry-widget/framework/ext`
+3. Project -> BlackBerry -> Package Widget
+
+Setup Widget Project
+--------------------
+
 1. Create a BlackBerry Widget project
     1. `File > New > BlackBerry Widget Project`
         * Project Name: HelloWorld
@@ -36,6 +41,9 @@ Getting Started
     1. Create a new directory called `js/`
     2. Import `lib/phonegap.js` into `js/`
     3. Include `js/phonegap.js` in index.html
-4. Create your Web Application
-    * Edit `index.html`
-    * Be sure to include
+        * `<script type="text/javascript" src="js/phonegap.js"></script>`
+4. Build the widget
+    1. Select `Project > Build and Sign BlackBerry Widget Project`
+5. Run the run widget
+    1. Select `Run > Run as > Simulator`
+        * If the simulator screen does not respond, then try turning on graphics acceleration with `View > Graphics Acceleration > Off`
