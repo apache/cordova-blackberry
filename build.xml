@@ -39,22 +39,8 @@
 		<copy todir="${widget.dir}" overwrite="true">
 			<fileset file="www/config.xml" />
 		</copy>
-		<replace file="${build.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
+		<replace file="${widget.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
 	</target>
-	
-	<target name="sign" depends="build">
-		<sigtool codfile="${build.dir}/${cod.name}.cod" password="${password}" />
-	</target>
-	
-	<target name="alx" depends="build">
-		<alx destdir="${build.dir}" filename="${cod.name}.alx">
-			<application id="${package.name}" name="${application.name}">
-				<codset>
-					<fileset dir="${build.dir}" includes="*.cod" />
-				</codset>
-			</application>
-		</alx>
-   </target>
    
 	<target name="clean">
 		<delete dir="${build.dir}" />
@@ -68,18 +54,18 @@
 		</concat>
 	</target>
  
-	<target name="load-simulator" depends="sign">
+	<target name="load-simulator" depends="build">
 		<copy todir="${simulator.home}">
 			<fileset dir="${build.dir}/StandardInstall" includes="*.cod,*.cso,*.csl,*.alx" />
 		</copy>
 		<exec executable="${mds.home}/run.bat" dir="${mds.home}" spawn="true"></exec>
 		<exec executable="${simulator.home}/defaultSimulator.bat" dir="${simulator.home}" spawn="true"></exec>
 	</target>
-	<target name="load-device" depends="sign">
+	<target name="load-device" depends="build">
 		<exec executable="${jre.home}/bin/JavaLoader.exe" dir="." failonerror="true">
 			<arg value="-u" />
 			<arg value="load" />
 			<arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
 		</exec>
 	</target>
-</project>
+</project
