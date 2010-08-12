@@ -21,13 +21,17 @@
 		<!-- create build directory -->
 		<mkdir dir="${build.dir}" />
 		<!-- Create .jar from WidgetExtension -->
-		<jar update="no" destfile="${widget.dir}/ext/phonegap.jar" basedir="framework/ext" includes="src/* res/*" />
+		<jar update="no" destfile="${widget.dir}/ext/phonegap.jar" basedir="framework/ext" includes="src/*,res/*" />
 		<!-- Package the widget project. First zip up widget dir then run widget packager tool.-->
-		<zip destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" />
-		<exec executable="bbwp">
+		<zip destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes=".settings,.project" />
+		<exec executable="cmd">
+			<arg value="/c" />
+			<arg value="bbwp" />
 			<arg file="${build.dir}/${cod.name}.zip" />
-			<arg value="/g ${password}" />
-			<arg value="/o ${build.dir}" />
+			<arg value="/g" />
+			<arg value="${password}" />
+			<arg value="/o" />
+			<arg file="${build.dir}" />
 		</exec>
 		<!-- Delete zip file-->
 		<delete file="${build.dir}/${cod.name}.zip" />
@@ -68,4 +72,4 @@
 			<arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
 		</exec>
 	</target>
-</project
+</project>
