@@ -16,4 +16,18 @@ PhoneGap.Notification = {
 };
 navigator.notification = PhoneGap.Notification;
 
+NetworkStatus = {
+  NOT_REACHABLE: 0,
+  REACHABLE_VIA_CARRIER_DATA_NETWORK: 1,
+  REACHABLE_VIA_WIFI_NETWORK: 2
+};
 
+PhoneGap.Network = {
+  _reachabilityCallback: null,
+  
+  isReachable: function(domain, reachabilityCallback) {
+    this._reachabilityCallback = reachabilityCallback;
+    phonegap.network.isReachable();
+  }
+};
+navigator.network = PhoneGap.Network;
