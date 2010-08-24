@@ -89,6 +89,7 @@
 		<exec executable="${mds.home}/run.bat" dir="${mds.home}" spawn="true"></exec>
 		<exec executable="${simulator.home}/defaultSimulator.bat" dir="${simulator.home}" spawn="true"></exec>
 	</target>
+
 	<target name="load-device" depends="build">
 		<exec executable="${jre.home}/bin/JavaLoader.exe" dir="." failonerror="true">
 			<arg value="-u" />
