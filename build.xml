@@ -1,7 +1,8 @@
 <project name="PhoneGap BlackBerry Ant Build" default="build">
 	<!-- PROPERTY DEFINITION - FILL THESE OUT! -->
-	<!-- rapc and sigtool require the jde.home property to be set (5.0+ JRE ONLY)-->
+	<!-- rapc and sigtool require the jde.home property to be set (5.0+ JRE only-->
 	<property name="jre.home" location="C:\eclipse-3.5.2\plugins\net.rim.ejde.componentpack5.0.0_5.0.0.25\components" />
+<!--	<property name="jre.home" location="C:\eclipse-3.5.2\plugins\net.rim.ejde.componentpack6.0.0_6.0.0.29\components" /> -->
 	<!-- directory of simulator to copy files to -->
 	<property name="simulator.home" location="${jre.home}\simulator\" />
 	<!-- directory of MDS-CS to allow XHR in the simulator -->
@@ -31,8 +32,8 @@
 			<arg value="/c" />
 			<arg value="bbwp" />
 			<arg file="${build.dir}/${cod.name}.zip" />
-			<arg value="/g" /> 
-			<arg value="${password}" /> 
+<!--			<arg value="/g" /> -->
+<!--			<arg value="${password}" /> -->
 			<arg value="/o" />
 			<arg file="${build.dir}" />
 		</exec>

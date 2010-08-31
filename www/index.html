@@ -14,11 +14,15 @@
       }
       
       function callBeep() {
-        navigator.notification.beep();
+        navigator.notification.beep(2);
       }
       
       function callVibrate() {
-        navigator.notification.vibrate();
+        navigator.notification.vibrate(1000);
+      }
+      
+      function callAlert() {
+      	navigator.notification.alert("You rock!", "Woohoo!", "Thanks");
       }
   
     </script>
@@ -33,5 +37,6 @@
     <h3>window.notification</h3>
     <input type="button" value="Beep" onclick="callBeep();return false;" />
     <input type="button" value="Vibrate" onclick="callVibrate();return false;" />
+    <input type="button" value="Alert" onclick="callAlert();return false;" />
   </body>
 </html>

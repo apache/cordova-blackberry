@@ -8,6 +8,7 @@ import com.phonegap.notification.NotificationFeature;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.script.ScriptEngine;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.web.WidgetConfig;
 import net.rim.device.api.web.WidgetExtension;
 
@@ -39,7 +40,6 @@ public final class PhoneGapExtension implements WidgetExtension {
 	//
 	public void register(WidgetConfig widgetConfig, BrowserField browserField) {
 		// TODO Auto-generated method stub
-
 	}
 
 	// Called to clean up any features when the extension is unloaded

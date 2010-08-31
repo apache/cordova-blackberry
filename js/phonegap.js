@@ -11,6 +11,9 @@ window.device = navigator.device = PhoneGap.Device;
 
 PhoneGap.Notification = {
   vibrate: phonegap.notification.vibrate,
-  beep:    phonegap.notification.beep
+  beep:    phonegap.notification.beep,
+  alert:   phonegap.notification.alert
 };
 navigator.notification = PhoneGap.Notification;
+
+
