@@ -42,26 +42,24 @@
 	</target>
 	
 	<target name="setupconfig" depends="seticons, setloadingscreen">
-		
         <!-- replace application name. -->
 		<replace file="${widget.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
         <echo file="${widget.dir}/config.xml" message="&lt;/widget&gt;" append="true" />
 	</target>
-   <target name="copyconfig" description="Copy over index and config xml from example ">
+   <target name="copywww" description="Copy over index and config xml from www directory">
 		<copy todir="${widget.dir}" overwrite="true">
-			<fileset file="www/config.xml" />
-			<fileset file="www/index.html" />
+			<fileset dir="www" />
 		</copy>
    </target>
    <!-- a whole bunch of awesome conditional tasks that execute depending on existence of files; for resolving icon and loading screen images -->
-   <target name="seticons" depends="copyconfig, checkicons" if="icon.main">
+   <target name="seticons" depends="copywww, checkicons" if="icon.main">
         <echo file="${widget.dir}/config.xml" append="true" message='&lt;icon src="icon.png" /&gt;' />
    </target>
    <target name="checkicons" unless="icon.main">
         <!-- todo: parse hover icon as well -->
         <available property="icon.main" file="${widget.dir}/icon.png" />
    </target>
-   <target name="setloadingscreen" depends="copyconfig, checkloadingscreen" if="loading.main">
+   <target name="setloadingscreen" depends="copywww, checkloadingscreen" if="loading.main">
         <echo file="${widget.dir}/config.xml" append="true" message='&lt;rim:loadingScreen backgroundImage="Default.png" /&gt;' />
    </target>
    <target name="checkloadingscreen" unless="loading.main">
