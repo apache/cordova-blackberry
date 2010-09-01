@@ -109,3 +109,9 @@ Setup Widget Project
 5. Run the widget
     1. Select the project, right-click and select `Run > Run as > Blackberry Simulator`
 
+Troubleshooting
+---------------
+
+__Q: I uploaded my application to the BlackBerry device, but it will not open or run.__
+
+__A:__ Try hard resetting the device by pressing and hold ALT + CAPS LOCK + DEL. You must press and hold each key in sequence and not all at once.
