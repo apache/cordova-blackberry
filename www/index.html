@@ -11,12 +11,21 @@
         document.getElementById('window.device.platform').innerHTML = 'window.device.platform = ' + window.device.platform;
         document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
         document.getElementById('window.device.version').innerHTML  = 'window.device.version  = ' + window.device.version;
+
+        navigator.network.isReachable("phonegap.com", function(reachability) {
+          var states = {};
+          states[NetworkStatus.NOT_REACHABLE]                      = 'No network connection';
+          states[NetworkStatus.REACHABLE_VIA_CARRIER_DATA_NETWORK] = 'Carrier data connection';
+          states[NetworkStatus.REACHABLE_VIA_WIFI_NETWORK]         = 'WiFi connection';
+
+          document.getElementById('navigator.network.isReachable').innerHTML = 'isReachable = ' + states[reachability];
+        });
       }
-      
+
       function callBeep() {
         navigator.notification.beep(2);
       }
-      
+
       function callVibrate() {
         navigator.notification.vibrate(1000);
       }
@@ -24,7 +33,7 @@
       function callAlert() {
       	navigator.notification.alert("You rock!", "Woohoo!", "Thanks");
       }
-  
+
     </script>
     <title>Insert title here</title>
   </head>
@@ -38,5 +47,8 @@
     <input type="button" value="Beep" onclick="callBeep();return false;" />
     <input type="button" value="Vibrate" onclick="callVibrate();return false;" />
     <input type="button" value="Alert" onclick="callAlert();return false;" />
+    
+    <h3>navigator.network</h3>
+    <p id="navigator.network.isReachable">[navigator.network.isReachable]</p>
   </body>
 </html>

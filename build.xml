@@ -32,8 +32,8 @@
 			<arg value="/c" />
 			<arg value="bbwp" />
 			<arg file="${build.dir}/${cod.name}.zip" />
-<!--			<arg value="/g" /> -->
-<!--			<arg value="${password}" /> -->
+			<arg value="/g" />
+			<arg value="${password}" />
 			<arg value="/o" />
 			<arg file="${build.dir}" />
 		</exec>
