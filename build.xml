@@ -24,7 +24,7 @@
 		<!-- Create .jar from WidgetExtension -->
 		<zip destfile="${widget.dir}/ext/phonegap.jar">
 			<fileset dir="framework/ext/src" includes="library.xml" />
-			<fileset dir="framework/ext/src" includes="com/**/*.java" />
+			<fileset dir="framework/ext/src" includes="com/**/*.java,org/**/*.java" />
 		</zip>
 		<!-- Package the widget project. First zip up widget dir then run widget packager tool.-->
 		<zip compress="false" destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes=".settings,.project" />
