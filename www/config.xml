@@ -4,4 +4,3 @@
   <feature id="phonegap" required="false" version="1.0.0"/>
   <feature id="blackberry.system" required="true" version="1.0.0.0"/>
   <content src="index.html"/>
-</widget>

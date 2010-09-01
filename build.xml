@@ -18,7 +18,7 @@
 	<!-- name of the application, as it appears in the BlackBerry menu -->
 	<property name="application.name" value="PhoneGap Widget" />
  
- 	<target name="build" depends="clean, setupwidget, buildjavascript">
+ 	<target name="build" depends="clean, setupconfig, buildjavascript">
 		<!-- create build directory -->
 		<mkdir dir="${build.dir}" />
 		<!-- Create .jar from WidgetExtension -->
@@ -41,14 +41,33 @@
 		<delete file="${build.dir}/${cod.name}.zip" /> 
 	</target>
 	
-	<target name="setupwidget">
-		<!-- copy over config.xml and index.html from example 'www' directory and replace application name. -->
+	<target name="setupconfig" depends="seticons, setloadingscreen">
+		
+        <!-- replace application name. -->
+		<replace file="${widget.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
+        <echo file="${widget.dir}/config.xml" message="&lt;/widget&gt;" append="true" />
+	</target>
+   <target name="copyconfig" description="Copy over index and config xml from example ">
 		<copy todir="${widget.dir}" overwrite="true">
 			<fileset file="www/config.xml" />
 			<fileset file="www/index.html" />
 		</copy>
-		<replace file="${widget.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
-	</target>
+   </target>
+   <!-- a whole bunch of awesome conditional tasks that execute depending on existence of files; for resolving icon and loading screen images -->
+   <target name="seticons" depends="copyconfig, checkicons" if="icon.main">
+        <echo file="${widget.dir}/config.xml" append="true" message='&lt;icon src="icon.png" /&gt;' />
+   </target>
+   <target name="checkicons" unless="icon.main">
+        <!-- todo: parse hover icon as well -->
+        <available property="icon.main" file="${widget.dir}/icon.png" />
+   </target>
+   <target name="setloadingscreen" depends="copyconfig, checkloadingscreen" if="loading.main">
+        <echo file="${widget.dir}/config.xml" append="true" message='&lt;rim:loadingScreen backgroundImage="Default.png" /&gt;' />
+   </target>
+   <target name="checkloadingscreen" unless="loading.main">
+        <!-- todo: parse foreground image as well -->
+        <available property="loading.main" file="${widget.dir}/Default.png" />
+   </target>
    
 	<target name="clean">
 		<delete dir="${build.dir}" />
