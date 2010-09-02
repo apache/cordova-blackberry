@@ -12,8 +12,6 @@
         document.getElementById('window.device.platform').innerHTML = 'window.device.platform = ' + window.device.platform;
         document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
         document.getElementById('window.device.version').innerHTML  = 'window.device.version  = ' + window.device.version;
-        
-        document.getElementById('plugins').innerHTML  = PhoneGap.execSync('com.phonegap.Notification', 'vibrate', [1000]);
 
         navigator.network.isReachable("phonegap.com", function(reachability) {
           var states = {};
@@ -50,8 +48,6 @@
     <input type="button" value="Beep" onclick="callBeep();return false;" />
     <input type="button" value="Vibrate" onclick="callVibrate();return false;" />
     <input type="button" value="Alert" onclick="callAlert();return false;" />
-    
-    <p id="plugins"></p>
     
     <h3>navigator.network</h3>
     <p id="navigator.network.isReachable">[navigator.network.isReachable]</p>

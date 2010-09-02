@@ -10,10 +10,19 @@ PhoneGap.Device = {
 window.device = navigator.device = PhoneGap.Device;
 
 PhoneGap.Notification = {
-  vibrate: phonegap.notification.vibrate,
-  beep:    phonegap.notification.beep,
-  alert:   phonegap.notification.alert
+  vibrate: function(duration) {
+    PhoneGap.execSync('com.phonegap.Notification', 'vibrate', [duration]);
+  },
+  
+  beep: function(count) {
+    PhoneGap.execSync('com.phonegap.Notification', 'beep', [count]);
+  },
+  
+  alert: function(message, title, buttonLabel) {
+    PhoneGap.execSync('com.phonegap.Notification', 'alert', [message, title, buttonLabel]);
+  }
 };
+
 navigator.notification = PhoneGap.Notification;
 
 NetworkStatus = {
@@ -33,7 +42,12 @@ PhoneGap.Network = {
 navigator.network = PhoneGap.Network;
 
 PhoneGap.execSync = function(klass, action, args) {
-    var value = phonegap.commandManager.exec(klass, action, null, JSON.stringify(args), 0);
-    alert(value);
-    return value;
+
+    // Translate the klass paths
+    
+    if (klass.toLowerCase() === 'com.phonegap.notification') {
+        klass = 'com.phonegap.notification.Notification';
+    }
+    
+    return phonegap.commandManager.exec(klass, action, null, JSON.stringify(args), 0);
 }

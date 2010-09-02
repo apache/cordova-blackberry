@@ -4,7 +4,9 @@ import net.rim.device.api.script.ScriptableFunction;
 import net.rim.device.api.system.Alert;
 
 public final class BeepFunction extends ScriptableFunction {
-
+	
+	private static final int DEFAULT_BEEP_COUNT = 1;
+	
 	private static final int BEEP_VOLUME = 99;
 	private static final int TUNE_LENGTH = 4;
 	
@@ -23,7 +25,7 @@ public final class BeepFunction extends ScriptableFunction {
 	public Object invoke(Object obj, Object[] args) throws Exception {
 		
 		if (Alert.isAudioSupported()) {
-			int repeatCount = (args.length >= 1) ? (((Integer)args[0]).intValue()) : 1;
+			int repeatCount = (args.length >= 1) ? (((Integer)args[0]).intValue()) : DEFAULT_BEEP_COUNT;
 			
 			Alert.startAudio(getTune(repeatCount), BEEP_VOLUME);
 		}
