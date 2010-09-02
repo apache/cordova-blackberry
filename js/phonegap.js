@@ -32,22 +32,58 @@ NetworkStatus = {
 };
 
 PhoneGap.Network = {
-  _reachabilityCallback: null,
-  
   isReachable: function(domain, reachabilityCallback) {
-    this._reachabilityCallback = reachabilityCallback;
-    phonegap.network.isReachable();
+    PhoneGap.exec(reachabilityCallback, function() {}, 'com.phonegap.Network', 'isReachable', [domain]);
   }
 };
+
 navigator.network = PhoneGap.Network;
 
-PhoneGap.execSync = function(klass, action, args) {
+/* ----- phonegap.blackberry-widgets.js ------ */
 
-    // Translate the klass paths
-    
+PhoneGap.EXEC_SYNC  = 0;
+PhoneGap.EXEC_ASYNC = 1;
+
+PhoneGap.callbackId = 0;
+PhoneGap.callbacks  = {};
+
+PhoneGap.resolveKlass = function(klass) {
     if (klass.toLowerCase() === 'com.phonegap.notification') {
         klass = 'com.phonegap.notification.Notification';
     }
+    else if (klass.toLowerCase() === 'com.phonegap.network') {
+        klass = 'com.phonegap.network.Network';
+    }
     
-    return phonegap.commandManager.exec(klass, action, null, JSON.stringify(args), 0);
+    return klass;
+}
+
+PhoneGap.exec = function(success, fail, klass, action, args) {
+    klass = PhoneGap.resolveKlass(klass);
+    
+    var callbackId = klass + PhoneGap.callbackId++;
+    
+    PhoneGap.callbacks[callbackId] = { success:success, fail:fail };
+    
+    return phonegap.commandManager.exec(klass, action, callbackId, JSON.stringify(args), PhoneGap.EXEC_ASYNC);
+}
+
+PhoneGap.callbackSuccess = function(callbackId, args) {
+    PhoneGap.callbacks[callbackId].success(args);
+    PhoneGap.clearExec(callbackId);
+};
+
+PhoneGap.callbackError = function(callbackId, args) {
+    PhoneGap.callbacks[callbackId].fail(args);
+    PhoneGap.clearExec(callbackId);
+};
+
+PhoneGap.clearExec = function(callbackId) {
+    delete PhoneGap.callbacks[callbackId];
+};
+
+PhoneGap.execSync = function(klass, action, args) {
+    klass = PhoneGap.resolveKlass(klass);
+    
+    return phonegap.commandManager.exec(klass, action, null, JSON.stringify(args), PhoneGap.EXEC_SYNC);
 }
