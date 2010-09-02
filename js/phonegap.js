@@ -31,3 +31,9 @@ PhoneGap.Network = {
   }
 };
 navigator.network = PhoneGap.Network;
+
+PhoneGap.execSync = function(klass, action, args) {
+    var value = phonegap.commandManager.exec(klass, action, null, JSON.stringify(args), 0);
+    alert(value);
+    return value;
+}

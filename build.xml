@@ -40,7 +40,7 @@
 		<!-- Delete zip file-->
 		<delete file="${build.dir}/${cod.name}.zip" />
 	</target>
-	
+
 	<target name="setupconfig" depends="seticons, setloadingscreen">
         <!-- replace application name. -->
 		<replace file="${widget.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
@@ -89,7 +89,6 @@
 		<exec executable="${mds.home}/run.bat" dir="${mds.home}" spawn="true"></exec>
 		<exec executable="${simulator.home}/defaultSimulator.bat" dir="${simulator.home}" spawn="true"></exec>
 	</target>
-
 	<target name="load-device" depends="build">
 		<exec executable="${jre.home}/bin/JavaLoader.exe" dir="." failonerror="true">
 			<arg value="-u" />

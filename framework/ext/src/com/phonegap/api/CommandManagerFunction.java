@@ -17,9 +17,10 @@ public class CommandManagerFunction extends ScriptableFunction {
 		final String clazz = (String)oargs[0];
 		final String action = (String)oargs[1];
 		final String callbackId = (String)oargs[2];
-		final JSONArray args = (JSONArray)oargs[3];
+		final JSONArray args = new JSONArray((String)oargs[3]);
 		final boolean async = (oargs[4].toString().equals("1") ? true : false);
 		CommandResult cr = null;
+		
 		try {
 			Class c = getClassByName(clazz);
 

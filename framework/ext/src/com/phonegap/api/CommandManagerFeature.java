@@ -13,14 +13,19 @@ import net.rim.device.api.script.Scriptable;
  *
  */
 public final class CommandManagerFeature extends Scriptable {
-	private final ScriptEngine app;
+	public static final String FIELD_EXEC = "exec";
 	
-	public static final String FIELD_EXEC    = "exec";
-
-	private final CommandManagerFunction    commandManager;
+	private final CommandManagerFunction callCommandManager;
 	
-	public CommandManagerFeature(ScriptEngine app) {
-		this.app = app;
-		this.commandManager = new CommandManagerFunction(this.app);
+	public CommandManagerFeature(ScriptEngine scriptEngine) {
+		this.callCommandManager = new CommandManagerFunction(scriptEngine);
+	}
+	
+	public Object getField(String name) throws Exception {
+		if (name.equals(FIELD_EXEC)) {
+			return this.callCommandManager;
+		}
+		
+		return super.getField(name);
 	}
 }
