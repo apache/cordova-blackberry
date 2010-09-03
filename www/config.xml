@@ -1,7 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="1.0.0.0">
-  <name>%PLACEHOLDER%</name>
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- Widget Configuration Reference:
+       http://docs.blackberry.com/en/developers/deliverables/15274/ -->
+
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:rim="http://www.blackberry.com/ns/widgets"
+        version="1.0.0.0">
+  
+  <name>PhoneGap Sample</name>
+  
+  <description>
+      This is a sample application build with PhoneGap.
+  </description>
+  
+  <icon src="icons/icon.png" />
+  <icon src="icons/icon_hover.png" rim:hover="true" />
+    
+  <rim:loadingScreen backgroundColor="#000000"
+                     foregroundImage="loading_screen/foreground.png"
+                     onFirstLaunch="true">
+    <rim:transitionEffect type="fadeOut" />
+  </rim:loadingScreen>
+  
   <feature id="phonegap" required="false" version="1.0.0"/>
   <feature id="blackberry.system" required="true" version="1.0.0.0"/>
+  
   <content src="index.html"/>
+  
+  <license>
+      Copyright (c) 2010 Nitobi
+      website: http://phonegap.com
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      Software), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+
+       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+       EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+       MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+       NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  </license>
+
 </widget>

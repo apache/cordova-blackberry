@@ -17,8 +17,8 @@
 	<property name="password" value="" />
 	<!-- name of the application, as it appears in the BlackBerry menu -->
 	<property name="application.name" value="PhoneGap Widget" />
- 
- 	<target name="build" depends="clean, setupconfig, buildjavascript">
+    
+ 	<target name="build" depends="clean, copywww, buildjavascript">
 		<!-- create build directory -->
 		<mkdir dir="${build.dir}" />
 		<!-- Create .jar from WidgetExtension -->
@@ -40,12 +40,6 @@
 		<!-- Delete zip file-->
 		<delete file="${build.dir}/${cod.name}.zip" />
 	</target>
-
-	<target name="setupconfig" depends="seticons, setloadingscreen">
-        <!-- replace application name. -->
-		<replace file="${widget.dir}/config.xml" token="%PLACEHOLDER%" value="${application.name}"/>
-        <echo file="${widget.dir}/config.xml" message="&lt;/widget&gt;" append="true" />
-	</target>
     
    <target name="copywww" description="Copy over index and config xml from www directory">
         <mkdir dir="${widget.dir}" />
@@ -53,22 +47,7 @@
 			<fileset dir="www" />
 		</copy>
    </target>
-   <!-- a whole bunch of awesome conditional tasks that execute depending on existence of files; for resolving icon and loading screen images -->
-   <target name="seticons" depends="copywww, checkicons" if="icon.main">
-        <echo file="${widget.dir}/config.xml" append="true" message='&lt;icon src="icon.png" /&gt;' />
-   </target>
-   <target name="checkicons" unless="icon.main">
-        <!-- todo: parse hover icon as well -->
-        <available property="icon.main" file="www/icon.png" />
-   </target>
-   <target name="setloadingscreen" depends="copywww, checkloadingscreen" if="loading.main">
-        <echo file="${widget.dir}/config.xml" append="true" message='&lt;rim:loadingScreen backgroundImage="Default.png" /&gt;' />
-   </target>
-   <target name="checkloadingscreen" unless="loading.main">
-        <!-- todo: parse foreground image as well -->
-        <available property="loading.main" file="www/Default.png" />
-   </target>
-   
+      
 	<target name="clean">
 		<delete dir="${build.dir}" />
 		<delete dir="${widget.dir}" />
