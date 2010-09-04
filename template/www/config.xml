@@ -10,22 +10,23 @@
   <name>PhoneGap Sample</name>
   
   <description>
-      This is a sample application build with PhoneGap.
+      A sample application written with PhoneGap.
+      The application uses the BlackBerry Widget SDK and can be deployed to BlackBerry OS 5.0+
   </description>
   
-  <icon src="icons/icon.png" />
-  <icon src="icons/icon_hover.png" rim:hover="true" />
+  <icon src="resources/icon.png" />
+  <icon src="resources/icon_hover.png" rim:hover="true" />
     
   <rim:loadingScreen backgroundColor="#000000"
-                     foregroundImage="loading_screen/foreground.png"
+                     foregroundImage="resources/loading_foreground.png"
                      onFirstLaunch="true">
     <rim:transitionEffect type="fadeOut" />
   </rim:loadingScreen>
   
-  <feature id="phonegap" required="false" version="1.0.0"/>
-  <feature id="blackberry.system" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.system" required="true" version="1.0.0.0" />
+  <feature id="phonegap"          required="false" version="1.0.0" />
   
-  <content src="index.html"/>
+  <content src="index.html" />
   
   <license>
       Copyright (c) 2010 Nitobi

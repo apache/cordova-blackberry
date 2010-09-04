@@ -1,78 +1,126 @@
-<project name="PhoneGap BlackBerry Ant Build" default="build">
-	<!-- PROPERTY DEFINITION - FILL THESE OUT! -->
-	<!-- rapc and sigtool require the jde.home property to be set (5.0+ JRE only-->
-	<property name="jre.home" location="C:\eclipse-android\plugins\net.rim.ejde.componentpack5.0.0_5.0.0.25\components" />
-<!--	<property name="jre.home" location="C:\eclipse-3.5.2\plugins\net.rim.ejde.componentpack6.0.0_6.0.0.29\components" /> -->
-	<!-- directory of simulator to copy files to -->
-	<property name="simulator.home" location="${jre.home}\simulator\" />
-	<!-- directory of MDS-CS to allow XHR in the simulator -->
-	<property name="mds.home" location="${jre.home}\MDS\" />
-	<!-- directory of your BlackBerry Widget project-->
-	<property name="widget.dir" location="project" />
-	<!-- directory where you want the final binaries to be copied to. -->
-	<property name="build.dir" location="build" />
-	<!-- name of the binaries to generate (i.e. <blah>.cod, <blah>.jar, etc.) -->
-	<property name="cod.name" value="PhoneGapWidget" />
-	<!-- password for the Signature Tool -->
-	<property name="password" value="" />
-	<!-- name of the application, as it appears in the BlackBerry menu -->
-	<property name="application.name" value="PhoneGap Widget" />
+<project name="Create &amp; Update a PhoneGap BlackBerry Widget Project" default="help">
     
- 	<target name="build" depends="clean, copywww, buildjavascript">
-		<!-- create build directory -->
-		<mkdir dir="${build.dir}" />
-		<!-- Create .jar from WidgetExtension -->
-		<zip destfile="${widget.dir}/ext/phonegap.jar">
-			<fileset dir="framework/ext/src" includes="library.xml" />
-			<fileset dir="framework/ext/src" includes="**/*.java" />
-		</zip>
-		<!-- Package the widget project. First zip up widget dir then run widget packager tool.-->
-		<zip compress="false" destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes=".settings,.project" />
-		<exec executable="cmd">
-			<arg value="/c" />
-			<arg value="bbwp" />
-			<arg file="${build.dir}/${cod.name}.zip" />
-			<arg value="/g" />
-			<arg value="${password}" />
-			<arg value="/o" />
-			<arg file="${build.dir}" />
-		</exec>
-		<!-- Delete zip file-->
-		<delete file="${build.dir}/${cod.name}.zip" />
-	</target>
+    <!-- LOAD PROPERTIES -->
     
-   <target name="copywww" description="Copy over index and config xml from www directory">
-        <mkdir dir="${widget.dir}" />
-		<copy todir="${widget.dir}" overwrite="true">
-			<fileset dir="www" />
-		</copy>
-   </target>
-      
-	<target name="clean">
-		<delete dir="${build.dir}" />
-		<delete dir="${widget.dir}" />
-   	</target>
+    <property prefix="properties"     file="framework/project.properties" /> 
+    <property name="template.dir"     location="template" />
+    <property name="phonegap-js.file" location="lib/javascript/phonegap.js" />
+    <property name="phonegap-js.src"  location="js" />
+    <property name="ext.file"         location="lib/ext/phonegap.jar" />
+    <property name="ext.src"          location="framework/ext/src" />
  
-	<target name="buildjavascript">
-		<concat destfile="${widget.dir}/javascript/phonegap.js" append="true">
-			<fileset dir="js/">
+    <!-- BUILD JAVASCRIPT -->
+    
+	<target name="build-javascript">
+	    <dirname property="phonegap-js.dir" file="${phonegap-js.file}" />
+	    <mkdir dir="${phonegap-js.dir}" />
+	    
+		<concat destfile="${phonegap-js.file}" append="false">
+			<fileset dir="${phonegap-js.src}">
 				<include name="*.js" />
 			</fileset>
 		</concat>
+		
+		<echo message="Created: ${phonegap-js.file}" />
 	</target>
- 
-	<target name="load-simulator" depends="build">
-		<copy todir="${simulator.home}">
-			<fileset dir="${build.dir}/StandardInstall" includes="*.cod,*.cso,*.csl,*.alx" />
-		</copy>
-		<exec executable="${mds.home}/run.bat" dir="${mds.home}" spawn="true"></exec>
-		<exec executable="${simulator.home}/defaultSimulator.bat" dir="${simulator.home}" spawn="true"></exec>
+
+    <!-- BUILD WIDGET EXTENSION -->
+    
+	<target name="build-extension">
+	    <dirname property="ext.dir" file="${ext.file}" />
+	    <mkdir dir="${ext.dir}" />
+	    
+	    <zip destfile="${ext.file}">
+			<fileset dir="${ext.src}" includes="library.xml" />
+			<fileset dir="${ext.src}" includes="**/*.java" />
+		</zip>
+		
+		<echo message="Created: ${ext.file}" />
 	</target>
-	<target name="load-device" depends="build">
-		<exec executable="${jre.home}/bin/JavaLoader.exe" dir="." failonerror="true">
-			<arg value="-u" />
-			<arg value="load" />
-			<arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
-		</exec>
-	</target>
+
+	<!-- CREATE A PROJECT -->
+	
+	<target name="create" depends="build-javascript, build-extension">
+	    <fail unless="project.path" message="You must give a project PATH. Use the argument -Dproject.path=&#34;C:\dev\my_project&#34;" />
+	    
+	    <available file="${project.path}" property="project.exists" />
+	    <fail if="project.exists" message="The project path must be an empty directory." />
+	    
+	    <!-- copy template directory -->
+	    <mkdir dir="${project.path}" />
+	    <copy todir="${project.path}">
+            <fileset dir="${template.dir}" />
+        </copy>
+        
+        <!-- copy phonegap.js -->
+        <copy todir="${project.path}/www/javascript">
+            <fileset dir="${phonegap-js.dir}" />
+        </copy>
+        
+        <!-- copy ext/ -->
+        <copy todir="${project.path}/www/ext">
+            <fileset dir="${ext.dir}" />
+        </copy>
+        
+        <echo>
+Congratulations! Your new project has been created.
+
+GETTING STARTED
+  cd ${project.path}
+  ant help
+        </echo>
+    </target>
+    
+    <!-- UPDATE A PROJECT -->
+    
+    <target name="update" depends="build-javascript, build-extension">
+        <fail unless="project.path" message="You must give a project PATH. Use the argument -Dproject.path=&#34;C:\dev\my_project&#34;" />
+        
+        <available file="${project.path}" property="project.exists" />
+	    <fail unless="project.exists" message="The project path cannot be empty." />
+	    
+	    <!-- build.xml -->
+	    <copy todir="${project.path}" file="${template.dir}/build.xml" />
+	    
+	    <!-- phonegap.js -->
+        <copy todir="${project.path}/www/javascript">
+            <fileset dir="${phonegap-js.dir}" />
+        </copy>
+        
+        <!-- ext/phonegap.jar -->
+        <copy todir="${project.path}/www/ext">
+            <fileset dir="${ext.dir}" />
+        </copy>
+        
+    </target>
+    
+	<!-- HELP -->
+	
+    <target name="help">
+        <echo>
+NAME
+  ${ant.project.name}
+
+SYNOPSIS
+  ant COMMAND [-D&lt;argument&gt;=&lt;value&gt;]...
+
+DESCRIPTION
+  This tool allows you to create and update PhoneGap-BlackBerry-Widget projects.
+  You will want to run update after you have updated the framework source.
+  In other words, when you &lt;git pull origin master&gt;.
+
+COMMANDS
+  help ..... Show this help menu.
+               ant, ant help
+  
+  create ... Create a new project
+               ant create PATH
+               ant create -Dproject.path="C:\dev\my_project"
+               
+  update ... Update an existing project
+               ant update PATH
+               ant update -Dproject.path="C:\dev\my_project"
+        </echo>
+    </target>
+    
 </project>

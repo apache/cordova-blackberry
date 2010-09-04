@@ -1,6 +1,15 @@
 # Eclipse
-#
+
 bin/
 build/
 deliverables/
 .preprocessed/
+
+# Text Editor Tmp
+
+._*
+
+# Generated libraries
+
+lib/ext
+lib/javascript

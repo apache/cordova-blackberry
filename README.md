@@ -6,9 +6,9 @@ PhoneGap BlackBerry Widget
 Directory Structure
 -------------------
 
-    framework/ ..... BlackBerry Widget Extension (PhoneGap native code).
-    js/ ............ PhoneGap JavaScript
-    www/ ........... Widget sample
+    framework/ ... BlackBerry Widget Extension (PhoneGap native code)
+    js/ .......... Uncompiled PhoneGap JavaScript
+    template/ .... Project template used to create a new project
 
 Introduction
 ------------
@@ -20,24 +20,39 @@ Access to device information, file I/O, data access, etc. is done using Blackber
 1. The Widget, or web application, consisting of HTML, CSS, JavaScript, and
 2. The Extension, or native Java code that has access to the Widget APIs.
 
-The phonegap-blackberry-widget project houses the Widget extension code in the `framework/ext` directory.  The Widget web application resources are in the `www` directory.
+The PhoneGap BlackBerry Widget project implements the common PhoneGap API for BlackBerry Widgets. This project allows you to create projects that leverage the common PhoneGap API, PhoneGap plugins, and your own BlackBerry Widget extensions.
 
 
 Minimum Requirements
 --------------------
 
 1. Windows XP and Windows 7 (32-bit and 64-bit).
-2. [Sun Java Development Kit] (http://www.oracle.com/technetwork/java/javase/downloads/index.html#jdk), version 1.6 (32-bit).
-3. [Blackberry Widget SDK 1.0] (http://na.blackberry.com/eng/developers/browserdev/widgetsdk.jsp).
-
+2. [Sun Java Development Kit](http://www.oracle.com/technetwork/java/javase/downloads/index.html#jdk), version 1.6 (32-bit).
+3. [Blackberry Widget SDK 1.0](http://na.blackberry.com/eng/developers/browserdev/widgetsdk.jsp).
+4. [Apache ANT](http://ant.apache.org/bindownload.cgi)
 
 Additional Requirements for Developing with Eclipse
 ---------------------------------------------------
 
 1. Eclipse 3.5.
-2. [Blackberry Web Plugin for Eclipse v2.0] (http://na.blackberry.com/eng/developers/browserdev/eclipseplugin.jsp).
+2. [Blackberry Web Plugin for Eclipse v2.0](http://na.blackberry.com/eng/developers/browserdev/eclipseplugin.jsp).
 3. Blackberry Widget SDK 1.0 Plugin for Eclipse
 
+Creating a PhoneGap Project
+---------------------------
+
+1. `cd phonegap-blackberry-widget`
+2. `ant help` to read the command-line tool options
+3. `ant create -Dproject.path="C:\development\my_widget_project"`
+4. `cd C:\development\my_widget_project`
+
+Running a PhoneGap Project
+--------------------------
+
+1. `cd C:\development\my_widget_project`
+2. `ant help` to read the command-line tool options
+3. `ant load-simulator` to run the widget on the simulator
+4. `ant load-device` to run the widget on the device
 
 Running PhoneGap Widget from a Command Line Environment
 -------------------------------------------------------
@@ -115,3 +130,7 @@ Troubleshooting
 __Q: I uploaded my application to the BlackBerry device, but it will not open or run.__
 
 __A:__ Try hard resetting the device by pressing and hold ALT + CAPS LOCK + DEL. You must press and hold each key in sequence and not all at once.
+
+__Q: My simulator screen is not refreshing and I see blocks on a clicked position.__
+
+__A:__ Windows 7 and the simulator's graphics acceleration do not mix. On the simulator, set View -> Graphics Acceleration to Off.
