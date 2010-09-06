@@ -13,7 +13,7 @@
     
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
       <classpath>
-        <pathelement location="lib/ant-contrib/ant-contrib-1.0b3.jar"/>
+        <pathelement location="./lib/ant-contrib/ant-contrib-1.0b3.jar" />
       </classpath>
     </taskdef>
 	
@@ -139,7 +139,7 @@ GETTING STARTED
     <!-- HELPER TASKS -->
     
     <target name="generate-cod-name">
-        <xmlproperty file="${widget.dir}/config.xml" prefix="config.xml" />
+        <xmlproperty file="www/config.xml" prefix="config.xml" />
         <propertyregex property="cod.name" input="${config.xml.widget.name}" regexp="(\W+)" replace="" casesensitive="false" global="true" />
         <echo message="${cod.name}.cod" />
     </target>
