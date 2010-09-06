@@ -2,7 +2,6 @@
     
     <!-- LOAD PROPERTIES -->
     
-    <property prefix="properties"     file="framework/project.properties" /> 
     <property name="template.dir"     location="template" />
     <property name="phonegap-js.file" location="lib/javascript/phonegap.js" />
     <property name="phonegap-js.src"  location="js" />
