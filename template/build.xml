@@ -46,12 +46,16 @@
             <fileset dir="www" />
         </copy>
         
+        <property name="properties.bbwp.bin" location="${properties.bbwp.dir}/bbwp.exe" />
+        <available file="${properties.bbwp.bin}" property="properties.bbwp.exists" />
+        <fail unless="properties.bbwp.exists" message="Cannot find ${properties.bbwp.bin}. Please edit 'bbwp.dir' in your 'project.properties' file." />
+        
         <!-- Package the widget app by zipping the widget dir and running the widget packager tool.-->
         <mkdir dir="${build.dir}" />
         <zip compress="false" destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes=".settings,.project" />
         <exec executable="cmd">
             <arg value="/c" />
-            <arg value="${properties.bbwp.dir}/bbwp.exe" />
+            <arg value="${properties.bbwp.bin}" />
             <arg file="${build.dir}/${cod.name}.zip" />
             <arg value="/g" />
             <arg value="${properties.sigtool.password}" />
