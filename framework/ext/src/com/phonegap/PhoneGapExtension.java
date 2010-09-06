@@ -7,12 +7,13 @@ import com.phonegap.device.DeviceFeature;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.script.ScriptEngine;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.web.WidgetConfig;
 import net.rim.device.api.web.WidgetExtension;
 
 public final class PhoneGapExtension implements WidgetExtension {
 
+	public static ScriptEngine script;
+	
 	// Called when the BlackBerry Widget references this extension for the first time.
 	// It provides a list of feature IDs exposed by this extension.
 	//
@@ -27,10 +28,13 @@ public final class PhoneGapExtension implements WidgetExtension {
 	//
 	public void loadFeature(String feature, String version, Document doc,
 			ScriptEngine scriptEngine) throws Exception {
+		
+		script = scriptEngine;
 
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
 			scriptEngine.addExtension("phonegap.commandManager", new CommandManagerFeature(scriptEngine));
+			scriptEngine.executeScript("try {PhoneGap.onNativeReady.notify();} catch(e) {_nativeReady = true;}", null);
 		}
 	}
 
@@ -45,6 +49,10 @@ public final class PhoneGapExtension implements WidgetExtension {
 	public void unloadFeatures(Document doc) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public static void Log(String message) {
+		script.executeScript("alert('"+message+"');", null);
 	}
 
 }

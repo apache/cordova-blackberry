@@ -1,5 +1,7 @@
 package com.phonegap.api;
 
+import com.phonegap.PhoneGapExtension;
+
 import net.rim.device.api.script.ScriptEngine;
 import net.rim.device.api.script.Scriptable;
 
@@ -22,6 +24,7 @@ public final class CommandManagerFeature extends Scriptable {
 	}
 	
 	public Object getField(String name) throws Exception {
+
 		if (name.equals(FIELD_EXEC)) {
 			return this.callCommandManager;
 		}

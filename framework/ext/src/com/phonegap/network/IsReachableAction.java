@@ -1,6 +1,7 @@
 package com.phonegap.network;
 
 import com.phonegap.api.CommandResult;
+import com.phonegap.api.CommandStatus;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -48,7 +49,7 @@ public class IsReachableAction {
 			networkState = REACHABLE_VIA_WIFI_NETWORK;
 		}
 		
-		CommandResult result = new CommandResult(CommandResult.Status.OK, Integer.toString(networkState));
+		CommandResult result = new CommandResult(CommandStatus.OK, Integer.toString(networkState));
 		
 		return result;
 	}

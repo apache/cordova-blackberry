@@ -17,10 +17,11 @@ public interface Command {
 	 * Executes the request and returns CommandResult.
 	 * 
 	 * @param action The command to execute.
+	 * @param callbackId The id used to find the callback in JavaScript.
 	 * @param args JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	CommandResult execute(String action, JSONArray args);
+	CommandResult execute(String action, String callbackId, JSONArray args);
 	
 	/**
 	 * Sets the context of the Command. This can then be used to do things like

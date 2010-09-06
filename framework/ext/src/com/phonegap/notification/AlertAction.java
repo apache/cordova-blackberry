@@ -1,6 +1,7 @@
 package com.phonegap.notification;
 
 import com.phonegap.api.CommandResult;
+import com.phonegap.api.CommandStatus;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -44,11 +45,10 @@ public class AlertAction {
 				ui.pushScreen(screen);
 			}
 			
-			result = new CommandResult(CommandResult.Status.OK, "true");
+			result = new CommandResult(CommandStatus.OK, "true");
 		}
 		catch (JSONException e) {
-			result = new CommandResult(CommandResult.Status.JSONEXCEPTION,
-				"{ message: 'JSONException', status: "+CommandResult.Status.JSONEXCEPTION.ordinal()+" }");
+			result = new CommandResult(CommandStatus.JSON_EXCEPTION);
 		}
 		
 		return result;

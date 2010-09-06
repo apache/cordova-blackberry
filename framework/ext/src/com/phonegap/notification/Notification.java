@@ -2,6 +2,7 @@ package com.phonegap.notification;
 
 import com.phonegap.api.Command;
 import com.phonegap.api.CommandResult;
+import com.phonegap.api.CommandStatus;
 
 import org.json.me.JSONArray;
 
@@ -32,7 +33,7 @@ public class Notification implements Command {
 	 * @param args   JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	public CommandResult execute(String action, JSONArray args) {
+	public CommandResult execute(String action, String callbackId, JSONArray args) {
 		CommandResult result = null;
 		
 		if (action.equals(ACTION_ALERT)) {
@@ -45,8 +46,7 @@ public class Notification implements Command {
 			result = VibrateAction.execute(args);
 		}
 		else {
-			result = new CommandResult(CommandResult.Status.INVALIDACTION,
-				"{ message: 'InvalidActionException', status: "+CommandResult.Status.INVALIDACTION.ordinal()+" }");
+			result = new CommandResult(CommandStatus.INVALID_ACTION);
 		}
 		
 		return result;

@@ -2,10 +2,10 @@ PhoneGap = { };
 navigator = { };
 
 PhoneGap.Device = {
-  platform: phonegap.device.platform,
-  version:  blackberry.system.softwareVersion,
-  name:     blackberry.system.model,
-  uuid:     phonegap.device.uuid
+  //platform: phonegap.device.platform,
+  //version:  blackberry.system.softwareVersion,
+  //name:     blackberry.system.model,
+  //uuid:     phonegap.device.uuid
 };
 window.device = navigator.device = PhoneGap.Device;
 
@@ -13,7 +13,7 @@ PhoneGap.Notification = {
   vibrate: function(duration) {
     PhoneGap.execSync('com.phonegap.Notification', 'vibrate', [duration]);
   },
-  
+
   beep: function(count) {
     PhoneGap.execSync('com.phonegap.Notification', 'beep', [count]);
   },
@@ -64,8 +64,8 @@ PhoneGap.exec = function(success, fail, klass, action, args) {
     var callbackId = klass + PhoneGap.callbackId++;
     
     PhoneGap.callbacks[callbackId] = { success:success, fail:fail };
-    
-    return phonegap.commandManager.exec(klass, action, callbackId, JSON.stringify(args), PhoneGap.EXEC_ASYNC);
+
+    return phonegap.commandManager.exec(klass, action, callbackId, JSON.stringify(args));
 }
 
 PhoneGap.callbackSuccess = function(callbackId, args) {

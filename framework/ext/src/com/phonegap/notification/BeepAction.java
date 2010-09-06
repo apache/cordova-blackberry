@@ -1,6 +1,7 @@
 package com.phonegap.notification;
 
 import com.phonegap.api.CommandResult;
+import com.phonegap.api.CommandStatus;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -46,13 +47,11 @@ public class BeepAction {
 				Alert.startAudio(getTune(repeatCount), BEEP_VOLUME);
 			}
 			catch (JSONException e) {
-				result = new CommandResult(CommandResult.Status.JSONEXCEPTION,
-					"{ message: 'JSONException', status: "+CommandResult.Status.JSONEXCEPTION.ordinal()+" }");
+				result = new CommandResult(CommandStatus.JSON_EXCEPTION);
 			}
 		}
 		else {
-			result = new CommandResult(CommandResult.Status.ILLEGALACCESSEXCEPTION,
-				"{ message: 'UnsupportedFeatureException', status: "+CommandResult.Status.ILLEGALACCESSEXCEPTION.ordinal()+" }");
+			result = new CommandResult(CommandStatus.ILLEGAL_ACCESS_EXCEPTION);
 		}
 		
 		return result;
