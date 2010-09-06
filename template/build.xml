@@ -144,8 +144,15 @@ GETTING STARTED
     
     <target name="generate-cod-name">
         <xmlproperty file="www/config.xml" prefix="config.xml" />
-        <propertyregex property="cod.name" input="${config.xml.widget.name}" regexp="(\W+)" replace="" casesensitive="false" global="true" />
-        <echo message="${cod.name}.cod" />
+        <propertyregex property="cod.name"
+                       input="${config.xml.widget.name}"
+                       regexp="(\W+)"
+                       replace=""
+                       casesensitive="false"
+                       global="true"
+                       defaultValue="${config.xml.widget.name}" />
+        
+        <echo message="Generated name: ${cod.name}.cod" />
     </target>
     
 </project>
