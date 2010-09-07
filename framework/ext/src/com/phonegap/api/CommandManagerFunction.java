@@ -34,20 +34,25 @@ public class CommandManagerFunction extends ScriptableFunction {
 				Thread thread = new Thread() {
 					public void run() {
 						// Call execute on the plugin so that it can do it's thing
-						final CommandResult cr = plugin.execute(action, args);
+						final CommandResult cr = plugin.execute(action, callbackId, args);
+						
 						// Check if the 
 						if (cr.getStatus() == 0) {
 							app.executeScript(cr.toSuccessCallbackString(callbackId), null);
+						} else if (cr.getStatus() == CommandResult.Status.INPROGRESS.ordinal()) {
+							// Do nothing.  INPROGRESS status indicates that the command will
+							// handle invocation of the callback itself.
 						} else {
 							app.executeScript(cr.toErrorCallbackString(callbackId), null);
 						}
+						
 					}
 				};
 				thread.start();
 				return "";
 			} else {
 				// Call execute on the plugin so that it can do it's thing
-				cr = plugin.execute(action, args);
+				cr = plugin.execute(action, callbackId, args);
 			}
 		} catch (ClassNotFoundException e) {
 			cr = new CommandResult(CommandResult.Status.CLASSNOTFOUNDEXCEPTION, 

@@ -28,7 +28,7 @@ public class Network implements Command {
 	 * @param args   JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	public CommandResult execute(String action, JSONArray args) {
+	public CommandResult execute(String action, String callbackId, JSONArray args) {
 		CommandResult result = null;
 		
 		if (action.equals(ACTION_IS_REACHABLE)) {

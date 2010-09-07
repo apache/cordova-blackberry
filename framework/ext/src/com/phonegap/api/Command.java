@@ -20,7 +20,7 @@ public interface Command {
 	 * @param args JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	CommandResult execute(String action, JSONArray args);
+	CommandResult execute(String action, String calbackId, JSONArray args);
 	
 	/**
 	 * Sets the context of the Command. This can then be used to do things like

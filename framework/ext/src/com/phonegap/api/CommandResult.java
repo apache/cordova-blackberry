@@ -18,11 +18,11 @@ public class CommandResult {
 	}
 	
 	public String toSuccessCallbackString(String callbackId) {
-		return "try { PhoneGap.callbackSuccess('"+callbackId+"', " + this.getResult()+ "); } catch(e) { alert('error in callbackSuccess. probably badly formed callback JSON'); }";
+		return "try { PhoneGap.callbackSuccess('"+callbackId+"', " + this.getResult()+ "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
 	}
 	
 	public String toErrorCallbackString(String callbackId) {
-		return "try { PhoneGap.callbackError('"+callbackId+"', " + this.getResult()+ "); } catch(e) { alert('error in callbackError. probably badly formed callback JSON'); }";
+		return "try { PhoneGap.callbackError('"+callbackId+"', " + this.getResult()+ "); } catch(e) { alert('error in callbackError:' + e.message); }";
 	}
 
 	public String toErrorString() {
@@ -49,5 +49,6 @@ public class CommandResult {
 	    public static final Status IOEXCEPTION = new Status(5);
 	    public static final Status INVALIDACTION = new Status(6);
 	    public static final Status JSONEXCEPTION = new Status(7);
+	    public static final Status INPROGRESS = new Status(8);
 	}
 }

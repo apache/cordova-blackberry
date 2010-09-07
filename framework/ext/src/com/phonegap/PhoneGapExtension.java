@@ -3,6 +3,7 @@ package com.phonegap;
 import org.w3c.dom.Document;
 
 import com.phonegap.api.CommandManagerFeature;
+import com.phonegap.api.CommandResult;
 import com.phonegap.device.DeviceFeature;
 
 import net.rim.device.api.browser.field2.BrowserField;
@@ -13,6 +14,8 @@ import net.rim.device.api.web.WidgetExtension;
 
 public final class PhoneGapExtension implements WidgetExtension {
 
+	protected static ScriptEngine script;
+	
 	// Called when the BlackBerry Widget references this extension for the first time.
 	// It provides a list of feature IDs exposed by this extension.
 	//
@@ -27,7 +30,9 @@ public final class PhoneGapExtension implements WidgetExtension {
 	//
 	public void loadFeature(String feature, String version, Document doc,
 			ScriptEngine scriptEngine) throws Exception {
-
+		
+		script = scriptEngine;
+		
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
 			scriptEngine.addExtension("phonegap.commandManager", new CommandManagerFeature(scriptEngine));
@@ -47,4 +52,15 @@ public final class PhoneGapExtension implements WidgetExtension {
 
 	}
 
+	public static void Log(String message) {
+		script.executeScript("alert('"+message+"');", null);
+	}
+	
+	public static void invokeSuccessCallback(String callbackId, CommandResult result) {
+		script.executeScript(result.toSuccessCallbackString(callbackId), null);
+	}
+
+	public static void invokeErrorCallback(String callbackId, CommandResult result) {
+		script.executeScript(result.toErrorCallbackString(callbackId), null);
+	}
 }
