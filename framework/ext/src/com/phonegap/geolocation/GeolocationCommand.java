@@ -10,6 +10,7 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationProvider;
 
+import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.script.ScriptEngine;
 
 import org.json.me.JSONArray;
@@ -121,7 +122,7 @@ public class GeolocationCommand implements Command {
 	 * @return
 	 */
 	public boolean isLocationValid(Location location) {
-		return location != null && location.isValid();
+		return location != null && location.isValid() && !String.valueOf(location.getQualifiedCoordinates().getLatitude()).equals("0.0");
 	}
 	
 	/**
@@ -131,7 +132,7 @@ public class GeolocationCommand implements Command {
 	 * @return
 	 */
 	public boolean isLocationFresh(PositionOptions po, Location location) {
-		return new Date().getTime() - location.getTimestamp() > po.maxAge;
+		return new Date().getTime() - location.getTimestamp() < po.maxAge;
 	}
 	
 	/**
@@ -162,14 +163,16 @@ public class GeolocationCommand implements Command {
 		c.setAddressInfoRequired(false);
 		c.setAltitudeRequired(true);
 		c.setCostAllowed(true);
-		//c.setHorizontalAccuracy(accuracy);
+		c.setHorizontalAccuracy(100);
 		//c.setVerticalAccuracy(accuracy);
-		//c.setPreferredPowerConsumption(level);
-		//c.setPreferredResponseTime(time);
-		//c.setSpeedAndCourseRequired(true);
+		c.setPreferredPowerConsumption(Criteria.NO_REQUIREMENT);
+		c.setPreferredResponseTime(100);
+		c.setSpeedAndCourseRequired(true);
 		LocationProvider lp;
 		try {
-			lp = LocationProvider.getInstance(c);
+			// Note: this actually could return an existing locationProvider that is already
+			// try to get a location ...
+			lp = (LocationProvider)LocationProvider.getInstance(c);
 		} catch (LocationException e) {
 			this.gpsAvailable = false;
 			return null;
@@ -217,7 +220,6 @@ public class GeolocationCommand implements Command {
 				return new CommandResult(GeolocationStatus.GPS_ILLEGAL_ARGUMENT_EXCEPTION);
 			}
 
-			PhoneGapExtension.Log(key + " :: " + callbackId);
 			Vector callbacks = new Vector();
 			callbacks.addElement(callbackId);
 			Hashtable h = new Hashtable();
@@ -296,11 +298,11 @@ public class GeolocationCommand implements Command {
 	public CommandResult getCurrentPosition(String action, PositionOptions po) {
 		// This may come from another app on the device that has already requested a location
 		Location location = LocationProvider.getLastKnownLocation();
-		if (!isLocationValid(location) && !isLocationFresh(po, location) && !isLocationAccurate(po, location)) {
+		if (!isLocationValid(location) || !isLocationFresh(po, location) || !isLocationAccurate(po, location)) {
+
 			// high accuracy
 			//Location.MTA_UNASSISTED | Location.MTE_SATELLITE | Location.MTY_TERMINALBASED;
 
-			// If we can't get a good enough position lets try getting a new location
 			LocationProvider lp = getLocationProvider();
 			try {
 				location = lp.getLocation(po.timeout);
@@ -310,6 +312,7 @@ public class GeolocationCommand implements Command {
 				return new CommandResult(GeolocationStatus.GPS_INTERUPTED_EXCEPTION);
 			}
 		}
+		
 		// now convert the location to a JSON object and return it in the CommandResult
 		JSONObject position = null;
 		try {
