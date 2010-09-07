@@ -39,6 +39,18 @@ PhoneGap.Network = {
 
 navigator.network = PhoneGap.Network;
 
+DestinationType = {
+  DATA_URL: 0,
+  FILE_URI: 1
+};
+
+PhoneGap.Camera = {
+  getPicture: function(cameraSuccessCallback, cameraFailCallback, args) {
+    PhoneGap.exec(cameraSuccessCallback, cameraFailCallback, 'com.phonegap.Camera', 'getPicture', [args]);
+  }
+};
+navigator.camera = PhoneGap.Camera;
+
 /* ----- phonegap.blackberry-widgets.js ------ */
 
 PhoneGap.EXEC_SYNC  = 0;
@@ -54,7 +66,9 @@ PhoneGap.resolveKlass = function(klass) {
     else if (klass.toLowerCase() === 'com.phonegap.network') {
         klass = 'com.phonegap.network.Network';
     }
-    
+    else if (klass.toLowerCase() === 'com.phonegap.camera') {
+    	klass = 'com.phonegap.camera.Camera';
+    }
     return klass;
 }
 
@@ -62,9 +76,9 @@ PhoneGap.exec = function(success, fail, klass, action, args) {
     klass = PhoneGap.resolveKlass(klass);
     
     var callbackId = klass + PhoneGap.callbackId++;
-    
+
     PhoneGap.callbacks[callbackId] = { success:success, fail:fail };
-    
+
     return phonegap.commandManager.exec(klass, action, callbackId, JSON.stringify(args), PhoneGap.EXEC_ASYNC);
 }
 
