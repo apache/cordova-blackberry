@@ -5,9 +5,25 @@
     <property prefix="properties"  file="project.properties" />
     <property name="build.dir"     location="build" />
     <property name="widget.dir"    location="${build.dir}/widget" />
-    <property name="mds.dir"       location="${properties.bbwp.dir}/mds" />
-    <property name="simulator.dir" location="${properties.bbwp.dir}/simpack" />
-    <property name="simulator.bin" location="${simulator.dir}/9550.bat" />
+    
+    <!-- Use jde.home property, if set in project.properties file. If not, use bbwp.dir. -->
+    <echo message="The following can be overridden by setting jde.home in the project.properties file:" />
+    <condition property="jde.home" value="${properties.jde.home}" else="${properties.bbwp.dir}">
+        <available file="${properties.jde.home}" type="dir" />
+    </condition>
+    <echo message="JDE home=${jde.home}" />
+
+    <condition property="simulator.dir" value="${jde.home}/simpack" else="${jde.home}/simulator">
+        <available file="${jde.home}/simpack" type="dir" />
+    </condition>
+    <echo message="Simulator home=${simulator.dir}" />
+
+    <condition property="simulator.bin" value="${simulator.dir}/defaultSimulator.bat" else="${simulator.dir}/9550.bat">
+        <available file="${simulator.dir}/defaultSimulator.bat" />
+    </condition>
+    <echo message="Simulator executable=${simulator.bin}" />
+
+    <property name="mds.dir"       location="${jde.home}/mds" />
     
     <!-- USE ANT-CONTRIB LIBRARY -->
     
