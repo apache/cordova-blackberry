@@ -134,7 +134,7 @@ public class Position {
 	}
 
 	public JSONObject toJSONObject() throws JSONException {
-		return new JSONObject("{latitude:" + _lat + ", longitude:" + _lng + ", altitude:" + altitude + ", accuracy:" + accuracy + ", heading:" + heading + ", speed:" + velocity + ", alt_accuracy:" + alt_accuracy + "}");
+		return new JSONObject("{latitude:" + String.valueOf(_lat) + ", longitude:" + String.valueOf(_lng) + ", altitude:" + altitude + ", accuracy:" + accuracy + ", heading:" + heading + ", speed:" + velocity + ", alt_accuracy:" + alt_accuracy + "}");
 	}
 
 }

@@ -41,6 +41,11 @@ public final class GeolocationListener implements LocationListener {
 	    		command.updateLocationError(this.key, new CommandResult(GeolocationStatus.GPS_OUT_OF_SERVICE));
 	    		break;
 	    	case LocationProvider.TEMPORARILY_UNAVAILABLE:
+	    		// This is what happens when you are inside
+	    		// TODO: This should not be here...
+	    		provider.setLocationListener(null, 0, 0, 0);
+	    		provider.reset();
+
 	    		command.updateLocationError(this.key, new CommandResult(GeolocationStatus.GPS_TEMPORARILY_UNAVAILABLE));
 	    		break;
     	}

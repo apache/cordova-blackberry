@@ -3,6 +3,7 @@ package com.phonegap.geolocation;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Timer;
 import java.util.Vector;
 
 import javax.microedition.location.Criteria;
@@ -10,7 +11,7 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationProvider;
 
-import net.rim.device.api.gps.BlackBerryCriteria;
+import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.script.ScriptEngine;
 
 import org.json.me.JSONArray;
@@ -69,6 +70,14 @@ public class GeolocationCommand implements Command {
 	public CommandResult execute(String action, String callbackId, JSONArray args) {
 		PositionOptions po;
 
+		// 6.0
+		//LocationInfo.isLocationOn();
+		//LocationInfo.setLocationOn();
+		//LocationInfo.isModeAvailable();
+		
+		// 5.0
+		//GPSInfo.isGPSModeAvailable(GPSInfo.GPS_DEVICE_INTERNAL);
+		
 		if (!gpsAvailable) {
 			return new CommandResult(GeolocationStatus.GPS_NOT_AVAILABLE);
 		}
@@ -122,7 +131,7 @@ public class GeolocationCommand implements Command {
 	 * @return
 	 */
 	public boolean isLocationValid(Location location) {
-		return location != null && location.isValid() && !String.valueOf(location.getQualifiedCoordinates().getLatitude()).equals("0.0");
+		return location != null && location.isValid();
 	}
 	
 	/**
@@ -166,13 +175,13 @@ public class GeolocationCommand implements Command {
 		c.setHorizontalAccuracy(100);
 		//c.setVerticalAccuracy(accuracy);
 		c.setPreferredPowerConsumption(Criteria.NO_REQUIREMENT);
-		c.setPreferredResponseTime(100);
+		c.setPreferredResponseTime(10000);
 		c.setSpeedAndCourseRequired(true);
 		LocationProvider lp;
 		try {
 			// Note: this actually could return an existing locationProvider that is already
 			// try to get a location ...
-			lp = (LocationProvider)LocationProvider.getInstance(c);
+			lp = (LocationProvider)LocationProvider.getInstance(null);
 		} catch (LocationException e) {
 			this.gpsAvailable = false;
 			return null;
@@ -209,7 +218,7 @@ public class GeolocationCommand implements Command {
 				return new CommandResult(GeolocationStatus.GPS_NOT_AVAILABLE);
 			}
 			try {
-				lp.setLocationListener(new GeolocationListener(this, key), po.interval, po.timeout, po.maxAge);
+				lp.setLocationListener(new GeolocationListener(this, key), 5, -1, -1);
 			} catch (IllegalArgumentException e) {
 				// if 	interval < -1, or 
 				// if 	(interval != -1) and 
@@ -245,13 +254,18 @@ public class GeolocationCommand implements Command {
 		this.callbackIdKeyMap.clear();
 		for (Enumeration keys = this.locationProviders.keys() ; keys.hasMoreElements() ;) {
 			String k = (String)keys.nextElement();
-			Hashtable h = (Hashtable)this.locationProviders.get(k);
-			LocationProvider lp = (LocationProvider)h.get(LOCATION_PROVIDER_KEY);
-			lp.setLocationListener(null, 0, 0, 0);
-			h.clear();
+			shutdownByKey(k);
 		}
 		this.locationProviders.clear();
 		return null;
+	}
+	
+	public void shutdownByKey(String key) {
+		Hashtable h = (Hashtable)this.locationProviders.get(key);
+		LocationProvider lp = (LocationProvider)h.get(LOCATION_PROVIDER_KEY);
+		lp.setLocationListener(null, 0, 0, 0);
+		lp.reset();
+		h.clear();
 	}
 	
 	/**
@@ -298,6 +312,7 @@ public class GeolocationCommand implements Command {
 	public CommandResult getCurrentPosition(String action, PositionOptions po) {
 		// This may come from another app on the device that has already requested a location
 		Location location = LocationProvider.getLastKnownLocation();
+		PhoneGapExtension.Log(String.valueOf(location.getQualifiedCoordinates().getLatitude()));
 		if (!isLocationValid(location) || !isLocationFresh(po, location) || !isLocationAccurate(po, location)) {
 
 			// high accuracy
@@ -305,12 +320,18 @@ public class GeolocationCommand implements Command {
 
 			LocationProvider lp = getLocationProvider();
 			try {
+				PhoneGapExtension.Log("foo");
 				location = lp.getLocation(po.timeout);
 			} catch(LocationException e) {
+				PhoneGapExtension.Log("bar");
+				lp.reset();
 				return new CommandResult(GeolocationStatus.GPS_TIMEOUT);
 			} catch (InterruptedException e) {
+				PhoneGapExtension.Log("baz");
+				lp.reset();
 				return new CommandResult(GeolocationStatus.GPS_INTERUPTED_EXCEPTION);
 			}
+			PhoneGapExtension.Log("foobarbaz");
 		}
 		
 		// now convert the location to a JSON object and return it in the CommandResult
@@ -355,6 +376,11 @@ public class GeolocationCommand implements Command {
 		int size = callbacks.size();
 		for (int i=0; i<size; i++) {
 			this.app.executeScript(result.toErrorCallbackString((String)callbacks.elementAt(i)), null);
+		}
+		this.shutdownByKey(key);
+		if (result.getStatus() == GeolocationStatus.GPS_TEMPORARILY_UNAVAILABLE.ordinal()) {
+			//Timer t = new Timer();
+			//t.schedule(task, delay);
 		}
 	}
 }
