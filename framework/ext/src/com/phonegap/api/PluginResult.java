@@ -60,6 +60,7 @@ public class PluginResult {
 	    public static final Status IOEXCEPTION = new Status(5);
 	    public static final Status INVALIDACTION = new Status(6);
 	    public static final Status JSONEXCEPTION = new Status(7);
-	    public static final Status INPROGRESS = new Status(8);
+	    public static final Status ERROR = new Status(8);
+	    public static final Status INPROGRESS = new Status(9);
 	}
 }
