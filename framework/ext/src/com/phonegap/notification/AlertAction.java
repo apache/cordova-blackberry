@@ -1,6 +1,6 @@
 package com.phonegap.notification;
 
-import com.phonegap.api.CommandResult;
+import com.phonegap.api.PluginResult;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -29,9 +29,9 @@ public class AlertAction {
 	 *             buttonLabel: the button text (default: "OK").
 	 * @return A CommandResult object with the success or failure state for displaying the dialog box.
 	 */
-	public static CommandResult execute(JSONArray args) {
+	public static PluginResult execute(JSONArray args) {
 		
-		CommandResult result = null;
+		PluginResult result = null;
 		
 		try {
 			String message     = (args.length() > 0) ? ((String)args.get(0)) : DEFAULT_MESSAGE;
@@ -44,11 +44,10 @@ public class AlertAction {
 				ui.pushScreen(screen);
 			}
 			
-			result = new CommandResult(CommandResult.Status.OK, "true");
+			result = new PluginResult(PluginResult.Status.OK, "OK");
 		}
 		catch (JSONException e) {
-			result = new CommandResult(CommandResult.Status.JSONEXCEPTION,
-				"{ message: 'JSONException', status: "+CommandResult.Status.JSONEXCEPTION.ordinal()+" }");
+			result = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
 		}
 		
 		return result;

@@ -11,15 +11,15 @@ window.device = navigator.device = PhoneGap.Device;
 
 PhoneGap.Notification = {
   vibrate: function(duration) {
-    PhoneGap.execSync('com.phonegap.Notification', 'vibrate', [duration]);
+    PhoneGap.exec(null, null, 'Notification', 'vibrate', [duration]);
   },
   
   beep: function(count) {
-    PhoneGap.execSync('com.phonegap.Notification', 'beep', [count]);
+    PhoneGap.exec(null, null, 'Notification', 'beep', [count]);
   },
   
   alert: function(message, title, buttonLabel) {
-    PhoneGap.execSync('com.phonegap.Notification', 'alert', [message, title, buttonLabel]);
+    PhoneGap.exec(null, null, 'Notification', 'alert', [message, title, buttonLabel]);
   }
 };
 
@@ -33,7 +33,7 @@ NetworkStatus = {
 
 PhoneGap.Network = {
   isReachable: function(domain, reachabilityCallback) {
-    PhoneGap.exec(reachabilityCallback, function() {}, 'com.phonegap.Network', 'isReachable', [domain]);
+    PhoneGap.exec(reachabilityCallback, null, 'Network Status', 'isReachable', [domain]);
   }
 };
 
@@ -46,58 +46,122 @@ DestinationType = {
 
 PhoneGap.Camera = {
   getPicture: function(cameraSuccessCallback, cameraFailCallback, args) {
-    PhoneGap.exec(cameraSuccessCallback, cameraFailCallback, 'com.phonegap.Camera', 'getPicture', [args]);
+    PhoneGap.exec(cameraSuccessCallback, cameraFailCallback, 'Camera', 'getPicture', [args]);
   }
 };
 navigator.camera = PhoneGap.Camera;
 
-/* ----- phonegap.blackberry-widgets.js ------ */
+/** 
+ * This is for debug purposes only.
+ * TODO: console object is not supported in BB. implement our own.
+if (typeof console == "undefined") {
+	var console = new Object();
+	console.log = function(text) {
+	  if (document.getElementById("console")==null) {
+	    document.getElementsByTagName("body")[0].innerHTML = "<div id='console'></div>";
+	  }
+	  document.getElementById("console").innerHTML += "<p>" + text + "</p>";
+	}
+}
+*/
 
-PhoneGap.EXEC_SYNC  = 0;
-PhoneGap.EXEC_ASYNC = 1;
+/* ----- phonegap.blackberry-widgets.js ------ */
 
 PhoneGap.callbackId = 0;
 PhoneGap.callbacks  = {};
 
-PhoneGap.resolveKlass = function(klass) {
-    if (klass.toLowerCase() === 'com.phonegap.notification') {
-        klass = 'com.phonegap.notification.Notification';
-    }
-    else if (klass.toLowerCase() === 'com.phonegap.network') {
-        klass = 'com.phonegap.network.Network';
-    }
-    else if (klass.toLowerCase() === 'com.phonegap.camera') {
-    	klass = 'com.phonegap.camera.Camera';
-    }
-    return klass;
-}
-
-PhoneGap.exec = function(success, fail, klass, action, args) {
-    klass = PhoneGap.resolveKlass(klass);
-    
-    var callbackId = klass + PhoneGap.callbackId++;
-
-    PhoneGap.callbacks[callbackId] = { success:success, fail:fail };
-
-    return phonegap.commandManager.exec(klass, action, callbackId, JSON.stringify(args), PhoneGap.EXEC_ASYNC);
-}
-
+/**
+ * Called by native code when returning successful result from an action.
+ *
+ * @param callbackId
+ * @param args
+ */
 PhoneGap.callbackSuccess = function(callbackId, args) {
-    PhoneGap.callbacks[callbackId].success(args);
-    PhoneGap.clearExec(callbackId);
+	if (PhoneGap.callbacks[callbackId]) {
+        try {
+            if (PhoneGap.callbacks[callbackId].success) {
+                PhoneGap.callbacks[callbackId].success(args.message);
+            }
+        }
+        catch (e) {
+            console.log("Error in success callback: "+callbackId+" = "+e);
+        }
+        delete PhoneGap.callbacks[callbackId];
+    }
 };
 
+/**
+ * Called by native code when returning error result from an action.
+ *
+ * @param callbackId
+ * @param args
+ */
 PhoneGap.callbackError = function(callbackId, args) {
-    PhoneGap.callbacks[callbackId].fail(args);
-    PhoneGap.clearExec(callbackId);
+    if (PhoneGap.callbacks[callbackId]) {
+        try {
+            if (PhoneGap.callbacks[callbackId].fail) {
+                PhoneGap.callbacks[callbackId].fail(args.message);
+            }
+        }
+        catch (e) {
+            console.log("Error in error callback: "+callbackId+" = "+e);
+        }
+        delete PhoneGap.callbacks[callbackId];
+    }
 };
 
-PhoneGap.clearExec = function(callbackId) {
-    delete PhoneGap.callbacks[callbackId];
-};
+/**
+ * Execute a PhoneGap command.  It is up to the native side whether this action is sync or async.  
+ * The native side can return:
+ *      Synchronous: PluginResult object as a JSON string
+ *      Asynchrounous: Empty string ""
+ * If async, the native side will PhoneGap.callbackSuccess or PhoneGap.callbackError,
+ * depending upon the result of the action.
+ *
+ * @param {Function} success    The success callback
+ * @param {Function} fail       The fail callback
+ * @param {String} service      The name of the service to use
+ * @param {String} action       Action to be run in PhoneGap
+ * @param {String[]} [args]     Zero or more arguments to pass to the method
+ */
+PhoneGap.exec = function(success, fail, service, action, args) {
+    try {
+        var callbackId = service + PhoneGap.callbackId++;
+        if (success || fail) {
+            PhoneGap.callbacks[callbackId] = {success:success, fail:fail};
+        }
+        
+        // Note: Device returns string, but for some reason emulator returns object - so convert to string.
+        var r = ""+phonegap.PluginManager.exec(service, action, callbackId, JSON.stringify(args), true);
+        
+        // If a result was returned
+        if (r.length > 0) {
+            eval("var v="+r+";");
+        
+            // If status is OK, then return value back to caller
+            if (v.status == 0) {
 
-PhoneGap.execSync = function(klass, action, args) {
-    klass = PhoneGap.resolveKlass(klass);
-    
-    return phonegap.commandManager.exec(klass, action, null, JSON.stringify(args), PhoneGap.EXEC_SYNC);
-}
+                // If there is a success callback, then call it now with returned value
+                if (success) {
+                    success(v.message);
+                    delete PhoneGap.callbacks[callbackId];
+                }
+                return v.message;
+            }
+
+            // If error, then display error
+            else {
+                console.log("Error: Status="+r.status+" Message="+v.message);
+
+                // If there is a fail callback, then call it now with returned value
+                if (fail) {
+                    fail(v.message);
+                    delete PhoneGap.callbacks[callbackId];
+                }
+                return null;
+            }
+        }
+    } catch (e) {
+        console.log("Error: "+e);
+    }
+};

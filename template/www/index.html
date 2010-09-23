@@ -19,8 +19,8 @@
           states[NetworkStatus.REACHABLE_VIA_CARRIER_DATA_NETWORK] = 'Carrier data connection';
           states[NetworkStatus.REACHABLE_VIA_WIFI_NETWORK]         = 'WiFi connection';
 
-          document.getElementById('navigator.network.isReachable').innerHTML = 'isReachable = ' + states[reachability];
-        });
+          document.getElementById('networkStatus').innerHTML = 'isReachable = ' + states[reachability];
+        });        
       }
 
       function callBeep() {
@@ -37,8 +37,8 @@
       
       function onCapturePhotoSuccess(imageData) {
      	if (imageData != null) {
-          var smallImage = document.getElementById('navigator.camera.smallImage');
-          var uri = document.getElementById('navigator.camera.image.uri');
+          var smallImage = document.getElementById('cameraImage');
+          var uri = document.getElementById('cameraURI');
 
           // Unhide image elements
           smallImage.style.display = 'block';
@@ -52,8 +52,8 @@
 
       function onCapturePhotoURISuccess(imageURI) {
         if (imageURI != null) {
-          var smallImage = document.getElementById('navigator.camera.smallImage');
-          var uri = document.getElementById('navigator.camera.image.uri');
+          var smallImage = document.getElementById('cameraImage');
+          var uri = document.getElementById('cameraURI');
 
           // Unhide image elements
           smallImage.style.display = 'block';
@@ -93,13 +93,13 @@
     <input type="button" value="Alert" onclick="callAlert();return false;" />
     
     <h3>navigator.network</h3>
-    <p id="navigator.network.isReachable">[navigator.network.isReachable]</p>
+    <p id="networkStatus">[navigator.network.isReachable]</p>
     
     <h3>navigator.camera</h3>
     <input type="button" value="Get Photo (Data)" onclick="capturePhoto();return false;" /> 
     <input type="button" value="Get Photo (URI)" onclick="capturePhotoURI();return false;" /> 
-    <p id="navigator.camera.image.uri"></p>
-    <img style="display:none;width:120px;height:120px;" id="navigator.camera.smallImage" src="" />
+    <p id="cameraURI"></p>
+    <img style="display:none;width:120px;height:120px;" id="cameraImage" src="" />
 
   </body>
 </html>

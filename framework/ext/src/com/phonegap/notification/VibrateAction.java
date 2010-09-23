@@ -1,6 +1,6 @@
 package com.phonegap.notification;
 
-import com.phonegap.api.CommandResult;
+import com.phonegap.api.PluginResult;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -23,8 +23,8 @@ public class VibrateAction {
 	 * @return A CommandResult object with the success or failure
 	 *         state for vibrating the device.
 	 */
-	public static CommandResult execute(JSONArray args) {
-		CommandResult result = null;
+	public static PluginResult execute(JSONArray args) {
+		PluginResult result = null;
 		
 		if (Alert.isVibrateSupported()) {
 			try {
@@ -33,15 +33,13 @@ public class VibrateAction {
 				Alert.startVibrate(duration); 
 			}
 			catch (JSONException e) {
-				result = new CommandResult(CommandResult.Status.JSONEXCEPTION, 
-					"{ message: 'JSONException', status: "+CommandResult.Status.JSONEXCEPTION.ordinal()+" }");
+				result = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
 			}
 			
-			result = new CommandResult(CommandResult.Status.OK, "true");
+			result = new PluginResult(PluginResult.Status.OK, "OK");
 		}
 		else {
-			result = new CommandResult(CommandResult.Status.ILLEGALACCESSEXCEPTION, 
-				"{ message: 'UnsupportedFeatureException', status: "+CommandResult.Status.ILLEGALACCESSEXCEPTION.ordinal()+" }");
+			result = new PluginResult(PluginResult.Status.ILLEGALACCESSEXCEPTION, "Vibrate not supported");
 		}
 		
 		return result;
