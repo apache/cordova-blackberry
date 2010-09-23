@@ -1,35 +1,46 @@
 package com.phonegap.api;
 
-public class CommandResult {
+import org.json.me.JSONObject;
+
+public class PluginResult {
 	private final int status;
-	private final String result;
+	private final String message;
 	
-	public CommandResult(Status status, String result) {
+	public PluginResult(Status status, String message) {
 		this.status = status.ordinal();
-		this.result = result;
+		this.message = "'" + message + "'";
+	}
+
+	public PluginResult(Status status, JSONObject message) {
+		this.status = status.ordinal();
+		this.message = message.toString();
 	}
 
 	public int getStatus() {
 		return status;
 	}
 
-	public String getResult() {
-		return result;
+	public String getMessage() {
+		return message;
+	}
+
+	public String getJSONString() {
+		return "{ status: " + this.getStatus() + ", message: " + this.getMessage() + " }";
 	}
 	
 	public String toSuccessCallbackString(String callbackId) {
-		return "try { PhoneGap.callbackSuccess('"+callbackId+"', " + this.getResult()+ "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
+		return "try { PhoneGap.callbackSuccess('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
 	}
 	
 	public String toErrorCallbackString(String callbackId) {
-		return "try { PhoneGap.callbackError('"+callbackId+"', " + this.getResult()+ "); } catch(e) { alert('error in callbackError:' + e.message); }";
+		return "try { PhoneGap.callbackError('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackError:' + e.message); }";
 	}
 
 	public String toErrorString() {
 		return "alert('general error');";
 		//return "PhoneGap.error(" + this.getResult()+ ");";
 	}
-	
+
 	public static class Status
 	{
 	    private int val;

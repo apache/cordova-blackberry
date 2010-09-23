@@ -21,7 +21,7 @@ import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
 import com.phonegap.PhoneGapExtension;
-import com.phonegap.api.CommandResult;
+import com.phonegap.api.PluginResult;
 
 public class CapturePhotoAction implements FileSystemJournalListener
 {
@@ -46,7 +46,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 	 *        cameraArgs:      
 	 * @return A CommandResult object with the INPROGRESS state for taking a photo.
 	 */
-	public CommandResult execute(JSONArray args) 
+	public PluginResult execute(JSONArray args) 
 	{
 		// get the camera options, if supplied
 		JSONObject options = args.optJSONObject(0);
@@ -69,7 +69,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 		// will invoke the success callback if OK status is received, but at this point, 
 		// we have no image. We invoked the Camera application, which runs in a separate
 		// process, and must now wait for the listener to receive the user's input. 
-		return new CommandResult(CommandResult.Status.INPROGRESS, null);
+		return new PluginResult(PluginResult.Status.INPROGRESS, "");
 	}
 
 	/**
@@ -95,13 +95,13 @@ public class CapturePhotoAction implements FileSystemJournalListener
 				if (path != null && path.indexOf(".jpg") != -1)
 				{					
 					// we found a new JPEG, process it
-					CommandResult result = processImage("file://" + path);
+					PluginResult result = processImage("file://" + path);
 					
 					// clean up
 					closeCamera();
 
 					// invoke the appropriate callback
-					if (result.getStatus() == CommandResult.Status.OK.ordinal())
+					if (result.getStatus() == PluginResult.Status.OK.ordinal())
 					{
 						PhoneGapExtension.invokeSuccessCallback(callbackId, result);
 					}
@@ -123,7 +123,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 	/**
 	 * Returns either the image URI or the image itself encoded as a Base64 string.
 	 */
-	private CommandResult processImage(String photoPath)
+	private PluginResult processImage(String photoPath)
 	{
 		String resultData;
 		
@@ -141,11 +141,11 @@ public class CapturePhotoAction implements FileSystemJournalListener
 			}
 			catch (Exception e)
 			{
-				return new CommandResult(CommandResult.Status.IOEXCEPTION, e.toString());
+				return new PluginResult(PluginResult.Status.IOEXCEPTION, e.toString());
 			}
 		}
 
-		return new CommandResult(CommandResult.Status.OK, "[\""+resultData+"\"]");
+		return new PluginResult(PluginResult.Status.OK, resultData);
 	}
 	
 	/**

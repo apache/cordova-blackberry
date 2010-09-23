@@ -1,6 +1,6 @@
 package com.phonegap.network;
 
-import com.phonegap.api.CommandResult;
+import com.phonegap.api.PluginResult;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -36,7 +36,7 @@ public class IsReachableAction {
 	 * @return A CommandResult object with the success or failure state for finding
 	 *         the state of the network.
 	 */
-	public static CommandResult execute(JSONArray args) {
+	public static PluginResult execute(JSONArray args) {
 		
 		int networkState = NOT_REACHABLE;
 		
@@ -48,7 +48,7 @@ public class IsReachableAction {
 			networkState = REACHABLE_VIA_WIFI_NETWORK;
 		}
 		
-		CommandResult result = new CommandResult(CommandResult.Status.OK, Integer.toString(networkState));
+		PluginResult result = new PluginResult(PluginResult.Status.OK, Integer.toString(networkState));
 		
 		return result;
 	}

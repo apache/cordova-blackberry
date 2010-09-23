@@ -2,8 +2,8 @@ package com.phonegap;
 
 import org.w3c.dom.Document;
 
-import com.phonegap.api.CommandManagerFeature;
-import com.phonegap.api.CommandResult;
+import com.phonegap.api.PluginManagerFeature;
+import com.phonegap.api.PluginResult;
 import com.phonegap.device.DeviceFeature;
 
 import net.rim.device.api.browser.field2.BrowserField;
@@ -35,7 +35,7 @@ public final class PhoneGapExtension implements WidgetExtension {
 		
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
-			scriptEngine.addExtension("phonegap.commandManager", new CommandManagerFeature(scriptEngine));
+			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManagerFeature(scriptEngine));
 		}
 	}
 
@@ -56,11 +56,11 @@ public final class PhoneGapExtension implements WidgetExtension {
 		script.executeScript("alert('"+message+"');", null);
 	}
 	
-	public static void invokeSuccessCallback(String callbackId, CommandResult result) {
+	public static void invokeSuccessCallback(String callbackId, PluginResult result) {
 		script.executeScript(result.toSuccessCallbackString(callbackId), null);
 	}
 
-	public static void invokeErrorCallback(String callbackId, CommandResult result) {
+	public static void invokeErrorCallback(String callbackId, PluginResult result) {
 		script.executeScript(result.toErrorCallbackString(callbackId), null);
 	}
 }
