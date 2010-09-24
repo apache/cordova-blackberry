@@ -8,10 +8,10 @@
     <script type="text/javascript">
 
       function init() {
-        document.getElementById('window.device.name').innerHTML     = 'window.device.name     = ' + window.device.name;
         document.getElementById('window.device.platform').innerHTML = 'window.device.platform = ' + window.device.platform;
-        document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
         document.getElementById('window.device.version').innerHTML  = 'window.device.version  = ' + window.device.version;
+        document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
+        document.getElementById('window.device.phonegap').innerHTML = 'window.device.phonegap = ' + window.device.phonegap;
 
         navigator.network.isReachable("phonegap.com", function(reachability) {
           var states = {};
@@ -83,10 +83,10 @@
   </head>
   <body onload="init()">
     <h3>window.device</h3>
-    <p id="window.device.name">[window.device.name]</p>
     <p id="window.device.platform">[window.device.platform]</p>
-    <p id="window.device.uuid">[window.device.uuid]</p>
     <p id="window.device.version">[window.device.version]</p>
+    <p id="window.device.uuid">[window.device.uuid]</p>
+    <p id="window.device.phonegap">[window.device.phonegap]</p>
     <h3>window.notification</h3>
     <input type="button" value="Beep" onclick="callBeep();return false;" />
     <input type="button" value="Vibrate" onclick="callVibrate();return false;" />
