@@ -5,6 +5,7 @@ import org.w3c.dom.Document;
 import com.phonegap.api.PluginManagerFeature;
 import com.phonegap.api.PluginResult;
 import com.phonegap.device.DeviceFeature;
+import com.phonegap.util.LogFeature;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.script.ScriptEngine;
@@ -36,6 +37,7 @@ public final class PhoneGapExtension implements WidgetExtension {
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
 			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManagerFeature(scriptEngine));
+			scriptEngine.addExtension("phonegap.Logger",         new LogFeature());
 		}
 	}
 
@@ -52,10 +54,6 @@ public final class PhoneGapExtension implements WidgetExtension {
 
 	}
 
-	public static void Log(String message) {
-		script.executeScript("alert('"+message+"');", null);
-	}
-	
 	public static void invokeSuccessCallback(String callbackId, PluginResult result) {
 		script.executeScript(result.toSuccessCallbackString(callbackId), null);
 	}
