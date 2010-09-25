@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
 
+import com.phonegap.util.Logger;
+
 import net.rim.device.api.script.ScriptEngine;
 import net.rim.device.api.script.ScriptableFunction;
 
@@ -15,10 +17,6 @@ import net.rim.device.api.script.ScriptableFunction;
  *  
  * Calling phonegap.pluginManager.exec(...) from JavaScript will result in 
  * the invoke() method being called.
- * 
- * @author davejohnson
- * @author jtyberg
- *
  */
 public class PluginManagerFunction extends ScriptableFunction {
 	
@@ -148,7 +146,7 @@ public class PluginManagerFunction extends ScriptableFunction {
     	if (this.plugins.containsKey(className)) {
     		return this.getPlugin(className);
     	}
-    	System.out.println("PluginManager.addPlugin("+className+")");
+    	Logger.log("PluginManager.addPlugin("+className+")");
         Plugin plugin = (Plugin)getClassByName(className).newInstance();
         this.plugins.put(className, plugin);
         plugin.setContext(this.app);

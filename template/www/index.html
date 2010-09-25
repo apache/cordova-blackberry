@@ -38,11 +38,9 @@
       function onCapturePhotoSuccess(imageData) {
      	if (imageData != null) {
           var smallImage = document.getElementById('cameraImage');
-          var uri = document.getElementById('cameraURI');
 
           // Unhide image elements
           smallImage.style.display = 'block';
-          uri.style.display = 'none';
 
           // Show the captured photo
           // The inline CSS rules are used to resize the image
@@ -52,22 +50,20 @@
 
       function onCapturePhotoURISuccess(imageURI) {
         if (imageURI != null) {
+          console.log('Camera image=' + imageURI);        
           var smallImage = document.getElementById('cameraImage');
-          var uri = document.getElementById('cameraURI');
 
           // Unhide image elements
           smallImage.style.display = 'block';
-          uri.style.display = 'block';
 
           // Show the captured photo
           // The inline CSS rules are used to resize the image
           smallImage.src = imageURI;
-          uri.innerHTML = imageURI;
         }
       }
       
       function onCapturePhotoError(error) {
-      	alert(error);
+      	console.log(error);
       }
     
       function capturePhoto() {
@@ -98,7 +94,6 @@
     <h3>navigator.camera</h3>
     <input type="button" value="Get Photo (Data)" onclick="capturePhoto();return false;" /> 
     <input type="button" value="Get Photo (URI)" onclick="capturePhotoURI();return false;" /> 
-    <p id="cameraURI"></p>
     <img style="display:none;width:120px;height:120px;" id="cameraImage" src="" />
 
   </body>
