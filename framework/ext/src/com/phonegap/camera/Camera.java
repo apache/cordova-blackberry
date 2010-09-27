@@ -23,7 +23,7 @@ public class Camera implements Plugin
 {
 	private ScriptEngine app;
 	
-	public static final String ACTION_GET_PICTURE = "getPicture";
+	public static final String ACTION_TAKE_PICTURE = "takePicture";
 
 	/**
 	 * Executes the request and returns CommandResult.
@@ -37,7 +37,7 @@ public class Camera implements Plugin
 	{
 		PluginResult result = null;
 		
-		if (action != null && action.equals(ACTION_GET_PICTURE)) 
+		if (action != null && action.equals(ACTION_TAKE_PICTURE)) 
 		{			
 			result = new CapturePhotoAction(callbackId).execute(args);
 		}

@@ -44,17 +44,20 @@ public class CapturePhotoAction implements FileSystemJournalListener
 	 *
 	 * @param args JSONArray formatted as [ cameraArgs ]
 	 *        cameraArgs:      
+     *          [ 80,                                    // quality (ignored)
+     *            Camera.DestinationType.DATA_URL,       // destinationType
+     *            Camera.PictureSourceType.PHOTOLIBRARY  // sourceType (ignored)]
 	 * @return A CommandResult object with the INPROGRESS state for taking a photo.
 	 */
 	public PluginResult execute(JSONArray args) 
 	{
 		// get the camera options, if supplied
-		JSONObject options = args.optJSONObject(0);
-		if (options != null)
+		if (args != null && args.length() > 1)
 		{
 			// determine the desired destination type: data or file URI
+			Integer destType = (Integer)args.opt(1);
 			this.destinationType = 
-				(options.optInt("destinationType") == FILE_URI) ? FILE_URI : DATA_URL;
+				(destType != null && destType.intValue()== FILE_URI) ? FILE_URI : DATA_URL;
 		}
 		
 		// MMAPI interface doesn't use the native Camera application or interface

@@ -20,7 +20,8 @@
           states[NetworkStatus.REACHABLE_VIA_WIFI_NETWORK]         = 'WiFi connection';
 
           document.getElementById('networkStatus').innerHTML = 'isReachable = ' + states[reachability];
-        });        
+        }, 
+        { isIpAddress: false });        
       }
 
       function callBeep() {
@@ -62,16 +63,18 @@
         }
       }
       
-      function onCapturePhotoError(error) {
-      	console.log(error);
+      function fail(error) {
+      	alert(error);
       }
     
       function capturePhoto() {
-      	navigator.camera.getPicture(onCapturePhotoSuccess, onCapturePhotoError, { destinationType:DestinationType.DATA_URL, quality:50 });
+      	navigator.camera.getPicture(onCapturePhotoSuccess, fail, 
+      	  { destinationType: Camera.DestinationType.DATA_URL, quality: 50 });
       }
 
       function capturePhotoURI() {
-        navigator.camera.getPicture(onCapturePhotoURISuccess, onCapturePhotoError, { destinationType:DestinationType.FILE_URI, quality:50 });
+        navigator.camera.getPicture(onCapturePhotoURISuccess, fail, 
+          { destinationType: Camera.DestinationType.FILE_URI, quality: 50 });
       }
       
     </script>
