@@ -22,6 +22,7 @@ import org.json.me.JSONObject;
 
 import com.phonegap.PhoneGapExtension;
 import com.phonegap.api.PluginResult;
+import com.phonegap.util.Logger;
 
 public class CapturePhotoAction implements FileSystemJournalListener
 {
@@ -166,27 +167,36 @@ public class CapturePhotoAction implements FileSystemJournalListener
 		{
 			if (fconn.exists()) 
 			{
-				// read the image data
-				// sleep to ensure file is no longer being written to
-				try {
-				  Thread.sleep(100);
-				} catch (InterruptedException e) {
-				}
-
 				InputStream imageStream = fconn.openInputStream();
-				byte[] rawImage = new byte[(int) fconn.fileSize()];
-				imageStream.read(rawImage);
 
-				// encode using base64
-				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(rawImage.length);
+				// read the image data
+				int size = 100000;
+				int imageSize = 0;
+				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 				Base64OutputStream base64OutputStream = new Base64OutputStream(byteArrayOutputStream);
-				base64OutputStream.write(rawImage);
+				byte[] buffer = new byte[size];
+				while (true) 
+				{
+					int bytesRead = imageStream.read(buffer, 0, size);
+					imageSize += bytesRead;
+					
+					Logger.log(this.getClass().getName() + ": bytes read=" + 
+					    Integer.toString(bytesRead));
+					
+					if (imageSize > 0 && bytesRead == -1) 
+						break;
+					base64OutputStream.write(buffer, 0, bytesRead);
+				}
+				
 				base64OutputStream.flush();
-				byteArrayOutputStream.flush();
+				base64OutputStream.close();
 				imageData = byteArrayOutputStream.toString();
 				imageStream.close();
-				base64OutputStream.close();
-				byteArrayOutputStream.close();	
+				
+				Logger.log(this.getClass().getName() + ": image size=" +
+					    Integer.toString(imageSize));
+				Logger.log(this.getClass().getName() + ": Base64 encoding size=" +
+				    Integer.toString(imageData.length()));
 			}
 		}
 		finally 
