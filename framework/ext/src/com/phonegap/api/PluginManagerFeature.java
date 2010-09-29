@@ -6,16 +6,12 @@ import net.rim.device.api.script.Scriptable;
 /**
  * PluginManagerFeature provides the plugin feature to the PhoneGap widget 
  * extension.  This feature is registered with the script engine as extension
- * <code>phonegap.pluginManager</code>.
+ * <code>phonegap.PluginManager</code>.
  * 
  * This feature provides a single function, PluginManagerFunction, which 
  * represents a function that can be invoked from the script environment.  
  * To invoke the PluginManagerFunction from JavaScript, use 
- * <code>phonegap.pluginManager.exec(...)</code>
- * 
- * @author davejohnson
- * @author jtyberg
- *
+ * <code>phonegap.PluginManager.exec(...)</code> 
  */
 public final class PluginManagerFeature extends Scriptable {
 	
@@ -27,6 +23,7 @@ public final class PluginManagerFeature extends Scriptable {
         this.pluginManagerFunction.addService("Camera", "com.phonegap.camera.Camera");
         this.pluginManagerFunction.addService("Network Status", "com.phonegap.network.Network");
         this.pluginManagerFunction.addService("Notification", "com.phonegap.notification.Notification");
+        this.pluginManagerFunction.addService("Accelerometer", "com.phonegap.accelerometer.Accelerometer");
 	}
 	
 	/**

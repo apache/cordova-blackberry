@@ -24,6 +24,10 @@
         { isIpAddress: false });        
       }
 
+      function fail(error) {
+        alert(error);
+      }
+    
       function callBeep() {
         navigator.notification.beep(2);
       }
@@ -35,6 +39,35 @@
       function callAlert() {
       	navigator.notification.alert("You rock!", "Woohoo!", "Thanks");
       }
+
+      function showAcceleration(acceleration) {
+        alert('Acceleration X: ' + acceleration.x + '\n' +
+              'Acceleration Y: ' + acceleration.y + '\n' +
+              'Acceleration Z: ' + acceleration.z + '\n');
+      }
+
+      var watchId = null;
+      var watchAcceleration = function() {
+        var success = function(a) {
+          document.getElementById('x').innerHTML = a.x;
+          document.getElementById('y').innerHTML = a.y;
+          document.getElementById('z').innerHTML = a.z;
+        };
+        var options = {};
+        options.frequency = 200;
+        watchId = navigator.accelerometer.watchAcceleration(success, fail, options);
+      }
+      
+      function clearWatch() {
+        if (watchId) {
+          navigator.accelerometer.clearWatch(watchId);
+          watchId = null;
+        }
+      }
+
+      function getAcceleration() {
+        navigator.accelerometer.getCurrentAcceleration(showAcceleration, fail);
+      }      
       
       function onCapturePhotoSuccess(imageData) {
      	if (imageData != null) {
@@ -63,10 +96,6 @@
         }
       }
       
-      function fail(error) {
-      	alert(error);
-      }
-    
       function capturePhoto() {
       	navigator.camera.getPicture(onCapturePhotoSuccess, fail, 
       	  { destinationType: Camera.DestinationType.DATA_URL, quality: 50 });
@@ -86,6 +115,7 @@
     <p id="window.device.version">[window.device.version]</p>
     <p id="window.device.uuid">[window.device.uuid]</p>
     <p id="window.device.phonegap">[window.device.phonegap]</p>
+
     <h3>window.notification</h3>
     <input type="button" value="Beep" onclick="callBeep();return false;" />
     <input type="button" value="Vibrate" onclick="callVibrate();return false;" />
@@ -93,6 +123,16 @@
     
     <h3>navigator.network</h3>
     <p id="networkStatus">[navigator.network.isReachable]</p>
+
+    <h3>navigator.accelerometer</h3>
+    <dl id="accel-data">
+      <dt>X:</dt><dd id="x">&nbsp;</dd>
+      <dt>Y:</dt><dd id="y">&nbsp;</dd>
+      <dt>Z:</dt><dd id="z">&nbsp;</dd>
+    </dl>
+    <input type="button" value="Get Acceleration" onclick="getAcceleration();return false;" /> 
+    <input type="button" value="Watch Acceleration" onclick="watchAcceleration();return false;" /> 
+    <input type="button" value="Clear Watch" onclick="clearWatch();return false;" /> 
     
     <h3>navigator.camera</h3>
     <input type="button" value="Get Photo (Data)" onclick="capturePhoto();return false;" /> 
