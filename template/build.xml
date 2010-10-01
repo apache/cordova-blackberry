@@ -68,7 +68,7 @@
         
         <!-- Package the widget app by zipping the widget dir and running the widget packager tool.-->
         <mkdir dir="${build.dir}" />
-        <zip compress="false" destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes=".settings,.project" />
+        <zip compress="false" destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes="**/build/**,**/.settings/**,**/.project" />
         <exec executable="cmd">
             <arg value="/c" />
             <arg value="${properties.bbwp.bin}" />

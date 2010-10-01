@@ -13,9 +13,9 @@ public class PluginResult {
 
 	public PluginResult(Status status, JSONObject message) {
 		this.status = status.ordinal();
-		this.message = message.toString();
+		this.message = (message) ? message.toString(): "null";
 	}
-
+	
 	public int getStatus() {
 		return status;
 	}
@@ -38,7 +38,6 @@ public class PluginResult {
 
 	public String toErrorString() {
 		return "alert('general error');";
-		//return "PhoneGap.error(" + this.getResult()+ ");";
 	}
 
 	public static class Status

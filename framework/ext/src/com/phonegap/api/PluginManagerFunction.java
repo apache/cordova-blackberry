@@ -20,6 +20,12 @@ import net.rim.device.api.script.ScriptableFunction;
  */
 public class PluginManagerFunction extends ScriptableFunction {
 	
+	private final static int ARG_SERVICE = 0;
+	private final static int ARG_ACTION = 1;
+	private final static int ARG_CALLBACK_ID = 2;
+	private final static int ARG_ARGS = 3;
+	private finat static int ARG_ASYNC = 4;
+
 	private Hashtable plugins = new Hashtable();
 	private Hashtable services = new Hashtable();
 
@@ -52,15 +58,15 @@ public class PluginManagerFunction extends ScriptableFunction {
 	 * @see net.rim.device.api.script.ScriptableFunction#invoke(java.lang.Object, java.lang.Object[])
 	 */
 	public Object invoke(Object obj, Object[] oargs) throws Exception {
-		final String service = (String)oargs[0];
-		final String action = (String)oargs[1];
-		final String callbackId = (String)oargs[2];
-		boolean async = (oargs[4].toString().equals("true") ? true : false);
+		final String service = (String)oargs[ARG_SERVICE];
+		final String action = (String)oargs[ARG_ACTION];
+		final String callbackId = (String)oargs[ARG_CALLBACK_ID];
+		boolean async = (oargs[ARG_ASYNC].toString().equals("true") ? true : false);
 		PluginResult pr = null;
 		
 		try {
 			// action arguments
-			final JSONArray args = new JSONArray((String)oargs[3]);
+			final JSONArray args = new JSONArray((String)oargs[ARG_ARGS]);
 			
 			// get the class for the specified service
 			String clazz = getClassForService(service);
