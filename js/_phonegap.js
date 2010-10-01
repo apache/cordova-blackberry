@@ -282,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 
-
 PhoneGap.close = function(context, func, params) {
     if (typeof params === 'undefined') {
         return function() {
@@ -294,4 +293,3 @@ PhoneGap.close = function(context, func, params) {
         }
     }
 };
-

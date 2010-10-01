@@ -13,7 +13,7 @@ public class PluginResult {
 
 	public PluginResult(Status status, JSONObject message) {
 		this.status = status.ordinal();
-		this.message = (message) ? message.toString(): "null";
+		this.message = (message != null) ? message.toString(): "null";
 	}
 	
 	public int getStatus() {

@@ -24,7 +24,7 @@ public class PluginManagerFunction extends ScriptableFunction {
 	private final static int ARG_ACTION = 1;
 	private final static int ARG_CALLBACK_ID = 2;
 	private final static int ARG_ARGS = 3;
-	private finat static int ARG_ASYNC = 4;
+	private final static int ARG_ASYNC = 4;
 
 	private Hashtable plugins = new Hashtable();
 	private Hashtable services = new Hashtable();

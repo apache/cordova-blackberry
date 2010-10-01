@@ -9,6 +9,7 @@ import com.phonegap.util.LogFeature;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.script.ScriptEngine;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.web.WidgetConfig;
 import net.rim.device.api.web.WidgetExtension;
 
@@ -32,12 +33,12 @@ public final class PhoneGapExtension implements WidgetExtension {
 			ScriptEngine scriptEngine) throws Exception {
 		
 		script = scriptEngine;
-
+		
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
 			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManagerFeature(scriptEngine));
 			scriptEngine.addExtension("phonegap.Logger",         new LogFeature());
-//			scriptEngine.executeScript("try {PhoneGap.onNativeReady.notify();} catch(e) {_nativeReady = true;}", null);
+		}
 	}
 
 	// Called so that the extension can get a reference to the configuration or browser field object
@@ -51,10 +52,6 @@ public final class PhoneGapExtension implements WidgetExtension {
 	public void unloadFeatures(Document doc) {
 		// TODO Auto-generated method stub
 
-	}
-	
-	public static void Log(String message) {
-		script.executeScript("alert('"+message+"');", null);
 	}
 
 	public static void invokeSuccessCallback(String callbackId, PluginResult result) {
