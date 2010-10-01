@@ -18,7 +18,6 @@ import net.rim.device.api.system.EventInjector;
 import net.rim.device.api.ui.UiApplication;
 
 import org.json.me.JSONArray;
-import org.json.me.JSONObject;
 
 import com.phonegap.PhoneGapExtension;
 import com.phonegap.api.PluginResult;
@@ -69,7 +68,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 			Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
 		}
 		
-		// We don't want to use an OK status here.  Currently, CommandManagerFunction 
+		// We don't want to use an OK status here.  Currently, PluginManagerFunction 
 		// will invoke the success callback if OK status is received, but at this point, 
 		// we have no image. We invoked the Camera application, which runs in a separate
 		// process, and must now wait for the listener to receive the user's input. 
@@ -99,20 +98,36 @@ public class CapturePhotoAction implements FileSystemJournalListener
 				if (path != null && path.indexOf(".jpg") != -1)
 				{					
 					// we found a new JPEG, process it
-					PluginResult result = processImage("file://" + path);
+					final PluginResult result = processImage("file://" + path);
 					
+					// Invoking the callback to the JavaScript engine seems to necessitate 
+					// a new thread in Blackberry OS 6.0.  This was unnecessary in 5.0, 
+					// but there is a different threading model with the new WebKit engine 
+					// in 6.0.  Invoking the JS callback in the same thread causes the 
+					// application to crash in 6.0.
+					
+					// Perhaps this is necessary because the camera is a special case. 
+					// We invoke the native camera application using the 'invoke' API, so
+					// it runs in its own process/thread.  It is the only plugin that does
+					// not have its JS callbacks invoked by the thread started by the 
+					// plugin manager.  
+					Thread thread = new Thread(new Runnable() {
+						public void run() {
+							// invoke the appropriate callback
+							if (result.getStatus() == PluginResult.Status.OK.ordinal())
+							{
+								PhoneGapExtension.invokeSuccessCallback(callbackId, result);
+							}
+							else 
+							{
+								PhoneGapExtension.invokeErrorCallback(callbackId, result);
+							}
+						}
+					});
+					thread.start();
+
 					// clean up
 					closeCamera();
-
-					// invoke the appropriate callback
-					if (result.getStatus() == PluginResult.Status.OK.ordinal())
-					{
-						PhoneGapExtension.invokeSuccessCallback(callbackId, result);
-					}
-					else 
-					{
-						PhoneGapExtension.invokeErrorCallback(callbackId, result);
-					}
 					
 					break;
 				}
@@ -129,6 +144,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 	 */
 	private PluginResult processImage(String photoPath)
 	{
+		Logger.log(this.getClass().getName() + ": processing image " + photoPath);
 		String resultData;
 		
 		if (this.destinationType == FILE_URI) 
@@ -206,7 +222,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 		
 		return imageData;
 	}
-	
+		
 	/**
 	 * Closes the native camera application. 
 	 */
