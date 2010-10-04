@@ -130,7 +130,8 @@ public class Geolocation implements Plugin {
 		
 		switch (getAction(action)) {
 			case ACTION_CLEAR_WATCH:
-				return clearWatch(listenerCallbackId);
+				clearWatch(listenerCallbackId);
+				return null;
 
 			case ACTION_WATCH:
 
@@ -142,7 +143,8 @@ public class Geolocation implements Plugin {
 					return new PluginResult(PluginResult.Status.JSONEXCEPTION, "One of the position options is not valid JSON.");
 				}
 
-				return this.watchPosition(listenerCallbackId, options);
+				this.watchPosition(listenerCallbackId, options);
+				return null;
 				
 			case ACTION_GET_POSITION:
 
@@ -154,10 +156,12 @@ public class Geolocation implements Plugin {
 					return new PluginResult(PluginResult.Status.JSONEXCEPTION, "One of the position options is not valid JSON.");
 				}
 
-				return this.getCurrentPosition(listenerCallbackId, action, options);
+				this.getCurrentPosition(listenerCallbackId, options);
+				return null;
 
 			case ACTION_STOP:
-				return this.shutdown();
+				this.shutdown();
+				return null;
 		}
 		
 		return new PluginResult(PluginResult.Status.INVALIDACTION, "Geolocation: invalid action " + action);
@@ -207,6 +211,7 @@ public class Geolocation implements Plugin {
 		else if (GPSInfo.isGPSModeAvailable(GPSInfo.GPS_MODE_AUTONOMOUS))
 			criteria.setMode(GPSInfo.GPS_MODE_AUTONOMOUS);		
 		
+		// TODO: use position options passed to plugin
 		//Criteria c = new Criteria();
 		//c.setAddressInfoRequired(false);
 		//c.setAltitudeRequired(true);
@@ -236,7 +241,7 @@ public class Geolocation implements Plugin {
 	 * @param po position options
 	 * @return
 	 */
-	protected PluginResult watchPosition(String callbackId, PositionOptions po) {
+	protected void watchPosition(String callbackId, PositionOptions po) {
 
 		/* 
 		 * We track location providers by their position options so we don't 
@@ -254,7 +259,7 @@ public class Geolocation implements Plugin {
 			LocationProvider lp = getLocationProvider();
 			if (lp == null) {
 				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_NOT_AVAILABLE));
-				return new PluginResult(PluginResult.Status.INPROGRESS, "");
+				return;
 			}
 
 			// create a listener for retrieving location updates
@@ -268,7 +273,7 @@ public class Geolocation implements Plugin {
 				//			(maxAge < 1 and maxAge != -1)
 				//		) 
 				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_ILLEGAL_ARGUMENT_EXCEPTION, e.getMessage()));
-				return new PluginResult(PluginResult.Status.INPROGRESS, "");
+				return;
 			}
 			
 			// store the listener
@@ -285,17 +290,13 @@ public class Geolocation implements Plugin {
 		// when we want to unregister a callback from the listener, 
 		// we'll need to lookup the listener by callbackId 
 		this.callbackIdKeyMap.put(callbackId, providerKey);
-		
-		// TODO: get rid of INPROGRESS and simply return null (all plugins)
-		//return null; 
-		return new PluginResult(PluginResult.Status.INPROGRESS, "");
 	}
 
 	/**
 	 * Shuts down all location listeners and clears the hashes
 	 * @return
 	 */
-	protected PluginResult shutdown() {
+	protected void shutdown() {
 		// TODO: This stuff should be synchronized since we are multi-threaded at this point...
 		this.callbackIdKeyMap.clear();
 		for (Enumeration listeners = this.geoListeners.elements(); listeners.hasMoreElements(); ) {
@@ -303,7 +304,6 @@ public class Geolocation implements Plugin {
 			listener.shutdown();
 		}
 		this.geoListeners.clear();
-		return new PluginResult(PluginResult.Status.OK, "");
 	}
 
 	/**
@@ -312,7 +312,7 @@ public class Geolocation implements Plugin {
 	 * @param callbackId
 	 * @return
 	 */
-	protected PluginResult clearWatch(String callbackId) {
+	protected void clearWatch(String callbackId) {
 		
 		String providerKey;
 
@@ -333,18 +333,15 @@ public class Geolocation implements Plugin {
 				this.geoListeners.remove(providerKey);
 			} 
 		}
-
-		return new PluginResult(PluginResult.Status.INPROGRESS, "");
 	}
 	
 	/**
 	 * Returns a PluginResult with status OK and a JSON object representing the coords
 	 * @param callbackId
-	 * @param action
 	 * @param po
 	 * @return
 	 */
-	protected PluginResult getCurrentPosition(String callbackId, String action, PositionOptions options) {
+	protected void getCurrentPosition(String callbackId, PositionOptions options) {
 
 		// Check the device for its last known location (may have come from 
 		// another app on the device that has already requested a location)
@@ -364,12 +361,12 @@ public class Geolocation implements Plugin {
 				Logger.log(this.getClass().getName() + ": " + e.getMessage());
 				lp.reset();
 				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_TIMEOUT));
-				return new PluginResult(PluginResult.Status.INPROGRESS, "");
+				return;
 			} catch (InterruptedException e) {
 				Logger.log(this.getClass().getName() + ": " + e.getMessage());
 				lp.reset();
 				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_INTERUPTED_EXCEPTION));
-				return new PluginResult(PluginResult.Status.INPROGRESS, "");
+				return;
 			}
 		}
 		
@@ -378,14 +375,14 @@ public class Geolocation implements Plugin {
 		try {
 			position = Position.fromLocation(location).toJSONObject();
 		} catch (JSONException e) {
-			return new PluginResult(PluginResult.Status.JSONEXCEPTION, "Converting the location to a JSON object failed");
+			invokeErrorCallback(callbackId, 
+				new GeolocationResult(PluginResult.Status.JSONEXCEPTION, "Converting the location to a JSON object failed"));
+			return;
 		}
 		
 		// invoke the geolocation callback
 		Logger.log(this.getClass().getName() + ": current position=" + position);
 		this.invokeSuccessCallback(callbackId, new GeolocationResult(GeolocationResult.Status.OK, position));
-
-		return new PluginResult(PluginResult.Status.INPROGRESS, "");
 	}
 	
 	/**

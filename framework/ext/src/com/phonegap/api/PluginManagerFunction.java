@@ -86,14 +86,13 @@ public class PluginManagerFunction extends ScriptableFunction {
 							// Call execute on the plugin so that it can do it's thing
 							final PluginResult result = plugin.execute(action, callbackId, args);
 							
-							// Check if the 
-							if (result.getStatus() == PluginResult.Status.OK.ordinal()) {
-								app.executeScript(result.toSuccessCallbackString(callbackId), null);
-							} else if (result.getStatus() == PluginResult.Status.INPROGRESS.ordinal()) {
-								// Do nothing.  INPROGRESS status indicates that the command will
-								// handle invocation of the callback itself.
-							} else {
-								app.executeScript(result.toErrorCallbackString(callbackId), null);
+							if (result != null) {
+								// Check if the 
+								if (result.getStatus() == PluginResult.Status.OK.ordinal()) {
+									app.executeScript(result.toSuccessCallbackString(callbackId), null);
+								} else {
+									app.executeScript(result.toErrorCallbackString(callbackId), null);
+								}
 							}
 						}
 					});

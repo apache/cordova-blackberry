@@ -74,6 +74,5 @@ public class PluginResult {
 	    public static final Status JSONEXCEPTION = new Status(7, "JSON error");
 	    public static final Status ERROR = new Status(8, "Error");
 	    public static final Status ILLEGAL_ARGUMENT_EXCEPTION = new Status(9, "Illegal argument");
-	    public static final Status INPROGRESS = new Status(10, "In progress");
 	}
 }
