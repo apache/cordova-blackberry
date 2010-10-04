@@ -24,6 +24,7 @@ public final class PluginManagerFeature extends Scriptable {
         this.pluginManagerFunction.addService("Network Status", "com.phonegap.network.Network");
         this.pluginManagerFunction.addService("Notification", "com.phonegap.notification.Notification");
         this.pluginManagerFunction.addService("Accelerometer", "com.phonegap.accelerometer.Accelerometer");
+        this.pluginManagerFunction.addService("Geolocation", "com.phonegap.geolocation.Geolocation");
 	}
 	
 	/**

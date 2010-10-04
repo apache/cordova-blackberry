@@ -46,7 +46,7 @@
               'Acceleration Z: ' + acceleration.z + '\n');
       }
 
-      var watchId = null;
+      var accelWatchId = null;
       var watchAcceleration = function() {
         var success = function(a) {
           document.getElementById('x').innerHTML = a.x;
@@ -55,19 +55,49 @@
         };
         var options = {};
         options.frequency = 200;
-        watchId = navigator.accelerometer.watchAcceleration(success, fail, options);
+        accelWatchId = navigator.accelerometer.watchAcceleration(success, fail, options);
       }
       
-      function clearWatch() {
-        if (watchId) {
-          navigator.accelerometer.clearWatch(watchId);
-          watchId = null;
+      function clearAccelWatch() {
+        if (accelWatchId != null) {
+          navigator.accelerometer.clearWatch(accelWatchId);
+          accelWatchId = null;
         }
       }
 
       function getAcceleration() {
         navigator.accelerometer.getCurrentAcceleration(showAcceleration, fail);
-      }      
+      }
+
+      function getLocation() {
+        var success = function(p) {
+            alert('Latitude: '  + p.coords.latitude + '\n' + 
+                  'Longitude: ' + p.coords.longitude);
+        };
+        navigator.geolocation.getCurrentPosition(success,onLocationFail);
+      }
+
+      var locationWatchId = null;
+      var watchLocation = function() {
+        var success = function(p) {
+          document.getElementById('lat').innerHTML = p.coords.latitude;
+          document.getElementById('long').innerHTML = p.coords.longitude;
+        };
+        var options = {};
+        locationWatchId = navigator.geolocation.watchPosition(success,onLocationFail,options);
+      }
+
+      function clearLocationWatch() {
+        if (locationWatchId != null) {
+          navigator.geolocation.clearWatch(locationWatchId);
+          locationWatchId = null;
+        }
+      }
+      
+      function onLocationFail(error) {
+        alert('code: ' + error.code + '\n' +
+              'message: ' + error.message + '\n');
+      }
       
       function onCapturePhotoSuccess(imageData) {
      	if (imageData != null) {
@@ -84,12 +114,11 @@
 
       function onCapturePhotoURISuccess(imageURI) {
         if (imageURI != null) {
-          console.log('Camera image=' + imageURI);        
           var smallImage = document.getElementById('cameraImage');
 
           // Unhide image elements
           smallImage.style.display = 'block';
-
+          
           // Show the captured photo
           // The inline CSS rules are used to resize the image
           smallImage.src = imageURI;
@@ -124,6 +153,15 @@
     <h3>navigator.network</h3>
     <p id="networkStatus">[navigator.network.isReachable]</p>
 
+    <h3>navigator.geolocation</h3>
+    <dl id="location-data">
+      <dt>Latitude:</dt><dd id="lat">&nbsp;</dd>
+      <dt>Longitude:</dt><dd id="long">&nbsp;</dd>
+    </dl>
+    <input type="button" value="Get Location" onclick="getLocation();return false;" /> 
+    <input type="button" value="Watch Location" onclick="watchLocation();return false;" /> 
+    <input type="button" value="Clear Geo" onclick="clearLocationWatch();return false;" /> 
+
     <h3>navigator.accelerometer</h3>
     <dl id="accel-data">
       <dt>X:</dt><dd id="x">&nbsp;</dd>
@@ -132,7 +170,7 @@
     </dl>
     <input type="button" value="Get Acceleration" onclick="getAcceleration();return false;" /> 
     <input type="button" value="Watch Acceleration" onclick="watchAcceleration();return false;" /> 
-    <input type="button" value="Clear Watch" onclick="clearWatch();return false;" /> 
+    <input type="button" value="Clear Watch" onclick="clearAccelWatch();return false;" /> 
     
     <h3>navigator.camera</h3>
     <input type="button" value="Get Photo (Data)" onclick="capturePhoto();return false;" /> 
