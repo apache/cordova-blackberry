@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationProvider;
@@ -43,21 +44,15 @@ public class Geolocation implements Plugin {
 	protected static final float MIN_GPS_ACCURACY = 10F; // meters
 
 	/**
-	 * Hash of all the listeners created, keyed on the position options.
+	 * Hash of all the listeners created, keyed on callback ids.
 	 */
 	protected final Hashtable geoListeners;
 	
-	/**
-	 * Hash of location provider keys, keyed on callback ids.
-	 */
-	protected final Hashtable callbackIdKeyMap;
-
 	/**
 	 * Constructor.
 	 */
 	public Geolocation() {
 		this.geoListeners = new Hashtable();
-		this.callbackIdKeyMap = new Hashtable();
 	}
 
 	/**
@@ -126,7 +121,6 @@ public class Geolocation implements Plugin {
 		}
 		
 		PositionOptions options;
-
 		switch (getAction(action)) {
 			case ACTION_CLEAR_WATCH:
 				clearWatch(listenerCallbackId);
@@ -192,7 +186,7 @@ public class Geolocation implements Plugin {
 	 * @return
 	 */
 	protected boolean isLocationAccurate(PositionOptions po, Location location) {
-		return po.enableHighAccuracy && location.getQualifiedCoordinates().getHorizontalAccuracy() > MIN_GPS_ACCURACY;
+		return po.enableHighAccuracy && location.getQualifiedCoordinates().getHorizontalAccuracy() < MIN_GPS_ACCURACY;
 	}
 	
 	/**
@@ -200,8 +194,7 @@ public class Geolocation implements Plugin {
 	 * @param po position options
 	 * @return
 	 */
-	protected LocationProvider getLocationProvider(PositionOptions po) {
-
+	protected static LocationProvider getLocationProvider(PositionOptions po) {
 		// configure criteria for location provider
 		// Note: being too restrictive will make it less likely that one will be returned
 		BlackBerryCriteria criteria = new BlackBerryCriteria();
@@ -215,6 +208,11 @@ public class Geolocation implements Plugin {
 		
 		criteria.setAltitudeRequired(true);
 		criteria.setPreferredResponseTime(po.timeout);
+		
+		// enable full power usage to increase location accuracy
+		if (po.enableHighAccuracy) {
+			criteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
+		}
 		
 		// Attempt to get a location provider
 		BlackBerryLocationProvider provider;
@@ -236,67 +234,47 @@ public class Geolocation implements Plugin {
 	 * @return
 	 */
 	protected void watchPosition(String callbackId, PositionOptions po) {
-
-		/* 
-		 * We track location providers by their position options so we don't 
-		 * create multiple location providers that do essentially the same thing.
-		 */
-		
-		// create a key to identify the location provider
-		String providerKey = getLocationProviderKey(po);
-		
-		// If we don't already have a similar location provider, then create a new one
 		GeolocationListener listener;
-		if (!this.geoListeners.containsKey(providerKey)) {
 
-			// we don't have a location provider with the same position options
-			LocationProvider lp = getLocationProvider(po);
-			if (lp == null) {
-				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_NOT_AVAILABLE));
-				return;
-			}
-
-			// create a listener for retrieving location updates
-			try {
-				listener = new GeolocationListener(lp, po);
-			} catch (IllegalArgumentException e) {
-				// if 	interval < -1, or 
-				// if 	(interval != -1) and 
-				//		(timeout > interval or maxAge > interval or 
-				//			(timeout < 1 and timeout != -1) or 
-				//			(maxAge < 1 and maxAge != -1)
-				//		) 
-				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_ILLEGAL_ARGUMENT_EXCEPTION, e.getMessage()));
-				return;
-			}
-			
-			// store the listener
-			this.geoListeners.put(providerKey, listener);			
-		} else {
-			// we already have a listener with the same position options
-			listener = (GeolocationListener)this.geoListeners.get(providerKey);
+		// attempt to retrieve a location provider 
+		LocationProvider lp = getLocationProvider(po);
+		if (lp == null) {
+			invokeErrorCallback(callbackId, 
+					new GeolocationResult(GeolocationStatus.GPS_NOT_AVAILABLE));
+			return;
 		}
 
-		// register the callback with the listener 
-		listener.addCallback(callbackId);
+		// create a listener for retrieving location updates
+		try {
+			listener = new GeolocationListener(lp, callbackId, po);
+		} catch (IllegalArgumentException e) {
+			// if 	interval < -1, or 
+			// if 	(interval != -1) and 
+			//		(timeout > interval or maxAge > interval or 
+			//			(timeout < 1 and timeout != -1) or 
+			//			(maxAge < 1 and maxAge != -1)
+			//		) 
+			invokeErrorCallback(callbackId, 
+					new GeolocationResult(GeolocationStatus.GPS_ILLEGAL_ARGUMENT_EXCEPTION, e.getMessage()));
+			return;
+		}
 
-		// when we want to unregister a callback from the listener, 
-		// we'll need to lookup the listener by callbackId 
-		this.callbackIdKeyMap.put(callbackId, providerKey);
+		// store the listener
+		this.geoListeners.put(callbackId, listener);			
 	}
 
 	/**
-	 * Shuts down all location listeners and clears the hashes
+	 * Shuts down all location listeners.
 	 * @return
 	 */
 	protected void shutdown() {
-		// TODO: This stuff should be synchronized since we are multi-threaded at this point...
-		this.callbackIdKeyMap.clear();
-		for (Enumeration listeners = this.geoListeners.elements(); listeners.hasMoreElements(); ) {
-			GeolocationListener listener = (GeolocationListener) listeners.nextElement();
-			listener.shutdown();
+		synchronized(this.geoListeners) {
+			for (Enumeration listeners = this.geoListeners.elements(); listeners.hasMoreElements(); ) {
+				GeolocationListener listener = (GeolocationListener) listeners.nextElement();
+				listener.shutdown();
+			}
+			this.geoListeners.clear();
 		}
-		this.geoListeners.clear();
 	}
 
 	/**
@@ -306,24 +284,9 @@ public class Geolocation implements Plugin {
 	 * @return
 	 */
 	protected void clearWatch(String callbackId) {
-		
-		String providerKey;
-
-		// Find the provider key that is associated with the callback id
-		if (this.callbackIdKeyMap.containsKey(callbackId)) {
-			
-			providerKey = (String)this.callbackIdKeyMap.get(callbackId);
-
-			// Remove the callback id from the location listener
-			GeolocationListener listener = (GeolocationListener) this.geoListeners.get(providerKey);			
-			listener.removeCallback(callbackId);
-			
-			// If the listener has no more callbacks, then shut it down
-			if (!listener.hasCallbacks()) {
-				listener.shutdown();
-				this.geoListeners.remove(providerKey);
-			} 
-		}
+		GeolocationListener listener = (GeolocationListener) this.geoListeners.get(callbackId);			
+		listener.shutdown();
+		this.geoListeners.remove(callbackId);
 	}
 	
 	/**
@@ -333,7 +296,6 @@ public class Geolocation implements Plugin {
 	 * @return
 	 */
 	protected void getCurrentPosition(String callbackId, PositionOptions options) {
-
 		// Check the device for its last known location (may have come from 
 		// another app on the device that has already requested a location)
 		Location location = LocationProvider.getLastKnownLocation();
@@ -351,12 +313,14 @@ public class Geolocation implements Plugin {
 			} catch(LocationException e) {
 				Logger.log(this.getClass().getName() + ": " + e.getMessage());
 				lp.reset();
-				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_TIMEOUT));
+				invokeErrorCallback(callbackId, 
+						new GeolocationResult(GeolocationStatus.GPS_TIMEOUT));
 				return;
 			} catch (InterruptedException e) {
 				Logger.log(this.getClass().getName() + ": " + e.getMessage());
 				lp.reset();
-				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_INTERUPTED_EXCEPTION));
+				invokeErrorCallback(callbackId, 
+						new GeolocationResult(GeolocationStatus.GPS_INTERUPTED_EXCEPTION));
 				return;
 			}
 		}
@@ -373,7 +337,8 @@ public class Geolocation implements Plugin {
 		
 		// invoke the geolocation callback
 		Logger.log(this.getClass().getName() + ": current position=" + position);
-		this.invokeSuccessCallback(callbackId, new GeolocationResult(GeolocationResult.Status.OK, position));
+		invokeSuccessCallback(callbackId, 
+				new GeolocationResult(GeolocationResult.Status.OK, position));
 	}
 	
 	/**
@@ -381,7 +346,7 @@ public class Geolocation implements Plugin {
 	 * @param action 
 	 * @return action to perform
 	 */
-	protected int getAction(String action) {
+	protected static int getAction(String action) {
 		if ("watchPosition".equals(action)) return ACTION_WATCH;
 		if ("stop".equals(action)) return ACTION_CLEAR_WATCH;
 		if ("getCurrentPosition".equals(action)) return ACTION_GET_POSITION;
@@ -389,17 +354,6 @@ public class Geolocation implements Plugin {
 		return -1;
 	}	
 
-	/**
-	 * Gets a key to identify the location provider.  Key is based on position options.
-	 * @param po position options
-	 * @return location provider key
-	 */
-	protected String getLocationProviderKey(PositionOptions po) {
-		return String.valueOf(po.maxAge) + "-" + 
-			String.valueOf(po.timeout) + "-" + 
-			String.valueOf(po.enableHighAccuracy);
-		}
-	
 	/**
 	 * Invokes the specified geolocation success callback. 
 	 * @param callbackId geolocation listener id
