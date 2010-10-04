@@ -74,7 +74,11 @@
             alert('Latitude: '  + p.coords.latitude + '\n' + 
                   'Longitude: ' + p.coords.longitude);
         };
-        navigator.geolocation.getCurrentPosition(success,onLocationFail);
+        var options = {};
+        options.enableHighAccuracy = true;
+        options.timeout = 5000;
+        options.maximumAge = 5000;
+        navigator.geolocation.getCurrentPosition(success, onLocationFail, options);
       }
 
       var locationWatchId = null;
@@ -84,7 +88,10 @@
           document.getElementById('long').innerHTML = p.coords.longitude;
         };
         var options = {};
-        locationWatchId = navigator.geolocation.watchPosition(success,onLocationFail,options);
+        options.enableHighAccuracy = true;
+        options.timeout = 5000;
+        options.maximumAge = 5000;
+        locationWatchId = navigator.geolocation.watchPosition(success, onLocationFail, options);
       }
 
       function clearLocationWatch() {

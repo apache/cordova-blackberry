@@ -24,11 +24,15 @@ public final class GeolocationListener implements LocationListener {
 	/**
 	 * Creates a new listener that attaches itself to the specified LocationProvider.
 	 * @param locationProvider location provider that listener will attach to
+	 * @param po position options
 	 */
-	public GeolocationListener(LocationProvider locationProvider) {
+	public GeolocationListener(LocationProvider locationProvider, PositionOptions po) {
 		this.callbacks = new Vector();
 		this.locationProvider = locationProvider;
-		this.locationProvider.setLocationListener(this, 5, -1, -1);
+		
+		// neither maximum age nor timeout can be larger than polling interval
+		int interval = Math.max(po.maxAge, po.timeout)/1000;
+		this.locationProvider.setLocationListener(this, interval, po.timeout/1000, po.maxAge/1000);
 	}
 
 	/**
@@ -36,6 +40,7 @@ public final class GeolocationListener implements LocationListener {
 	 * @param callbackId
 	 */
 	public void addCallback(String callbackId) {
+		Logger.log(this.getClass().getName() + ": adding geolocation callback '" + callbackId + "'");
 		this.callbacks.addElement(callbackId);
 	}
 	
@@ -45,6 +50,7 @@ public final class GeolocationListener implements LocationListener {
 	 * @param callbackId
 	 */
 	public void removeCallback(String callbackId) {
+		Logger.log(this.getClass().getName() + ": removing geolocation callback '" + callbackId + "'");
 		int size = this.callbacks.size();
 		for (int i=0; i<size; i++) {
 			if (((String)this.callbacks.elementAt(i)).equals(callbackId)) {
@@ -64,10 +70,10 @@ public final class GeolocationListener implements LocationListener {
 	public void locationUpdated(LocationProvider provider, Location location) {
  
 		if (location.isValid()) {
-        	Logger.log(this.getClass().getName() + ": valid location updated");
+        	Logger.log(this.getClass().getName() + ": updated with valid location");
             this.updateLocation(location);
         } else {
-        	Logger.log(this.getClass().getName() + ": invalid location updated");
+        	Logger.log(this.getClass().getName() + ": updated with invalid location");
         	// getting the location timed out
         	this.updateLocationError(GeolocationStatus.GPS_INVALID_LOCATION);
         }
@@ -96,6 +102,7 @@ public final class GeolocationListener implements LocationListener {
      * Shuts down the listener by resetting the location provider.
      */
 	public void shutdown() {
+		Logger.log(this.getClass().getName() + ": resetting location provider");
 		this.locationProvider.setLocationListener(null, 0, 0, 0);
 		this.locationProvider.reset();
 		this.callbacks.removeAllElements();

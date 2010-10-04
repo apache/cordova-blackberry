@@ -34,8 +34,9 @@ PositionError.TIMEOUT = 3;
  * @param {PositionOptions} options     The options for getting the position data. (OPTIONAL)
  */
 Geolocation.prototype.getCurrentPosition = function(successCallback, errorCallback, options) {
-/*
-	if (navigator.geolocation.listeners["global"]) {
+
+    var id = "global";
+	if (navigator.geolocation.listeners[id]) {
         console.log("Geolocation Error: Still waiting for previous getCurrentPosition() request.");
         try {
             errorCallback(new PositionError(PositionError.TIMEOUT, "Geolocation Error: Still waiting for previous getCurrentPosition() request."));
@@ -43,12 +44,10 @@ Geolocation.prototype.getCurrentPosition = function(successCallback, errorCallba
         }
         return;
     }
-*/
+
 	var maximumAge = 10000;
     var enableHighAccuracy = false;
     var timeout = 10000;
-    var distance = 0;
-    var interval = 0;
     if (typeof options != "undefined") {
         if (typeof options.maximumAge != "undefined") {
             maximumAge = options.maximumAge;
@@ -60,9 +59,8 @@ Geolocation.prototype.getCurrentPosition = function(successCallback, errorCallba
             timeout = options.timeout;
         }
     }
-    var id = "global";
     navigator.geolocation.listeners[id] = {"success" : successCallback, "fail" : errorCallback };
-    PhoneGap.exec(null, errorCallback, "Geolocation", "getCurrentPosition", [id, maximumAge, timeout, enableHighAccuracy, distance, interval]);
+    PhoneGap.exec(null, errorCallback, "Geolocation", "getCurrentPosition", [id, maximumAge, timeout, enableHighAccuracy]);
 }
 
 /**
@@ -79,8 +77,6 @@ Geolocation.prototype.watchPosition = function(successCallback, errorCallback, o
 	var maximumAge = 10000;
     var enableHighAccuracy = false;
     var timeout = 10000;
-    var distance = 0;
-    var interval = 0;
     if (typeof options != "undefined") {
         if (typeof options.maximumAge != "undefined") {
             maximumAge = options.maximumAge;
@@ -94,7 +90,7 @@ Geolocation.prototype.watchPosition = function(successCallback, errorCallback, o
     }
     var id = PhoneGap.createUUID();
     navigator.geolocation.listeners[id] = {"success" : successCallback, "fail" : errorCallback };
-    PhoneGap.exec(null, errorCallback, "Geolocation", "watchPosition", [id, maximumAge, timeout, enableHighAccuracy, distance, interval]);
+    PhoneGap.exec(null, errorCallback, "Geolocation", "watchPosition", [id, maximumAge, timeout, enableHighAccuracy]);
     return id;
 };
 

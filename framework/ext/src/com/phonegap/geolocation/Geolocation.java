@@ -30,8 +30,7 @@ public class Geolocation implements Plugin {
 	protected static final int ACTION_WATCH = 0;
 	protected static final int ACTION_CLEAR_WATCH = 1;
 	protected static final int ACTION_GET_POSITION = 2;
-	protected static final int ACTION_STOP = 3;
-	protected static final int ACTION_SHUTDOWN = 4;
+	protected static final int ACTION_SHUTDOWN = 3;
 	
 	/**
 	 * Callback ID argument index.
@@ -94,8 +93,6 @@ public class Geolocation implements Plugin {
 	 */
 	public PluginResult execute(String action, String callbackId, JSONArray args) {
 		
-		PositionOptions options;
-
 		// TODO: (6.0 only) Best practice is to determine if location service is on.
 		// If not, prompt the user if OK to turn on.  
 		// Should include an action 'isLocationOn'.
@@ -128,6 +125,8 @@ public class Geolocation implements Plugin {
 			return new PluginResult(GeolocationStatus.GPS_NOT_AVAILABLE);			
 		}
 		
+		PositionOptions options;
+
 		switch (getAction(action)) {
 			case ACTION_CLEAR_WATCH:
 				clearWatch(listenerCallbackId);
@@ -159,7 +158,7 @@ public class Geolocation implements Plugin {
 				this.getCurrentPosition(listenerCallbackId, options);
 				return null;
 
-			case ACTION_STOP:
+			case ACTION_SHUTDOWN:
 				this.shutdown();
 				return null;
 		}
@@ -198,10 +197,13 @@ public class Geolocation implements Plugin {
 	
 	/**
 	 * Retrieves a location provider with some criteria.
+	 * @param po position options
 	 * @return
 	 */
-	protected LocationProvider getLocationProvider() {
+	protected LocationProvider getLocationProvider(PositionOptions po) {
 
+		// configure criteria for location provider
+		// Note: being too restrictive will make it less likely that one will be returned
 		BlackBerryCriteria criteria = new BlackBerryCriteria();
 		
 		// can we get GPS info from the wifi network?
@@ -211,20 +213,12 @@ public class Geolocation implements Plugin {
 		else if (GPSInfo.isGPSModeAvailable(GPSInfo.GPS_MODE_AUTONOMOUS))
 			criteria.setMode(GPSInfo.GPS_MODE_AUTONOMOUS);		
 		
-		// TODO: use position options passed to plugin
-		//Criteria c = new Criteria();
-		//c.setAddressInfoRequired(false);
-		//c.setAltitudeRequired(true);
-		//c.setCostAllowed(true);
-		//c.setHorizontalAccuracy(100);
-		//c.setVerticalAccuracy(accuracy);
-		//c.setPreferredPowerConsumption(Criteria.NO_REQUIREMENT);
-		//c.setPreferredResponseTime(10000);
-		//c.setSpeedAndCourseRequired(true);
-				
+		criteria.setAltitudeRequired(true);
+		criteria.setPreferredResponseTime(po.timeout);
+		
+		// Attempt to get a location provider
 		BlackBerryLocationProvider provider;
 		try {
-			// Attempt to get a location provider
 			// Note: this could return an existing provider that meets above criteria
 			provider  = (BlackBerryLocationProvider) LocationProvider.getInstance(criteria);
 		} catch (LocationException e) {
@@ -256,7 +250,7 @@ public class Geolocation implements Plugin {
 		if (!this.geoListeners.containsKey(providerKey)) {
 
 			// we don't have a location provider with the same position options
-			LocationProvider lp = getLocationProvider();
+			LocationProvider lp = getLocationProvider(po);
 			if (lp == null) {
 				invokeErrorCallback(callbackId, new GeolocationResult(GeolocationStatus.GPS_NOT_AVAILABLE));
 				return;
@@ -264,7 +258,7 @@ public class Geolocation implements Plugin {
 
 			// create a listener for retrieving location updates
 			try {
-				listener = new GeolocationListener(lp);
+				listener = new GeolocationListener(lp, po);
 			} catch (IllegalArgumentException e) {
 				// if 	interval < -1, or 
 				// if 	(interval != -1) and 
@@ -284,7 +278,6 @@ public class Geolocation implements Plugin {
 		}
 
 		// register the callback with the listener 
-		Logger.log(this.getClass().getName() + ": adding geolocation callback '" + callbackId + "' to location provider '" + providerKey + "'");
 		listener.addCallback(callbackId);
 
 		// when we want to unregister a callback from the listener, 
@@ -323,12 +316,10 @@ public class Geolocation implements Plugin {
 
 			// Remove the callback id from the location listener
 			GeolocationListener listener = (GeolocationListener) this.geoListeners.get(providerKey);			
-			Logger.log(this.getClass().getName() + ": removing geolocation callback '" + callbackId + "' from location provider '" + providerKey + "'");
 			listener.removeCallback(callbackId);
 			
 			// If the listener has no more callbacks, then shut it down
 			if (!listener.hasCallbacks()) {
-				Logger.log(this.getClass().getName() + ": resetting location provider '" + providerKey + "'");
 				listener.shutdown();
 				this.geoListeners.remove(providerKey);
 			} 
@@ -353,7 +344,7 @@ public class Geolocation implements Plugin {
 		
 		if (!isLocationValid(location) || !isLocationFresh(options, location) || !isLocationAccurate(options, location)) {
 
-			LocationProvider lp = getLocationProvider();
+			LocationProvider lp = getLocationProvider(options);
 			try {
 				Logger.log(this.getClass().getName() + ": Retrieving location");
 				location = lp.getLocation(options.timeout/1000);
@@ -401,20 +392,18 @@ public class Geolocation implements Plugin {
 	/**
 	 * Gets a key to identify the location provider.  Key is based on position options.
 	 * @param po position options
-	 * @return 
+	 * @return location provider key
 	 */
 	protected String getLocationProviderKey(PositionOptions po) {
 		return String.valueOf(po.maxAge) + "-" + 
 			String.valueOf(po.timeout) + "-" + 
-			String.valueOf(po.enableHighAccuracy) + "-" + 
-			String.valueOf(po.distance) + "-" + 
-			String.valueOf(po.interval);
-	}
+			String.valueOf(po.enableHighAccuracy);
+		}
 	
 	/**
 	 * Invokes the specified geolocation success callback. 
 	 * @param callbackId geolocation listener id
-	 * @result geolocation result
+	 * @param geolocation result
 	 */
 	protected void invokeSuccessCallback(String callbackId, GeolocationResult result) {
 		PhoneGapExtension.invokeSuccessCallback(callbackId, result);        
@@ -423,7 +412,7 @@ public class Geolocation implements Plugin {
 	/**
 	 * Invokes the specified geolocation error callback. 
 	 * @param callbackId geolocation listener id
-	 * @result geolocation result
+	 * @param geolocation result
 	 */
 	protected void invokeErrorCallback(String callbackId, GeolocationResult result) {
 		PhoneGapExtension.invokeErrorCallback(callbackId, result);        
