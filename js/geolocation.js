@@ -1,3 +1,4 @@
+
 /**
  * This class provides access to device GPS data.
  * @constructor
@@ -142,5 +143,7 @@ Geolocation.prototype.clearWatch = function(id) {
     delete navigator.geolocation.listeners[id];
 };
 
-if (typeof navigator.geolocation == "undefined") navigator.geolocation = new Geolocation();
+PhoneGap.addConstructor(function() {
+	if (typeof navigator.geolocation == "undefined") navigator.geolocation = new Geolocation();
+});
 

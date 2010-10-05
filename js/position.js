@@ -1,3 +1,4 @@
+
 /**
  * This class contains position information.
  * @param {Object} lat

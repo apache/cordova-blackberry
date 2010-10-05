@@ -104,4 +104,6 @@ Camera.prototype.error = function(err) {
     }
 };
 
-if (typeof navigator.camera == "undefined") navigator.camera = new Camera();
+PhoneGap.addConstructor(function() {
+	if (typeof navigator.camera == "undefined") navigator.camera = new Camera();
+});

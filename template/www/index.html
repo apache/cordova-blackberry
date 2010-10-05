@@ -7,7 +7,8 @@
     <script src="javascript/phonegap.js" type="text/javascript"></script>
     <script type="text/javascript">
 
-      function init() {
+      function deviceInfo() {
+        console.log('deviceInfo()');
         document.getElementById('window.device.platform').innerHTML = 'window.device.platform = ' + window.device.platform;
         document.getElementById('window.device.version').innerHTML  = 'window.device.version  = ' + window.device.version;
         document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
@@ -141,6 +142,10 @@
         navigator.camera.getPicture(onCapturePhotoURISuccess, fail, 
           { destinationType: Camera.DestinationType.FILE_URI, quality: 50 });
       }
+
+    function init(){
+        document.addEventListener("deviceready", deviceInfo, true);     
+    }   
       
     </script>
     <title>Insert title here</title>

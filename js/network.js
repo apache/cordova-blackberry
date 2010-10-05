@@ -36,6 +36,8 @@ Network.prototype.isReachable = function(uri, callback, options) {
     PhoneGap.exec(callback, null, 'Network Status', 'isReachable', [uri, isIpAddress]);
 };
 
-if (typeof navigator.network == "undefined") navigator.network = new Network();
+PhoneGap.addConstructor(function() {
+	if (typeof navigator.network == "undefined") navigator.network = new Network();
+});
 
 

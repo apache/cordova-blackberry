@@ -6,10 +6,10 @@ import com.phonegap.api.PluginManagerFeature;
 import com.phonegap.api.PluginResult;
 import com.phonegap.device.DeviceFeature;
 import com.phonegap.util.LogFeature;
+import com.phonegap.util.Logger;
 
 import net.rim.device.api.browser.field2.BrowserField;
 import net.rim.device.api.script.ScriptEngine;
-import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.web.WidgetConfig;
 import net.rim.device.api.web.WidgetExtension;
 
@@ -38,6 +38,12 @@ public final class PhoneGapExtension implements WidgetExtension {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
 			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManagerFeature(scriptEngine));
 			scriptEngine.addExtension("phonegap.Logger",         new LogFeature());
+			
+			// let PhoneGap JavaScript know that extensions have been loaded
+			// if this is premature, we at least set the _nativeReady flag to true
+			// so that when the JS side is ready, it knows native side is too
+			Logger.log(this.getClass().getName() + ": invoking PhoneGap.onNativeReady.fire()");
+			scriptEngine.executeScript("try {PhoneGap.onNativeReady.fire();} catch(e) {_nativeReady = true;}", null);			
 		}
 	}
 

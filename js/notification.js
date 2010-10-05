@@ -30,4 +30,6 @@ Notification.prototype.beep = function(count) {
     PhoneGap.exec(null, null, 'Notification', 'beep', [count]);
 };
 
-if (typeof navigator.notification == "undefined") navigator.notification = new Notification();
+PhoneGap.addConstructor(function() {
+	if (typeof navigator.notification == "undefined") navigator.notification = new Notification();
+});
