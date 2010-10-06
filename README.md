@@ -13,14 +13,14 @@ Directory Structure
 Introduction
 ------------
 
-The Blackberry Widget SDK provides a new framework for developing applications for Blackberry devices that support Blackberry OS 5.0 and higher.  In this framework, lightweight web applications called Blackberry Widgets can make use of device specific features and data through the use of the Blackberry Widget APIs.
+The Blackberry Widget SDK provides a framework for developing hybrid applications for Blackberry devices that support Blackberry OS 5.0 and higher.  In this framework, web applications consisting of web content, resources, and JavaScript can access device specific features through the exposed JavaScript [Blackberry Widget API](http://www.blackberry.com/developers/docs/widgetapi/).  
 
-Access to device information, file I/O, data access, etc. is done using Blackberry Widget Extensions, written in native Java code, that can be invoked by the Blackberry Widget framework.  It is therefore helpful to think of a Widget application as having two parts:
+The Blackberry Widget API is a subset of the [native Blackberry Java API](http://www.blackberry.com/developers/docs/6.0.0api/).  A Widget application can make use of the native Java APIs by using JavaScript extensions.  Doing so provides the Widget application access to device information and capabilities that the Widget API does not provide.  It is therefore helpful to think of a Blackberry Widget application as having two parts:
 
-1. The Widget, or web application, consisting of HTML, CSS, JavaScript, and
-2. The Extension, or native Java code that has access to the Widget APIs.
+1. The Widget application, consisting of HTML, CSS, JavaScript, with access to the exposed Widget APIs.
+2. The JavaScript extensions, or native Java code, with access to the full native Java APIs.
 
-The PhoneGap BlackBerry Widget project implements the common PhoneGap API for BlackBerry Widgets. This project allows you to create projects that leverage the common PhoneGap API, PhoneGap plugins, and your own BlackBerry Widget extensions.
+The phonegap-blackberry-widget project uses both the Blackberry Widget API and JavaScript extensions.  This project will allow you to create your own Blackberry Widget applications that leverage the common PhoneGap API.
 
 Development Options
 -------------------
@@ -216,3 +216,7 @@ __A:__ Try hard resetting the device by pressing and hold ALT + CAPS LOCK + DEL.
 __Q: My simulator screen is not refreshing and I see blocks on a clicked position.__
 
 __A:__ Windows 7 and the simulator's graphics acceleration do not mix. On the simulator, set View -> Graphics Acceleration to Off.
+
+__Q: When I use the PhoneGap [Camera.getPicture API](http://docs.phonegap.com/phonegap_camera_camera.md.html#camera.getPicture) on my device, the camera never returns to my application.  Why does this happen?__
+
+__A:__ PhoneGap uses a JavaScript extension to invoke the native camera application so the user can take a picture.  When the picture is taken, PhoneGap will close the native camera application by emulating key injections (like pressing the back button).  On a physical device, users will have to set permissions to allow your application to allow key injections to take place.  Setting application permissions is device-specific.  On a Storm2 (9550), for example,  select the Blackberry button from the Home screen to get to All Applications screen, then Options > Applications > Your Application.  Then select Edit Default Permissions > Interactions > Input Simulation and set it to 'Allow'.  Save your changes.
