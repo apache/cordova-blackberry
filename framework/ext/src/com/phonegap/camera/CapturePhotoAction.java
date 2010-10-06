@@ -28,6 +28,11 @@ public class CapturePhotoAction implements FileSystemJournalListener
 	private static final int DATA_URL = 0;
 	private static final int FILE_URI = 1;
 	
+	/**
+	 * Maximum image encoding size.  Obtained unofficially through trial and error.
+	 */
+	private static final long MAX_ENCODING_SIZE = 1500000L;
+	
 	private long lastUSN = 0;
 	private String callbackId;
 	private int destinationType = DATA_URL;
@@ -162,6 +167,15 @@ public class CapturePhotoAction implements FileSystemJournalListener
 			{
 				return new PluginResult(PluginResult.Status.IOEXCEPTION, e.toString());
 			}
+			
+			// we have to check the size to avoid memory errors in the browser
+			if (resultData.length() > MAX_ENCODING_SIZE) 
+			{
+				// it's a big one.  this is for your own good.
+				String msg = "Encoded image is too large. Try reducing camera image quality.";
+				Logger.log(this.getClass().getName() + ": " + msg);
+				return new PluginResult(PluginResult.Status.ERROR, msg);
+			}
 		}
 
 		return new PluginResult(PluginResult.Status.OK, resultData);
@@ -194,10 +208,6 @@ public class CapturePhotoAction implements FileSystemJournalListener
 				{
 					int bytesRead = imageStream.read(buffer, 0, size);
 					imageSize += bytesRead;
-					
-					Logger.log(this.getClass().getName() + ": bytes read=" + 
-					    Integer.toString(bytesRead));
-					
 					if (imageSize > 0 && bytesRead == -1) 
 						break;
 					base64OutputStream.write(buffer, 0, bytesRead);
