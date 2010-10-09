@@ -21,9 +21,10 @@ public class Notification implements Plugin {
 	
 	private ScriptEngine app;
 	
-	public static final String ACTION_ALERT   = "alert";
-	public static final String ACTION_BEEP    = "beep";
-	public static final String ACTION_VIBRATE = "vibrate";
+	public static final int ACTION_ALERT   = 0;
+	public static final int ACTION_BEEP    = 1;
+	public static final int ACTION_CONFIRM = 2;
+	public static final int ACTION_VIBRATE = 3;
 	
 	/**
 	 * Executes the request and returns CommandResult.
@@ -36,17 +37,22 @@ public class Notification implements Plugin {
 	public PluginResult execute(String action, String callbackId, JSONArray args) {
 		PluginResult result = null;
 		
-		if (action.equals(ACTION_ALERT)) {
+		switch (getAction(action)) {
+		case ACTION_ALERT: 
 			result = AlertAction.execute(args);
-		}
-		else if (action.equals(ACTION_BEEP)) {
+			break;
+		case ACTION_BEEP:
 			result = BeepAction.execute(args);
-		}
-		else if (action.equals(ACTION_VIBRATE)) {
+			break;
+		case ACTION_CONFIRM:
+			result = new ConfirmAction().execute(args);
+			break;
+		case ACTION_VIBRATE:
 			result = VibrateAction.execute(args);
-		}
-		else {
-			result = new PluginResult(PluginResult.Status.INVALIDACTION, "Notification: Invalid action: " + action);
+			break;
+		default: 
+			result = new PluginResult(PluginResult.Status.INVALIDACTION, 
+					"Notification: Invalid action: " + action);
 		}
 		
 		return result;
@@ -70,5 +76,18 @@ public class Notification implements Plugin {
 	 */
 	public boolean isSynch(String action) {
 		return true;
-	}	
+	}
+	
+	/**
+	 * Returns action to perform.
+	 * @param action 
+	 * @return action to perform
+	 */
+	protected static int getAction(String action) {
+		if ("alert".equals(action)) return ACTION_ALERT;
+		if ("beep".equals(action)) return ACTION_BEEP;
+		if ("confirm".equals(action)) return ACTION_CONFIRM;
+		if ("vibrate".equals(action)) return ACTION_VIBRATE; 
+		return -1;
+	}		
 }

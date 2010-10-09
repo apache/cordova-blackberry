@@ -1,3 +1,4 @@
+
 /**
  * This class provides access to notifications on the device.
  */
@@ -6,12 +7,26 @@ function Notification() {
 
 /**
  * Open a native alert dialog, with a customizable title and button text.
- * @param {String} message Message to print in the body of the alert
- * @param {String} [title="Alert"] Title of the alert dialog (default: Alert)
- * @param {String} [buttonLabel="OK"] Label of the close button (default: OK)
+ * @param {String} message     Message to print in the body of the alert
+ * @param {String} title       Title of the alert dialog (default: 'Alert')
+ * @param {String} buttonLabel Label of the close button (default: 'OK')
  */
 Notification.prototype.alert = function(message, title, buttonLabel) {
-    PhoneGap.exec(null, null, 'Notification', 'alert', [message, title, buttonLabel]);
+    var _title = (title || "Alert");
+    var _buttonLabel = (buttonLabel || "OK");
+    PhoneGap.exec(null, null, 'Notification', 'alert', [message, _title, _buttonLabel]);
+};
+
+/**
+ * Open a custom confirmation dialog, with a customizable title and button text.
+ * @param {String} message      Message to print in the body of the dialog
+ * @param {String} title        Title of the alert dialog (default: 'Confirm')
+ * @param {String} buttonLabels Comma separated list of the button labels (default: 'OK,Cancel')
+ */
+Notification.prototype.confirm = function(message, title, buttonLabels) {
+    var _title = (title || "Confirm");
+    var _buttonLabels = (buttonLabels || "OK,Cancel");
+    return PhoneGap.exec(null, null, 'Notification', 'confirm', [message, _title, _buttonLabels]);
 };
 
 /**
@@ -31,5 +46,5 @@ Notification.prototype.beep = function(count) {
 };
 
 PhoneGap.addConstructor(function() {
-	if (typeof navigator.notification == "undefined") navigator.notification = new Notification();
+    if (typeof navigator.notification == "undefined") navigator.notification = new Notification();
 });

@@ -8,7 +8,6 @@
     <script type="text/javascript">
 
       function deviceInfo() {
-        console.log('deviceInfo()');
         document.getElementById('window.device.platform').innerHTML = 'window.device.platform = ' + window.device.platform;
         document.getElementById('window.device.version').innerHTML  = 'window.device.version  = ' + window.device.version;
         document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
@@ -39,6 +38,13 @@
       
       function callAlert() {
       	navigator.notification.alert("You rock!", "Woohoo!", "Thanks");
+      }
+
+      function callConfirm() {
+        var r = navigator.notification.confirm(
+            "Please confirm", 
+            "Are you sure?", 
+            "Yes,No,Maybe");
       }
 
       function showAcceleration(acceleration) {
@@ -161,6 +167,7 @@
     <input type="button" value="Beep" onclick="callBeep();return false;" />
     <input type="button" value="Vibrate" onclick="callVibrate();return false;" />
     <input type="button" value="Alert" onclick="callAlert();return false;" />
+    <input type="button" value="Confirm" onclick="callConfirm();return false;" />
     
     <h3>navigator.network</h3>
     <p id="networkStatus">[navigator.network.isReachable]</p>
