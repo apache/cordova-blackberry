@@ -1,7 +1,6 @@
 package com.phonegap.notification;
 
 import com.phonegap.ui.SpacerField;
-import com.phonegap.util.Logger;
 import com.phonegap.util.StringUtils;
 
 import net.rim.device.api.ui.Field;
@@ -17,11 +16,8 @@ import net.rim.device.api.ui.container.VerticalFieldManager;
  * customizable.
  */
 public final class ConfirmDialog extends PopupScreen implements FieldChangeListener {
-
-    private Object        listener      = null; // whoever may be waiting for this dialog
-    
+   
     private ButtonField[] buttons;              // the button fields
-
     private int           selectedValue = -1;   // the selected button
 
     /**
@@ -59,16 +55,6 @@ public final class ConfirmDialog extends PopupScreen implements FieldChangeListe
     }
 
     /**
-     * Set the listener to the object that is waiting for the dialog so that it
-     * can be notified when the dialog is closed.
-     * 
-     * @param listener
-     */
-    public void setListener(Object listener) {
-        this.listener = listener;
-    }
-
-    /**
      * Returns the index of the button pressed.
      * 
      * @return The index of the button pressed (0,1,2...).
@@ -81,20 +67,12 @@ public final class ConfirmDialog extends PopupScreen implements FieldChangeListe
      * Invoked when a button is pressed.
      */
     public void fieldChanged(Field field, int context) {
-        Logger.log(this.getClass().getName() + ": button pressed");
 
         // figure out which button was pressed
         for (int i = 0; i < buttons.length; i++) {
             if (buttons[i] == field) {
                 this.selectedValue = i;
                 break;
-            }
-        }
-
-        // wake up whoever may be waiting for us
-        if (this.listener != null) {
-            synchronized (this.listener) {
-                this.listener.notifyAll();
             }
         }
 

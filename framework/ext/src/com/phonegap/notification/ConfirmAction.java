@@ -11,7 +11,7 @@ import com.phonegap.util.Logger;
 
 /**
  * Displays a confirmation dialog with customizable title, message, and button
- * fields.
+ * fields.  
  */
 public class ConfirmAction {
 
@@ -26,9 +26,9 @@ public class ConfirmAction {
      *             message:     the message to display in the dialog body (default: "").
      *             title:       the title to display at the top of the dialog (default: "Confirm").
      *             buttonLabel: the button text (default: "OK,Cancel").
-     * @return A PluginResult object with .
+     * @return A PluginResult object with index of dialog button pressed (1,2,3...).
      */
-    public synchronized PluginResult execute(JSONArray args) {
+    public PluginResult execute(JSONArray args) {
 
         PluginResult result = null;
 
@@ -43,32 +43,27 @@ public class ConfirmAction {
             if (args.length() > 2 && args.get(2) != null)
                 buttonLabels = args.getString(2);
 
-            // show the dialog
-            ConfirmDialog dialog = new ConfirmDialog(message, title, buttonLabels);
-            synchronized(UiApplication.getEventLock()) {
-                UiApplication ui = UiApplication.getUiApplication();
-                ui.pushScreen(dialog);
-            }
-                
-            // wait for it...(to close)
-            dialog.setListener(this);
-            try {
-                this.wait(); 
-            } catch (InterruptedException e) {
-                Logger.log(this.getClass().getName() + ": " + e.getMessage());
-            }
-           
-            // add '1' to the button index to match the JavaScript API (which starts at 1)
-            // (why not start at '0'?  aren't we programmers?)
-            int value = dialog.getSelectedValue() + 1;
+            // construct the dialog
+            final ConfirmDialog dialog = new ConfirmDialog(message, title, buttonLabels);
+            
+            // ask the event dispatch thread to show it
+            Runnable runnable = new Runnable() {
+                public void run() {
+                    UiApplication ui = UiApplication.getUiApplication();
+                    ui.pushModalScreen(dialog);
+                }
+            };
+            Logger.log(this.getClass().getName() + ": showing confirm dialog: '" + title + "'");            
+            UiApplication.getUiApplication().invokeAndWait(runnable);
 
-            Logger.log(this.getClass().getName() + ": returning button=" + value);
-            result = new PluginResult(PluginResult.Status.OK, Integer.toString(value));
+            // add +1 to the button index to match the JavaScript API (which starts at 1)
+            int button = dialog.getSelectedValue() + 1;
+            result = new PluginResult(PluginResult.Status.OK, Integer.toString(button));
         }
         catch (JSONException e) {
             result = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
         }
 
         return result;
-    }
+    }    
 }
