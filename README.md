@@ -1,7 +1,7 @@
 PhoneGap BlackBerry Widget
 ==========================
 
-[PhoneGap framework](http://www.phonegap.com/) for the BlackBerry Web Widget platform. 
+[PhoneGap framework](http://www.phonegap.com/) for __BlackBerry OS 5.0 and 6.0__. The framework is implemented using the [BlackBerry Web Widget SDK](http://na.blackberry.com/eng/developers/browserdev/widgetsdk.jsp).
 
 Directory Structure
 -------------------
