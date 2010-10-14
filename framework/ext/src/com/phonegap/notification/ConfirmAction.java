@@ -1,6 +1,5 @@
 package com.phonegap.notification;
 
-import net.rim.device.api.system.Application;
 import net.rim.device.api.ui.UiApplication;
 
 import org.json.me.JSONArray;

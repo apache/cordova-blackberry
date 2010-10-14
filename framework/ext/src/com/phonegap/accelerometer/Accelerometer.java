@@ -1,6 +1,5 @@
 package com.phonegap.accelerometer;
 
-import net.rim.device.api.script.ScriptEngine;
 import net.rim.device.api.system.AccelerometerData;
 import net.rim.device.api.system.AccelerometerListener;
 import net.rim.device.api.system.AccelerometerSensor;
@@ -14,7 +13,7 @@ import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.util.Logger;
 
-public class Accelerometer implements AccelerometerListener, Plugin {
+public class Accelerometer extends Plugin implements AccelerometerListener {
 
 	public static final String ACTION_GET_ACCELERATION = "getAcceleration";
 	public static final String ACTION_SET_TIMEOUT = "setTimeout";
@@ -24,13 +23,12 @@ public class Accelerometer implements AccelerometerListener, Plugin {
 	public static int STOPPED = 0;
 	public static int STARTED = 1;
 	
-	private ScriptEngine app;
 	private static AccelerometerSensor.Channel _rawDataChannel = null; // the single channel to the device sensor
 	int status;                                                        // status of this listener
     public float timeout = 30000;                                      // timeout in msec to close sensor channel
     long lastAccessTime;                                               // last time accel data was retrieved
     
-	public PluginResult execute(String action, String calbackId, JSONArray args) {
+	public PluginResult execute(String action, JSONArray args, String calbackId) {
 
 		PluginResult result = null;
 
@@ -74,16 +72,6 @@ public class Accelerometer implements AccelerometerListener, Plugin {
 		}
 		
 		return result;
-	}
-
-	/**
-	 * Sets the script engine to allow plugins to interact with and 
-	 * execute browser scripts. 
-	 *  
-	 * @param app The script engine of the widget application.
-	 */
-	public void setContext(ScriptEngine app) {
-		this.app = app;
 	}
 
 	/**

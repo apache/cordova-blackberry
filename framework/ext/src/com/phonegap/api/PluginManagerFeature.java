@@ -1,6 +1,7 @@
 package com.phonegap.api;
 
-import net.rim.device.api.script.ScriptEngine;
+import com.phonegap.PhoneGapExtension;
+
 import net.rim.device.api.script.Scriptable;
 
 /**
@@ -18,8 +19,8 @@ public final class PluginManagerFeature extends Scriptable {
 	public static final String FIELD_EXEC = "exec";		
 	private final PluginManagerFunction pluginManagerFunction;
 	
-	public PluginManagerFeature(ScriptEngine scriptEngine) {
-		this.pluginManagerFunction = new PluginManagerFunction(scriptEngine);
+	public PluginManagerFeature(PhoneGapExtension app) {
+		this.pluginManagerFunction = new PluginManagerFunction(app);
         this.pluginManagerFunction.addService("Camera", "com.phonegap.camera.Camera");
         this.pluginManagerFunction.addService("Network Status", "com.phonegap.network.Network");
         this.pluginManagerFunction.addService("Notification", "com.phonegap.notification.Notification");

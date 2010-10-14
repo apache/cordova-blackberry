@@ -12,7 +12,6 @@ import javax.microedition.location.LocationProvider;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.gps.GPSInfo;
-import net.rim.device.api.script.ScriptEngine;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -23,7 +22,7 @@ import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.util.Logger;
 
-public class Geolocation implements Plugin {
+public class Geolocation extends Plugin {
 
 	/**
 	 * Possible actions.
@@ -54,25 +53,6 @@ public class Geolocation implements Plugin {
 	public Geolocation() {
 		this.geoListeners = new Hashtable();
 	}
-
-	/**
-	 * Sets the script engine to allow plugins to interact with and 
-	 * execute browser scripts. 
-	 *  
-	 * @param app The script engine of the widget application.
-	 */
-	public void setContext(ScriptEngine app) {
-	}
-	
-	/**
-	 * Identifies if action to be executed returns a value and should be run synchronously.
-	 * 
-	 * @param action	The action to execute
-	 * @return			T=returns value
-	 */
-	public boolean isSynch(String action) {
-		return false;
-	}
 	
 	/**
 	 * Executes the specified geolocation action.
@@ -86,7 +66,7 @@ public class Geolocation implements Plugin {
 	 * @param callbackId callback managed by the plugin manager (ignored)
 	 * @param args contains the callback id and position options 
 	 */
-	public PluginResult execute(String action, String callbackId, JSONArray args) {
+	public PluginResult execute(String action, JSONArray args,  String callbackId) {
 		
 		// TODO: (6.0 only) Best practice is to determine if location service is on.
 		// If not, prompt the user if OK to turn on.  
@@ -239,7 +219,7 @@ public class Geolocation implements Plugin {
 		// attempt to retrieve a location provider 
 		LocationProvider lp = getLocationProvider(po);
 		if (lp == null) {
-			invokeErrorCallback(callbackId, 
+			PhoneGapExtension.invokeErrorCallback(callbackId, 
 					new GeolocationResult(GeolocationStatus.GPS_NOT_AVAILABLE));
 			return;
 		}
@@ -254,7 +234,7 @@ public class Geolocation implements Plugin {
 			//			(timeout < 1 and timeout != -1) or 
 			//			(maxAge < 1 and maxAge != -1)
 			//		) 
-			invokeErrorCallback(callbackId, 
+			PhoneGapExtension.invokeErrorCallback(callbackId, 
 					new GeolocationResult(GeolocationStatus.GPS_ILLEGAL_ARGUMENT_EXCEPTION, e.getMessage()));
 			return;
 		}
@@ -313,13 +293,13 @@ public class Geolocation implements Plugin {
 			} catch(LocationException e) {
 				Logger.log(this.getClass().getName() + ": " + e.getMessage());
 				lp.reset();
-				invokeErrorCallback(callbackId, 
+				PhoneGapExtension.invokeErrorCallback(callbackId, 
 						new GeolocationResult(GeolocationStatus.GPS_TIMEOUT));
 				return;
 			} catch (InterruptedException e) {
 				Logger.log(this.getClass().getName() + ": " + e.getMessage());
 				lp.reset();
-				invokeErrorCallback(callbackId, 
+				PhoneGapExtension.invokeErrorCallback(callbackId, 
 						new GeolocationResult(GeolocationStatus.GPS_INTERUPTED_EXCEPTION));
 				return;
 			}
@@ -330,14 +310,14 @@ public class Geolocation implements Plugin {
 		try {
 			position = Position.fromLocation(location).toJSONObject();
 		} catch (JSONException e) {
-			invokeErrorCallback(callbackId, 
+			PhoneGapExtension.invokeErrorCallback(callbackId, 
 				new GeolocationResult(PluginResult.Status.JSONEXCEPTION, "Converting the location to a JSON object failed"));
 			return;
 		}
 		
 		// invoke the geolocation callback
 		Logger.log(this.getClass().getName() + ": current position=" + position);
-		invokeSuccessCallback(callbackId, 
+		PhoneGapExtension.invokeSuccessCallback(callbackId, 
 				new GeolocationResult(GeolocationResult.Status.OK, position));
 	}
 	
@@ -353,22 +333,4 @@ public class Geolocation implements Plugin {
 		if ("shutdown".endsWith(action)) return ACTION_SHUTDOWN; 
 		return -1;
 	}	
-
-	/**
-	 * Invokes the specified geolocation success callback. 
-	 * @param callbackId geolocation listener id
-	 * @param geolocation result
-	 */
-	protected void invokeSuccessCallback(String callbackId, GeolocationResult result) {
-		PhoneGapExtension.invokeSuccessCallback(callbackId, result);        
-	}
-
-	/**
-	 * Invokes the specified geolocation error callback. 
-	 * @param callbackId geolocation listener id
-	 * @param geolocation result
-	 */
-	protected void invokeErrorCallback(String callbackId, GeolocationResult result) {
-		PhoneGapExtension.invokeErrorCallback(callbackId, result);        
-	}
 }

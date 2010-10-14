@@ -5,8 +5,6 @@ import com.phonegap.api.PluginResult;
 
 import org.json.me.JSONArray;
 
-import net.rim.device.api.script.ScriptEngine;
-
 /**
  * The Notification command interface.
  *
@@ -17,9 +15,7 @@ import net.rim.device.api.script.ScriptEngine;
  *   - vibration(duration)
  *
  */
-public class Notification implements Plugin {
-	
-	private ScriptEngine app;
+public class Notification extends Plugin {
 	
 	public static final int ACTION_ALERT   = 0;
 	public static final int ACTION_BEEP    = 1;
@@ -34,7 +30,7 @@ public class Notification implements Plugin {
 	 * @param args   JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	public PluginResult execute(String action, String callbackId, JSONArray args) {
+	public PluginResult execute(String action, JSONArray args, String callbackId) {
 		PluginResult result = null;
 		
 		switch (getAction(action)) {
@@ -56,16 +52,6 @@ public class Notification implements Plugin {
 		}
 		
 		return result;
-	}
-	
-	/**
-	 * Sets the script engine to allow plugins to interact with and 
-	 * execute browser scripts. 
-	 *  
-	 * @param app The script engine of the widget application.
-	 */
-	public void setContext(ScriptEngine app) {
-		this.app = app;
 	}
 
 	/**

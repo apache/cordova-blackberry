@@ -36,7 +36,7 @@ public final class PhoneGapExtension implements WidgetExtension {
 		
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new DeviceFeature());
-			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManagerFeature(scriptEngine));
+			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManagerFeature(this));
 			scriptEngine.addExtension("phonegap.Logger",         new LogFeature());
 			
 			// let PhoneGap JavaScript know that extensions have been loaded
@@ -60,11 +60,15 @@ public final class PhoneGapExtension implements WidgetExtension {
 
 	}
 
+	public static void invokeScript(String js) {
+		script.executeScript(js, null);
+	}
+	
 	public static void invokeSuccessCallback(String callbackId, PluginResult result) {
-		script.executeScript(result.toSuccessCallbackString(callbackId), null);
+		invokeScript(result.toSuccessCallbackString(callbackId));
 	}
 
 	public static void invokeErrorCallback(String callbackId, PluginResult result) {
-		script.executeScript(result.toErrorCallbackString(callbackId), null);
+		invokeScript(result.toErrorCallbackString(callbackId));
 	}
 }

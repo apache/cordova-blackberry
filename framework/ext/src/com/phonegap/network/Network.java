@@ -5,8 +5,6 @@ import com.phonegap.api.PluginResult;
 
 import org.json.me.JSONArray;
 
-import net.rim.device.api.script.ScriptEngine;
-
 /**
  * The Network command interface.
  *
@@ -15,10 +13,8 @@ import net.rim.device.api.script.ScriptEngine;
  *   - isReachable(domain, callback)
  *
  */
-public class Network implements Plugin {
-	
-	private ScriptEngine app;
-	
+public class Network extends Plugin {
+
 	public static final String ACTION_IS_REACHABLE = "isReachable";
 	
 	/**
@@ -29,7 +25,7 @@ public class Network implements Plugin {
 	 * @param args   JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	public PluginResult execute(String action, String callbackId, JSONArray args) {
+	public PluginResult execute(String action, JSONArray args, String callbackId) {
 		PluginResult result = null;
 		
 		if (action.equals(ACTION_IS_REACHABLE)) {
@@ -41,24 +37,4 @@ public class Network implements Plugin {
 		
 		return result;
 	}
-	
-	/**
-	 * Sets the script engine to allow plugins to interact with and 
-	 * execute browser scripts. 
-	 *  
-	 * @param app The script engine of the widget application.
-	 */
-	public void setContext(ScriptEngine app) {
-		this.app = app;
-	}
-	
-	/**
-	 * Identifies if action to be executed returns a value and should be run synchronously.
-	 * 
-	 * @param action	The action to execute
-	 * @return			T=returns value
-	 */
-	public boolean isSynch(String action) {
-		return false;
-	}	
 }

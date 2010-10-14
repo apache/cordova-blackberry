@@ -1,7 +1,5 @@
 package com.phonegap.camera;
 
-import net.rim.device.api.script.ScriptEngine;
-
 import org.json.me.JSONArray;
 
 import com.phonegap.api.Plugin;
@@ -19,10 +17,8 @@ import com.phonegap.api.PluginResult;
  *   - getVideoClip...
  *
  */
-public class Camera implements Plugin 
+public class Camera extends Plugin 
 {
-	private ScriptEngine app;
-	
 	public static final String ACTION_TAKE_PICTURE = "takePicture";
 
 	/**
@@ -33,7 +29,7 @@ public class Camera implements Plugin
 	 * @param args   JSONArry of arguments for the command.
 	 * @return A CommandResult object with a status and message.
 	 */
-	public PluginResult execute(String action, String callbackId, JSONArray args) 
+	public PluginResult execute(String action, JSONArray args, String callbackId) 
 	{
 		PluginResult result = null;
 		
@@ -47,17 +43,6 @@ public class Camera implements Plugin
 		}
 		
 		return result;
-	}
-
-	/**
-	 * Sets the script engine to allow plugins to interact with and 
-	 * execute browser scripts. 
-	 *  
-	 * @param app The script engine of the widget application.
-	 */
-	public void setContext(ScriptEngine app) 
-	{
-		this.app = app;
 	}
 	
 	/**

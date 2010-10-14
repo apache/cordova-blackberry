@@ -3,9 +3,7 @@ package com.phonegap.network;
 import com.phonegap.api.PluginResult;
 
 import org.json.me.JSONArray;
-import org.json.me.JSONException;
 
-import net.rim.device.api.script.ScriptEngine;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.WLANInfo;
 

@@ -5,9 +5,9 @@ import java.util.Hashtable;
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
 
+import com.phonegap.PhoneGapExtension;
 import com.phonegap.util.Logger;
 
-import net.rim.device.api.script.ScriptEngine;
 import net.rim.device.api.script.ScriptableFunction;
 
 /**
@@ -29,9 +29,9 @@ public class PluginManagerFunction extends ScriptableFunction {
 	private Hashtable plugins = new Hashtable();
 	private Hashtable services = new Hashtable();
 
-	private final ScriptEngine app; 
+	private final PhoneGapExtension app; 
 	
-	public PluginManagerFunction(ScriptEngine app) {
+	public PluginManagerFunction(PhoneGapExtension app) {
 		this.app = app;
 	}
 	
@@ -75,23 +75,23 @@ public class PluginManagerFunction extends ScriptableFunction {
 				c = getClassByName(clazz); 
 			}
 
-			if ((c == null) || isPhoneGapPlugin(c)) {
+			if (isPhoneGapPlugin(c)) {
 				// Create a new instance of the plugin and set the context
-				final Plugin plugin = this.addPlugin(clazz);
+				final Plugin plugin = this.addPlugin(clazz, c);
 				async = async && !plugin.isSynch(action);
 				if (async) {
 					// Run this async on a background thread so that JavaScript can continue on
 					Thread thread = new Thread(new Runnable() {
 						public void run() {
 							// Call execute on the plugin so that it can do it's thing
-							final PluginResult result = plugin.execute(action, callbackId, args);
+							final PluginResult result = plugin.execute(action, args, callbackId);
 							
 							if (result != null) {
 								// Check if the 
 								if (result.getStatus() == PluginResult.Status.OK.ordinal()) {
-									app.executeScript(result.toSuccessCallbackString(callbackId), null);
+									PhoneGapExtension.invokeSuccessCallback(callbackId, result);
 								} else {
-									app.executeScript(result.toErrorCallbackString(callbackId), null);
+									PhoneGapExtension.invokeErrorCallback(callbackId, result);
 								}
 							}
 						}
@@ -100,7 +100,7 @@ public class PluginManagerFunction extends ScriptableFunction {
 					return "";
 				} else {
 					// Call execute on the plugin so that it can do it's thing
-					pr = plugin.execute(action, callbackId, args);
+					pr = plugin.execute(action, args, callbackId);
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -114,7 +114,7 @@ public class PluginManagerFunction extends ScriptableFunction {
 		} 
 		// if async we have already returned at this point unless there was an error...
 		if (async) {
-			app.executeScript(pr.toErrorCallbackString(callbackId), null);
+			PhoneGapExtension.invokeErrorCallback(callbackId, pr);
 		}
 		return ( pr != null ? pr.getJSONString() : "{ status: 0, message: 'all good' }" );
 	}
@@ -137,7 +137,10 @@ public class PluginManagerFunction extends ScriptableFunction {
 	 * @return Boolean indicating if the class implements com.phonegap.api.Plugin
 	 */
 	private boolean isPhoneGapPlugin(Class c) {
-		return com.phonegap.api.Plugin.class.isAssignableFrom(c);		
+		if (c != null) {
+			return com.phonegap.api.Plugin.class.isAssignableFrom(c) || com.phonegap.api.IPlugin.class.isAssignableFrom(c);
+		}
+		return false;
 	}
 	
     /**
@@ -147,12 +150,12 @@ public class PluginManagerFunction extends ScriptableFunction {
      * @param className				The class to load
      * @return						The plugin
      */
-	public Plugin addPlugin(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+	public Plugin addPlugin(String className, Class clazz) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     	if (this.plugins.containsKey(className)) {
     		return this.getPlugin(className);
     	}
     	Logger.log("PluginManager.addPlugin("+className+")");
-        Plugin plugin = (Plugin)getClassByName(className).newInstance();
+        Plugin plugin = (Plugin)clazz.newInstance();
         this.plugins.put(className, plugin);
         plugin.setContext(this.app);
         return plugin;
