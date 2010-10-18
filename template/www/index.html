@@ -24,6 +24,10 @@
         { isIpAddress: false });        
       }
 
+      function init(){
+        document.addEventListener("deviceready", deviceInfo, true);     
+      } 
+        
       function fail(error) {
         alert(error);
       }
@@ -150,9 +154,112 @@
           { destinationType: Camera.DestinationType.FILE_URI, quality: 50 });
       }
 
-    function init(){
-        document.addEventListener("deviceready", deviceInfo, true);     
-    }   
+      function onContactSaved(contact) {
+        alert("Contact " + contact.id + " saved.");      
+      }
+
+      function onContactUpdated(contact) {
+        alert('Contact ' + contact.id + ' updated.');
+      }
+
+      function onContactRemoved(contact) {
+        alert("Contact " + contact.id + " removed.");      
+      }
+
+      function createContact() {
+        var myContact = navigator.service.contacts.create({"displayName": "Shosh"});        
+        myContact.gender = "female";
+        myContact.note = "Workout queen.";
+        myContact.birthday = new Date("May 11, 1979 05:32:00");
+        myContact.anniversary = "15 March 2005";
+        
+        // add name
+        var myName = new ContactName();
+        myName.givenName = "Shoshana";
+        myName.familyName = "Lowenstein";
+        myContact.name = myName;
+
+        // add email
+        var emails = [];
+        emails[0] = new ContactField("work","im@work.com");
+        emails[1] = new ContactField("home","im@home.com",true);
+        emails[2] = new ContactField(null,"im@other.com");
+        emails[3] = new ContactField(null,"im@aloss.com"); // 4th will be ignored
+        myContact.emails = emails;
+
+        // add phone numbers
+        var phoneNumbers = [];
+        phoneNumbers[0] = new ContactField("work","555-111-1111");
+        phoneNumbers[1] = new ContactField("home","555-222-1111");
+        phoneNumbers[2] = new ContactField("home","555-222-2222");
+        phoneNumbers[3] = new ContactField(null,"555-333-1234");
+        phoneNumbers[4] = new ContactField("fax","555-444-1234");
+        phoneNumbers[5] = new ContactField("work","555-111-2222");
+        phoneNumbers[6] = new ContactField("mobile","555-555-5555",true);
+        phoneNumbers[7] = new ContactField("work","555-111-3333"); // 3rd 'work' phone will be ignored
+        phoneNumbers[8] = new ContactField("pager","555-666-1111");
+        myContact.phoneNumbers = phoneNumbers;
+        
+        // add address
+        var addresses = [];
+        addresses[0] = new ContactAddress(null, "123 Astor Place", "Phoenix", "AZ", "58392", "United States");
+        addresses[1] = new ContactAddress(null, "290 Farmers Mills Rd", "Riverdale", "AZ", "58399", "United States");
+        myContact.addresses = addresses;
+
+        // add urls
+        var urls = [];
+        urls[0] = new ContactField(null,"http://my.domain.com");
+        myContact.urls = urls;
+                
+        // add company info
+        var orgs = [];
+        orgs[0] = new ContactOrganization("Beach Fitness", null, "Instructor", null, null, null, null);
+        myContact.organizations = orgs;
+        
+        // saves the contact to device
+        myContact.save(onContactSaved);
+      }
+
+      function updateContact() {
+        // find a contact to update
+        navigator.service.contacts.find(
+            null,
+            function(contacts) {
+                var now = new Date();         
+                // update contact and save
+                for (var i in contacts) {
+                    contacts[i].note = 'updated: ' + now;
+                    console.log('contact: ' + contacts[i].id + ' ' + contacts[i].note);
+                    contacts[i].save(onContactUpdated);
+                }
+            },
+            fail);
+      }
+      
+      function findContacts() {
+        navigator.service.contacts.find(
+            ['name', 'organizations'], 
+            function(contacts) {
+                alert('Found ' + contacts.length + ' contacts.');
+            }, 
+            fail,
+            { 
+                multiple: true, filter: 'or'
+            });
+      }
+
+      function removeContact() {
+        // find a contact to remove
+        navigator.service.contacts.find(
+            null,
+            function(contacts) {
+                // remove contact
+                for (var i in contacts) {
+                    contacts[i].remove(onContactRemoved);
+                }
+            },
+            fail);
+      }
       
     </script>
     <title>Insert title here</title>
@@ -197,5 +304,10 @@
     <input type="button" value="Get Photo (URI)" onclick="capturePhotoURI();return false;" /> 
     <img style="display:none;width:120px;height:120px;" id="cameraImage" src="" />
 
+    <h3>navigator.services.contact</h3>
+    <input type="button" value="Create Contact" onclick="createContact();return false;" /> 
+    <input type="button" value="Update Contact" onclick="updateContact();return false;" /> 
+    <input type="button" value="Find Contacts" onclick="findContacts();return false;" />
+    <input type="button" value="Remove Contact" onclick="removeContact();return false;" />
   </body>
 </html>
