@@ -1,3 +1,10 @@
+/*
+ * PhoneGap is available under *either* the terms of the modified BSD license *or* the
+ * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
+ * 
+ * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2010, IBM Corporation
+ */
 package com.phonegap.camera;
 
 import java.io.ByteArrayOutputStream;
@@ -29,7 +36,7 @@ public class CapturePhotoAction implements FileSystemJournalListener
 	private static final int FILE_URI = 1;
 	
 	/**
-	 * Maximum image encoding size.  Obtained unofficially through trial and error.
+	 * Maximum image encoding size (in bytes).  Obtained unofficially through trial and error.
 	 */
 	private static final long MAX_ENCODING_SIZE = 1500000L;
 	
@@ -109,12 +116,6 @@ public class CapturePhotoAction implements FileSystemJournalListener
 					// but there is a different threading model with the new WebKit engine 
 					// in 6.0.  Invoking the JS callback in the same thread causes the 
 					// application to crash in 6.0.
-					
-					// Perhaps this is necessary because the camera is a special case. 
-					// We invoke the native camera application using the 'invoke' API, so
-					// it runs in its own process/thread.  It is the only plugin that does
-					// not have its JS callbacks invoked by the thread started by the 
-					// plugin manager.  
 					Thread thread = new Thread(new Runnable() {
 						public void run() {
 							// invoke the appropriate callback

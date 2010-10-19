@@ -1,3 +1,10 @@
+/*
+ * PhoneGap is available under *either* the terms of the modified BSD license *or* the
+ * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
+ * 
+ * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2010, IBM Corporation
+ */
 package com.phonegap.geolocation;
 
 import java.util.Date;
@@ -67,13 +74,6 @@ public class Geolocation extends Plugin {
 	 * @param args contains the callback id and position options 
 	 */
 	public PluginResult execute(String action, JSONArray args,  String callbackId) {
-		
-		// TODO: (6.0 only) Best practice is to determine if location service is on.
-		// If not, prompt the user if OK to turn on.  
-		// Should include an action 'isLocationOn'.
-		//LocationInfo.isLocationOn();
-		//LocationInfo.setLocationOn();
-		//LocationInfo.isModeAvailable();
 		
 		/*
 		 * The geolocation plugin bypasses the plugin callback framework for 

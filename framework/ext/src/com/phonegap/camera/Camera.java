@@ -1,3 +1,10 @@
+/*
+ * PhoneGap is available under *either* the terms of the modified BSD license *or* the
+ * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
+ * 
+ * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2010, IBM Corporation
+ */
 package com.phonegap.camera;
 
 import org.json.me.JSONArray;
@@ -6,15 +13,14 @@ import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 
 /**
- * The Camera command interface.
+ * The Camera plugin interface.
  *
  * The Camera class can invoke the following actions:
  *
- *   - getPicture: takes photo and returns base64 encoded image
- *   - getPictureURI: takes photo and returns image URI
+ *   - takePicture: takes photo and returns base64 encoded image or image file URI
  *   
  *   future?
- *   - getVideoClip...
+ *   - captureVideo...
  *
  */
 public class Camera extends Plugin 
@@ -22,12 +28,12 @@ public class Camera extends Plugin
 	public static final String ACTION_TAKE_PICTURE = "takePicture";
 
 	/**
-	 * Executes the request and returns CommandResult.
+	 * Executes the requested action and returns a PluginResult.
 	 * 
-	 * @param action The command to execute.
+	 * @param action The action to execute.
 	 * @param callbackId The callback ID to be invoked upon action completion
-	 * @param args   JSONArry of arguments for the command.
-	 * @return A CommandResult object with a status and message.
+	 * @param args   JSONArry of arguments for the action.
+	 * @return A PluginResult object with a status and message.
 	 */
 	public PluginResult execute(String action, JSONArray args, String callbackId) 
 	{
@@ -43,15 +49,5 @@ public class Camera extends Plugin
 		}
 		
 		return result;
-	}
-	
-	/**
-	 * Identifies if action to be executed returns a value and should be run synchronously.
-	 * 
-	 * @param action	The action to execute
-	 * @return			T=returns value
-	 */
-	public boolean isSynch(String action) {
-		return false;
-	}
+	}	
 }

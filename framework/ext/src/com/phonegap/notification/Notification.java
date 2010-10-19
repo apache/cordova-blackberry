@@ -1,3 +1,10 @@
+/*
+ * PhoneGap is available under *either* the terms of the modified BSD license *or* the
+ * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
+ * 
+ * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2010, IBM Corporation
+ */
 package com.phonegap.notification;
 
 import com.phonegap.api.Plugin;
@@ -6,11 +13,12 @@ import com.phonegap.api.PluginResult;
 import org.json.me.JSONArray;
 
 /**
- * The Notification command interface.
+ * PhoneGap Notification plugin.
  *
- * The Notification class can invoke the following actions:
+ * The Notification plugin can invoke the following actions:
  *
  *   - alert(message, title, buttonLabel)
+ *   - confirm(message, title, button1,button2,button3...)
  *   - beep(count)
  *   - vibration(duration)
  *
@@ -25,10 +33,10 @@ public class Notification extends Plugin {
 	/**
 	 * Executes the request and returns CommandResult.
 	 * 
-	 * @param action The command to execute.
+	 * @param action The action to perform.
 	 * @param callbackId The callback ID to be invoked upon action completion
-	 * @param args   JSONArry of arguments for the command.
-	 * @return A CommandResult object with a status and message.
+	 * @param args   JSONArry of arguments for the specified action.
+	 * @return A PluginResult object with a status and message.
 	 */
 	public PluginResult execute(String action, JSONArray args, String callbackId) {
 		PluginResult result = null;

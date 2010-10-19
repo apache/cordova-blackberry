@@ -1,3 +1,10 @@
+/*
+ * PhoneGap is available under *either* the terms of the modified BSD license *or* the
+ * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
+ * 
+ * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2010, IBM Corporation
+ */
 package com.phonegap.notification;
 
 import com.phonegap.api.PluginResult;
@@ -8,8 +15,9 @@ import org.json.me.JSONException;
 import net.rim.device.api.system.Alert;
 
 /**
- * Vibrate Action (Singleton)
+ * Vibrate Action
  *
+ * Vibrates the device for specified duration.
  */
 public class VibrateAction {
 	
@@ -20,8 +28,7 @@ public class VibrateAction {
 	 *
 	 * @param args JSONArray formatted as [ duration ]
 	 *             duration: specifies the vibration length in milliseconds (default: 1000).
-	 * @return A CommandResult object with the success or failure
-	 *         state for vibrating the device.
+	 * @return A PluginResult object with the success or failure state for vibrating the device.
 	 */
 	public static PluginResult execute(JSONArray args) {
 		PluginResult result = null;

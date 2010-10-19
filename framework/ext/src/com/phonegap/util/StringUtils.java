@@ -1,5 +1,20 @@
+/*
+ * PhoneGap is available under *either* the terms of the modified BSD license *or* the
+ * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
+ * 
+ * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2010, IBM Corporation
+ * 
+ * Taken from Research in Motion knowledge base article: 
+ * 
+ * DB-00728: "How To - Implement a string splitter based on a given string delimiter", 24 March 2009.
+ * http://www.blackberry.com/knowledgecenterpublic/livelink.exe/fetch/2000/348583/800332/832062/How_To_-_Implement_a_string_splitter_based_on_a_given_string_delimiter.html?nodeid=1498848&vernum=0
+ */
 package com.phonegap.util;
 
+/**
+ * Provides various string utility methods. 
+ */
 public class StringUtils {
 
     //Identifies the substrings in a given string that are delimited
