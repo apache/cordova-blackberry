@@ -272,7 +272,10 @@ Contacts.prototype.find = function(fields, success, fail, options) {
     var contacts = [];
     for (var i in bbContacts) {
         if (bbContacts[i]) { 
-            contacts.push(Contact.fromBlackBerryContact(bbContacts[i]));
+            // W3C Contacts API specification states that only the fields
+            // in the search filter should be returned, so we create 
+            // a new Contact object, copying only the fields specified
+            contacts.push(BlackBerryContacts.createContact(bbContacts[i], fields));
         }
     }
     

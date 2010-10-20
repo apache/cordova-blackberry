@@ -30,8 +30,8 @@ var BlackBerryContacts = function() {
          "displayName"               : "title",
          "name"                      : [ "firstName", "lastName" ],
          "name.formatted"            : [ "firstName", "lastName" ],
-         "givenName"                 : "firstName",
-         "familyName"                : "lastName",
+         "name.givenName"            : "firstName",
+         "name.familyName"           : "lastName",
          "phoneNumbers"              : [ "faxPhone", "homePhone", "homePhone2", 
                                          "mobilePhone", "pagerPhone", "otherPhone",
                                          "workPhone", "workPhone2" ],
@@ -57,6 +57,7 @@ var BlackBerryContacts = function() {
          "addresses.region"          : [ "homeAddress.stateProvince", "workAddress.stateProvince" ],
          "addresses.country"         : [ "homeAddress.country", "workAddress.country" ],
          "organizations"             : [ "company", "jobTitle" ],
+         "organizations.name"        : "company",
          "organizations.title"       : "jobTitle",
          "birthday"                  : "birthday",
          "anniversary"               : "anniversary",
@@ -361,107 +362,126 @@ ContactAddress.fromBlackBerryAddress = function(bbAddress) {
 };
 
 /**
- * Factory method. Creates a Contact object from a BlackBerry Contact object.
+ * Factory method. Creates a Contact object from a BlackBerry Contact object, 
+ * copying only the fields specified.
  * @param {blackberry.pim.Contact} bbContact BlackBerry Contact object
- * @return {Contact} a contact object or null if the specified contact is null
+ * @param {String[]} fields array of contact fields that should be copied
+ * @return {Contact} a contact object containing the specified fields 
+ * or null if the specified contact is null
  */
-Contact.fromBlackBerryContact = function(bbContact) {
+BlackBerryContacts.createContact = function(bbContact, fields) {
 
     if (!bbContact) {
         return null;
     }
     
-    // name
-    var formattedName = bbContact.firstName + ' ' + bbContact.lastName;
-    var name = new ContactName(formattedName, bbContact.lastName, bbContact.firstName, null, null, null);
-
-    // phone numbers
-    var phoneNumbers = [];
-    if (bbContact.homePhone) {
-        phoneNumbers.push(new ContactField('home', bbContact.homePhone));
-    }
-    if (bbContact.homePhone2) {
-        phoneNumbers.push(new ContactField('home', bbContact.homePhone2));
-    }
-    if (bbContact.workPhone) {
-        phoneNumbers.push(new ContactField('work', bbContact.workPhone));
-    }
-    if (bbContact.workPhone2) {
-        phoneNumbers.push(new ContactField('work', bbContact.workPhone2));
-    }
-    if (bbContact.mobilePhone) {
-        phoneNumbers.push(new ContactField('mobile', bbContact.mobilePhone));
-    }
-    if (bbContact.faxPhone) {
-        phoneNumbers.push(new ContactField('fax', bbContact.faxPhone));
-    }
-    if (bbContact.pagerPhone) {
-        phoneNumbers.push(new ContactField('pager', bbContact.pagerPhone));
-    }
-    if (bbContact.otherPhone) {
-        phoneNumbers.push(new ContactField('other', bbContact.otherPhone));
+    // construct a new contact object
+    // always copy the contact id and displayName fields
+    var contact = new Contact(bbContact.uid, bbContact.title);
+    
+    // nothing to do
+    if (!fields) {
+      return contact;
     }
     
-    // emails
-    var emails = [];
-    if (bbContact.email1) {
-        emails.push(new ContactField(null, bbContact.email1, null));
-    }
-    if (bbContact.email2) { 
-        emails.push(new ContactField(null, bbContact.email2, null));
-    }
-    if (bbContact.email3) { 
-        emails.push(new ContactField(null, bbContact.email3, null));
+    // add the fields specified
+    for (var i in fields) {
+        var field = fields[i];
+        if (!field) {
+            continue;
+        }
+        
+        // name
+        if (field.indexOf('name') === 0) {
+            var formattedName = bbContact.firstName + ' ' + bbContact.lastName;
+            contact.name = new ContactName(formattedName, bbContact.lastName, bbContact.firstName, null, null, null);
+        } 
+        // phone numbers        
+        else if (field.indexOf('phoneNumbers') === 0) {
+            var phoneNumbers = [];
+            if (bbContact.homePhone) {
+                phoneNumbers.push(new ContactField('home', bbContact.homePhone));
+            }
+            if (bbContact.homePhone2) {
+                phoneNumbers.push(new ContactField('home', bbContact.homePhone2));
+            }
+            if (bbContact.workPhone) {
+                phoneNumbers.push(new ContactField('work', bbContact.workPhone));
+            }
+            if (bbContact.workPhone2) {
+                phoneNumbers.push(new ContactField('work', bbContact.workPhone2));
+            }
+            if (bbContact.mobilePhone) {
+                phoneNumbers.push(new ContactField('mobile', bbContact.mobilePhone));
+            }
+            if (bbContact.faxPhone) {
+                phoneNumbers.push(new ContactField('fax', bbContact.faxPhone));
+            }
+            if (bbContact.pagerPhone) {
+                phoneNumbers.push(new ContactField('pager', bbContact.pagerPhone));
+            }
+            if (bbContact.otherPhone) {
+                phoneNumbers.push(new ContactField('other', bbContact.otherPhone));
+            }
+            contact.phoneNumbers = phoneNumbers;
+        }
+        // emails
+        else if (field.indexOf('emails') === 0) {
+            var emails = [];
+            if (bbContact.email1) {
+                emails.push(new ContactField(null, bbContact.email1, null));
+            }
+            if (bbContact.email2) { 
+                emails.push(new ContactField(null, bbContact.email2, null));
+            }
+            if (bbContact.email3) { 
+                emails.push(new ContactField(null, bbContact.email3, null));
+            }
+            contact.emails = emails;
+        }
+        // addresses
+        else if (field.indexOf('addresses') === 0) {
+            var addresses = [];
+            if (bbContact.homeAddress) {
+                addresses.push(ContactAddress.fromBlackBerryAddress(bbContact.homeAddress));
+            }
+            if (bbContact.workAddress) {
+                addresses.push(ContactAddress.fromBlackBerryAddress(bbContact.workAddress));
+            }
+            contact.addresses = addresses;
+        }
+        // birthday
+        else if (field.indexOf('birthday') === 0) {
+            contact.birthday = bbContact.birthday;
+        }
+        // anniversary
+        else if (field.indexOf('anniversary') === 0) {
+            contact.anniversary = bbContact.anniversary;
+        }
+        // note
+        else if (field.indexOf('note') === 0) {
+            contact.note = bbContact.note;
+        }
+        // organizations
+        else if (field.indexOf('organizations') === 0) {
+            var organizations = [];
+            if (bbContact.company || bbContact.jobTitle) {
+                organizations.push(new ContactOrganization(bbContact.company, null, 
+                        bbContact.jobTitle, null, null, null, null));
+            }
+            contact.organizations = organizations;
+        }
+        // urls
+        else if (field.indexOf('urls') === 0) {
+            var urls = [];
+            if (bbContact.webpage) {
+                urls.push(new ContactField(null, bbContact.webpage));
+            }
+            contact.urls = urls;
+        }
     }
     
-    // addresses
-    var addresses = [];
-    if (bbContact.homeAddress) {
-        addresses.push(ContactAddress.fromBlackBerryAddress(bbContact.homeAddress));
-    }
-    if (bbContact.workAddress) {
-        addresses.push(ContactAddress.fromBlackBerryAddress(bbContact.workAddress));
-    }
-    
-    // organizations
-    var organizations = [];
-    if (bbContact.company || bbContact.jobTitle) {
-        organizations.push(new ContactOrganization(bbContact.company, null, 
-                bbContact.jobTitle, null, null, null, null));
-    }
-    
-    // urls
-    var urls = [];
-    if (bbContact.webpage) {
-        urls.push(new ContactField(null, bbContact.webpage));
-    }
-
-    // finally
-    return new Contact(
-            bbContact.uid,          // unique id
-            bbContact.title,        // displayName
-            name,                   // ContactName
-            null,                   // nickname
-            phoneNumbers,           // phoneNumbers ContactField[]
-            emails,                 // emails ContactField[]
-            addresses,              // addresses ContactField[]
-            [],                     // IMs ContactField[]
-            organizations,          // organizations ContactField[]
-            null,                   // published
-            null,                   // updated
-            bbContact.birthday,     // birthday
-            bbContact.anniversary,  // anniversary
-            null,                   // gender
-            bbContact.note,         // note
-            null,                   // preferredUserName 
-            [],                     // photos ContactField[]
-            [],                     // tags ContactField[]
-            [],                     // relationships ContactField[]
-            urls,                   // urls ContactField[]
-            [],                     // accounts ContactAccount[] 
-            null,                   // utcOffset
-            null                    // connected
-            );
+    return contact;
 };
 
 PhoneGap.addConstructor(function() {

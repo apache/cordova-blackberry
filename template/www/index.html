@@ -249,7 +249,7 @@ website: http://phonegap.com
       function findContacts() {
         var filterText = document.getElementById('filterText').value;
         navigator.service.contacts.find(
-            ['name', 'organizations'], 
+            ['name', 'emails', 'addresses', 'organizations'], 
             function(contacts) {
                 alert('Found ' + contacts.length + ' contacts.');
             }, 
