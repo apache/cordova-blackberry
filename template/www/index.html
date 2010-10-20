@@ -247,6 +247,7 @@ website: http://phonegap.com
       }
       
       function findContacts() {
+        var filterText = document.getElementById('filterText').value;
         navigator.service.contacts.find(
             ['name', 'organizations'], 
             function(contacts) {
@@ -254,7 +255,7 @@ website: http://phonegap.com
             }, 
             fail,
             { 
-                multiple: true, filter: 'or'
+                multiple: true, filter: filterText
             });
       }
 
@@ -317,7 +318,10 @@ website: http://phonegap.com
     <h3>navigator.services.contact</h3>
     <input type="button" value="Create Contact" onclick="createContact();return false;" /> 
     <input type="button" value="Update Contact" onclick="updateContact();return false;" /> 
-    <input type="button" value="Find Contacts" onclick="findContacts();return false;" />
     <input type="button" value="Remove Contact" onclick="removeContact();return false;" />
+    <p>
+    <input type="text" id="filterText" />
+    <input type="button" value="Find Contacts" onclick="findContacts();return false;" />
+    </p>
   </body>
 </html>

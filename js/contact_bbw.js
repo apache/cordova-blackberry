@@ -268,12 +268,24 @@ BlackBerryContacts.buildFilterExpression = function(fields, filter) {
     // querying Contact lists.  The operators are ["!=","==","<",">","<=",">="].
     // Use of regex is also an option, and the only one we can use to simulate
     // an SQL '%LIKE%' clause.  
-    // TODO: The only problem with the BB regex implementation is that it is case 
-    // sensitive.  We need case INsensitivity to match the W3C Contacts API spec.  
-    // Unfortunately, the BB implementation does not seem to honor the regex (?i)
-    // switch to turn on case insensitivity.  So we're stuck with case sensitive 
-    // searches for now.
-    filter = ".*" + filter + ".*";
+    //
+    // Note: The BlackBerry regex implementation doesn't seem to support 
+    // conventional regex switches that would enable a case insensitive search.  
+    // It does not honor the (?i) switch (which causes Contact.find() to fail). 
+    // We need case INsensitivity to match the W3C Contacts API spec.  
+    // So the guys at RIM proposed this method: 
+    //
+    // original filter = "norm"
+    // case insensitive filter = "[nN][oO][rR][mM]"
+    //
+    var ciFilter = "";
+    for (var i = 0; i < filter.length; i++)
+    {
+      ciFilter = ciFilter + "[" + filter[i].toLowerCase() + filter[i].toUpperCase() + "]";
+    }
+    
+    // match anything that contains our filter string
+    filter = ".*" + ciFilter + ".*";
     
     // build a filter expression using all Contact fields provided
     var filterExpression = null;
