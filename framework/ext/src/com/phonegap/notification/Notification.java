@@ -49,7 +49,7 @@ public class Notification extends Plugin {
 			result = BeepAction.execute(args);
 			break;
 		case ACTION_CONFIRM:
-			result = new ConfirmAction().execute(args);
+			result = ConfirmAction.execute(args);
 			break;
 		case ACTION_VIBRATE:
 			result = VibrateAction.execute(args);
@@ -69,7 +69,13 @@ public class Notification extends Plugin {
 	 * @return			T=returns value
 	 */
 	public boolean isSynch(String action) {
-		return true;
+	    switch (getAction(action)) {
+	    case ACTION_ALERT:
+	    case ACTION_CONFIRM:
+	        return false;
+	    default:
+	        return true;
+	    }
 	}
 	
 	/**

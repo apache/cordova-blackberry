@@ -27,14 +27,15 @@ Notification.prototype.alert = function(message, title, buttonLabel) {
 
 /**
  * Open a custom confirmation dialog, with a customizable title and button text.
- * @param {String} message      Message to print in the body of the dialog
- * @param {String} title        Title of the alert dialog (default: 'Confirm')
- * @param {String} buttonLabels Comma separated list of the button labels (default: 'OK,Cancel')
+ * @param {String}  message         Message to print in the body of the dialog
+ * @param {Function}resultCallback  The callback that is invoked when a user clicks a button.
+ * @param {String}  title           Title of the alert dialog (default: 'Confirm')
+ * @param {String}  buttonLabels    Comma separated list of the button labels (default: 'OK,Cancel')
  */
-Notification.prototype.confirm = function(message, title, buttonLabels) {
+Notification.prototype.confirm = function(message, resultCallback, title, buttonLabels) {
     var _title = (title || "Confirm");
     var _buttonLabels = (buttonLabels || "OK,Cancel");
-    return PhoneGap.exec(null, null, 'Notification', 'confirm', [message, _title, _buttonLabels]);
+    return PhoneGap.exec(resultCallback, null, 'Notification', 'confirm', [message, _title, _buttonLabels]);
 };
 
 /**

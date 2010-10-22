@@ -54,12 +54,16 @@ website: http://phonegap.com
       	navigator.notification.alert("You rock!", "Woohoo!", "Thanks");
       }
 
+      function confirmResult(button) {
+        console.log('Confirm: you pressed button ' + button);
+      }
+
       function callConfirm() {
-        var r = navigator.notification.confirm(
+        navigator.notification.confirm(
             "Please confirm", 
+            confirmResult,
             "Are you sure?", 
             "Yes,No,Maybe");
-        console.log('You pressed button ' + r);
       }
 
       function showAcceleration(acceleration) {

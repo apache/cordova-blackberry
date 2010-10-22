@@ -34,7 +34,7 @@ public class ConfirmAction {
      *             buttonLabel: the button text (default: "OK,Cancel").
      * @return A PluginResult object with index of dialog button pressed (1,2,3...).
      */
-    public PluginResult execute(JSONArray args) {
+    public static PluginResult execute(JSONArray args) {
 
         PluginResult result = null;
 
@@ -59,7 +59,7 @@ public class ConfirmAction {
                     ui.pushModalScreen(dialog);
                 }
             };
-            Logger.log(this.getClass().getName() + ": showing confirm dialog: '" + title + "'");            
+            Logger.log(ConfirmAction.class.getName() + ": showing confirm dialog: '" + title + "'");            
             UiApplication.getUiApplication().invokeAndWait(runnable);
 
             // add +1 to the button index to match the JavaScript API (which starts at 1)
