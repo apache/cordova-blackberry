@@ -50,8 +50,16 @@ website: http://phonegap.com
         navigator.notification.vibrate(1000);
       }
       
+      function alertDismissed() {
+        alert('Alert dialog dismissed.');
+      }
+      
       function callAlert() {
-      	navigator.notification.alert("You rock!", "Woohoo!", "Thanks");
+      	navigator.notification.alert(
+      	    "You rock!", 
+      	    alertDismissed,
+      	    "Woohoo!", 
+      	    "Thanks");
       }
 
       function confirmResult(button) {
