@@ -1,4 +1,4 @@
-<project name="Build &amp; Deploy a PhoneGap BlackBerry Widget Project" default="help">
+<project name="Build and Deploy a PhoneGap BlackBerry Widget Project" default="help">
     
     <!-- LOAD PROPERTIES -->
     
@@ -6,25 +6,7 @@
     <property name="build.dir"     location="build" />
     <property name="widget.dir"    location="${build.dir}/widget" />
     
-    <!-- Use jde.home property, if set in project.properties file. If not, use bbwp.dir. -->
-    <echo message="The following can be overridden by setting jde.home in the project.properties file:" />
-    <condition property="jde.home" value="${properties.jde.home}" else="${properties.bbwp.dir}">
-        <available file="${properties.jde.home}" type="dir" />
-    </condition>
-    <echo message="JDE home=${jde.home}" />
 
-    <condition property="simulator.dir" value="${jde.home}/simpack" else="${jde.home}/simulator">
-        <available file="${jde.home}/simpack" type="dir" />
-    </condition>
-    <echo message="Simulator home=${simulator.dir}" />
-
-    <condition property="simulator.bin" value="${simulator.dir}/defaultSimulator.bat" else="${simulator.dir}/9550.bat">
-        <available file="${simulator.dir}/defaultSimulator.bat" />
-    </condition>
-    <echo message="Simulator executable=${simulator.bin}" />
-
-    <property name="mds.dir"       location="${jde.home}/mds" />
-    
     <!-- USE ANT-CONTRIB LIBRARY -->
     
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -32,7 +14,68 @@
         <pathelement location="./lib/ant-contrib/ant-contrib-1.0b3.jar" />
       </classpath>
     </taskdef>
-    
+
+    <!-- Simulator directory: Use sim.dir property if set in project.properties file. 
+         Otherwise, use bbwp simulator directory. -->
+
+    <condition 
+        property="simulator.dir" 
+        value="${properties.sim.dir}" 
+        else="${properties.bbwp.dir}/simpack">
+            <available file="${properties.sim.dir}" type="dir" />
+    </condition>
+    <echo message="Simulator directory=${simulator.dir}" />
+
+    <!-- Simulator binary: Use sim.bin property if set in project.properties file  
+         or try setting to 'defaultSimulator.bat' in simulator directory. -->
+
+    <condition 
+        property="sim.bin" 
+        value="${properties.sim.bin}" 
+        else="defaultSimulator.bat">
+            <available file="${simulator.dir}/${properties.sim.bin}"/>
+    </condition>
+
+    <!-- If simulator executable does not exist, use the first device listed 
+         in the 'handhelds.manifest.txt' file in the simulator directory. -->
+
+    <loadfile 
+        property="device.list"
+        srcFile="${simulator.dir}/handhelds.manifest.txt">
+        <filterchain>
+            <tokenFilter>
+                <stringtokenizer/>
+            </tokenFilter>
+        </filterchain>
+    </loadfile>
+
+    <propertyregex property="device"
+        input="${device.list}"
+        regexp="^\d{4}"
+        select="\0"
+        override="true" />
+    <property name="device.bin" value="${device}.bat" />
+
+    <condition
+        property="simulator.bin" 
+        value="${sim.bin}"
+        else="${device.bin}">
+            <available file="${simulator.dir}/${sim.bin}" />
+    </condition>
+        
+    <echo message="Simulator executable=${simulator.dir}/${simulator.bin}" />
+ 
+    <!-- MDS directory: Use mds.dir property if set in project.properties file. 
+         Otherwise, use bbwp MDS directory. -->
+
+    <condition 
+        property="mds.dir" 
+        value="${properties.mds.dir}" 
+        else="${properties.bbwp.dir}/mds">
+            <available file="${properties.mds.dir}" type="dir" />
+    </condition>
+    <echo message="MDS directory=${mds.dir}" />
+        
     <!-- LOAD DEVICE -->
     
     <target name="load-device" depends="build">
@@ -49,8 +92,8 @@
         <copy todir="${simulator.dir}">
             <fileset dir="${build.dir}/StandardInstall" includes="*.cod, *.cso, *.csl, *.alx" />
         </copy>
-        <exec executable="${mds.dir}/run.bat" dir="${mds.dir}"       spawn="true" />
-        <exec executable="${simulator.bin}"   dir="${simulator.dir}" spawn="true" />
+        <exec executable="${mds.dir}/run.bat" dir="${mds.dir}" spawn="true" />
+        <exec executable="${simulator.dir}/${simulator.bin}" dir="${simulator.dir}" spawn="true" />
     </target>
     
     <!-- BUILD -->
@@ -70,7 +113,7 @@
         <mkdir dir="${build.dir}" />
         <zip compress="false" destfile="${build.dir}/${cod.name}.zip" basedir="${widget.dir}" excludes="**/build/**,**/.settings/**,**/.project" />
         <exec executable="cmd">
-            <arg value="/c" />
+            <arg value="/c " />
             <arg value="${properties.bbwp.bin}" />
             <arg file="${build.dir}/${cod.name}.zip" />
             <arg value="/g" />
@@ -90,7 +133,7 @@
     <!-- CLEAN DEVICE -->
     
     <target name="clean-device" depends="generate-cod-name">
-        <exec executable="${jde.home}/bin/JavaLoader.exe">
+        <exec executable="${properties.bbwp.dir}/bin/JavaLoader.exe">
             <arg value="-usb" />
             <arg value="erase" />
             <arg value="-f" />
