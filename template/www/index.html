@@ -245,13 +245,22 @@ website: http://phonegap.com
       function updateContact() {
         // find a contact to update
         navigator.service.contacts.find(
-            null,
+            ['name','emails'],
             function(contacts) {
                 var now = new Date();         
                 // update contact and save
                 for (var i in contacts) {
+                    // update attributes
+                    contacts[i].emails[0].value = "sl@bf.com";
                     contacts[i].note = 'updated: ' + now;
                     console.log('contact: ' + contacts[i].id + ' ' + contacts[i].note);
+                    
+                    // remove phone numbers
+                    contacts[i].phoneNumbers = [];
+                    
+                    // set field to non-null value to remove from database
+                    contacts[i].anniversary = "";
+                    
                     contacts[i].save(onContactUpdated);
                 }
             },
