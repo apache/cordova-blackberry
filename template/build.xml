@@ -13,6 +13,7 @@
     <property prefix="properties"        file="project.properties" />
     <property name="build.dir"           location="build" />
     <property name="widget.dir"          location="${build.dir}/widget" />
+    <property name="code.sign"           value="false" />
 
     <!-- BlackBerry Widget Packager directory is required. -->
     <fail unless="properties.bbwp.dir" message="Please specify BlackBerry Widget Packager directory using 'bbwp.dir' in your 'project.properties' file." />    
@@ -123,7 +124,7 @@
     <!-- BUILD -->
 
     <target name="build" depends="package-app">
-        <bbwp />
+        <bbwp code-sign="${code.sign}" />
     </target>
 
     <!-- BBWP MACRO -->
