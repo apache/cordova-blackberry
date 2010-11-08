@@ -311,6 +311,56 @@ website: http://phonegap.com
             fail);
       }
       
+      // logs file events
+      function onFileEvent(event) {
+          console.log('file load event: ' + event.target.fileName + ' ' + event.type);
+      }
+      
+      // called when error reading file
+      function onFileError(event) {
+          alert('error loading file: ' + event.target.error.code);
+      }
+      
+      // called when file is loaded
+      function onFileLoaded(event) {
+          onFileEvent(event);
+          alert('FileReader.result: ' + event.target.fileName + ': ' + event.target.result);  
+      }
+      
+      // reads a text file
+      function readFileAsText()
+      {   
+          var fileReader = new FileReader();
+          
+          // set the callbacks
+          fileReader.onloadstart = onFileEvent;
+          fileReader.onprogress = onFileEvent;
+          fileReader.onload = onFileLoaded;
+          fileReader.onloadend = onFileEvent;
+          fileReader.onabort = onFileEvent;
+          fileReader.onerror = onFileError;
+          
+          // read the file
+          fileReader.readAsText('file:///SDCard/phonegap.txt');
+      }
+
+      // reads a text file and encodes to Base64
+      function readFileAsDataURL()
+      {   
+          var fileReader = new FileReader();
+          
+          // set the callbacks
+          fileReader.onloadstart = onFileEvent;
+          fileReader.onprogress = onFileEvent;
+          fileReader.onload = onFileLoaded;
+          fileReader.onloadend = onFileEvent;
+          fileReader.onabort = onFileEvent;
+          fileReader.onerror = onFileError;
+          
+          // read the file
+          fileReader.readAsDataURL('file:///SDCard/phonegap.txt');
+      }
+      
     </script>
     <title>Insert title here</title>
   </head>
@@ -365,5 +415,9 @@ website: http://phonegap.com
     <input type="text" id="filterText" />
     <input type="button" value="Find Contacts" onclick="findContacts();return false;" />
     </p>
+
+    <h3>FileReader</h3>
+    <input type="button" value="Read File (Text)" onclick="readFileAsText();return false;" /> 
+    <input type="button" value="Read File (Base64)" onclick="readFileAsDataURL();return false;" /> 
   </body>
 </html>

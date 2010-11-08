@@ -7,9 +7,9 @@
  */
 package com.phonegap.api;
 
-import com.phonegap.PhoneGapExtension;
-
 import net.rim.device.api.script.Scriptable;
+
+import com.phonegap.PhoneGapExtension;
 
 /**
  * PluginManagerFeature provides the plugin feature to the PhoneGap widget 
@@ -33,6 +33,7 @@ public final class PluginManagerFeature extends Scriptable {
         this.pluginManagerFunction.addService("Notification", "com.phonegap.notification.Notification");
         this.pluginManagerFunction.addService("Accelerometer", "com.phonegap.accelerometer.Accelerometer");
         this.pluginManagerFunction.addService("Geolocation", "com.phonegap.geolocation.Geolocation");
+        this.pluginManagerFunction.addService("File", "com.phonegap.file.FileManager");
 	}
 	
 	/**
