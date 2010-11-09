@@ -139,6 +139,10 @@ Geolocation.prototype.fail = function(id, result) {
     catch (e) {
         console.log("Geolocation Error: Error calling error callback function.");
     }
+
+    if (id == "global") {
+        delete navigator.geolocation.listeners["global"];
+    }
 };
 
 /**
