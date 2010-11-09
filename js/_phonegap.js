@@ -34,7 +34,6 @@
  * @class
  */
 PhoneGap = { };
-navigator = { };
 
 /**
  * Custom pub-sub channel that can have functions subscribed to it
