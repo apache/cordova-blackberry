@@ -133,11 +133,17 @@ website: http://phonegap.com
           navigator.geolocation.clearWatch(locationWatchId);
           locationWatchId = null;
         }
+        document.getElementById('lat').innerHTML = "";
+        document.getElementById('long').innerHTML = "";
       }
       
       function onLocationFail(error) {
         alert('code: ' + error.code + '\n' +
               'message: ' + error.message + '\n');
+      }
+      
+      function usePhoneGapGeo() {
+        Geolocation.usePhoneGap();
       }
       
       function onCapturePhotoSuccess(imageData) {
@@ -320,6 +326,7 @@ website: http://phonegap.com
     <input type="button" value="Get Location" onclick="getLocation();return false;" /> 
     <input type="button" value="Watch Location" onclick="watchLocation();return false;" /> 
     <input type="button" value="Clear Geo" onclick="clearLocationWatch();return false;" /> 
+    <input type="button" value="Use PhoneGap" onclick="usePhoneGapGeo();return false;" /> 
 
     <h3>navigator.accelerometer</h3>
     <dl id="accel-data">
