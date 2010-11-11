@@ -110,8 +110,14 @@ website: http://phonegap.com
         };
         var options = {};
         options.enableHighAccuracy = true;
-        options.timeout = 5000;
-        options.maximumAge = 5000;
+        var timeout = new Number(document.getElementById('geo_timeout').value);
+        if (isNaN(timeout) === false) {
+          options.timeout = timeout*1000;
+        }
+        var maxage = new Number(document.getElementById('geo_maxage').value);
+        if (isNaN(maxage) === false) {
+          options.maximumAge = maxage*1000;
+        }
         navigator.geolocation.getCurrentPosition(success, onLocationFail, options);
       }
 
@@ -123,8 +129,14 @@ website: http://phonegap.com
         };
         var options = {};
         options.enableHighAccuracy = true;
-        options.timeout = 5000;
-        options.maximumAge = 5000;
+        var timeout = new Number(document.getElementById('geo_timeout').value);
+        if (isNaN(timeout) === false) {
+          options.timeout = timeout*1000;
+        }
+        var maxage = new Number(document.getElementById('geo_maxage').value);
+        if (isNaN(maxage) === false) {
+          options.maximumAge = maxage*1000;
+        }
         locationWatchId = navigator.geolocation.watchPosition(success, onLocationFail, options);
       }
 
@@ -323,6 +335,8 @@ website: http://phonegap.com
       <dt>Latitude:</dt><dd id="lat">&nbsp;</dd>
       <dt>Longitude:</dt><dd id="long">&nbsp;</dd>
     </dl>
+    <p>Timeout:<input type="text" id="geo_timeout" /></p>
+    <p>Max age:<input type="text" id="geo_maxage" /></p>
     <input type="button" value="Get Location" onclick="getLocation();return false;" /> 
     <input type="button" value="Watch Location" onclick="watchLocation();return false;" /> 
     <input type="button" value="Clear Geo" onclick="clearLocationWatch();return false;" /> 

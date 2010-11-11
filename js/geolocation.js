@@ -54,18 +54,22 @@ Geolocation.prototype.getCurrentPosition = function(successCallback, errorCallba
         return;
     }
     
-    var maximumAge = 10000;
+    // default maximumAge value should be 0, and set if positive 
+    var maximumAge = 0;
+
+    // default timeout value should be infinity, but that's a really long time
+    var timeout = 3600000; 
+
     var enableHighAccuracy = false;
-    var timeout = 10000;
-    if (typeof options != "undefined") {
-        if (typeof options.maximumAge != "undefined") {
+    if (options) {
+        if (options.maximumAge && (options.maximumAge > 0)) {
             maximumAge = options.maximumAge;
         }
-        if (typeof options.enableHighAccuracy != "undefined") {
+        if (options.enableHighAccuracy) {
             enableHighAccuracy = options.enableHighAccuracy;
         }
-        if (typeof options.timeout != "undefined") {
-            timeout = options.timeout;
+        if (options.timeout) {
+            timeout = (options.timeout < 0) ? 0 : options.timeout;
         }
     }
     navigator._geo.listeners[id] = {"success" : successCallback, "fail" : errorCallback };
@@ -83,18 +87,24 @@ Geolocation.prototype.getCurrentPosition = function(successCallback, errorCallba
  */
 Geolocation.prototype.watchPosition = function(successCallback, errorCallback, options) {
 
-    var maximumAge = 10000;
+    // default maximumAge value should be 0, and set if positive 
+    var maximumAge = 0;
+
+    // DO NOT set timeout to a large value for watchPosition in BlackBerry.  
+    // The interval used for updates is half the timeout value, so a large 
+    // timeout value will mean a long wait for the first location.
+    var timeout = 10000; 
+
     var enableHighAccuracy = false;
-    var timeout = 10000;
-    if (typeof options != "undefined") {
-        if (typeof options.maximumAge != "undefined") {
+    if (options) {
+        if (options.maximumAge && (options.maximumAge > 0)) {
             maximumAge = options.maximumAge;
         }
-        if (typeof options.enableHighAccuracy != "undefined") {
+        if (options.enableHighAccuracy) {
             enableHighAccuracy = options.enableHighAccuracy;
         }
-        if (typeof options.timeout != "undefined") {
-            timeout = options.timeout;
+        if (options.timeout) {
+            timeout = (options.timeout < 0) ? 0 : options.timeout;
         }
     }
     var id = PhoneGap.createUUID();
