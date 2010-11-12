@@ -21,12 +21,12 @@ public class PluginResult {
 
     public PluginResult(Status status) {
         this.status = status.ordinal();
-        this.message = "'" + status.getMessage() + "'";
+        this.message = JSONObject.quote(status.getMessage());
     }
 
     public PluginResult(Status status, String message) {
         this.status = status.ordinal();
-        this.message = "'" + message + "'";
+        this.message = JSONObject.quote(message);
     }
 
     public PluginResult(Status status, JSONObject message) {
