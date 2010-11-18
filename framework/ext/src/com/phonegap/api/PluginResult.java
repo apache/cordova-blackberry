@@ -34,6 +34,21 @@ public class PluginResult {
         this.message = (message != null) ? message.toString(): "null";
     }
 
+    public PluginResult(Status status, int i) {
+        this.status = status.ordinal();
+        this.message = ""+i;
+    }
+
+    public PluginResult(Status status, float f) {
+        this.status = status.ordinal();
+        this.message = ""+f;
+    }
+
+    public PluginResult(Status status, boolean b) {
+        this.status = status.ordinal();
+        this.message = ""+b;
+    }
+    
     public int getStatus() {
         return status;
     }
