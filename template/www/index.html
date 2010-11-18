@@ -310,15 +310,15 @@ website: http://phonegap.com
             },
             fail);
       }
-      
+
       // logs file events
       function onFileEvent(event) {
-          console.log('file load event: ' + event.target.fileName + ' ' + event.type);
+          console.log('file event: ' + event.target.fileName + ' ' + event.type);
       }
       
       // called when error reading file
       function onFileError(event) {
-          alert('error loading file: ' + event.target.error.code);
+          alert('file error: ' + event.target.error.code);
       }
       
       // called when file is loaded
@@ -360,6 +360,77 @@ website: http://phonegap.com
           // read the file
           fileReader.readAsDataURL('file:///SDCard/phonegap.txt');
       }
+
+      // called when file is written
+      function onFileWrite(event) {
+          onFileEvent(event);
+          console.log('FileWriter position=' + event.target.position + ", length=" + event.target.length);
+      }
+
+      // writes a text file to the device
+      function writeFile() 
+      {
+          var fileWriter;
+          try { 
+              fileWriter = new FileWriter('file:///SDCard/bbgap.txt', true);
+          } 
+          catch (e) {
+              alert("Error creating FileWriter: " + e);
+              return;
+          } 
+          
+          // set the callbacks
+          fileWriter.onwritestart = onFileEvent;
+          fileWriter.onprogress = onFileEvent;
+          fileWriter.onwrite = onFileWrite;
+          fileWriter.onabort = onFileEvent;
+          fileWriter.onerror = onFileError;
+
+          // called when write is finished
+          var lineCount = 1;
+          fileWriter.onwriteend = function(event) {
+              onFileEvent(event);
+              lineCount += 1;
+              if (lineCount <= 3) {
+                  // append a new line   
+                  fileWriter.write('Line ' + lineCount + '.\r\n');  
+              } else {
+                  alert(fileWriter.fileName + ' length=' + fileWriter.length + ', position=' + fileWriter.position);
+              }
+          }
+          
+          // write the file
+          fileWriter.write('Line ' + lineCount + '.\r\n');          
+      }
+      
+      // truncates a file
+      function truncateFile() {
+          var fileWriter;
+          try { 
+              fileWriter = new FileWriter('file:///SDCard/bbgap.txt');
+          } 
+          catch (e) {
+              alert("Error creating FileWriter: " + e);
+              return;
+          } 
+          
+          // set the callbacks
+          fileWriter.onwritestart = onFileEvent;
+          fileWriter.onprogress = onFileEvent;
+          fileWriter.onwrite = onFileWrite;
+          fileWriter.onabort = onFileEvent;
+          fileWriter.onerror = onFileError;
+
+          // called when truncate is finished
+          fileWriter.onwriteend = function(event) {
+              onFileEvent(event);
+              alert(fileWriter.fileName + ' length=' + fileWriter.length + ', position=' + fileWriter.position);
+          }
+
+          // strip off the last 3 bytes of the file
+          fileWriter.truncate(fileWriter.length-3);
+      }
+      
       
     </script>
     <title>Insert title here</title>
@@ -419,5 +490,8 @@ website: http://phonegap.com
     <h3>FileReader</h3>
     <input type="button" value="Read File (Text)" onclick="readFileAsText();return false;" /> 
     <input type="button" value="Read File (Base64)" onclick="readFileAsDataURL();return false;" /> 
+    <h3>FileWriter</h3>
+    <input type="button" value="Write File" onclick="writeFile();return false;" />
+    <input type="button" value="Truncate File" onclick="truncateFile();return false;" />
   </body>
 </html>
