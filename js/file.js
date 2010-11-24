@@ -60,21 +60,6 @@ function FileMgr() {
 };
 
 /**
- * Fires a file event to the specified callback.
- * 
- * @param callback      Callback to receive event notification.
- * @param target        Target of event.
- * @param type          Type of event.
- */
-FileMgr.prototype.fireEvent = function(callback, target, type) {
-    if (typeof callback == "function") {
-        var event = {"type": type};
-        event.target = target;
-        callback(event);
-    }
-};
-
-/**
  * Reads a file from the device and encodes the contents using the specified 
  * encoding. 
  * 
@@ -201,6 +186,9 @@ FileReader.DONE = 2;
  * Abort read file operation.
  */
 FileReader.prototype.abort = function() {
+    var event;
+    
+    // reset everything
     this.readyState = FileReader.DONE;
     this.result = null;
     
@@ -210,9 +198,18 @@ FileReader.prototype.abort = function() {
     this.error = error;
 
     // abort procedure
-    navigator.fileMgr.fireEvent(this.onerror, this, "error");
-    navigator.fileMgr.fireEvent(this.onabort, this, "abort");
-    navigator.fileMgr.fireEvent(this.onloadend, this, "loadend");
+    if (typeof this.onerror == "function") {
+        event = {"type":"error", "target":this};
+        this.onerror(event);
+    }
+    if (typeof this.onabort == "function") {
+        event = {"type":"abort", "target":this};
+        this.onabort(event);
+    }
+    if (typeof this.onloadend == "function") {
+        event = {"type":"loadend", "target":this};
+        this.onloadend(event);
+    }
 };
 
 /**
@@ -222,12 +219,17 @@ FileReader.prototype.abort = function() {
  * @param encoding      [Optional] (see http://www.iana.org/assignments/character-sets)
  */
 FileReader.prototype.readAsText = function(file, encoding) {
+    var event;
+    
     // Use UTF-8 as default encoding
     var enc = encoding ? encoding : "UTF-8";
     
     // start
     this.readyState = FileReader.LOADING;
-    navigator.fileMgr.fireEvent(this.onloadstart, this, "loadstart");        
+    if (typeof this.onloadstart == "function") {
+        event = {"type":"loadstart", "target":this};
+        this.onloadstart(event);
+    }
 
     // read and encode file
     this.fileName = file;
@@ -243,9 +245,15 @@ FileReader.prototype.readAsText = function(file, encoding) {
 
             // success procedure
             me.result = result;
-            navigator.fileMgr.fireEvent(me.onload, me, "load");
+            if (typeof me.onload == "function") {
+                event = {"type":"load", "target":me};
+                me.onload(event);
+            }
             me.readyState = FileReader.DONE;
-            navigator.fileMgr.fireEvent(me.onloadend, me, "loadend");
+            if (typeof me.onloadend == "function") {
+                event = {"type":"loadend", "target":me};
+                me.onloadend(event);
+            }
         },
 
         // error callback
@@ -262,9 +270,15 @@ FileReader.prototype.readAsText = function(file, encoding) {
             
             // error procedure
             me.result = null;
-            navigator.fileMgr.fireEvent(me.onerror, me, "error");
+            if (typeof me.onerror == "function") {
+                event = {"type":"error", "target":me};
+                me.onerror(event);
+            }
             me.readyState = FileReader.DONE;
-            navigator.fileMgr.fireEvent(me.onloadend, me, "loadend");
+            if (typeof me.onloadend == "function") {
+                event = {"type":"loadend", "target":me};
+                me.onloadend(event);
+            }
         }
     );
 };
@@ -277,9 +291,14 @@ FileReader.prototype.readAsText = function(file, encoding) {
  * @param file          The name of the file
  */
 FileReader.prototype.readAsDataURL = function(file) {
+    var event;
+    
     // start
     this.readyState = FileReader.LOADING;
-    navigator.fileMgr.fireEvent(this.onloadstart, this, "loadstart");
+    if (typeof this.onloadstart == "function") {
+        event = {"type":"loadstart", "target":this};
+        this.onloadstart(event);
+    }
     
     // read and encode file
     this.fileName = file;
@@ -295,9 +314,15 @@ FileReader.prototype.readAsDataURL = function(file) {
 
             // success procedure
             me.result = result;
-            navigator.fileMgr.fireEvent(me.onload, me, "load");
+            if (typeof me.onload == "function") {
+                event = {"type":"load", "target":me};
+                me.onload(event);
+            }
             me.readyState = FileReader.DONE;
-            navigator.fileMgr.fireEvent(me.onloadend, me, "loadend");
+            if (typeof me.onloadend == "function") {
+                event = {"type":"loadend", "target":me};
+                me.onloadend(event);
+            }
         },
 
         // error callback
@@ -314,9 +339,15 @@ FileReader.prototype.readAsDataURL = function(file) {
             
             // error procedure
             me.result = null;
-            navigator.fileMgr.fireEvent(me.onerror, me, "error");
+            if (typeof me.onerror == "function") {
+                event = {"type":"error", "target":me};
+                me.onerror(event);
+            }
             me.readyState = FileReader.DONE;
-            navigator.fileMgr.fireEvent(me.onloadend, me, "loadend");
+            if (typeof me.onloadend == "function") {
+                event = {"type":"loadend", "target":me};
+                me.onloadend(event);
+            }
         }
     );
 };
@@ -365,6 +396,7 @@ FileWriter.DONE = 2;
  * Abort writing file.
  */
 FileWriter.prototype.abort = function() {
+    var event;
     // check for invalid state 
     if (this.readyState === FileWriter.DONE || this.readyState === FileWriter.INIT) {
         throw FileError.INVALID_STATE_ERR;
@@ -376,14 +408,23 @@ FileWriter.prototype.abort = function() {
     this.error = error;
 
     // dispatch progress events
-    navigator.fileMgr.fireEvent(this.onerror, this, "error");
-    navigator.fileMgr.fireEvent(this.onabort, this, "abort");
+    if (typeof this.onerror == "function") {
+        event = {"type":"error", "target":this};
+        this.onerror(event);
+    }
+    if (typeof this.onabort == "function") {
+        event = {"type":"abort", "target":this};
+        this.onabort(event);
+    }
 
     // set state
     this.readyState = FileWriter.DONE;
     
     // done
-    navigator.fileMgr.fireEvent(this.writeend, this, "writeend");
+    if (typeof this.writeend == "function") {
+        event = {"type":"writeend", "target":this};
+        this.writeend(event);
+    }
 };
 
 /**
@@ -421,19 +462,22 @@ FileWriter.prototype.seek = function(offset) {
  * @param size      The size to which the file length is to be adjusted
  */
 FileWriter.prototype.truncate = function(size) {
+    var event;
+    
     // Throw an exception if we are already writing a file
     if (this.readyState === FileWriter.WRITING) {
         throw FileError.INVALID_STATE_ERR;
     }
     
-    // WRITING state
+    // start
     this.readyState = FileWriter.WRITING;
-
-    // write the data to a file
-    var me = this;
-    navigator.fileMgr.fireEvent(this.onwritestart, this, "writestart");
+    if (typeof this.onwritestart == "function") {
+        event = {"type":"writestart", "target":this};
+        this.onwritestart(event);
+    }
 
     // truncate file
+    var me = this;
     navigator.fileMgr.truncate(this.fileName, size, 
         // Success callback receives the new file size
         function(result) {
@@ -448,9 +492,15 @@ FileWriter.prototype.truncate = function(size) {
             me.position = Math.min(me.position, result);
 
             // success procedure
-            navigator.fileMgr.fireEvent(me.onwrite, me, "write");
+            if (typeof me.onwrite == "function") {
+                event = {"type":"write", "target":me};
+                me.onwrite(event);
+            }
             me.readyState = FileWriter.DONE;
-            navigator.fileMgr.fireEvent(me.onwriteend, me, "writeend");
+            if (typeof me.onwriteend == "function") {
+                event = {"type":"writeend", "target":me};
+                me.onwriteend(event);
+            }
         },
 
         // Error callback
@@ -466,9 +516,15 @@ FileWriter.prototype.truncate = function(size) {
             me.error = err;
 
             // error procedure
-            navigator.fileMgr.fireEvent(me.onerror, me, "error");
+            if (typeof me.onerror == "function") {
+                event = {"type":"error", "target":me};
+                me.onerror(event);
+            }
             me.readyState = FileWriter.DONE;
-            navigator.fileMgr.fireEvent(me.onwriteend, me, "writeend");
+            if (typeof me.onwriteend == "function") {
+                event = {"type":"writeend", "target":me};
+                me.onwriteend(event);
+            }
         }            
     );
 };
@@ -479,6 +535,8 @@ FileWriter.prototype.truncate = function(size) {
  * @param data      contents to be written
  */
 FileWriter.prototype.write = function(data) {
+    var event;
+    
     // Throw an exception if we are already writing a file
     if (this.readyState === FileWriter.WRITING) {
         throw FileError.INVALID_STATE_ERR;
@@ -486,12 +544,13 @@ FileWriter.prototype.write = function(data) {
 
     // WRITING state
     this.readyState = FileWriter.WRITING;
-
-    // write the data to a file
-    var me = this;
-    navigator.fileMgr.fireEvent(this.onwritestart, this, "writestart");
+    if (typeof this.onwritestart == "function") {
+        event = {"type":"writestart", "target":this};
+        this.onwritestart(event);
+    }
 
     // Write file
+    var me = this;
     navigator.fileMgr.write(this.fileName, data, this.position,
 
         // Success callback receives bytes written
@@ -507,9 +566,15 @@ FileWriter.prototype.write = function(data) {
             me.position += result;
 
             // success procedure
-            navigator.fileMgr.fireEvent(me.onwrite, me, "write");
+            if (typeof me.onwrite == "function") {
+                event = {"type":"write", "target":me};
+                me.onwrite(event);
+            }
             me.readyState = FileWriter.DONE;
-            navigator.fileMgr.fireEvent(me.onwriteend, me, "writeend");
+            if (typeof me.onwriteend == "function") {
+                event = {"type":"writeend", "target":me};
+                me.onwriteend(event);
+            }
         },
 
         // Error callback
@@ -525,9 +590,15 @@ FileWriter.prototype.write = function(data) {
             me.error = err;
 
             // error procedure
-            navigator.fileMgr.fireEvent(me.onerror, me, "error");
+            if (typeof me.onerror == "function") {
+                event = {"type":"error", "target":me};
+                me.onerror(event);
+            }
             me.readyState = FileWriter.DONE;
-            navigator.fileMgr.fireEvent(me.onwriteend, me, "writeend");
+            if (typeof me.onwriteend == "function") {
+                event = {"type":"writeend", "target":me};
+                me.onwriteend(event);
+            }
         }
     );
 };
