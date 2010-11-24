@@ -60,6 +60,24 @@ function FileMgr() {
 };
 
 /**
+ * Returns the root file system paths.
+ * 
+ * @return {String[]} array of root file system paths
+ */
+FileMgr.prototype.getRootPaths = function() {
+    return blackberry.io.dir.getRootDirs();
+};
+
+/**
+ * Returns the available memory in bytes for the root file system of the specified file path.
+ * 
+ * @param filePath          A file system path
+ */
+FileMgr.prototype.getFreeDiskSpace = function(filePath) {
+    return blackberry.io.dir.getFreeSpaceForRoot(filePath);
+};
+
+/**
  * Reads a file from the device and encodes the contents using the specified 
  * encoding. 
  * 
@@ -144,6 +162,54 @@ FileMgr.prototype.getFileProperties = function(fileName) {
  */
 FileMgr.prototype.truncate = function(fileName, size, successCallback, errorCallback) {
     PhoneGap.exec(successCallback, errorCallback, "File", "truncate", [fileName, size]);
+};
+
+/**
+ * Removes a file from the file system.
+ * 
+ * @param fileName          The full path of the file to be deleted
+ */
+FileMgr.prototype.deleteFile = function(fileName) {
+    // delete file, if it exists
+    if (blackberry.io.file.exists(fileName)) {
+        blackberry.io.file.deleteFile(fileName);
+    }
+    // fileName is a directory
+    else if (blackberry.io.dir.exists(fileName)) {
+        throw FileError.TYPE_MISMATCH_ERR;
+    }
+    // fileName not found 
+    else {
+        throw FileError.NOT_FOUND_ERR;
+    }
+};
+
+/**
+ * Creates a directory on device storage.
+ * 
+ * @param dirName           The full path of the directory to be created
+ */
+FileMgr.prototype.createDirectory = function(dirName) {
+    if (!blackberry.io.dir.exists(dirName)) {
+        // createNewDir API requires trailing slash
+        if (dirName.substr(-1) !== "/") {
+            dirName += "/";
+        }
+        blackberry.io.dir.createNewDir(dirName);
+    }
+    // directory already exists
+    else {
+        throw FileError.PATH_EXISTS_ERR;
+    }
+};
+
+/**
+ * Deletes the specified directory from device storage.
+ * 
+ * @param dirName           The full path of the directory to be deleted
+ */
+FileMgr.prototype.deleteDirectory = function(dirName) {
+    blackberry.io.dir.deleteDirectory(dirName);
 };
 
 PhoneGap.addConstructor(function() {

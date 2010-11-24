@@ -341,7 +341,8 @@ website: http://phonegap.com
           fileReader.onerror = onFileError;
           
           // read the file
-          fileReader.readAsText('file:///SDCard/phonegap.txt');
+          var rootPath = getRootPath();          
+          fileReader.readAsText(rootPath + 'phonegap.txt');
       }
 
       // reads a text file and encodes to Base64
@@ -358,7 +359,8 @@ website: http://phonegap.com
           fileReader.onerror = onFileError;
           
           // read the file
-          fileReader.readAsDataURL('file:///SDCard/phonegap.txt');
+          var rootPath = getRootPath();
+          fileReader.readAsDataURL(rootPath + 'phonegap.txt');
       }
 
       // called when file is written
@@ -370,9 +372,10 @@ website: http://phonegap.com
       // writes a text file to the device
       function writeFile() 
       {
+          var rootPath = getRootPath();
           var fileWriter;
           try { 
-              fileWriter = new FileWriter('file:///SDCard/bbgap.txt', true);
+              fileWriter = new FileWriter(rootPath + 'bbgap.txt', true);
           } 
           catch (e) {
               alert("Error creating FileWriter: " + e);
@@ -405,9 +408,10 @@ website: http://phonegap.com
       
       // truncates a file
       function truncateFile() {
+          var rootPath = getRootPath();
           var fileWriter;
           try { 
-              fileWriter = new FileWriter('file:///SDCard/bbgap.txt');
+              fileWriter = new FileWriter(rootPath + 'bbgap.txt');
           } 
           catch (e) {
               alert("Error creating FileWriter: " + e);
@@ -431,7 +435,72 @@ website: http://phonegap.com
           fileWriter.truncate(fileWriter.length-3);
       }
       
+      // creates a directory
+      function createDirectory()
+      {
+          var rootPath = getRootPath();
+          var dirName = rootPath + document.getElementById('dirName').value;
+          try {
+              navigator.fileMgr.createDirectory(dirName);
+          }
+          catch (e) {
+              alert('could not create directory: ' + dirName + ' :' + e);
+          }
+      }
       
+      // deletes a directory
+      function deleteDirectory() 
+      {
+          var rootPath = getRootPath();
+          var dirName = rootPath + document.getElementById('dirName').value;
+          try {
+              navigator.fileMgr.deleteDirectory(dirName);
+          }
+          catch (e) {
+              alert('could not delete directory: ' + dirName + ' :' + e);
+          }
+      }
+      
+      // deletes a file
+      function deleteFile() 
+      {
+          var rootPath = getRootPath();
+          var fileName = rootPath + document.getElementById('fileName').value;
+          try {
+              navigator.fileMgr.deleteFile(fileName);
+          }
+          catch (e) {
+              alert('could not delete file: ' + fileName + ' :' + e);
+          }
+      } 
+      
+      // displays root file systems available
+      function getRootDirs() 
+      {
+          var rootPaths = navigator.fileMgr.getRootPaths();
+          var msg = "Root paths:\n";
+          for (var i=0; i<rootPaths.length; i++) {
+              var root = rootPaths[i];
+              msg += root + " has " + navigator.fileMgr.getFreeDiskSpace(root) + " bytes free.\n";
+          }
+          alert(msg);
+      }
+      
+      function getRootPath() 
+      {
+          // return the SDCard root path
+          var rootPaths = navigator.fileMgr.getRootPaths();
+          var path = "";
+          for (var i=0; i<rootPaths.length; i++) {
+              var root = rootPaths[i];
+              if (root.indexOf("SDCard") != -1) {
+                  path = root;
+                  break;
+              }
+          }
+          return path;
+      }
+
     </script>
     <title>Insert title here</title>
   </head>
@@ -493,5 +562,18 @@ website: http://phonegap.com
     <h3>FileWriter</h3>
     <input type="button" value="Write File" onclick="writeFile();return false;" />
     <input type="button" value="Truncate File" onclick="truncateFile();return false;" />
+    <h3>File and Directory</h3>
+    <p>
+    <input type="button" value="Get Root Dirs" onclick="getRootDirs();return false;" />
+    </p>
+    <p>    
+    <input type="text" id="dirName" />
+    <input type="button" value="Create Dir" onclick="createDirectory();return false;" />    
+    <input type="button" value="Delete Dir" onclick="deleteDirectory();return false;" />
+    </p>    
+    <p>
+    <input type="text" id="fileName" />
+    <input type="button" value="Delete File" onclick="deleteFile();return false;" />
+    </p>    
   </body>
 </html>
