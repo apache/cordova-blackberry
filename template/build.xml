@@ -14,6 +14,7 @@
     <property name="build.dir"           location="build" />
     <property name="widget.dir"          location="${build.dir}/widget" />
     <property name="code.sign"           value="false" />
+    <property name="compress.js"         value="true" />
 
     <!-- BlackBerry Widget Packager directory is required. -->
     <fail unless="properties.bbwp.dir" message="Please specify BlackBerry Widget Packager directory using 'bbwp.dir' in your 'project.properties' file." />    
@@ -115,6 +116,14 @@
         <copy todir="${widget.dir}" overwrite="true">
             <fileset dir="www" />
         </copy>
+    
+        <!-- Compress/minify JavaScript -->
+        <if>
+            <equals arg1="${compress.js}" arg2="true" />
+            <then>
+                <compress-js />
+            </then>
+        </if>
         
         <!-- Package the widget app by zipping the widget dir. -->
         <mkdir dir="${build.dir}" />
@@ -157,6 +166,25 @@
                     </exec>
                 </else>
             </if>
+        </sequential>
+    </macrodef>
+
+    <!-- COMPRESS-JS MACRO -->
+
+    <macrodef name="compress-js">
+        <sequential>
+            <!-- Compress/minify PhoneGap JavaScript using YUI compressor. -->
+            <java jar="./lib/yuicompressor/yuicompressor-2.4.2.jar"
+                fork="true"
+                failonerror="true">
+                <arg value="--nomunge" />
+                <arg value="-o"/>
+                <arg value="${widget.dir}/javascript/compressed.js" />
+                <arg value="${widget.dir}/javascript/phonegap.js" />
+            </java>
+            <copy file="${widget.dir}/javascript/compressed.js" 
+                toFile="${widget.dir}/javascript/phonegap.js" overwrite="true" />
+            <delete file="${widget.dir}/javascript/compressed.js" />
         </sequential>
     </macrodef>
 
