@@ -174,17 +174,21 @@
     <macrodef name="compress-js">
         <sequential>
             <!-- Compress/minify PhoneGap JavaScript using YUI compressor. -->
+            <property name="js.dir" value="${widget.dir}/javascript" />
             <java jar="./lib/yuicompressor/yuicompressor-2.4.2.jar"
                 fork="true"
                 failonerror="true">
                 <arg value="--nomunge" />
                 <arg value="-o"/>
-                <arg value="${widget.dir}/javascript/compressed.js" />
-                <arg value="${widget.dir}/javascript/phonegap.js" />
+                <arg value="${js.dir}/compressed.js" />
+                <arg value="${js.dir}/phonegap.js" />
             </java>
-            <copy file="${widget.dir}/javascript/compressed.js" 
-                toFile="${widget.dir}/javascript/phonegap.js" overwrite="true" />
-            <delete file="${widget.dir}/javascript/compressed.js" />
+            <concat destfile="${js.dir}/phonegap.js" append="false">
+                <fileset dir="${js.dir}" includes="header.txt" />
+                <fileset dir="${js.dir}" includes="compressed.js" />
+            </concat>
+            <delete file="${js.dir}/header.txt" />
+            <delete file="${js.dir}/compressed.js" />
         </sequential>
     </macrodef>
 
