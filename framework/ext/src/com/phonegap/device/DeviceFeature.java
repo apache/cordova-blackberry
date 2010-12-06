@@ -31,7 +31,7 @@ public final class DeviceFeature extends Scriptable {
 			return new Integer(DeviceInfo.getDeviceId());
 		}
 		else if (name.equals(FIELD_PHONEGAP)) {
-			return "0.9.2";
+			return "0.9.3";
 		}
 		
 		return super.getField(name);
