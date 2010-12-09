@@ -19,6 +19,7 @@ import javax.microedition.io.file.FileConnection;
 import net.rim.device.api.io.Base64OutputStream;
 import net.rim.device.api.io.FileNotFoundException;
 import net.rim.device.api.io.IOUtilities;
+import net.rim.device.api.system.Application;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -203,22 +204,17 @@ public class FileManager extends Plugin {
     /**
      * Reads file as byte array.
      * @param filePath      Full path of the file to be read  
+     * @return file content as a byte array
      */
     protected byte[] readFile(String filePath) throws FileNotFoundException, IOException {
         byte[] blob = null;
-        FileConnection fconn = null;
         DataInputStream dis = null;
         try {
-            fconn = (FileConnection)Connector.open(filePath, Connector.READ);
-            if (!fconn.exists()) {
-                throw new FileNotFoundException(filePath + " not found");                
-            }
-            dis = fconn.openDataInputStream();
+            dis = openDataInputStream(filePath);
             blob = IOUtilities.streamToBytes(dis);
         } finally {
             try { 
                 if (dis != null) dis.close();
-                if (fconn != null) fconn.close();
             } catch (IOException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
             }
@@ -281,6 +277,47 @@ public class FileManager extends Plugin {
             }
         }
         return fileSize;
+    }
+    
+    /**
+     * Utility function to open a DataInputStream from a file path.
+     *
+     * A file can be referenced with the following protocols:
+     *  - System.getProperty("fileconn.dir.*")
+     *  - local:/// references files bundled with the application
+     *
+     * @param filePath The full path to the file to open
+     * @return Handle to the DataInputStream
+     */
+    protected DataInputStream openDataInputStream(final String filePath) throws FileNotFoundException, IOException {
+        FileConnection fconn = null;
+        DataInputStream dis = null;
+        
+        try {
+            if (filePath.startsWith("local:///")) {
+                // Remove local:// from filePath but leave a leading /
+                dis = new DataInputStream(Application.class.getResourceAsStream(filePath.substring(8)));
+            }
+            else {
+                fconn = (FileConnection)Connector.open(filePath, Connector.READ);
+                if (!fconn.exists()) {
+                    throw new FileNotFoundException(filePath + " not found");
+                }
+                dis = fconn.openDataInputStream();
+            }
+
+            if (dis == null) {
+                throw new FileNotFoundException(filePath + " not found");
+            }
+        } finally {
+            try {
+                if (fconn != null) fconn.close();
+            } catch (IOException e) {
+                Logger.log(this.getClass().getName() + ": " + e);
+            }
+        }
+        
+        return dis;
     }
     
     /**
