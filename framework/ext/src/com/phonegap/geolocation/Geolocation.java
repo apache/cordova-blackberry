@@ -352,4 +352,11 @@ public class Geolocation extends Plugin {
     protected synchronized void addListener(String callbackId, GeolocationListener listener) {
         this.geoListeners.put(callbackId, listener);
     }
+    
+    /**
+     * Called when Plugin is destroyed. 
+     */
+    public void onDestroy() {
+        this.shutdown();
+    }
 }
