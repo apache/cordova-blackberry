@@ -11,13 +11,13 @@ import net.rim.device.api.script.Scriptable;
 import net.rim.device.api.system.DeviceInfo;
 
 /**
- * PhoneGap plugin that provides device information, including:
+ * Provides device information, including:
  * 
  * - Device platform version (e.g. 2.13.0.95). Not to be confused with BlackBerry OS version.
  * - Unique device identifier (UUID).
  * - PhoneGap software version.
  */
-public final class DeviceFeature extends Scriptable {
+public final class Device extends Scriptable {
 	public static final String FIELD_PLATFORM = "platform";
 	public static final String FIELD_UUID     = "uuid";
 	public static final String FIELD_PHONEGAP = "phonegap";
