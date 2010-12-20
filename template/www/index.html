@@ -209,9 +209,11 @@ website: http://phonegap.com
         function onCapturePhotoURISuccess(imageURI) {
             if (imageURI != null) {
                 var smallImage = document.getElementById('cameraImage');
+                var uploadButton = document.getElementById('uploadButton');
 
                 // Unhide image elements
                 smallImage.style.display = 'block';
+                uploadButton.style.display = 'block';
           
                 // Show the captured photo
                 // The inline CSS rules are used to resize the image
@@ -227,6 +229,36 @@ website: http://phonegap.com
         function capturePhotoURI() {
             navigator.camera.getPicture(onCapturePhotoURISuccess, fail, 
                 { destinationType: Camera.DestinationType.FILE_URI, quality: 50 });
+        }
+
+        function uploadImage() {
+            var smallImage = document.getElementById('cameraImage');
+            if (smallImage.src && smallImage.src !== "") {
+                var f = new FileUploader();
+                f.upload(
+                    // file path
+                    smallImage.src,
+                    // server URL - update to your own, and don't forget to 
+                    // include your domain in an access element in config.xml      
+                    "http://192.168.1.101/~jtyberg/upload.php",
+                    // success callback
+                    function(result) {
+                        document.getElementById('uploadProgress').innerHTML =
+                            result.sent + ' of ' + result.length + ' bytes sent';
+                        alert(result.responseCode + ": " + result.response);
+                    },
+                    // progress callback
+                    function(result) {
+                        document.getElementById('uploadProgress').innerHTML =
+                            result.sent + ' of ' + result.length + ' bytes sent';
+                    },
+                    // error callback
+                    function(error) {
+                        alert('error uploading file: ' + error.code);
+                    },
+                    // options
+                    { fileName: 'myImage.jpg' });
+            }
         }
 
         //---------------------------------------------------------------------
@@ -589,6 +621,8 @@ website: http://phonegap.com
     <input type="button" value="Get Photo (Data)" onclick="capturePhoto();return false;" /> 
     <input type="button" value="Get Photo (URI)" onclick="capturePhotoURI();return false;" /> 
     <img style="display:none;width:120px;height:120px;" id="cameraImage" src="" />
+    <p id="uploadProgress"></p>
+    <input style="display:none;" id="uploadButton" type="button" value="Upload" onclick="uploadImage();return false;" />     
 
     <h3>navigator.services.contact</h3>
     <input type="button" value="Create Contact" onclick="createContact();return false;" /> 

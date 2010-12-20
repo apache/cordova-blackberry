@@ -57,6 +57,7 @@ public final class PluginManager extends Scriptable {
         this.addService("Accelerometer", "com.phonegap.accelerometer.Accelerometer");
         this.addService("Geolocation", "com.phonegap.geolocation.Geolocation");
         this.addService("File", "com.phonegap.file.FileManager");
+        this.addService("FileUploader", "com.phonegap.http.FileUploader");
     }
 	
     /**
