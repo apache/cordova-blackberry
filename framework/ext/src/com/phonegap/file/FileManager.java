@@ -19,6 +19,7 @@ import javax.microedition.io.file.FileConnection;
 import net.rim.device.api.io.Base64OutputStream;
 import net.rim.device.api.io.FileNotFoundException;
 import net.rim.device.api.io.IOUtilities;
+import net.rim.device.api.io.MIMETypeAssociations;
 import net.rim.device.api.system.Application;
 
 import org.json.me.JSONArray;
@@ -194,9 +195,11 @@ public class FileManager extends Plugin {
         result = byteArrayOutputStream.toString();
  
         // put result in proper form 
-        // TODO: determine media type? (not required)
-        String mediaType = "";
-        result = "data:" + mediaType + ";base64," + result;
+        String mediaType = MIMETypeAssociations.getMIMEType(filePath);
+        if (mediaType == null) {
+            mediaType = "";
+        }
+        result = "data:" + mediaType + ";base64," + result;            
         
         return result;
     }
