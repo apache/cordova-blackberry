@@ -10,6 +10,7 @@ package com.phonegap.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -66,30 +67,34 @@ public class FileUploader extends Plugin {
      */
     public PluginResult execute(String action, JSONArray args, String callbackId) {
 
-        // required parameters
         String filePath = null;    
         String server = null;
+        String fileKey = "file";
+        String fileName = "image.jpg";
+        String mimeType = null;
+        JSONObject params = null;
         try {
+            // required parameters
             filePath = args.getString(0);
             server = args.getString(1);
+
+            // user parameters
+            if(args.length() > 2 && !args.isNull(2)) {
+                fileKey = args.optString(2);
+            }
+            if(args.length() > 3 && !args.isNull(3)) {
+                fileName = args.optString(3);
+            }
+            if(args.length() > 4 && !args.isNull(4)) {
+                mimeType = args.optString(4);
+            }
+            if (args.length() > 5 && !args.isNull(5)) {
+                params = args.getJSONObject(5);    
+            }
         } catch (JSONException e) {
             Logger.log(this.getClass().getName() + ": " + e);
             return new PluginResult(PluginResult.Status.JSONEXCEPTION, 
             "Invalid or missing parameter");
-        }
-
-        // file parameters
-        String fileKey = "file";
-        String fileName = "image.jpg";
-        String mimeType = null;
-        if(args.length() > 2 && !args.isNull(2)) {
-            fileKey = args.optString(2);
-        }
-        if(args.length() > 3 && !args.isNull(3)) {
-            fileName = args.optString(3);
-        }
-        if(args.length() > 4 && !args.isNull(4)) {
-            mimeType = args.optString(4);
         }
 
         // perform specified action
@@ -97,7 +102,7 @@ public class FileUploader extends Plugin {
         int a = getAction(action);
         if (a == ACTION_UPLOAD) {
             try {
-                FileUploadResult r = this.upload(filePath, server, fileKey, fileName, mimeType, callbackId);
+                FileUploadResult r = this.upload(filePath, server, fileKey, fileName, mimeType, params);
                 result = new PluginResult(PluginResult.Status.OK, r.toJSONObject());
             } 
             catch (FileNotFoundException e) {
@@ -136,10 +141,11 @@ public class FileUploader extends Plugin {
      * @param fileKey       Name of file request parameter
      * @param fileName      File name to be used on server
      * @param mimeType      Describes file content type
+     * @param params        key:value pairs of user-defined parameters
      * @return FileUploadResult containing result of upload request
      */
     public FileUploadResult upload(String filePath, String server, String fileKey, 
-            String fileName, String mimeType, String callbackId) throws IOException {
+            String fileName, String mimeType, JSONObject params) throws IOException {
 
         FileUploadResult result = new FileUploadResult();
         
@@ -166,13 +172,19 @@ public class FileUploader extends Plugin {
             }
             Logger.log(this.getClass().getName() + ": contentType=" + mimeType);
             
-            // Determine content length. It is important to include length of
-            // boundary messages, especially when sending large (1+ MB) images.
-            long fileSize = fconn.fileSize();
+            // boundary messages
             String boundaryMsg = getBoundaryMessage(fileKey, fileName, mimeType);
             String lastBoundary = getEndBoundary();
-            long contentLength = fileSize + (long)boundaryMsg.length() + (long)lastBoundary.length();
-            result.setLength(contentLength);
+            
+            // user-defined request parameters
+            String customParams = (params != null) ? getParameterContent(params) : "";
+            
+            // determine content length
+            long fileSize = fconn.fileSize();
+            long contentLength = fileSize + 
+                (long)boundaryMsg.length() + 
+                (long)lastBoundary.length() + 
+                (long)customParams.length();
             
             // get HttpConnection
             httpConn = HttpUtils.getHttpConnection(server);
@@ -197,11 +209,17 @@ public class FileUploader extends Plugin {
                     HttpProtocolConstants.HEADER_CONTENT_LENGTH, 
                     Long.toString(contentLength));
             
-            // TODO: support request parameters
+            // set cookie
+            String cookie = HttpUtils.getCookie(server);
+            if (cookie != null) {
+                httpConn.setRequestProperty(HttpProtocolConstants.HEADER_COOKIE, cookie);
+            }
             
             // write content...
             out = httpConn.openDataOutputStream();
-            result.setState(FileUploadResult.State.UPLOADING);
+            
+            // parameters
+            out.write(customParams.getBytes());
 
             // boundary
             out.write(boundaryMsg.getBytes());
@@ -217,11 +235,11 @@ public class FileUploader extends Plugin {
             
             // send request and get response
             int rc = httpConn.getResponseCode();
-            Logger.log(this.getClass().getName() + ": sent " + contentLength + " bytes");
-            result.setResponseCode(rc);
             in = httpConn.openDataInputStream(); 
             result.setResponse(new String(IOUtilities.streamToBytes(in)));
-            result.setState(FileUploadResult.State.DONE);
+            result.setResponseCode(rc);
+            result.setBytesSent(contentLength);
+            Logger.log(this.getClass().getName() + ": sent " + contentLength + " bytes");
         }
         finally {
             try {
@@ -291,6 +309,22 @@ public class FileUploader extends Plugin {
      */
     protected String getEndBoundary() {
         return LINE_END + TD + BOUNDARY + TD + LINE_END;        
+    }
+    
+    /**
+     * Returns HTTP form content containing specified parameters.
+     */
+    protected String getParameterContent(JSONObject params) {
+        StringBuffer buf = new StringBuffer();
+        for (Enumeration e = params.keys(); e.hasMoreElements();) {
+            String key = e.nextElement().toString();
+            String value = params.optString(key);
+            buf.append(TD).append(BOUNDARY).append(LINE_END)
+                .append("Content-Disposition: form-data; name=\"").append(key).append("\"")
+                .append(LINE_END).append(LINE_END)
+                .append(value).append(LINE_END);
+        }
+        return buf.toString();
     }
     
     /**

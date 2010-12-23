@@ -12,6 +12,8 @@ import javax.microedition.io.HttpConnection;
 import net.rim.device.api.io.transport.ConnectionDescriptor;
 import net.rim.device.api.io.transport.ConnectionFactory;
 
+import com.phonegap.PhoneGapExtension;
+
 /**
  * BlackBerry devices can connect to the network using a variety of transport 
  * types, such as: WI-FI, BES/MDS, BIS, WAP (cellular).  A connection URL must 
@@ -40,5 +42,14 @@ public class HttpUtils
         }
         
         return httpConn;
+    }
+    
+    /**
+     * Retrieves the cookie from the application browser instance for the specified URL.
+     * @param url   Connection URL
+     */
+    public static String getCookie(String url)
+    {
+        return PhoneGapExtension.getBrowserField().getCookieManager().getCookie(url);
     }
 }

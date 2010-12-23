@@ -13,26 +13,10 @@
 function FileUploader() {};
 
 /**
- * File upload status.
- */
-FileUploadStatus = {
-    INIT: 0,
-    UPLOADING: 1,
-    DONE: 2
-};
-
-
-/**
  * FileUploadResult
  */
 function FileUploadResult() {
-    this.state = 0;
-    
-    // for progress events
-    this.sent = 0;
-    this.length = 0;
-    
-    // response
+    this.bytesSent = 0;
     this.responseCode = null;
     this.response = null;
 };
@@ -54,39 +38,23 @@ FileUploadError.CONNECTION_ERR = 3;
 * @param filePath {String}           Full path of the file on the device
 * @param server {String}             URL of the server to receive the file
 * @param successCallback (Function}  Callback to be invoked when upload has completed
-* @param progressCallback {Function} Callback to be invoked to receive progress events
 * @param errorCallback {Function}    Callback to be invoked upon error
 * @param options {FileUploadOptions} Optional parameters such as file name and mimetype           
 */
-FileUploader.prototype.upload = function(filePath, server, successCallback, progressCallback, errorCallback, options) {
+FileUploader.prototype.upload = function(filePath, server, successCallback, errorCallback, options) {
 
     // check for options
     var fileKey = null;
     var fileName = null;
     var mimeType = null;
+    var params = null;
     if (options) {
         fileKey = options.fileKey;
         fileName = options.fileName;
         mimeType = options.mimeType;
+        params = options.params;
     }
-    
-    // success callback will handle progress and done events
-    var success = function(result) {
-        // done
-        if (result.state === FileUploadStatus.DONE) {
-            if (typeof successCallback === "function") {
-                successCallback(result);
-            }
-        }
         
-        // progress event
-        else {
-            if (typeof progressCallback === "function") {
-                progressCallback(result);
-            }
-        }
-    };
-    
     // error callback
     var fail = function(error) {
         var err = new FileUploadError();
@@ -96,7 +64,7 @@ FileUploader.prototype.upload = function(filePath, server, successCallback, prog
         }
     };
     
-    PhoneGap.exec(success, fail, 'FileUploader', 'upload', [filePath, server, fileKey, fileName, mimeType]);
+    PhoneGap.exec(successCallback, fail, 'FileUploader', 'upload', [filePath, server, fileKey, fileName, mimeType, params]);
 };
 
 /**

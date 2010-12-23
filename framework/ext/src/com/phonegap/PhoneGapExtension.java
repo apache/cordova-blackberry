@@ -27,6 +27,7 @@ import com.phonegap.util.Logger;
 public final class PhoneGapExtension implements WidgetExtension {
 
 	protected static ScriptEngine script;
+	protected static BrowserField browser = null;
 	
 	// Called when the BlackBerry Widget references this extension for the first time.
 	// It provides a list of feature IDs exposed by this extension.
@@ -61,7 +62,7 @@ public final class PhoneGapExtension implements WidgetExtension {
 	// Called so that the extension can get a reference to the configuration or browser field object
 	//
 	public void register(WidgetConfig widgetConfig, BrowserField browserField) {
-		// TODO Auto-generated method stub
+		browser = browserField;
 	}
 
 	// Called to clean up any features when the extension is unloaded
@@ -90,5 +91,12 @@ public final class PhoneGapExtension implements WidgetExtension {
 	 */
 	public static void invokeErrorCallback(String callbackId, PluginResult result) {
 		invokeScript(result.toErrorCallbackString(callbackId));
+	}
+	
+	/**
+	 * Provides access to the browser instance for the application.
+	 */
+	public static BrowserField getBrowserField() {
+	    return browser;
 	}
 }

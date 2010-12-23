@@ -244,20 +244,17 @@ website: http://phonegap.com
                     // success callback
                     function(result) {
                         document.getElementById('uploadProgress').innerHTML =
-                            result.sent + ' of ' + result.length + ' bytes sent';
+                            result.bytesSent + ' bytes sent';
                         alert(result.responseCode + ": " + result.response);
-                    },
-                    // progress callback
-                    function(result) {
-                        document.getElementById('uploadProgress').innerHTML =
-                            result.sent + ' of ' + result.length + ' bytes sent';
                     },
                     // error callback
                     function(error) {
                         alert('error uploading file: ' + error.code);
                     },
                     // options
-                    { fileName: 'myImage.jpg' });
+                    { fileName: 'myImage.jpg', 
+                      params: { 'username':'jtyberg' } 
+                    });
             }
         }
 
