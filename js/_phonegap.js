@@ -321,6 +321,10 @@ PhoneGap.clone = function(obj) {
     if(!(obj instanceof Object)){
         return obj;
     }
+    
+    if(obj instanceof Date){
+        return obj;
+    }
 
     retVal = new Object();
     for(i in obj){
