@@ -234,7 +234,7 @@ website: http://phonegap.com
         function uploadImage() {
             var smallImage = document.getElementById('cameraImage');
             if (smallImage.src && smallImage.src !== "") {
-                var f = new FileUploader();
+                var f = new FileTransfer();
                 f.upload(
                     // file path
                     smallImage.src,

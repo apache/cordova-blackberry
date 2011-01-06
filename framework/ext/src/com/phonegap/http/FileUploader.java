@@ -22,29 +22,20 @@ import net.rim.device.api.io.MIMETypeAssociations;
 import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.ui.UiApplication;
 
-import org.json.me.JSONArray;
 import org.json.me.JSONException;
 import org.json.me.JSONObject;
 
 import com.phonegap.PhoneGapExtension;
-import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.util.Logger;
 
 /**
- * The FileUploader plugin uses an HTTP multipart request to upload files on the
+ * The FileUploader uses an HTTP multipart request to upload files on the
  * device to a remote server.  It currently supports a single file per HTTP 
  * request.
  */
-public class FileUploader extends Plugin {
+public class FileUploader {
 
-    /**
-     * Error codes
-     */
-    public static int FILE_NOT_FOUND_ERR = 1;
-    public static int INVALID_URL_ERR = 2;
-    public static int CONNECTION_ERR = 3;
-    
     /**
      * Constants
      */
@@ -52,87 +43,6 @@ public class FileUploader extends Plugin {
     private static final String LINE_END = "\r\n";
     private static final String TD = "--";
     
-    /**
-     * Possible actions
-     */
-    protected static final int ACTION_UPLOAD = 0;
-
-    /**
-     * Executes the requested action and returns a PluginResult.
-     * 
-     * @param action        The action to execute.
-     * @param callbackId    The callback ID to be invoked upon action completion.
-     * @param args          JSONArry of arguments for the action.
-     * @return              A PluginResult object with a status and message.
-     */
-    public PluginResult execute(String action, JSONArray args, String callbackId) {
-
-        String filePath = null;    
-        String server = null;
-        String fileKey = "file";
-        String fileName = "image.jpg";
-        String mimeType = null;
-        JSONObject params = null;
-        try {
-            // required parameters
-            filePath = args.getString(0);
-            server = args.getString(1);
-
-            // user parameters
-            if(args.length() > 2 && !args.isNull(2)) {
-                fileKey = args.optString(2);
-            }
-            if(args.length() > 3 && !args.isNull(3)) {
-                fileName = args.optString(3);
-            }
-            if(args.length() > 4 && !args.isNull(4)) {
-                mimeType = args.optString(4);
-            }
-            if (args.length() > 5 && !args.isNull(5)) {
-                params = args.getJSONObject(5);    
-            }
-        } catch (JSONException e) {
-            Logger.log(this.getClass().getName() + ": " + e);
-            return new PluginResult(PluginResult.Status.JSONEXCEPTION, 
-            "Invalid or missing parameter");
-        }
-
-        // perform specified action
-        PluginResult result = null;
-        int a = getAction(action);
-        if (a == ACTION_UPLOAD) {
-            try {
-                FileUploadResult r = this.upload(filePath, server, fileKey, fileName, mimeType, params);
-                result = new PluginResult(PluginResult.Status.OK, r.toJSONObject());
-            } 
-            catch (FileNotFoundException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.IOEXCEPTION, 
-                        Integer.toString(FILE_NOT_FOUND_ERR));
-            } 
-            catch (IllegalArgumentException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.MALFORMEDURLEXCEPTION,
-                        Integer.toString(INVALID_URL_ERR));
-            }
-            catch (IOException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.IOEXCEPTION, 
-                        Integer.toString(CONNECTION_ERR));
-            } 
-            catch (JSONException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-            }
-        } 
-        else {
-            // invalid action
-            result = new PluginResult(PluginResult.Status.INVALIDACTION, 
-                    "File: invalid action " + action);
-        }
-        
-        return result;
-    }
-
     /**
      * Uploads the specified file to the server URL provided using an HTTP 
      * multipart request. 
@@ -145,7 +55,7 @@ public class FileUploader extends Plugin {
      * @return FileUploadResult containing result of upload request
      */
     public FileUploadResult upload(String filePath, String server, String fileKey, 
-            String fileName, String mimeType, JSONObject params) throws IOException {
+            String fileName, String mimeType, JSONObject params) throws FileNotFoundException, IOException {
 
         FileUploadResult result = new FileUploadResult();
         
@@ -170,7 +80,6 @@ public class FileUploader extends Plugin {
                     mimeType = HttpProtocolConstants.CONTENT_TYPE_IMAGE_JPEG;
                 }          
             }
-            Logger.log(this.getClass().getName() + ": contentType=" + mimeType);
             
             // boundary messages
             String boundaryMsg = getBoundaryMessage(fileKey, fileName, mimeType);
@@ -178,6 +87,7 @@ public class FileUploader extends Plugin {
             
             // user-defined request parameters
             String customParams = (params != null) ? getParameterContent(params) : "";
+            Logger.log(this.getClass().getName() + ": params=" + customParams);
             
             // determine content length
             long fileSize = fconn.fileSize();
@@ -213,9 +123,10 @@ public class FileUploader extends Plugin {
             String cookie = HttpUtils.getCookie(server);
             if (cookie != null) {
                 httpConn.setRequestProperty(HttpProtocolConstants.HEADER_COOKIE, cookie);
+                Logger.log(this.getClass().getName() + ": cookie=" + cookie);
             }
             
-            // write content...
+            // write...
             out = httpConn.openDataOutputStream();
             
             // parameters
@@ -325,15 +236,5 @@ public class FileUploader extends Plugin {
                 .append(value).append(LINE_END);
         }
         return buf.toString();
-    }
-    
-    /**
-     * Returns action to perform.
-     * @param action action to perform
-     * @return action to perform
-     */
-    protected static int getAction(String action) {
-        if ("upload".equals(action)) return ACTION_UPLOAD;
-        return -1;
-    }
+    }    
 }
