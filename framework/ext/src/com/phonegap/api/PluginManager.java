@@ -13,6 +13,7 @@ import net.rim.device.api.script.Scriptable;
 import net.rim.device.api.script.ScriptableFunction;
 
 import com.phonegap.PhoneGapExtension;
+import com.phonegap.util.Logger;
 
 /**
  * PluginManager represents an object in the script engine. It can be accessed
@@ -34,6 +35,11 @@ public final class PluginManager extends Scriptable {
      * Field used to cleanup Plugins.
      */
     public static final String FIELD_DESTROY = "destroy";
+    
+    /**
+     * Field used to register a Plugin.
+     */
+    public static final String FIELD_ADD_PLUGIN = "addPlugin";
     
     /**
      * Loads the appropriate PhoneGap Plugins and invokes their actions.
@@ -82,26 +88,40 @@ public final class PluginManager extends Scriptable {
                 }
             };
         }
+        else if (name.equals(FIELD_ADD_PLUGIN)) {
+            final PluginManager plugin_mgr = this;
+            return new ScriptableFunction() {
+                public Object invoke(Object obj, Object[] oargs) throws Exception {
+                    if (oargs.length > 1) {
+                        final String service = (String)oargs[0];
+                        final String className = (String)oargs[1];
+                        Logger.log("Registering plugin ["+service+":"+className+"]");
+                        plugin_mgr.addService(service, className);
+                    }
+                    return null;
+                }
+            };
+        }
         return super.getField(name);
     }
     
     /**
      * Add a class that implements a service.
      * 
-     * @param serviceType
-     * @param className
+     * @param serviceName   The service name.
+     * @param className     The Java class name that implements the service.
      */
-    public void addService(String serviceType, String className) {
-        this.services.put(serviceType, className);
+    public void addService(String serviceName, String className) {
+        this.services.put(serviceName, className);
     }
     
     /**
      * Get the class that implements a service.
      * 
-     * @param serviceType
-     * @return
+     * @param serviceName   The service name.
+     * @return The Java class name that implements the service.
      */
-    public String getClassForService(String serviceType) {
-        return (String)this.services.get(serviceType);
+    public String getClassForService(String serviceName) {
+        return (String)this.services.get(serviceName);
     }    
 }

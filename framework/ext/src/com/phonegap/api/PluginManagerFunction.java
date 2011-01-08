@@ -91,7 +91,7 @@ public class PluginManagerFunction extends ScriptableFunction {
 
 			if (isPhoneGapPlugin(c)) {
 				// Create a new instance of the plugin and set the context
-				final Plugin plugin = this.addPlugin(clazz, c);
+				final Plugin plugin = this.loadPlugin(clazz, c);
 				async = async && !plugin.isSynch(action);
 				if (async) {
 					// Run this async on a background thread so that JavaScript can continue on
@@ -124,12 +124,16 @@ public class PluginManagerFunction extends ScriptableFunction {
 				}
 			}
 		} catch (ClassNotFoundException e) {
+		    Logger.log(this.getClass().getName() + ": " + e);
 			pr = new PluginResult(PluginResult.Status.CLASSNOTFOUNDEXCEPTION, "ClassNotFoundException: " + e.getMessage());
 		} catch (IllegalAccessException e) {
+            Logger.log(this.getClass().getName() + ": " + e);
 			pr = new PluginResult(PluginResult.Status.ILLEGALACCESSEXCEPTION, "IllegalAccessException:" + e.getMessage());
 		} catch (InstantiationException e) {
+            Logger.log(this.getClass().getName() + ": " + e);
 			pr = new PluginResult(PluginResult.Status.INSTANTIATIONEXCEPTION, "InstantiationException: " + e.getMessage());
 		} catch (JSONException e) {
+            Logger.log(this.getClass().getName() + ": " + e);
 			pr = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
 		} 
 		// if async we have already returned at this point unless there was an error...
@@ -170,11 +174,11 @@ public class PluginManagerFunction extends ScriptableFunction {
      * @param className				The class to load
      * @return						The plugin
      */
-	public Plugin addPlugin(String className, Class clazz) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+	public Plugin loadPlugin(String className, Class clazz) throws IllegalAccessException, InstantiationException {
     	if (this.plugins.containsKey(className)) {
     		return this.getPlugin(className);
     	}
-    	Logger.log("PluginManager.addPlugin("+className+")");
+        Logger.log(this.getClass().getName() + ": Loading plugin class " + clazz);
         Plugin plugin = (Plugin)clazz.newInstance();
         this.plugins.put(className, plugin);
         plugin.setContext(this.ext);

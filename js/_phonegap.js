@@ -152,6 +152,29 @@ PhoneGap.addConstructor = function(func) {
 };
 
 /**
+ * Plugins object.
+ */
+if (!window.plugins) {
+    window.plugins = {};
+}
+
+/**
+ * Adds new plugin object to window.plugins.
+ * The plugin is accessed using window.plugins.<name>
+ * 
+ * @param name      The plugin name
+ * @param obj       The plugin object
+ */
+PhoneGap.addPlugin = function(name, obj) {
+    if (!window.plugins[name]) {
+        window.plugins[name] = obj;
+    }
+    else {
+        console.log("Plugin " + name + " already exists.");
+    }
+};
+
+/**
  * onDOMContentLoaded channel is fired when the DOM content 
  * of the page has been parsed.
  */
