@@ -88,7 +88,7 @@ public abstract class Plugin implements IPlugin {
      * @param pluginResult		The result to return.
 	 * @param callbackId		The callback id used when calling back into JavaScript.
      */
-    public void success(PluginResult pluginResult, String callbackId) {
+    public static void success(PluginResult pluginResult, String callbackId) {
     	PhoneGapExtension.invokeSuccessCallback(callbackId, pluginResult);
     }
 
@@ -98,7 +98,7 @@ public abstract class Plugin implements IPlugin {
      * @param pluginResult		The result to return.
 	 * @param callbackId		The callback id used when calling back into JavaScript.
      */
-    public void error(PluginResult pluginResult, String callbackId) {
+    public static void error(PluginResult pluginResult, String callbackId) {
     	PhoneGapExtension.invokeErrorCallback(callbackId, pluginResult);
     }
 }

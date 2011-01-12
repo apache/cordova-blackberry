@@ -61,7 +61,7 @@ website: http://phonegap.com
         }
       
         function fail(error) {
-            alert(error);
+            navigator.notification.alert(error, null, "Error");
         }
         
         //---------------------------------------------------------------------
@@ -197,7 +197,11 @@ website: http://phonegap.com
             if (imageData != null) {
                 var smallImage = document.getElementById('cameraImage');
 
-                // Unhide image elements
+                // hide upload button
+                var uploadButton = document.getElementById('uploadButton');
+                uploadButton.style.display = 'none';
+
+                // Unhide image element
                 smallImage.style.display = 'block';
 
                 // Show the captured photo
@@ -240,7 +244,7 @@ website: http://phonegap.com
                     smallImage.src,
                     // server URL - update to your own, and don't forget to 
                     // include your domain in an access element in config.xml      
-                    "http://192.168.1.101/~jtyberg/upload.php",
+                    "http://192.168.1.110/~jtyberg/upload.php",
                     // success callback
                     function(result) {
                         document.getElementById('uploadProgress').innerHTML =
