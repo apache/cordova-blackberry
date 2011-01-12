@@ -57,7 +57,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
         
     // error callback
     var fail = function(error) {
-        var err = new FileUploadError();
+        var err = new FileTransferError();
         err.code = error;
         if (typeof errorCallback === "function") {
             errorCallback(err);
