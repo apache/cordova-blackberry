@@ -55,8 +55,10 @@ public class FileUploader {
      * @return FileUploadResult containing result of upload request
      */
     public FileUploadResult upload(String filePath, String server, String fileKey, 
-            String fileName, String mimeType, JSONObject params) throws FileNotFoundException, IOException {
+            String fileName, String mimeType, JSONObject params) 
+    throws FileNotFoundException, IllegalArgumentException, IOException {
 
+        Logger.log(this.getClass().getName() + ": uploading " + filePath + " to " + server); 
         FileUploadResult result = new FileUploadResult();
         
         InputStream in = null;
@@ -65,7 +67,12 @@ public class FileUploader {
         HttpConnection httpConn = null;
         try {
             // open connection to the file 
-            fconn = (FileConnection)Connector.open(filePath, Connector.READ);
+            try {
+                fconn = (FileConnection)Connector.open(filePath, Connector.READ);
+            } catch (ClassCastException e) {
+                // in case something really funky gets passed in
+                throw new IllegalArgumentException("Invalid file path");
+            }
             if (!fconn.exists()) {
                 throw new FileNotFoundException(filePath + " not found");
             }            
@@ -91,6 +98,7 @@ public class FileUploader {
             
             // determine content length
             long fileSize = fconn.fileSize();
+            Logger.log(this.getClass().getName() + ": " + filePath + " size=" + fileSize + " bytes");
             long contentLength = fileSize + 
                 (long)boundaryMsg.length() + 
                 (long)lastBoundary.length() + 
@@ -101,7 +109,7 @@ public class FileUploader {
             if (httpConn == null) {
                 throw new IOException("Unable to establish connection.");
             }
-            Logger.log(this.getClass().getName() + ": uploading " + filePath + " to " + httpConn.getURL()); 
+            Logger.log(this.getClass().getName() + ": server URL=" + httpConn.getURL()); 
             
             // set request headers
             httpConn.setRequestMethod(HttpConnection.POST);
@@ -145,8 +153,8 @@ public class FileUploader {
             out.write(lastBoundary.getBytes());
             
             // send request and get response
-            int rc = httpConn.getResponseCode();
             in = httpConn.openDataInputStream(); 
+            int rc = httpConn.getResponseCode();
             result.setResponse(new String(IOUtilities.streamToBytes(in)));
             result.setResponseCode(rc);
             result.setBytesSent(contentLength);
