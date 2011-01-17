@@ -40,12 +40,12 @@ website: http://phonegap.com
         
         // invoked when application is resumed (brought to foregroud)
         function doResume() {
-            phonegap.Logger.log('doResume()');
+            console.log('doResume()');
         }
       
         // invoked when application is paused (sent to background)
         function doPause() {
-            phonegap.Logger.log('doPause()');
+            console.log('doPause()');
         }
 
         // register PhoneGap event listeners when DOM content loaded
@@ -57,7 +57,7 @@ website: http://phonegap.com
         }
 
         function unload() {
-            phonegap.Logger.log('unload()'); 
+            console.log('unload()'); 
         }
       
         function fail(error) {
