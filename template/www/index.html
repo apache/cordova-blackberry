@@ -266,28 +266,31 @@ website: http://phonegap.com
         // Contacts
         //---------------------------------------------------------------------
         function onContactSaved(contact) {
-            alert("Contact " + contact.id + " saved.");      
+            var msg = "Contact " + contact.id + " saved.";
+            navigator.notification.alert(msg, null, "Success");      
         }
 
         function onContactUpdated(contact) {
-            alert('Contact ' + contact.id + ' updated.');
+            var msg = 'Contact ' + contact.id + ' updated.';
+            navigator.notification.alert(msg, null, "Success");      
         }
 
         function onContactRemoved(contact) {
-            alert("Contact " + contact.id + " removed.");      
+            var msg = "Contact " + contact.id + " removed.";      
+            navigator.notification.alert(msg, null, "Success");      
         }
 
         function createContact() {
-            var myContact = navigator.service.contacts.create({"displayName": "Shosh"});        
+            var myContact = navigator.service.contacts.create({"displayName": "fitness instructor"});        
             myContact.gender = "female";
             myContact.note = "Workout queen.";
             myContact.birthday = new Date("May 11, 1979 05:32:00");
-            myContact.anniversary = "15 March 2005";
         
             // add name
             var myName = new ContactName();
             myName.givenName = "Shoshana";
             myName.familyName = "Lowenstein";
+            myName.honorificPrefix = "Miss";
             myContact.name = myName;
 
             // add email
@@ -324,9 +327,15 @@ website: http://phonegap.com
                 
             // add company info
             var orgs = [];
-            orgs[0] = new ContactOrganization("Beach Fitness", null, "Instructor", null, null, null, null);
+            orgs[0] = new ContactOrganization("Beach Fitness", null, "Instructor", null);
             myContact.organizations = orgs;
         
+            // add categories
+            var categories = [];
+            categories[0] = "Business";
+            categories[1] = "Family"; // DOH! BlackBerry only supports 'Personal' and 'Business'
+            myContact.categories = categories;
+            
             // saves the contact to device
             myContact.save(onContactSaved);
         } 
@@ -337,23 +346,30 @@ website: http://phonegap.com
                 ['name','emails'],
                 function(contacts) {
                     var now = new Date();         
-                    // update contact and save
-                    for (var i in contacts) {
+                    
+                    // we did not specify any filter, so all contacts will be returned
+                    // update first contact and save
+                    if (contacts[0]) {
+                        var c = contacts[0];
+                        
                         // update attributes
-                        contacts[i].emails[0].value = "sl@bf.com";
-                        contacts[i].note = 'updated: ' + now;
-                        console.log('contact: ' + contacts[i].id + ' ' + contacts[i].note);
+                        c.categories = [ 'Personal' ];
+                        c.emails[0].value = "sl@bf.com";
+                        c.note = 'updated: ' + now;
+                        console.log('contact: ' + c.id + ' ' + c.note);
                     
                         // remove phone numbers
-                        contacts[i].phoneNumbers = [];
+                        c.phoneNumbers = [];
                     
                         // set field to non-null value to remove from database
-                        contacts[i].anniversary = "";
+                        c.birthday = "";
                     
-                        contacts[i].save(onContactUpdated);
+                        // save changes
+                        c.save(onContactUpdated);
                     }
                 },
-                fail);
+                fail
+            );
         }
       
         function findContacts() {
@@ -374,10 +390,10 @@ website: http://phonegap.com
             // find a contact to remove
             navigator.service.contacts.find(
                 null,
+                // remove first contact
                 function(contacts) {
-                    // remove contact
-                    for (var i in contacts) {
-                        contacts[i].remove(onContactRemoved);
+                    if (contacts[0]) {
+                        contacts[0].remove(onContactRemoved);
                     }
                 },
                 fail);
@@ -400,6 +416,7 @@ website: http://phonegap.com
         // called when file is loaded
         function onFileLoaded(event) {
             onFileEvent(event);
+            console.log(event.target.result);
             alert('FileReader.result: ' + event.target.fileName + ': ' + event.target.result);  
         }
       

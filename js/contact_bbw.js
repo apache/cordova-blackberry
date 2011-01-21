@@ -27,11 +27,12 @@ var BlackBerryContacts = function() {
     //
     this.fieldMappings = {
          "id"                        : "uid",
-         "displayName"               : "title",
-         "name"                      : [ "firstName", "lastName" ],
-         "name.formatted"            : [ "firstName", "lastName" ],
+         "displayName"               : "user1", 
+         "name"                      : [ "title", "firstName", "lastName" ],
+         "name.formatted"            : [ "title", "firstName", "lastName" ],
          "name.givenName"            : "firstName",
          "name.familyName"           : "lastName",
+         "name.honorificPrefix"      : "title",
          "phoneNumbers"              : [ "faxPhone", "homePhone", "homePhone2", 
                                          "mobilePhone", "pagerPhone", "otherPhone",
                                          "workPhone", "workPhone2" ],
@@ -60,8 +61,8 @@ var BlackBerryContacts = function() {
          "organizations.name"        : "company",
          "organizations.title"       : "jobTitle",
          "birthday"                  : "birthday",
-         "anniversary"               : "anniversary",
          "note"                      : "note",
+         "categories"                : "categories",
          "urls"                      : "webpage",
          "urls.value"                : "webpage"
   }
@@ -131,11 +132,14 @@ BlackBerryContacts.saveToDevice = function(contact) {
         if (contact.name.familyName !== null) {
             bbContact.lastName = contact.name.familyName;
         }
+        if (contact.name.honorificPrefix !== null) {
+            bbContact.title = contact.name.honorificPrefix;
+        }
     }
     
     // display name
     if (contact.displayName !== null) {
-        bbContact.title = contact.displayName;
+        bbContact.user1 = contact.displayName;
     }
     
     // note
@@ -143,10 +147,9 @@ BlackBerryContacts.saveToDevice = function(contact) {
         bbContact.note = contact.note;
     }
 
-    // birthday and anniversary
+    // birthday
     //
     // user may pass in Date object or a string representation of a date 
-    // (the W3C Contacts API calls for birthday and anniversary to be DOMStrings)
     // if it is a string, we don't know the date format, so try to create a
     // new Date with what we're given
     // 
@@ -158,14 +161,6 @@ BlackBerryContacts.saveToDevice = function(contact) {
         } else {
             var bday = contact.birthday.toString();
             bbContact.birthday = (bday.length > 0) ? new Date(bday) : "";
-        }
-    }
-    if (contact.anniversary !== null) {
-        if (contact.anniversary instanceof Date) {
-            bbContact.anniversary = contact.anniversary;
-        } else {
-            var anniversary = contact.anniversary.toString();
-            bbContact.anniversary = (anniversary.length > 0) ? new Date(anniversary) : "";
         }
     }
 
@@ -181,7 +176,7 @@ BlackBerryContacts.saveToDevice = function(contact) {
         
         // copy the first three email addresses found
         var email = null;
-        for (var i in contact.emails) {
+        for (var i=0; i<contact.emails.length; i+=1) {
             email = contact.emails[i];
             if (!email || !email.value) { 
                 continue; 
@@ -216,7 +211,7 @@ BlackBerryContacts.saveToDevice = function(contact) {
         
         var type = null;
         var number = null;
-        for (i in contact.phoneNumbers) {
+        for (var i=0; i<contact.phoneNumbers.length; i+=1) {
             if (!contact.phoneNumbers[i] || !contact.phoneNumbers[i].value) { 
                 continue; 
             }
@@ -261,7 +256,7 @@ BlackBerryContacts.saveToDevice = function(contact) {
         var address = null;
         var bbHomeAddress = null;
         var bbWorkAddress = null;
-        for (i in contact.addresses) {
+        for (var i=0; i<contact.addresses.length; i+=1) {
             address = contact.addresses[i];
             if (!address || address instanceof ContactAddress === false) {
                 continue; 
@@ -287,7 +282,7 @@ BlackBerryContacts.saveToDevice = function(contact) {
         }
         
         var url = null;
-        for (i in contact.urls) {
+        for (var i=0; i<contact.urls.length; i+=1) {
             url = contact.urls[i];
             if (!url || !url.value) { 
                 continue; 
@@ -309,7 +304,7 @@ BlackBerryContacts.saveToDevice = function(contact) {
         }
         
         var org = null;
-        for (i in contact.organizations) {
+        for (var i=0; i<contact.organizations.length; i+=1) {
             org = contact.organizations[i];
             if (!org) { 
                 continue; 
@@ -322,9 +317,21 @@ BlackBerryContacts.saveToDevice = function(contact) {
         }
     }
 
+    // categories
+    if (contact.categories && contact.categories instanceof Array) {   
+        bbContact.categories = [];
+        var category = null;
+        for (var i=0; i<contact.categories.length; i+=1) {
+            category = contact.categories[i];
+            if (typeof category == "string") {
+                bbContact.categories.push(category);
+            }
+        }
+    }    
+    
     // save to device
     bbContact.save();
-    
+
     return bbContact.uid;
 };
 
@@ -359,7 +366,7 @@ BlackBerryContacts.buildFilterExpression = function(fields, filter) {
     var ciFilter = "";
     for (var i = 0; i < filter.length; i++)
     {
-      ciFilter = ciFilter + "[" + filter[i].toLowerCase() + filter[i].toUpperCase() + "]";
+        ciFilter = ciFilter + "[" + filter[i].toLowerCase() + filter[i].toUpperCase() + "]";
     }
     
     // match anything that contains our filter string
@@ -454,7 +461,7 @@ BlackBerryContacts.createContact = function(bbContact, fields) {
     
     // construct a new contact object
     // always copy the contact id and displayName fields
-    var contact = new Contact(bbContact.uid, bbContact.title);
+    var contact = new Contact(bbContact.uid, bbContact.user1);
     
     // nothing to do
     if (!fields) {
@@ -470,8 +477,8 @@ BlackBerryContacts.createContact = function(bbContact, fields) {
         
         // name
         if (field.indexOf('name') === 0) {
-            var formattedName = bbContact.firstName + ' ' + bbContact.lastName;
-            contact.name = new ContactName(formattedName, bbContact.lastName, bbContact.firstName, null, null, null);
+            var formattedName = bbContact.title + ' ' + bbContact.firstName + ' ' + bbContact.lastName;
+            contact.name = new ContactName(formattedName, bbContact.lastName, bbContact.firstName, null, bbContact.title, null);
         } 
         // phone numbers        
         else if (field.indexOf('phoneNumbers') === 0) {
@@ -531,10 +538,6 @@ BlackBerryContacts.createContact = function(bbContact, fields) {
         else if (field.indexOf('birthday') === 0) {
             contact.birthday = bbContact.birthday;
         }
-        // anniversary
-        else if (field.indexOf('anniversary') === 0) {
-            contact.anniversary = bbContact.anniversary;
-        }
         // note
         else if (field.indexOf('note') === 0) {
             contact.note = bbContact.note;
@@ -543,10 +546,14 @@ BlackBerryContacts.createContact = function(bbContact, fields) {
         else if (field.indexOf('organizations') === 0) {
             var organizations = [];
             if (bbContact.company || bbContact.jobTitle) {
-                organizations.push(new ContactOrganization(bbContact.company, null, 
-                        bbContact.jobTitle, null, null, null, null));
+                organizations.push(
+                    new ContactOrganization(bbContact.company, null, bbContact.jobTitle));
             }
             contact.organizations = organizations;
+        }
+        // categories
+        else if (field.indexOf('categories') === 0) {
+            contact.categories = bbContact.categories; 
         }
         // urls
         else if (field.indexOf('urls') === 0) {

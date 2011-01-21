@@ -18,24 +18,17 @@
  * @param {ContactAddress[]} addresses array of addresses
  * @param {ContactField[]} ims instant messaging user ids
  * @param {ContactOrganization[]} organizations 
- * @param {DOMString} published date contact was first created
- * @param {DOMString} updated date contact was last updated
- * @param {DOMString} birthday contact's birthday
- * @param (DOMString} anniversary contact's anniversary
+ * @param {DOMString} revision date contact was last updated
+ * @param {Date} birthday contact's birthday
  * @param {DOMString} gender contact's gender
  * @param {DOMString} note user notes about contact
- * @param {DOMString} preferredUsername
  * @param {ContactField[]} photos
- * @param {ContactField[]} tags
- * @param {ContactField[]} relationships 
+ * @param {DOMString[]} categories 
  * @param {ContactField[]} urls contact's web sites
- * @param {ContactAccounts[]} accounts contact's online accounts
- * @param {DOMString} utcOffset UTC time zone offset
- * @param {DOMString} connected
+ * @param {DOMString} timezone time zone 
  */
 var Contact = function(id, displayName, name, nickname, phoneNumbers, emails, addresses,
-    ims, organizations, published, updated, birthday, anniversary, gender, note,
-    preferredUsername, photos, tags, relationships, urls, accounts, utcOffset, connected) {
+    ims, organizations, revision, birthday, gender, note, photos, categories, urls, timezone) {
     this.id = id || null;
     this.displayName = displayName || null;
     this.name = name || null; // ContactName
@@ -45,30 +38,24 @@ var Contact = function(id, displayName, name, nickname, phoneNumbers, emails, ad
     this.addresses = addresses || null; // ContactAddress[]
     this.ims = ims || null; // ContactField[]
     this.organizations = organizations || null; // ContactOrganization[]
-    this.published = published || null;
-    this.updated = updated || null;
+    this.revision = revision || null;
     this.birthday = birthday || null;
-    this.anniversary = anniversary || null;
     this.gender = gender || null;
     this.note = note || null;
-    this.preferredUsername = preferredUsername || null;
     this.photos = photos || null; // ContactField[]
-    this.tags = tags || null; // ContactField[]
-    this.relationships = relationships || null; // ContactField[]
+    this.categories = categories || null; // DOMString[]
     this.urls = urls || null; // ContactField[]
-    this.accounts = accounts || null; // ContactAccount[]
-    this.utcOffset = utcOffset || null;
-    this.connected = connected || null;
+    this.timezone = timezone;
 };
 
 /**
  * Contact name.
- * @param formatted
- * @param familyName
- * @param givenName
- * @param middle
- * @param prefix
- * @param suffix
+ * @param formatted full name formatted for display
+ * @param familyName family or last name
+ * @param givenName given or first name
+ * @param middle middle name
+ * @param prefix honorific prefix or title
+ * @param suffix honorific suffix
  */
 var ContactName = function(formatted, familyName, givenName, middle, prefix, suffix) {
     this.formatted = formatted || null;
@@ -81,24 +68,24 @@ var ContactName = function(formatted, familyName, givenName, middle, prefix, suf
 
 /**
  * Generic contact field.
- * @param type
- * @param value
- * @param primary
+ * @param type contains the type of information for this field, e.g. 'home', 'mobile'
+ * @param value contains the value of this field
+ * @param pref indicates whether this instance is preferred 
  */
-var ContactField = function(type, value, primary) {
+var ContactField = function(type, value, pref) {
     this.type = type || null;
     this.value = value || null;
-    this.primary = primary || false;
+    this.pref = pref || false;
 };
 
 /**
  * Contact address.
- * @param formatted
- * @param streetAddress 
- * @param locality
- * @param region
- * @param postalCode
- * @param country
+ * @param formatted full physical address, formatted for display
+ * @param streetAddress street address
+ * @param locality locality or city
+ * @param region region or state
+ * @param postalCode postal or zip code
+ * @param country country name
  */
 var ContactAddress = function(formatted, streetAddress, locality, region, postalCode, country) {
     this.formatted = formatted || null;
@@ -111,34 +98,14 @@ var ContactAddress = function(formatted, streetAddress, locality, region, postal
 
 /**
  * Contact organization.
- * @param name
- * @param dept
- * @param title
- * @param startDate
- * @param endDate
- * @param location
- * @param desc
+ * @param name name of organization
+ * @param dept department
+ * @param title job title
  */
-var ContactOrganization = function(name, dept, title, startDate, endDate, location, desc) {
+var ContactOrganization = function(name, dept, title) {
     this.name = name || null;
     this.department = dept || null;
     this.title = title || null;
-    this.startDate = startDate || null;
-    this.endDate = endDate || null;
-    this.location = location || null;
-    this.description = desc || null;
-};
-
-/**
- * Contact account.
- * @param domain
- * @param username
- * @param userid
- */
-var ContactAccount = function(domain, username, userid) {
-    this.domain = domain || null;
-    this.username = username || null;
-    this.userid = userid || null;
 };
 
 /**
@@ -169,7 +136,7 @@ ContactError.PERMISSION_DENIED_ERROR = 20;
  */
 Contacts.prototype.create = function(properties) {
     var contact = new Contact();
-    for (var i in properties) {
+    for (var i=0; i<properties.length; i++) {
         if (contact[i] !== 'undefined') {
             contact[i] = properties[i];
         }
@@ -247,16 +214,15 @@ Contact.prototype.clone = function() {
  */
 Contacts.prototype.find = function(fields, success, fail, options) {
 
-    // default is to return a single contact
-    var numContacts = 1;
+    // default is to return multiple contacts (-1 on BlackBerry)
+    var numContacts = -1;
 
     // search options
     var filter = null;
     if (options) {
         // return multiple objects?
-        if (options.multiple) {
-            // use options.limit (if specified), or return all (-1 in BlackBerry)
-            numContacts = (options.limit) ? Math.max(numContacts, options.limit) : -1;
+        if (options.multiple === false) {
+            numContacts = 1;
         }
         filter = options.filter;
     }
@@ -287,10 +253,15 @@ Contacts.prototype.find = function(fields, success, fail, options) {
     }
 };
 
-var ContactFindOptions = function(filter, multiple, limit, updatedSince) {
+/**
+ * Contact search criteria.
+ * @param filter string-based search filter with which to search and filter contacts
+ * @param multiple indicates whether multiple contacts should be returned (defaults to true)
+ * @param updatedSince return only records that have been updated after the specified timm
+ */
+var ContactFindOptions = function(filter, multiple, updatedSince) {
     this.filter = filter || '';
     this.multiple = multiple || true;
-    this.limit = limit || Number.MAX_VALUE;
     this.updatedSince = updatedSince || '';
 };
 
