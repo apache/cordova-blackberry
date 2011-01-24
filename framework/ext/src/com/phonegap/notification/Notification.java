@@ -7,10 +7,14 @@
  */
 package com.phonegap.notification;
 
-import com.phonegap.api.Plugin;
-import com.phonegap.api.PluginResult;
+import net.rim.device.api.notification.NotificationsConstants;
+import net.rim.device.api.notification.NotificationsManager;
 
 import org.json.me.JSONArray;
+
+import com.phonegap.PhoneGapExtension;
+import com.phonegap.api.Plugin;
+import com.phonegap.api.PluginResult;
 
 /**
  * PhoneGap Notification plugin.
@@ -25,10 +29,32 @@ import org.json.me.JSONArray;
  */
 public class Notification extends Plugin {
 	
+    /**
+     * Possible actions
+     */
 	public static final int ACTION_ALERT   = 0;
 	public static final int ACTION_BEEP    = 1;
 	public static final int ACTION_CONFIRM = 2;
 	public static final int ACTION_VIBRATE = 3;
+	
+	/**
+	 * Creates a notification profile for the application on the device.  
+	 * The application can trigger a notification event that will play the 
+	 * profile.  The profile settings are set by the user.
+	 */
+	public static void registerProfile() {
+	    // Register with the NotificationsManager to create a notification
+	    // profile for this application and enable notifications to be 
+	    // controlled by the user
+	    Object object = new Object() {
+	        private String appName = PhoneGapExtension.getAppName();
+	        public String toString() {
+	            return appName;
+	        }
+	    };
+	    NotificationsManager.registerSource(
+	        PhoneGapExtension.getAppID(), object, NotificationsConstants.IMPORTANT);	    
+	}
 	
 	/**
 	 * Executes the request and returns CommandResult.
@@ -89,5 +115,5 @@ public class Notification extends Plugin {
 		if ("confirm".equals(action)) return ACTION_CONFIRM;
 		if ("vibrate".equals(action)) return ACTION_VIBRATE; 
 		return -1;
-	}		
+	}	
 }

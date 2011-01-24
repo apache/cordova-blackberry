@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import com.phonegap.api.PluginManager;
 import com.phonegap.api.PluginResult;
 import com.phonegap.device.Device;
+import com.phonegap.notification.Notification;
 import com.phonegap.util.Log;
 import com.phonegap.util.Logger;
 
@@ -80,6 +81,9 @@ public final class PhoneGapExtension implements WidgetExtension {
         // grab widget application name and use it to generate a unique ID
         appName = widgetConfig.getName();
         appID = Long.parseLong(Math.abs(("com.phonegap."+appName).hashCode())+"",16);
+        
+        // create a notification profile for the application
+        Notification.registerProfile();
     }
 
 	// Called to clean up any features when the extension is unloaded
