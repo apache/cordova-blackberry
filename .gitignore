@@ -13,3 +13,7 @@ deliverables/
 
 lib/ext
 lib/javascript
+
+# OS X
+
+.DS_Store

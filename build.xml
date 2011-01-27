@@ -1,12 +1,13 @@
-<project name="Create &amp; Update a PhoneGap BlackBerry Widget Project" default="help">
+<project name="Create &amp; Update a PhoneGap BlackBerry WebWorks Project or Plugin" default="help">
     
     <!-- LOAD PROPERTIES -->
     
-    <property name="template.dir"     location="template" />
-    <property name="phonegap-js.file" location="lib/javascript/phonegap.js" />
-    <property name="phonegap-js.src"  location="js" />
-    <property name="ext.file"         location="lib/ext/phonegap.jar" />
-    <property name="ext.src"          location="framework/ext/src" />
+    <property name="template.project.dir" location="template/project" />
+    <property name="template.plugin.dir"  location="template/plugin" />
+    <property name="phonegap-js.file"     location="lib/javascript/phonegap.js" />
+    <property name="phonegap-js.src"      location="js" />
+    <property name="ext.file"             location="lib/ext/phonegap.jar" />
+    <property name="ext.src"              location="framework/ext/src" />
     
     <!-- BUILD JAVASCRIPT -->
     
@@ -48,7 +49,7 @@
         <!-- copy template directory -->
         <mkdir dir="${project.path}" />
         <copy todir="${project.path}">
-            <fileset dir="${template.dir}" />
+            <fileset dir="${template.project.dir}" />
         </copy>
         
         <!-- copy phonegap.js -->
@@ -62,10 +63,14 @@
         </copy>
         
         <echo>
-Congratulations! Your new project has been created.
+Project Creation Complete!
+==========================
 
-GETTING STARTED
+Getting Started:
+----------------
+
   cd ${project.path}
+
   ant help
         </echo>
     </target>
@@ -79,7 +84,7 @@ GETTING STARTED
         <fail unless="project.exists" message="The project path cannot be empty." />
         
         <!-- build.xml -->
-        <copy todir="${project.path}" file="${template.dir}/build.xml" />
+        <copy todir="${project.path}" file="${template.project.dir}/build.xml" />
         
         <!-- phonegap.js -->
         <copy todir="${project.path}/www/javascript">
@@ -93,6 +98,48 @@ GETTING STARTED
         
     </target>
     
+    <!-- CREATE A PLUGIN -->
+
+    <target name="create-plugin" depends="">
+        <!-- validate arguments -->
+        <fail unless="plugin.path" message="You must give a plugin PATH. Use the argument -Dplugin.path=&#34;C:\dev\my_plugin&#34;" />
+
+        <!-- destination must be empty -->
+        <available file="${plugin.path}" property="plugin.exists" />
+        <fail if="plugin.exists" message="The plugin path must be an empty directory." />
+
+        <!-- copy plugin directory -->
+        <mkdir dir="${plugin.path}" />
+        <copy todir="${plugin.path}">
+            <fileset dir="${template.plugin.dir}" />
+        </copy>
+
+        <echo>
+Plugin Creation Complete!
+=========================
+
+Getting Started:
+----------------
+
+  cd ${plugin.path}
+
+  ant help
+        </echo>
+    </target>
+
+    <!-- UPDATE A PLUGIN -->
+
+    <target name="update-plugin" depends="">
+        <fail unless="plugin.path" message="You must give a plugin PATH. Use the argument -Dplugin.path=&#34;C:\dev\my_plugin&#34;" />
+
+        <available file="${plugin.path}" property="plugin.exists" />
+        <fail unless="plugin.exists" message="The plugin path cannot be empty." />
+
+        <!-- build.xml -->
+        <copy todir="${plugin.path}" file="${template.plugin.dir}/build.xml" />
+        <echo message="Updated build.xml" />
+    </target>
+
     <!-- HELP -->
     
     <target name="help">
@@ -109,16 +156,24 @@ DESCRIPTION
   In other words, when you &lt;git pull origin master&gt;.
 
 COMMANDS
-  help ..... Show this help menu.
-               ant, ant help
+  help ............ Show this help menu.
+                      ant, ant help
 
-  create ... Create a new project
-               ant create PATH
-               ant create -Dproject.path="C:\dev\my_project"
+  create .......... Create a new project
+                      ant create PATH
+                      ant create -Dproject.path="C:\dev\my_project"
 
-  update ... Update an existing project
-               ant update PATH
-               ant update -Dproject.path="C:\dev\my_project"
+  update .......... Update an existing project
+                      ant update PATH
+                      ant update -Dproject.path="C:\dev\my_project"
+
+  create-plugin ... Create a new plugin
+                      ant create-plugin PATH
+                      ant create-plugin -Dplugin.path="C:\dev\my_plugin"
+
+  update-plugin ... Update a plugin's ANT script
+                      ant update-plugin PATH
+                      ant update-plugin -Dplugin.path="C:\dev\my_plugin"
         </echo>
     </target>
     
