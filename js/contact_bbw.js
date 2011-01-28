@@ -23,7 +23,7 @@ var BlackBerryContacts = function() {
     // 
     // The 'name' field does not exist in a BlackBerry contact.  Instead, a
     // filter expression will be built to search the BlackBerry contacts using
-    // the BlackBerry 'firstName' and 'lastName' fields.   
+    // the BlackBerry 'title', 'firstName' and 'lastName' fields.   
     //
     this.fieldMappings = {
          "id"                        : "uid",
@@ -332,6 +332,29 @@ BlackBerryContacts.saveToDevice = function(contact) {
     // save to device
     bbContact.save();
 
+    // invoke native side to save photo
+    // fail gracefully if photo URL is no good, but log the error
+    if (contact.photos && contact.photos instanceof Array) {
+        var photo = null;
+        for (var i=0; i<contact.photos.length; i+=1) {
+            photo = contact.photos[i];
+            if (!photo || !photo.value) { 
+                continue; 
+            }
+            PhoneGap.exec(
+                    // success
+                    function() {
+                    },
+                    // fail
+                    function(e) {
+                        console.log('Contact.setPicture failed:' + e);
+                    },
+                    "Contact", "setPicture", [bbContact.uid, photo.type, photo.value]
+            );
+            break;
+        }
+    }
+    
     return bbContact.uid;
 };
 
@@ -471,6 +494,7 @@ BlackBerryContacts.createContact = function(bbContact, fields) {
     // add the fields specified
     for (var i in fields) {
         var field = fields[i];
+
         if (!field) {
             continue;
         }
@@ -563,8 +587,18 @@ BlackBerryContacts.createContact = function(bbContact, fields) {
             }
             contact.urls = urls;
         }
+        // photos
+        else if (field.indexOf('photos') === 0) {
+            var photos = [];
+            // The BlackBerry Contact object will have a picture attribute
+            // with Base64 encoded image
+            if (bbContact.picture) {
+                photos.push(new ContactField('base64', bbContact.picture));
+            }
+            contact.photos = photos;
+        }
     }
-    
+
     return contact;
 };
 

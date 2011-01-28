@@ -336,6 +336,14 @@ website: http://phonegap.com
             categories[1] = "Family"; // DOH! BlackBerry only supports 'Personal' and 'Business'
             myContact.categories = categories;
             
+            // add photo
+            var smallImage = document.getElementById('cameraImage');
+            if (smallImage.src && smallImage.src !== "") {
+                var photos = [];
+                photos[0] = new ContactField(null, smallImage.src);
+                myContact.photos = photos;
+            }
+            
             // saves the contact to device
             myContact.save(onContactSaved);
         } 
@@ -351,7 +359,7 @@ website: http://phonegap.com
                     // update first contact and save
                     if (contacts[0]) {
                         var c = contacts[0];
-                        
+
                         // update attributes
                         c.categories = [ 'Personal' ];
                         c.emails[0].value = "sl@bf.com";
@@ -377,7 +385,8 @@ website: http://phonegap.com
             navigator.service.contacts.find(
                 ['name', 'emails', 'addresses', 'organizations'], 
                 function(contacts) {
-                    alert('Found ' + contacts.length + ' contacts.');
+                    var msg = 'Found ' + contacts.length + ' contacts.';
+                    navigator.notification.alert(msg, null, 'Success');
                 }, 
                 fail,
                 { 
@@ -576,7 +585,7 @@ website: http://phonegap.com
                 var root = rootPaths[i];
                 msg += root + " has " + navigator.fileMgr.getFreeDiskSpace(root) + " bytes free.\n";
             }
-            alert(msg);
+            navigator.notification.alert(msg, null, "Root directories");
         }
       
         function getRootPath() 
