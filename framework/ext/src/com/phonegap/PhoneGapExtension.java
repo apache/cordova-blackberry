@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import com.phonegap.api.PluginManager;
 import com.phonegap.api.PluginResult;
 import com.phonegap.device.Device;
+import com.phonegap.notification.Notification;
 import com.phonegap.util.Log;
 import com.phonegap.util.Logger;
 
@@ -26,9 +27,22 @@ import com.phonegap.util.Logger;
  */
 public final class PhoneGapExtension implements WidgetExtension {
 
-	protected static ScriptEngine script;
-	protected static BrowserField browser = null;
-	
+    // BrowserField object used to display the application
+    //
+    protected static BrowserField browser = null;
+    
+    // Browser script engine
+    //
+    protected static ScriptEngine script;
+
+    // Application name
+    //
+    protected static String appName;
+
+    // Application GUID
+    //
+    protected static long appID;
+
 	// Called when the BlackBerry Widget references this extension for the first time.
 	// It provides a list of feature IDs exposed by this extension.
 	//
@@ -49,7 +63,7 @@ public final class PhoneGapExtension implements WidgetExtension {
 		if (feature.equals("phonegap")) {
 			scriptEngine.addExtension("phonegap.device",         new Device());
 			scriptEngine.addExtension("phonegap.PluginManager",  new PluginManager(this));
-			scriptEngine.addExtension("phonegap.Logger",         new Log());
+			scriptEngine.addExtension("phonegap.Logger",         new Log());			
 			
 			// let PhoneGap JavaScript know that extensions have been loaded
 			// if this is premature, we at least set the _nativeReady flag to true
@@ -59,11 +73,18 @@ public final class PhoneGapExtension implements WidgetExtension {
 		}
 	}
 
-	// Called so that the extension can get a reference to the configuration or browser field object
-	//
-	public void register(WidgetConfig widgetConfig, BrowserField browserField) {
-		browser = browserField;
-	}
+    // Called so that the extension can get a reference to the configuration or browser field object
+    //
+    public void register(WidgetConfig widgetConfig, BrowserField browserField) {
+        browser = browserField;
+
+        // grab widget application name and use it to generate a unique ID
+        appName = widgetConfig.getName();
+        appID = Long.parseLong(Math.abs(("com.phonegap."+appName).hashCode())+"",16);
+        
+        // create a notification profile for the application
+        Notification.registerProfile();
+    }
 
 	// Called to clean up any features when the extension is unloaded
 	//
@@ -98,5 +119,19 @@ public final class PhoneGapExtension implements WidgetExtension {
 	 */
 	public static BrowserField getBrowserField() {
 	    return browser;
-	}
+    }
+
+    /**
+     * Returns the widget application name.
+     */
+    public static String getAppName() {
+        return appName;
+    }
+
+    /**
+     * Returns unique ID of the widget application.
+     */
+    public static long getAppID() {
+        return appID;
+    }
 }

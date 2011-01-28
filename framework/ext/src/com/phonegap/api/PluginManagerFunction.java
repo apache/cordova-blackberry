@@ -178,7 +178,7 @@ public class PluginManagerFunction extends ScriptableFunction {
     	if (this.plugins.containsKey(className)) {
     		return this.getPlugin(className);
     	}
-        Logger.log(this.getClass().getName() + ": Loading plugin class " + clazz);
+        Logger.log(this.getClass().getName() + ": Loading plugin " + clazz);
         Plugin plugin = (Plugin)clazz.newInstance();
         this.plugins.put(className, plugin);
         plugin.setContext(this.ext);
