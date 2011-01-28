@@ -107,7 +107,7 @@ public class FileUploader {
             // get HttpConnection
             httpConn = HttpUtils.getHttpConnection(server);
             if (httpConn == null) {
-                throw new IOException("Unable to establish connection.");
+                throw new IllegalArgumentException("Invalid URL: " + server);
             }
             Logger.log(this.getClass().getName() + ": server URL=" + httpConn.getURL()); 
             

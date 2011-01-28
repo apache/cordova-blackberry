@@ -7,12 +7,14 @@
  */
 package com.phonegap.api;
 
+import java.io.IOException;
 import java.util.Hashtable;
 
 import net.rim.device.api.script.Scriptable;
 import net.rim.device.api.script.ScriptableFunction;
 
 import com.phonegap.PhoneGapExtension;
+import com.phonegap.file.FileUtils;
 import com.phonegap.util.Logger;
 
 /**
@@ -83,7 +85,19 @@ public final class PluginManager extends Scriptable {
             final PluginManagerFunction plugin_mgr = this.pluginManagerFunction;
             return new ScriptableFunction() {
                 public Object invoke(Object obj, Object[] oargs) throws Exception {
+                    // allow plugins to clean up
                     plugin_mgr.onDestroy();
+                    
+                    // delete temporary application directory
+                    // NOTE: doing this on a background thread doesn't work
+                    // because the app is closing and the thread is killed before it completes
+                    try { 
+                        FileUtils.deleteApplicationTempDirectory(); 
+                    } 
+                    catch (IOException e) {
+                        Logger.log(this.getClass().getName() + ": error deleting application temp directory: " +e);
+                    }
+                    
                     return null;
                 }
             };

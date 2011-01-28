@@ -8,9 +8,7 @@
 package com.phonegap.file;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import javax.microedition.io.Connector;
@@ -18,9 +16,7 @@ import javax.microedition.io.file.FileConnection;
 
 import net.rim.device.api.io.Base64OutputStream;
 import net.rim.device.api.io.FileNotFoundException;
-import net.rim.device.api.io.IOUtilities;
 import net.rim.device.api.io.MIMETypeAssociations;
-import net.rim.device.api.system.Application;
 
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
@@ -167,7 +163,7 @@ public class FileManager extends Plugin {
      */
     protected String readAsText(String filePath, String encoding) throws FileNotFoundException, UnsupportedEncodingException, IOException {
         // read the file
-        byte[] blob = readFile(filePath);
+        byte[] blob = FileUtils.readFile(filePath, Connector.READ);
         
         // return encoded file contents
         Logger.log(this.getClass().getName() + ": encoding file contents using " + encoding);
@@ -184,7 +180,7 @@ public class FileManager extends Plugin {
         String result = null;
 
         // read file
-        byte[] blob = readFile(filePath);
+        byte[] blob = FileUtils.readFile(filePath, Connector.READ);
         
         // encode file contents using BASE64 encoding
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -210,19 +206,7 @@ public class FileManager extends Plugin {
      * @return file content as a byte array
      */
     protected byte[] readFile(String filePath) throws FileNotFoundException, IOException {
-        byte[] blob = null;
-        DataInputStream dis = null;
-        try {
-            dis = openDataInputStream(filePath);
-            blob = IOUtilities.streamToBytes(dis);
-        } finally {
-            try { 
-                if (dis != null) dis.close();
-            } catch (IOException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-            }
-        }
-        return blob;
+        return FileUtils.readFile(filePath, Connector.READ);
     }
 
     /**
@@ -232,25 +216,7 @@ public class FileManager extends Plugin {
      * @param position  Position at which to begin writing
      */
     protected int writeFile(String filePath, String data, int position) throws IOException {
-        FileConnection fconn = null;
-        OutputStream os = null;
-        byte[] bytes = data.getBytes();
-        try {
-            fconn = (FileConnection)Connector.open(filePath, Connector.READ_WRITE);
-            if (!fconn.exists()) {
-                fconn.create();
-            }
-            os = fconn.openOutputStream(position);
-            os.write(bytes);
-        } finally {
-            try {
-                if (os != null) os.close();
-                if (fconn != null) fconn.close();
-            } catch (IOException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-            }
-        }
-        return bytes.length;
+        return FileUtils.writeFile(filePath, data.getBytes(), position);
     }
     
     /**
@@ -280,47 +246,6 @@ public class FileManager extends Plugin {
             }
         }
         return fileSize;
-    }
-    
-    /**
-     * Utility function to open a DataInputStream from a file path.
-     *
-     * A file can be referenced with the following protocols:
-     *  - System.getProperty("fileconn.dir.*")
-     *  - local:/// references files bundled with the application
-     *
-     * @param filePath The full path to the file to open
-     * @return Handle to the DataInputStream
-     */
-    protected DataInputStream openDataInputStream(final String filePath) throws FileNotFoundException, IOException {
-        FileConnection fconn = null;
-        DataInputStream dis = null;
-        
-        try {
-            if (filePath.startsWith("local:///")) {
-                // Remove local:// from filePath but leave a leading /
-                dis = new DataInputStream(Application.class.getResourceAsStream(filePath.substring(8)));
-            }
-            else {
-                fconn = (FileConnection)Connector.open(filePath, Connector.READ);
-                if (!fconn.exists()) {
-                    throw new FileNotFoundException(filePath + " not found");
-                }
-                dis = fconn.openDataInputStream();
-            }
-
-            if (dis == null) {
-                throw new FileNotFoundException(filePath + " not found");
-            }
-        } finally {
-            try {
-                if (fconn != null) fconn.close();
-            } catch (IOException e) {
-                Logger.log(this.getClass().getName() + ": " + e);
-            }
-        }
-        
-        return dis;
     }
     
     /**
