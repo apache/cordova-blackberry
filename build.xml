@@ -20,21 +20,29 @@
     <property name="jar.basename" value="phonegap.${version}.jar" />
     <property name="jar.file"     value="${jar.path}/${jar.basename}" />
     
-    <property name="js.src"      location="js" />
-    <property name="js.path"     value="javascript" />
-    <property name="js.basename" value="phonegap.${version}.js" />
-    <property name="js.file"     value="${js.path}/${js.basename}" />
+    <property name="js.src"          location="js" />
+    <property name="js.path"         value="javascript" />
+    <property name="js.basename"     value="phonegap.${version}.js" />
+    <property name="js.basename-min" value="phonegap.${version}.min.js" />
+    <property name="js.file"         value="${js.path}/${js.basename}" />
+    <property name="js.file-min"     value="${js.path}/${js.basename-min}" />
+    <property name="js.license"      location="lib/license.js" />
     
     <!-- BUILD JAVASCRIPT -->
     
     <target name="build-javascript">
         <mkdir dir="${build.dir}/${js.path}" />
         
+        <!-- uncompressed -->
         <concat destfile="${build.dir}/${js.file}" append="false">
             <fileset dir="${js.src}">
                 <include name="*.js" />
             </fileset>
         </concat>
+
+        <!-- compressed -->
+        <compress-js input-file="${build.dir}/${js.file}"
+                     output-file="${build.dir}/${js.file-min}" />
     </target>
     
     <!-- BUILD WIDGET EXTENSION -->
@@ -62,7 +70,7 @@
         </copy>
         
         <!-- update project files to reference phonegap.x.x.x.js -->
-        <replaceregexp match="phonegap\.js" replace="${js.basename}" byline="true">
+        <replaceregexp match="phonegap\.js" replace="${js.basename-min}" byline="true">
             <fileset file="${project.path}/www/index.html" />
             <fileset file="${project.path}/build.xml" />
         </replaceregexp>
@@ -232,5 +240,35 @@ COMMANDS
                       ant update-plugin -Dplugin.path="C:\dev\my_plugin"
         </echo>
     </target>
+
+    <!-- MACRO: COMPRESS-JS -->
+
+    <macrodef name="compress-js">
+        <attribute name="input-file" />
+        <attribute name="output-file" />
+        
+        <sequential>
+            <property name="output-file.tmp" value="@{output-file}.tmp" />
+            
+            <!-- compress -->
+            <java jar="./lib/yuicompressor/yuicompressor-2.4.2.jar"
+                fork="true"
+                failonerror="true">
+                <arg value="--nomunge" />
+                <arg value="-o"/>
+                <arg value="${output-file.tmp}" />
+                <arg value="@{input-file}" />
+            </java>
+            
+            <!-- add license to minified file -->
+            <concat destfile="@{output-file}" append="false">
+                <fileset file="${js.license}" />
+                <fileset file="${output-file.tmp}" />
+            </concat>
+            
+            <!-- cleanup -->
+            <delete file="${output-file.tmp}" />
+        </sequential>
+    </macrodef>
     
 </project>
