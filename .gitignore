@@ -15,8 +15,7 @@ deliverables/
 
 # Generated libraries
 
-lib/ext
-lib/javascript
+build/
 
 # OS X
 

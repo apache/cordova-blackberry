@@ -12,7 +12,7 @@
     
     <property name="template.project.dir" location="template/project" />
     <property name="template.plugin.dir"  location="template/plugin" />
-    <property name="build.dir"            location="lib" />
+    <property name="build.dir"            location="build" />
     <property name="update.dir"           value="lib/phonegap.${version}" />
     
     <property name="jar.src"      location="framework/ext/src" />
