@@ -20,7 +20,7 @@
     <property name="jar.basename" value="phonegap.${version}.jar" />
     <property name="jar.file"     value="${jar.path}/${jar.basename}" />
     
-    <property name="js.src"          location="js" />
+    <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
     <property name="js.basename"     value="phonegap.${version}.js" />
     <property name="js.basename-min" value="phonegap.${version}.min.js" />
