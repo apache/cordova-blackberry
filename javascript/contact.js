@@ -136,7 +136,7 @@ ContactError.PERMISSION_DENIED_ERROR = 20;
  */
 Contacts.prototype.create = function(properties) {
     var contact = new Contact();
-    for (var i=0; i<properties.length; i++) {
+    for (var i in properties) {
         if (contact[i] !== 'undefined') {
             contact[i] = properties[i];
         }
