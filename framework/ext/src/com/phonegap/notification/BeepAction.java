@@ -20,11 +20,10 @@ import net.rim.device.api.media.control.AudioPathControl;
 import net.rim.device.api.notification.NotificationsManager;
 import net.rim.device.api.system.Alert;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import com.phonegap.PhoneGapExtension;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 import com.phonegap.util.Logger;
 
 /**
@@ -65,7 +64,7 @@ public class BeepAction {
             try {
                 int repeatCount = 1;
                 if (args.length() > 0 && !args.isNull(0)) {
-                    repeatCount = ((Integer)args.get(0)).intValue();
+                    repeatCount = args.getInt(0);
                 }
                 
                 // play tone n times

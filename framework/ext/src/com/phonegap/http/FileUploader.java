@@ -22,11 +22,10 @@ import net.rim.device.api.io.MIMETypeAssociations;
 import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.ui.UiApplication;
 
-import org.json.me.JSONException;
-import org.json.me.JSONObject;
-
 import com.phonegap.PhoneGapExtension;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONException;
+import com.phonegap.json4j.JSONObject;
 import com.phonegap.util.Logger;
 
 /**

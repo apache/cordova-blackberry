@@ -11,12 +11,11 @@ import java.io.IOException;
 
 import net.rim.device.api.io.FileNotFoundException;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-import org.json.me.JSONObject;
-
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
+import com.phonegap.json4j.JSONObject;
 import com.phonegap.util.Logger;
 
 /**

@@ -9,8 +9,8 @@ package com.phonegap.geolocation;
 
 import javax.microedition.location.Location;
 
-import org.json.me.JSONException;
-import org.json.me.JSONObject;
+import com.phonegap.json4j.JSONException;
+import com.phonegap.json4j.JSONObject;
 
 /**
  * Stores geo location variables.

@@ -7,12 +7,11 @@
  */
 package com.phonegap.notification;
 
-import com.phonegap.api.PluginResult;
-
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import net.rim.device.api.ui.UiApplication;
+
+import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 
 /**
  * Alert Action
@@ -43,11 +42,11 @@ public class AlertAction {
             String message = DEFAULT_MESSAGE;
             String title = DEFAULT_TITLE;
             String buttonLabel = DEFAULT_BUTTON;
-            if (args.length() > 0 && args.get(0) != null)
+            if (args.length() > 0 && !args.isNull(0))
                 message = args.getString(0);
-            if (args.length() > 1 && args.get(1) != null)
+            if (args.length() > 1 && !args.isNull(1))
                 title = args.getString(1);
-            if (args.length() > 2 && args.get(2) != null)
+            if (args.length() > 2 && !args.isNull(2))
                 buttonLabel = args.getString(2);
 
             // construct the dialog

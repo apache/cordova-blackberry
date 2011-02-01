@@ -18,11 +18,10 @@ import net.rim.device.api.io.Base64OutputStream;
 import net.rim.device.api.io.FileNotFoundException;
 import net.rim.device.api.io.MIMETypeAssociations;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 import com.phonegap.util.Logger;
 
 public class FileManager extends Plugin {
@@ -200,15 +199,6 @@ public class FileManager extends Plugin {
         return result;
     }
     
-    /**
-     * Reads file as byte array.
-     * @param filePath      Full path of the file to be read  
-     * @return file content as a byte array
-     */
-    protected byte[] readFile(String filePath) throws FileNotFoundException, IOException {
-        return FileUtils.readFile(filePath, Connector.READ);
-    }
-
     /**
      * Writes data to the specified file.
      * @param filePath  Full path of file to be written to

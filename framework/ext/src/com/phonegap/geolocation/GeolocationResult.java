@@ -7,9 +7,8 @@
  */
 package com.phonegap.geolocation;
 
-import org.json.me.JSONObject;
-
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONObject;
 import com.phonegap.util.Logger;
 
 /**

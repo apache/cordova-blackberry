@@ -28,13 +28,12 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.PNGEncodedImage;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.file.FileUtils;
 import com.phonegap.http.HttpUtils;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 import com.phonegap.util.Logger;
 
 /**

@@ -10,11 +10,10 @@ package com.phonegap.notification;
 import net.rim.device.api.notification.NotificationsConstants;
 import net.rim.device.api.notification.NotificationsManager;
 
-import org.json.me.JSONArray;
-
 import com.phonegap.PhoneGapExtension;
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
 
 /**
  * PhoneGap Notification plugin.

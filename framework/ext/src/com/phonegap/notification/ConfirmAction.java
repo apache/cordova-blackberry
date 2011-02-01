@@ -9,10 +9,9 @@ package com.phonegap.notification;
 
 import net.rim.device.api.ui.UiApplication;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 import com.phonegap.util.Logger;
 
 /**
@@ -42,11 +41,11 @@ public class ConfirmAction {
             String message = DEFAULT_MESSAGE;
             String title = DEFAULT_TITLE;
             String buttonLabels = DEFAULT_BUTTONS;
-            if (args.length() > 0 && args.get(0) != null)
+            if (args.length() > 0 && !args.isNull(0))
                 message = args.getString(0);
-            if (args.length() > 1 && args.get(1) != null)
+            if (args.length() > 1 && !args.isNull(1))
                 title = args.getString(1);
-            if (args.length() > 2 && args.get(2) != null)
+            if (args.length() > 2 && !args.isNull(2))
                 buttonLabels = args.getString(2);
 
             // construct the dialog

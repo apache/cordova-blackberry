@@ -12,10 +12,9 @@ import java.util.Hashtable;
 
 import net.rim.device.api.script.ScriptableFunction;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import com.phonegap.PhoneGapExtension;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 import com.phonegap.util.Logger;
 
 /**

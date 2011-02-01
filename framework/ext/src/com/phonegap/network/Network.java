@@ -9,8 +9,7 @@ package com.phonegap.network;
 
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
-
-import org.json.me.JSONArray;
+import com.phonegap.json4j.JSONArray;
 
 /**
  * The Network command interface.

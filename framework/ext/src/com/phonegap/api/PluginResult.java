@@ -7,7 +7,7 @@
  */
 package com.phonegap.api;
 
-import org.json.me.JSONObject;
+import com.phonegap.json4j.JSONObject;
 
 /**
  * This class defines the standard object that should be returned as the

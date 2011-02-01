@@ -25,10 +25,9 @@ import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.EventInjector;
 import net.rim.device.api.ui.UiApplication;
 
-import org.json.me.JSONArray;
-
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
 import com.phonegap.util.Logger;
 
 /**

@@ -7,8 +7,8 @@
  */
 package com.phonegap.geolocation;
 
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 
 public class PositionOptions {
 	private static final int START_ARG_MAX_AGE = 1;

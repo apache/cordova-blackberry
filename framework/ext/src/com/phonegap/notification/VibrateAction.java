@@ -7,12 +7,11 @@
  */
 package com.phonegap.notification;
 
-import com.phonegap.api.PluginResult;
-
-import org.json.me.JSONArray;
-import org.json.me.JSONException;
-
 import net.rim.device.api.system.Alert;
+
+import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 
 /**
  * Vibrate Action
@@ -35,7 +34,7 @@ public class VibrateAction {
 		
 		if (Alert.isVibrateSupported()) {
 			try {
-				int duration = (args.length() >= 1) ? ((Integer)args.get(0)).intValue() : DEFAULT_DURATION;
+				int duration = (args.length() >= 1) ? args.getInt(0) : DEFAULT_DURATION;
 				
 				Alert.startVibrate(duration); 
 			}

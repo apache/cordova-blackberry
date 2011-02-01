@@ -7,9 +7,8 @@
  */
 package com.phonegap.api;
 
-import org.json.me.JSONArray;
-
 import com.phonegap.PhoneGapExtension;
+import com.phonegap.json4j.JSONArray;
 
 /**
  * Plugin interface must be implemented by any plugin classes.

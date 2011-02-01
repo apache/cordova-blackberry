@@ -7,8 +7,8 @@
  */ 
 package com.phonegap.http;
 
-import org.json.me.JSONException;
-import org.json.me.JSONObject;
+import com.phonegap.json4j.JSONException;
+import com.phonegap.json4j.JSONObject;
 
 /**
  * Encapsulates the result and/or status of uploading a file to a remote server.

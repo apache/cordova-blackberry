@@ -11,11 +11,10 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 
-import org.json.me.JSONException;
-import org.json.me.JSONObject;
-
 import com.phonegap.PhoneGapExtension;
 import com.phonegap.api.PluginResult;
+import com.phonegap.json4j.JSONException;
+import com.phonegap.json4j.JSONObject;
 import com.phonegap.util.Logger;
 
 /**
