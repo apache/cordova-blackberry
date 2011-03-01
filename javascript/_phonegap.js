@@ -4,7 +4,7 @@
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  * 
  * Copyright (c) 2005-2010, Nitobi Software Inc.
- * Copyright (c) 2010, IBM Corporation
+ * Copyright (c) 2010-2011, IBM Corporation
  */
 
 /**
@@ -542,3 +542,19 @@ PhoneGap.UUIDcreatePart = function(length) {
     }
     return uuidpart;
 };
+
+/**
+ * Extends a child object from a parent object using classical inheritance
+ * pattern.
+ */
+PhoneGap.extend = (function() {
+    // proxy used to establish prototype chain
+    var F = function() {}; 
+    // extend Child from Parent
+    return function(Child, Parent) {
+        F.prototype = Parent.prototype;
+        Child.prototype = new F();
+        Child.__super__ = Parent.prototype;
+        Child.prototype.constructor = Child;
+    }
+}());
