@@ -49,6 +49,11 @@ public class PluginResult {
         this.message = ""+b;
     }
     
+    public PluginResult(Status status, long l) {
+        this.status = status.ordinal();
+        this.message = ""+l;
+    }
+
     public int getStatus() {
         return status;
     }
