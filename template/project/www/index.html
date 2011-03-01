@@ -412,6 +412,34 @@ website: http://phonegap.com
         // File
         //---------------------------------------------------------------------
         
+        // retrieves root file system entry
+        var getFileSystemRoot = (function() {
+
+            // private
+            var root;
+            
+            // one-time retrieval of the root file system entry
+            var init = function() {
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
+                    function(fileSystem) {
+                        root = fileSystem.root;
+                    }, 
+                    onFileSystemError);
+            };
+            document.addEventListener("deviceready", init, true); 
+
+            // public function returns private root entry
+            return function() {
+                return root;
+            };
+        }()); // execute immediately
+
+        // file system error handler
+        function onFileSystemError(error) {
+            var msg = 'file system error: ' + error.code;
+            navigator.notification.alert(msg, null, 'File System Error');
+        }
+
         // logs file events
         function onFileEvent(event) {
             console.log('file event: ' + event.target.fileName + ' ' + event.type);
@@ -419,7 +447,7 @@ website: http://phonegap.com
       
         // called when error reading file
         function onFileError(event) {
-            alert('file error: ' + event.target.error.code);
+            console.log('file error: ' + event.target.error.code);
         }
       
         // called when file is loaded
@@ -432,7 +460,8 @@ website: http://phonegap.com
         // reads a text file
         function readFileAsText()
         {   
-            var fileReader = new FileReader();
+            var fileReader = new FileReader(),
+                root = getFileSystemRoot();
           
             // set the callbacks
             fileReader.onloadstart = onFileEvent;
@@ -443,14 +472,14 @@ website: http://phonegap.com
             fileReader.onerror = onFileError;
           
             // read the file
-            var rootPath = getRootPath();          
-            fileReader.readAsText(rootPath + 'phonegap.txt');
+            fileReader.readAsText(root.toURI() + '/phonegap.txt');
         }
 
         // reads a text file and encodes to Base64
         function readFileAsDataURL()
         {   
-            var fileReader = new FileReader();
+            var fileReader = new FileReader(),
+                root = getFileSystemRoot();
           
             // set the callbacks
             fileReader.onloadstart = onFileEvent;
@@ -461,146 +490,279 @@ website: http://phonegap.com
             fileReader.onerror = onFileError;
           
             // read the file
-            var rootPath = getRootPath();
-            fileReader.readAsDataURL(rootPath + 'phonegap.txt');
+            fileReader.readAsDataURL(root.toURI() + '/phonegap.txt');
         }
 
         // called when file is written
         function onFileWrite(event) {
             onFileEvent(event);
-            console.log('FileWriter position=' + event.target.position + ", length=" + event.target.length);
+            console.log('FileWriter position=' + 
+                event.target.position + ", length=" + event.target.length);
         }
 
         // writes a text file to the device
         function writeFile() 
         {
-            var rootPath = getRootPath();
-            var fileWriter;
-            try { 
-                fileWriter = new FileWriter(rootPath + 'bbgap.txt', true);
-            } 
-            catch (e) {
-                alert("Error creating FileWriter: " + e);
-                return;
-            } 
+                // root file system entry
+            var root = getFileSystemRoot(),
+            
+                // writes a file
+                write_file = function(writer) {
+                    var lineCount = 1;
+                              
+                    // set the callbacks
+                    writer.onwritestart = onFileEvent;
+                    writer.onprogress = onFileEvent;
+                    writer.onwrite = onFileWrite;
+                    writer.onabort = onFileEvent;
+                    writer.onerror = onFileError;
+                    writer.onwriteend = function(event) {
+                        onFileEvent(event);
+                        lineCount += 1;
+                        if (lineCount <= 3) {
+                            // append a new line   
+                            writer.write('Line ' + lineCount + '.\r\n');  
+                        } 
+                        else {
+                            alert(writer.fileName + 
+                                ' length=' + writer.length + 
+                                ', position=' + writer.position);
+                        }
+                    }
+                    
+                    // append
+                    writer.seek(writer.length);
           
-            // set the callbacks
-            fileWriter.onwritestart = onFileEvent;
-            fileWriter.onprogress = onFileEvent;
-            fileWriter.onwrite = onFileWrite;
-            fileWriter.onabort = onFileEvent;
-            fileWriter.onerror = onFileError;
-
-            // called when write is finished
-            var lineCount = 1;
-            fileWriter.onwriteend = function(event) {
-                onFileEvent(event);
-                lineCount += 1;
-                if (lineCount <= 3) {
-                    // append a new line   
-                    fileWriter.write('Line ' + lineCount + '.\r\n');  
-                } else {
-                    alert(fileWriter.fileName + ' length=' + fileWriter.length + ', position=' + fileWriter.position);
-                }
-            }
-          
-            // write the file
-            fileWriter.write('Line ' + lineCount + '.\r\n');          
+                    // write to file
+                    writer.write('Line ' + lineCount + '.\r\n');   
+                },
+                
+                // creates a FileWriter object
+                create_writer = function(fileEntry) {
+                    fileEntry.createWriter(write_file, onFileSystemError);
+                };
+            
+            // create a file and write to it
+            root.getFile('bbgap.txt', {create: true}, create_writer, onFileSystemError);
         }
       
         // truncates a file
         function truncateFile() {
-            var rootPath = getRootPath();
-            var fileWriter;
-            try { 
-                fileWriter = new FileWriter(rootPath + 'bbgap.txt');
-            } 
-            catch (e) {
-                alert("Error creating FileWriter: " + e);
-                return;
-            } 
-          
-            // set the callbacks
-            fileWriter.onwritestart = onFileEvent;
-            fileWriter.onprogress = onFileEvent;
-            fileWriter.onwrite = onFileWrite;
-            fileWriter.onabort = onFileEvent;
-            fileWriter.onerror = onFileError;
+                // root file system entry
+            var root = getFileSystemRoot(),
 
-            // called when truncate is finished
-            fileWriter.onwriteend = function(event) {
-                onFileEvent(event);
-                alert(fileWriter.fileName + ' length=' + fileWriter.length + ', position=' + fileWriter.position);
-            }
+                // truncates a file
+                truncate_file = function(writer) {
+                    // set the callbacks
+                    writer.onwritestart = onFileEvent;
+                    writer.onprogress = onFileEvent;
+                    writer.onwrite = onFileWrite;
+                    writer.onabort = onFileEvent;
+                    writer.onerror = onFileError;
+                    writer.onwriteend = function(event) {
+                        onFileEvent(event);
+                        alert(writer.fileName + 
+                            ' length=' + writer.length + 
+                            ', position=' + writer.position);
+                    }
 
-            // strip off the last 3 bytes of the file
-            fileWriter.truncate(fileWriter.length-3);
+                    // strip off the last 3 bytes of the file
+                    writer.truncate(writer.length-3);
+                },
+                
+                // creates a FileWriter object
+                create_writer = function(fileEntry) {
+                    fileEntry.createWriter(truncate_file, onFileSystemError);
+                };
+                
+            // retrieve a file and truncate it
+            root.getFile('bbgap.txt', {create: false}, create_writer, onFileSystemError);
         }
-      
-        // creates a directory
-        function createDirectory()
+        
+        // retrieve root file system
+        function getFileSystem(type, success, error)
         {
-            var rootPath = getRootPath();
-            var dirName = rootPath + document.getElementById('dirName').value;
-            try {
-                navigator.fileMgr.createDirectory(dirName);
-            }
-            catch (e) {
-                alert('could not create directory: ' + dirName + ' :' + e);
-            }
+            var type = type || parseInt(document.getElementById('fsType').value),
+                success = success || function(fileSystem) {
+                    // get the root file system entry
+                    var root = fileSystem.root;
+                    
+                    // display file system path
+                    document.getElementById('fsURI').value = root.toURI();    
+                    
+                    // display root file system entry
+                    displayEntry(root);
+                },
+                fail = error || onFileSystemError;
+            
+            // get file system    
+            window.requestFileSystem(type, 0, success, fail);
         }
-      
-        // deletes a directory
-        function deleteDirectory() 
+        
+        // get file system path from input
+        function getFileSystemURI() 
         {
-            var rootPath = getRootPath();
-            var dirName = rootPath + document.getElementById('dirName').value;
-            try {
-                navigator.fileMgr.deleteDirectory(dirName);
-            }
-            catch (e) {
-                alert('could not delete directory: ' + dirName + ' :' + e);
-            }
+            return document.getElementById('fsURI').value;        
         }
-      
-        // deletes a file
-        function deleteFile() 
+        
+        // retrieve file system entry from URI
+        function resolveFileSystemURI() 
         {
-            var rootPath = getRootPath();
-            var fileName = rootPath + document.getElementById('fileName').value;
-            try {
-                navigator.fileMgr.deleteFile(fileName);
-            }
-            catch (e) {
-                alert('could not delete file: ' + fileName + ' :' + e);
-            }
+            window.resolveLocalFileSystemURI(getFileSystemURI(), displayEntry, onFileSystemError);
+        }
+        
+        // display file system entry
+        function displayEntry(entry) {
+            navigator.notification.alert(entry, null, 'File System Entry');                    
+        }       
+
+        // retrieve file system entry metadata        
+        function getMetadata()
+        {
+            var displayMetadata = function(metadata) {
+                    navigator.notification.alert(metadata, null, 'Metadata');
+                },
+                callback = function(entry) {
+                    entry.getMetadata(displayMetadata, onFileSystemError);
+                };
+            
+            // look up file system entry and display its metadata
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
+        } 
+        
+        // retrieve parent directory
+        function getParent() 
+        {
+            var callback = function(entry) {
+                    entry.getParent(displayEntry, onFileSystemError);
+                };
+            
+            // look up file system entry and display its parent
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
+        }
+        
+        // remove file system entry
+        function removeFileEntry() 
+        {
+            var callback = function(entry) {
+                    entry.remove(function() {
+                        navigator.notification.alert(entry.toURI(), null, 'Entry deleted');                    
+                    }, onFileSystemError);
+                };
+
+            // look up file system entry and attempt to delete it
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
         } 
       
-        // displays root file systems available
-        function getRootDirs() 
+        // remove directory recursively
+        function removeDirectory(entry) 
         {
-            var rootPaths = navigator.fileMgr.getRootPaths();
-            var msg = "Root paths:\n";
-            for (var i=0; i<rootPaths.length; i++) {
-                var root = rootPaths[i];
-                msg += root + " has " + navigator.fileMgr.getFreeDiskSpace(root) + " bytes free.\n";
-            }
-            navigator.notification.alert(msg, null, "Root directories");
+            var callback = function(entry) {
+                    if (entry.constructor === DirectoryEntry) {
+                        entry.removeRecursively(function() {
+                            navigator.notification.alert(entry.toURI(), null, 'Entry deleted');                    
+                        }, onFileSystemError);
+                    }
+                    else {
+                        navigator.notification.alert(entry.toURI(), null, 'Not a directory');                
+                    }
+                };
+
+            // look up directory entry and recursively remove it
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
         }
-      
-        function getRootPath() 
+        
+        // retrieve or create a file on the file system
+        function getFile() 
         {
-            // return the SDCard root path
-            var rootPaths = navigator.fileMgr.getRootPaths();
-            var path = rootPaths[0];
-            for (var i=0; i<rootPaths.length; i++) {
-                var root = rootPaths[i];
-                if (root.indexOf("SDCard") != -1) {
-                    path = root;
-                    break;
-                }
-            }
-            return path;
+                // file path to append to file system root
+            var filePath = document.getElementById('filePath').value,
+                // get file entry
+                callback = function(entry) {
+                    entry.getFile(
+                        // file path
+                        filePath,
+                        // options
+                        { create: true },
+                        // success callback
+                        displayEntry,
+                        // error callback
+                        onFileSystemError);
+                };
+
+            // look up file system entry 
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
+        } 
+        
+        // retrieve or create a directory on the file system
+        function getDirectory() 
+        {
+                // file path
+            var filePath = document.getElementById('filePath').value,
+                // get directory entry
+                callback = function(entry) {
+                    entry.getDirectory(
+                        // file path
+                        filePath,
+                        // options
+                        { create: true },
+                        // success callback
+                        displayEntry,
+                        // error callback
+                        onFileSystemError);
+                };
+
+            // look up file system entry 
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
+        }
+
+        // list the contents of a directory        
+        function readEntries() 
+        {
+                // file path
+            var filePath = document.getElementById('filePath').value,
+                // list directory entries
+                callback = function(entry) {
+                    var reader = entry.createReader();
+                    reader.readEntries(
+                        function(entries) {
+                            entries[0].getParent(displayEntry, onFileSystemError);
+                        },
+                        onFileSystemError);
+                };
+
+            // look up file system entry 
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
+        }
+
+        // copy file system entry
+        function copyTo() 
+        {
+                // copy file system entry
+            var callback = function(srcEntry) {
+                    var parent = document.getElementById('parent').value,
+                        newName = document.getElementById('newName').value,
+                        parentEntry = new Entry({fullPath: parent});
+                        srcEntry.copyTo(parentEntry, newName, displayEntry, onFileSystemError);
+                };
+                
+            // look up file system entry and copy it to destination path
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
+        }
+
+        // move file system entry
+        function moveTo() 
+        {
+                // move file system entry
+            var callback = function(srcEntry) {
+                    var parent = document.getElementById('parent').value,
+                        newName = document.getElementById('newName').value,
+                        parentEntry = new Entry({fullPath: parent});
+                        srcEntry.moveTo(parentEntry, newName, displayEntry, onFileSystemError);
+                };
+
+            // look up file system entry and move it to destination path
+            window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
         }
 
     </script>
@@ -667,17 +829,36 @@ website: http://phonegap.com
     <input type="button" value="Write File" onclick="writeFile();return false;" />
     <input type="button" value="Truncate File" onclick="truncateFile();return false;" />
     <h3>File and Directory</h3>
-    <p>
-    <input type="button" value="Get Root Dirs" onclick="getRootDirs();return false;" />
-    </p>
     <p>    
-    <input type="text" id="dirName" />
-    <input type="button" value="Create Dir" onclick="createDirectory();return false;" />    
-    <input type="button" value="Delete Dir" onclick="deleteDirectory();return false;" />
+    <select id="fsType">
+        <option value="0">Temporary</option>
+        <option value="1">Persistent</option>
+        <option value="-1">Test</option>
+    </select>
+    <input type="button" value="Get File System" onclick="getFileSystem();return false;" />    
+    </p>    
+    <p>    
+    <label>URI:</label><input type="text" id="fsURI"/>
+    <input type="button" value="Resolve URI" onclick="resolveFileSystemURI();return false;" />    
+    <input type="button" value="Get MetaData" onclick="getMetadata();return false;" />    
+    <input type="button" value="Get Parent" onclick="getParent();return false;" />    
+    <input type="button" value="Remove" onclick="removeFileEntry();return false;" />
+    <input type="button" value="Remove Dir" onclick="removeDirectory();return false;" />
     </p>    
     <p>
-    <input type="text" id="fileName" />
-    <input type="button" value="Delete File" onclick="deleteFile();return false;" />
+    <label id="uriLabel">&lt;URI&gt;/</label>
+    <input type="text" id="filePath" />
+    <input type="button" value="Get File" onclick="getFile();return false;" />    
+    <input type="button" value="Get Dir" onclick="getDirectory();return false;" />    
+    <input type="button" value="List" onclick="readEntries();return false;" />    
+    </p>
+    <p>
+    <label>parent:</label>
+    <input type="text" id="parent" />
+    <label>newName:</label>
+    <input type="text" id="newName" />
+    <input type="button" value="Copy To" onclick="copyTo();return false;" />    
+    <input type="button" value="Move To" onclick="moveTo();return false;" />    
     </p>
   </body>
 </html>
