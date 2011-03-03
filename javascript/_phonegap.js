@@ -308,17 +308,6 @@ document.addEventListener = function(evt, handler, capture) {
 PhoneGap.m_element_addEventListener = Element.prototype.addEventListener;
 
 /**
- * For BlackBerry, the touchstart event does not work so we need to do click
- * events when touchstart events are attached.
- */
-Element.prototype.addEventListener = function(evt, handler, capture) {
-    if (evt === 'touchstart') {
-        evt = 'click';
-    }
-    PhoneGap.m_element_addEventListener.call(this, evt, handler, capture);
-};
-
-/**
  * Does a deep clone of the object.
  *
  * @param obj
