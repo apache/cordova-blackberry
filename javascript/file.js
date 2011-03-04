@@ -130,7 +130,7 @@ PhoneGap.addConstructor(function() {
 //-----------------------------------------------------------------------------
 
 /**
- * This class reads the mobile device file system.
+ * Reads files from the mobile device file system.
  */
 function FileReader() {
     this.fileName = "";
@@ -188,9 +188,9 @@ FileReader.prototype.abort = function() {
 };
 
 /**
- * Reads and encodes text file.
+ * Reads and encodes a text file.
  *
- * @param file          The name of the file
+ * @param file          {File} File object containing file properties
  * @param encoding      [Optional] (see http://www.iana.org/assignments/character-sets)
  */
 FileReader.prototype.readAsText = function(file, encoding) {
@@ -207,9 +207,9 @@ FileReader.prototype.readAsText = function(file, encoding) {
     }
 
     // read and encode file
-    this.fileName = file;
+    this.fileName = file.fullPath;
     var me = this;
-    navigator.fileMgr.readAsText(file, enc, 
+    navigator.fileMgr.readAsText(file.fullPath, enc, 
 
         // success callback
         function(result) {
@@ -263,7 +263,7 @@ FileReader.prototype.readAsText = function(file, encoding) {
  * A data url is of the form:
  *      data:[<mediatype>][;base64],<data>
  *
- * @param file          The name of the file
+ * @param file          {File} File object containing file properties
  */
 FileReader.prototype.readAsDataURL = function(file) {
     var event;
@@ -276,9 +276,9 @@ FileReader.prototype.readAsDataURL = function(file) {
     }
     
     // read and encode file
-    this.fileName = file;
+    this.fileName = file.fullPath;
     var me = this;
-    navigator.fileMgr.readAsDataURL(file, 
+    navigator.fileMgr.readAsDataURL(file.fullPath, 
 
         // success callback
         function(result) {
@@ -1445,4 +1445,5 @@ var LocalFileSystem = (function() {
     });
 
     return LocalFileSystem;
+    
 }());

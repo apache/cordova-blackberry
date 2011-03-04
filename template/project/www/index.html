@@ -244,7 +244,7 @@ website: http://phonegap.com
                     smallImage.src,
                     // server URL - update to your own, and don't forget to 
                     // include your domain in an access element in config.xml      
-                    "http://192.168.1.110/~jtyberg/upload.php",
+                    "http://192.168.1.1/upload.php",
                     // success callback
                     function(result) {
                         document.getElementById('uploadProgress').innerHTML =
@@ -461,7 +461,8 @@ website: http://phonegap.com
         function readFileAsText()
         {   
             var fileReader = new FileReader(),
-                root = getFileSystemRoot();
+                root = getFileSystemRoot(),
+                file;
           
             // set the callbacks
             fileReader.onloadstart = onFileEvent;
@@ -472,25 +473,30 @@ website: http://phonegap.com
             fileReader.onerror = onFileError;
           
             // read the file
-            fileReader.readAsText(root.toURI() + '/phonegap.txt');
+            file = new File();
+            file.fullPath = root.toURI() + '/phonegap.txt';
+            fileReader.readAsText(file);
         }
 
         // reads a text file and encodes to Base64
         function readFileAsDataURL()
         {   
             var fileReader = new FileReader(),
-                root = getFileSystemRoot();
           
+                root = getFileSystemRoot(),
+                file;
             // set the callbacks
             fileReader.onloadstart = onFileEvent;
-            fileReader.onprogress = onFileEvent;
             fileReader.onload = onFileLoaded;
+            fileReader.onprogress = onFileEvent;
             fileReader.onloadend = onFileEvent;
             fileReader.onabort = onFileEvent;
             fileReader.onerror = onFileError;
           
             // read the file
-            fileReader.readAsDataURL(root.toURI() + '/phonegap.txt');
+            file = new File();  
+            file.fullPath = root.toURI() + '/phonegap.txt';
+            fileReader.readAsDataURL(file);
         }
 
         // called when file is written
