@@ -19,6 +19,7 @@ import javax.microedition.io.file.FileSystemRegistry;
 
 import net.rim.device.api.io.FileNotFoundException;
 import net.rim.device.api.io.IOUtilities;
+import net.rim.device.api.io.MIMETypeAssociations;
 import net.rim.device.api.system.Application;
 
 import com.phonegap.PhoneGapExtension;
@@ -610,5 +611,49 @@ public class FileUtils {
             }
         }
         return listing;
-    }    
+    }
+    
+    public static File getFileProperties(String filePath) throws FileNotFoundException {
+        File file = new File(stripSeparator(filePath));
+        FileConnection fconn = null;
+        try {
+            fconn = (FileConnection)Connector.open(filePath);
+            if (!fconn.exists()) {
+                throw new FileNotFoundException();
+            }
+            file.setLastModifiedDate(fconn.lastModified());
+            file.setName(stripSeparator(fconn.getName()));
+            file.setType(MIMETypeAssociations.getMIMEType(filePath));
+            file.setSize(fconn.fileSize());
+        }
+        catch (IllegalArgumentException e) {
+            Logger.log(FileUtils.class.getName() + ": " + e);            
+        }
+        catch (IOException e) {
+            Logger.log(FileUtils.class.getName() + ": " + e);
+        }
+        finally {
+            try {
+                if (fconn != null) fconn.close();
+            } 
+            catch (IOException ignored) {
+            }            
+        }
+        return file;        
+    }
+    
+    /**
+     * Strips the trailing slash from path names.
+     * 
+     * @param path
+     *            full or relative path name
+     * @return formatted path (without trailing slash)
+     */
+    public static String stripSeparator(String path) {
+        int len = FILE_SEPARATOR.length();
+        while (path.endsWith(FILE_SEPARATOR)) {
+            path = path.substring(0, path.length() - len);
+        }
+        return path;
+    }   
 }

@@ -737,9 +737,10 @@ public class FileManager extends Plugin {
             String srcDir = srcURL.substring(0, srcURL.length() - srcName.length());
             if (srcDir.equals(parent)) {        
                 // rename to itself is an error
-                if (formatPath(srcName).equals(formatPath(newName))) {
-                    return new PluginResult(
-                            PluginResult.Status.IOEXCEPTION, INVALID_MODIFICATION_ERR);                    
+                if (FileUtils.stripSeparator(srcName).equals(
+                        FileUtils.stripSeparator(newName))) {
+                    return new PluginResult(PluginResult.Status.IOEXCEPTION,
+                            INVALID_MODIFICATION_ERR);
                 }
                 
                 // file replace file || directory replace directory ==> OK
@@ -839,8 +840,8 @@ public class FileManager extends Plugin {
                     // create a new Entry
                     entry = new Entry();
                     entry.setDirectory(fconn.isDirectory());
-                    entry.setName(formatPath(fconn.getName()));
-                    entry.setFullPath(formatPath(path));
+                    entry.setName(FileUtils.stripSeparator(fconn.getName()));
+                    entry.setFullPath(FileUtils.stripSeparator(path));
                 }
             }
             catch (IOException e) {
@@ -911,20 +912,6 @@ public class FileManager extends Plugin {
             break;
         }
         return name;
-    }
-
-    /**
-     * Strips the trailing slash from path names.
-     * 
-     * @param path
-     *            full or relative path name
-     * @return formatted path (without trailing slash)
-     */
-    protected static String formatPath(String path) {
-        while (path.endsWith(FileUtils.FILE_SEPARATOR)) {
-            path = path.substring(0, path.length() - 1);
-        }
-        return path;
     }
 
     /**
