@@ -1312,21 +1312,27 @@ function Flags(create, exclusive) {
 };
 
 /**
- * Represents a single file.
- * 
- * name {DOMString} name of the file, without path information
- * fullPath {DOMString} the full path of the file, including the name
- * type {DOMString} mime type
- * lastModifiedDate {Date} last modified date
- * size {Number} size of the file in bytes
+ * Contains properties of a file on the file system.
  */
-function File() {
-    this.name = null;
-    this.fullPath = null;
-    this.type = null;
-    this.lastModifiedDate = null; 
-    this.size = 0;
-};
+var File = (function() {
+    /**
+     * Constructor.
+     * name {DOMString} name of the file, without path information
+     * fullPath {DOMString} the full path of the file, including the name
+     * type {DOMString} mime type
+     * lastModifiedDate {Date} last modified date
+     * size {Number} size of the file in bytes
+     */
+    function File() {
+        this.name = null;
+        this.fullPath = null;
+        this.type = null;
+        this.lastModifiedDate = null; 
+        this.size = 0;
+    };
+    
+    return File;
+}());
 
 /**
  * Represents a local file system.
@@ -1445,5 +1451,4 @@ var LocalFileSystem = (function() {
     });
 
     return LocalFileSystem;
-    
 }());

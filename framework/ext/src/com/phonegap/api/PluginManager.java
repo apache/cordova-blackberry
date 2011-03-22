@@ -77,6 +77,7 @@ public final class PluginManager extends Scriptable {
         this.addService("File", "com.phonegap.file.FileManager");
         this.addService("FileTransfer", "com.phonegap.http.FileTransfer");
         this.addService("Contact", "com.phonegap.pim.Contact");
+        this.addService("MediaCapture", "com.phonegap.media.MediaCapture");
     }
 	
     /**

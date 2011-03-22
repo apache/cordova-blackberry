@@ -3,7 +3,7 @@ PhoneGap is available under *either* the terms of the modified BSD license *or* 
 See  http://opensource.org/licenses/alphabetical for full text.
 
 Copyright (c) 2005-2010, Nitobi Software Inc.
-Copyright (c) 2010, IBM Corporation
+Copyright (c) 2010-2011, IBM Corporation
 
 website: http://phonegap.com
 -->
@@ -482,7 +482,6 @@ website: http://phonegap.com
         function readFileAsDataURL()
         {   
             var fileReader = new FileReader(),
-          
                 root = getFileSystemRoot(),
                 file;
             // set the callbacks
@@ -771,10 +770,84 @@ website: http://phonegap.com
             window.resolveLocalFileSystemURI(getFileSystemURI(), callback, onFileSystemError);
         }
 
+        //---------------------------------------------------------------------
+        // Media Capture
+        //---------------------------------------------------------------------
+        
+        (function() {
+            // display capture modes
+            var displayCaptureModes = function() {
+                var i, len, mode, modes = "Audio:\n";
+                for (i = 0; len = navigator.device.capture.supportedAudioModes.length, i < len; i += 1) {
+                    mode = navigator.device.capture.supportedAudioModes[i];
+                    modes += mode.type + ';\n';
+                }
+                document.getElementById('supportedAudioModes').innerHTML = modes;
+                modes = "Image:\n";
+                for (i = 0; len = navigator.device.capture.supportedImageModes.length, i < len; i += 1) {
+                    mode = navigator.device.capture.supportedImageModes[i];
+                    modes += mode.type + ',' + mode.width + 'x' + mode.height + ';\n';
+                }
+                document.getElementById('supportedImageModes').innerHTML = modes;
+                modes = "Video:\n";
+                for (i = 0; len = navigator.device.capture.supportedVideoModes.length, i < len; i += 1) {
+                    mode = navigator.device.capture.supportedVideoModes[i];
+                    modes += mode.type + ',' + mode.width + 'x' + mode.height + ';\n';
+                }
+                document.getElementById('supportedVideoModes').innerHTML = modes;
+            };
+            document.addEventListener("deviceready", displayCaptureModes, true); 
+        }());
+        
+        function startAudioCapture() 
+        {
+            navigator.device.capture.captureAudio(function(mediaFiles) {
+                var i, file, len, msg = '';
+                for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+                    msg += mediaFiles[i].fullPath + '\n';
+                }
+                navigator.notification.alert(msg, null, 'Captured audio clips');
+            }, function(error) {
+                navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
+            }, {limit:2});
+        }
+        
+        function stopCaptures() 
+        {
+            navigator.device.capture.stopCaptures();
+        }
+        
+        function startImageCapture() 
+        {
+            navigator.device.capture.captureImage(function(mediaFiles) {
+                var i, file, len, msg = '';
+                for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+                    msg += mediaFiles[i].fullPath + '\n';
+                }
+                navigator.notification.alert(msg, null, 'Captured images');
+            }, function(error) {
+                navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
+            }, {limit:2});
+        }
+                
+        function startVideoCapture() 
+        {
+            navigator.device.capture.captureVideo(function(mediaFiles) {
+                var i, file, len, msg = '';
+                for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+                    msg += mediaFiles[i].fullPath + '\n';
+                }
+                navigator.notification.alert(msg, null, 'Captured video clips');
+            }, function(error) {
+                navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
+            }, {limit:2});
+        }
+
     </script>
     <title>Insert title here</title>
   </head>
   <body onload="init()" onunload="unload()">
+  
     <h3>window.device</h3>
     <p id="window.device.platform">[window.device.platform]</p>
     <p id="window.device.version">[window.device.version]</p>
@@ -866,5 +939,14 @@ website: http://phonegap.com
     <input type="button" value="Copy To" onclick="copyTo();return false;" />    
     <input type="button" value="Move To" onclick="moveTo();return false;" />    
     </p>
+    
+    <h3>Media Capture</h3>
+    <p id="supportedAudioModes">[supportedAudioModes]</p>
+    <p id="supportedImageModes">[supportedImageModes]</p>
+    <p id="supportedVideoModes">[supportedVideoModes]</p>
+    <input type="button" value="Audio" onclick="startAudioCapture();return false;" />
+    <input type="button" value="Image" onclick="startImageCapture();return false;" />
+    <input type="button" value="Video" onclick="startVideoCapture();return false;" />
+
   </body>
 </html>
