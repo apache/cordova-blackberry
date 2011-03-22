@@ -472,14 +472,10 @@ public class JSONObject extends Hashtable implements JSONArtifact {
         if (null == key) throw new JSONException("key must not be null");
         if (!(key instanceof String)) throw new JSONException("key must be a String");
         if (!isValidObject(value)) {
-            // Try to convert the unknown type to a JSONObject
-           // if (value != null ) {
-           //     try {
-            //        value = BeanSerializer.toJson(value, includeSuperclass); 
-            //    } catch (Exception ex) {
-                    throw new JSONException("Invalid type of value.  Could not convert type: [" + value.getClass().getName() + "]");
-             //   }
-           // }
+            throw new JSONException("Invalid type of value.  Could not convert type: [" + value.getClass().getName() + "]");
+        }
+        if (null == value) {
+            value = NULL;
         }
         return super.put(key, value);
     }
