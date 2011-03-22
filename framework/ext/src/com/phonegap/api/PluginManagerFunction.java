@@ -195,7 +195,7 @@ public class PluginManagerFunction extends ScriptableFunction {
     }
 
     /**
-     * Called when Plugin is paused. 
+     * Called when application is paused. 
      */
     public void onPause() {
         Enumeration e = this.plugins.elements();
@@ -206,7 +206,7 @@ public class PluginManagerFunction extends ScriptableFunction {
     }
     
     /**
-     * Called when Plugin is resumed. 
+     * Called when application is resumed. 
      */
     public void onResume() {
         Enumeration e = this.plugins.elements();
@@ -217,7 +217,7 @@ public class PluginManagerFunction extends ScriptableFunction {
     }
     
     /**
-     * Called when Plugin is destroyed. 
+     * Called when application is destroyed. 
      */
     public void onDestroy() {
         Enumeration e = this.plugins.elements();

@@ -31,17 +31,27 @@ public final class PluginManager extends Scriptable {
     /**
      * Field used to invoke Plugin actions.
      */
-    public static final String FIELD_EXEC = "exec";	
+    public static String FIELD_EXEC = "exec";	
     
     /**
      * Field used to cleanup Plugins.
      */
-    public static final String FIELD_DESTROY = "destroy";
+    public static String FIELD_DESTROY = "destroy";
+    
+    /**
+     * Field used to indicate application has been brought to foreground.
+     */
+    public static String FIELD_RESUME = "resume";
+    
+    /**
+     * Field used to indicate application has been sent to background
+     */
+    public static String FIELD_PAUSE = "pause";
     
     /**
      * Field used to register a Plugin.
      */
-    public static final String FIELD_ADD_PLUGIN = "addPlugin";
+    public static String FIELD_ADD_PLUGIN = "addPlugin";
     
     /**
      * Loads the appropriate PhoneGap Plugins and invokes their actions.
@@ -99,6 +109,24 @@ public final class PluginManager extends Scriptable {
                         Logger.log(this.getClass().getName() + ": error deleting application temp directory: " +e);
                     }
                     
+                    return null;
+                }
+            };
+        }
+        else if (name.equals(FIELD_RESUME)) {
+            final PluginManagerFunction plugin_mgr = this.pluginManagerFunction;
+            return new ScriptableFunction() {
+                public Object invoke(Object obj, Object[] oargs) throws Exception {
+                    plugin_mgr.onResume();
+                    return null;
+                }
+            };
+        }
+        else if (name.equals(FIELD_PAUSE)) {
+            final PluginManagerFunction plugin_mgr = this.pluginManagerFunction;
+            return new ScriptableFunction() {
+                public Object invoke(Object obj, Object[] oargs) throws Exception {
+                    plugin_mgr.onPause();
                     return null;
                 }
             };

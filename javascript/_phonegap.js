@@ -221,6 +221,9 @@ PhoneGap.onPause = new PhoneGap.Channel('onPause');
  */
 blackberry.app.event.onForeground(function() {
     PhoneGap.onResume.fire();
+    
+    // notify PhoneGap JavaScript Extension
+    phonegap.PluginManager.resume();
 });
 
 /**
@@ -229,6 +232,9 @@ blackberry.app.event.onForeground(function() {
  */
 blackberry.app.event.onBackground(function() {
    PhoneGap.onPause.fire();
+   
+   // notify PhoneGap JavaScript Extension
+   phonegap.PluginManager.pause();
 });
 
 /**
