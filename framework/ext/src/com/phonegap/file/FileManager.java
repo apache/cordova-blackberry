@@ -14,6 +14,7 @@ import java.util.Enumeration;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
+import javax.microedition.io.file.FileSystemRegistry;
 
 import net.rim.device.api.io.Base64OutputStream;
 import net.rim.device.api.io.FileNotFoundException;
@@ -58,16 +59,17 @@ public class FileManager extends Plugin {
     /**
      * Possible actions.
      */
-    protected static final int ACTION_READ_AS_TEXT = 0;
-    protected static final int ACTION_READ_AS_DATA_URL = 1;
-    protected static final int ACTION_WRITE = 2;
-    protected static final int ACTION_TRUNCATE = 3;
-    protected static final int ACTION_REQUEST_FILE_SYSTEM = 4;
-    protected static final int ACTION_RESOLVE_FILE_SYSTEM_URI = 5;
-    protected static final int ACTION_GET_METADATA = 6;
-    protected static final int ACTION_LIST_DIRECTORY = 7;
-    protected static final int ACTION_COPY_TO = 8;
-    protected static final int ACTION_MOVE_TO = 9;
+    protected static String ACTION_READ_AS_TEXT = "readAsText";
+    protected static String ACTION_READ_AS_DATA_URL = "readAsDataURL";
+    protected static String ACTION_WRITE = "write";
+    protected static String ACTION_TRUNCATE = "truncate";
+    protected static String ACTION_REQUEST_FILE_SYSTEM = "requestFileSystem";
+    protected static String ACTION_RESOLVE_FILE_SYSTEM_URI = "resolveLocalFileSystemURI";
+    protected static String ACTION_GET_METADATA = "getMetadata";
+    protected static String ACTION_LIST_DIRECTORY = "readEntries";
+    protected static String ACTION_COPY_TO = "copyTo";
+    protected static String ACTION_MOVE_TO = "moveTo";
+    protected static String ACTION_IS_FILE_SYSTEM_ROOT = "isFileSystemRoot";
     
     /**
      * Executes the requested action and returns a PluginResult.
@@ -83,8 +85,7 @@ public class FileManager extends Plugin {
     public PluginResult execute(String action, JSONArray args, String callbackId) {
         
         // perform specified action
-        int a = getAction(action);
-        if (a == ACTION_READ_AS_TEXT) {
+        if (ACTION_READ_AS_TEXT.equals(action)) {
             // get file path
             String filePath = null;
             try {
@@ -98,7 +99,7 @@ public class FileManager extends Plugin {
             }
             return readAsText(filePath, args.optString(1));
         }
-        else if (a == ACTION_READ_AS_DATA_URL) {
+        else if (ACTION_READ_AS_DATA_URL.equals(action)) {
             // get file path
             String filePath = null;
             try {
@@ -112,7 +113,7 @@ public class FileManager extends Plugin {
             }
             return readAsDataURL(filePath);
         }
-        else if (a == ACTION_WRITE) {
+        else if (ACTION_WRITE.equals(action)) {
             // file path
             String filePath = null;
             try {
@@ -151,7 +152,7 @@ public class FileManager extends Plugin {
             }
             return writeFile(filePath, data, position);
         }
-        else if (a == ACTION_TRUNCATE) {
+        else if (ACTION_TRUNCATE.equals(action)) {
             // file path
             String filePath = null;
             try {
@@ -179,7 +180,7 @@ public class FileManager extends Plugin {
             }
             return truncateFile(filePath, fileSize);
         }
-        else if (a == ACTION_REQUEST_FILE_SYSTEM) {
+        else if (ACTION_REQUEST_FILE_SYSTEM.equals(action)) {
             int fileSystemType = -1;
             long fileSystemSize = 0;
             try { 
@@ -194,7 +195,7 @@ public class FileManager extends Plugin {
             }
             return requestFileSystem(fileSystemType, fileSystemSize);
         }
-        else if (a == ACTION_RESOLVE_FILE_SYSTEM_URI) {
+        else if (ACTION_RESOLVE_FILE_SYSTEM_URI.equals(action)) {
             String uri = null;
             try {
                 uri = args.getString(0);
@@ -207,7 +208,7 @@ public class FileManager extends Plugin {
             }
             return resolveFileSystemURI(uri);
         }
-        else if (a == ACTION_GET_METADATA) {
+        else if (ACTION_GET_METADATA.equals(action)) {
             String path = null;
             try {
                 path = args.getString(0);
@@ -220,7 +221,7 @@ public class FileManager extends Plugin {
             }
             return getMetadata(path);
         }
-        else if (a == ACTION_LIST_DIRECTORY) {
+        else if (ACTION_LIST_DIRECTORY.equals(action)) {
             String path = null;
             try {
                 path = args.getString(0);
@@ -233,7 +234,7 @@ public class FileManager extends Plugin {
             }
             return listDirectory(path);
         }
-        else if (a == ACTION_COPY_TO) {
+        else if (ACTION_COPY_TO.equals(action)) {
             String srcPath = null;
             String parent = null;
             String newName = null;
@@ -250,7 +251,7 @@ public class FileManager extends Plugin {
             }
             return copyTo(srcPath, parent, newName);            
         }
-        else if (a == ACTION_MOVE_TO) {
+        else if (ACTION_MOVE_TO.equals(action)) {
             String srcPath = null;
             String parent = null;
             String newName = null;
@@ -266,6 +267,10 @@ public class FileManager extends Plugin {
                         SYNTAX_ERR);
             }
             return moveTo(srcPath, parent, newName);            
+        }
+        else if (ACTION_IS_FILE_SYSTEM_ROOT.equals(action)) {
+            return new PluginResult(PluginResult.Status.OK, 
+                    isFileSystemRoot(args.optString(0)));
         }
 
         // invalid action
@@ -895,6 +900,35 @@ public class FileManager extends Plugin {
     }
     
     /**
+     * Determines if the specified path is the root path of a file system.
+     * 
+     * @param path
+     *            full path
+     * @return true if the path is the root path of a file system
+     */
+    protected static boolean isFileSystemRoot(String path) {
+        if (path == null) {
+            return false;
+        }
+
+        if (!path.endsWith(FileUtils.FILE_SEPARATOR)) {
+            path += FileUtils.FILE_SEPARATOR;
+        }
+
+        boolean isRoot = false;
+        Enumeration e = FileSystemRegistry.listRoots();
+        while (e.hasMoreElements()) {
+            String root = "file:///" + (String) e.nextElement();
+            if (root.equals(path)) {
+                isRoot = true;
+                break;
+            }
+        }
+        
+        return (isRoot || path.equals(FileUtils.getApplicationTempDirPath()));
+    }
+    
+    /**
      * Retrieves the name for the specified file system type.
      * 
      * @param type
@@ -938,21 +972,16 @@ public class FileManager extends Plugin {
     }
     
     /**
-     * Returns action to perform.
-     * @param action 
-     * @return action to perform
+     * Determines if the specified action should be run synchronously.
+     * 
+     * @param action
+     *            the action to perform
+     * @return true if the action should be synchronous
      */
-    protected static int getAction(String action) {
-        if ("readAsText".equals(action)) return ACTION_READ_AS_TEXT;
-        if ("readAsDataURL".equals(action)) return ACTION_READ_AS_DATA_URL;
-        if ("write".equals(action)) return ACTION_WRITE;
-        if ("truncate".equals(action)) return ACTION_TRUNCATE;
-        if ("requestFileSystem".equals(action)) return ACTION_REQUEST_FILE_SYSTEM;
-        if ("resolveLocalFileSystemURI".equals(action)) return ACTION_RESOLVE_FILE_SYSTEM_URI;
-        if ("getMetadata".equals(action)) return ACTION_GET_METADATA;
-        if ("readEntries".equals(action)) return ACTION_LIST_DIRECTORY;
-        if ("copyTo".equals(action)) return ACTION_COPY_TO;
-        if ("moveTo".equals(action)) return ACTION_MOVE_TO;
-        return -1;
-    }   
+    public boolean isSynch(String action) {
+        if (ACTION_IS_FILE_SYSTEM_ROOT.equals(action)) {
+            return true;
+        }
+        return super.isSynch(action);
+    }
 }

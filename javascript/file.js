@@ -600,10 +600,10 @@ var Entry = (function(){
         if (!(this instanceof Entry)) {
             return new Entry(entry);
         }
-        this.isFile = (entry.isFile === true) ? true : false;
-        this.isDirectory = (entry.isDirectory === true) ? true : false;
-        this.name = entry.name || "";
-        this.fullPath = entry.fullPath || "";
+        this.isFile = (entry && entry.isFile === true) ? true : false;
+        this.isDirectory = (entry && entry.isDirectory === true) ? true : false;
+        this.name = (entry && entry.name) || "";
+        this.fullPath = (entry && entry.fullPath) || "";            
     };
 
     /**
@@ -774,42 +774,30 @@ var Entry = (function(){
         }
         // directory
         else if (blackberry.io.dir.exists(path)) {
-            // On BlackBerry, the TEMPORARY file system is actually a temporary 
-            // directory that is created on a per-application basis.  This is
-            // to help ensure that applications do not share the same temporary
-            // space.  Because it is a directory, file permissions allow for 
-            // deletion.  So we check here to ensure that deletion of the 
-            // TEMPORARY file system (directory) doesn't happen.  (PhoneGap 
-            // will delete the temporary directory when the application closes).
-            window.requestFileSystem(LocalFileSystem.TEMPORARY, 0,
-                    function(fileSystem) {
-                        if (fileSystem.root.fullPath === path) {
-                            LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
+            // it is an error to attempt to remove the file system root
+            if (LocalFileSystem.isFileSystemRoot(path)) {
+                LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
+            }
+            else {
+                // check to see if directory is empty
+                contents = blackberry.io.dir.listFiles(path);
+                if (contents.length !== 0) {
+                    LocalFileSystem.onError(FileError.INVALID_MODIFICATION_ERR, errorCallback);
+                }
+                else {
+                    try {
+                        // delete
+                        blackberry.io.dir.deleteDirectory(path, false);
+                        if (typeof successCallback === "function") {
+                            successCallback();
                         }
-                        else {
-                            // check to see if directory is empty
-                            contents = blackberry.io.dir.listFiles(path);
-                            if (contents.length !== 0) {
-                                LocalFileSystem.onError(FileError.INVALID_MODIFICATION_ERR, errorCallback);
-                            }
-                            else {
-                                try {
-                                    // delete
-                                    blackberry.io.dir.deleteDirectory(path, false);
-                                    if (typeof successCallback === "function") {
-                                        successCallback();
-                                    }
-                                }
-                                catch (e) {
-                                    // permissions don't allow
-                                    LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
-                                }
-                            }                                
-                        } 
-                    },
-                    function (error) {
-                        LocalFileSystem.onError(error, errorCallback);
-                    });
+                    }
+                    catch (e) {
+                        // permissions don't allow
+                        LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
+                    }
+                }
+            }
         }
         // not found
         else {
@@ -1070,35 +1058,23 @@ var DirectoryEntry = (function() {
             
         // attempt to delete directory
         if (blackberry.io.dir.exists(path)) {
-            // On BlackBerry, the TEMPORARY file system is actually a temporary 
-            // directory that is created on a per-application basis.  This is
-            // to help ensure that applications do not share the same temporary
-            // space.  Because it is a directory, file permissions allow for 
-            // deletion.  So we check here to ensure that deletion of the 
-            // TEMPORARY file system (directory) doesn't happen.  (PhoneGap 
-            // will delete the temporary directory when the application closes).
-            window.requestFileSystem(LocalFileSystem.TEMPORARY, 0,
-                    function(fileSystem) {
-                        if (fileSystem.root.fullPath === path) {
-                            LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
-                        }
-                        else {
-                            try {
-                                // delete the directory, setting recursive flag to true
-                                blackberry.io.dir.deleteDirectory(path, true);
-                                if (typeof successCallback === "function") {
-                                    successCallback();
-                                }
-                            } catch (e) {
-                                // permissions don't allow deletion
-                                console.log(e);
-                                LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
-                            }
-                        }
-                    },
-                    function (error) {
-                        LocalFileSystem.onError(error, errorCallback);
-                    });
+            // it is an error to attempt to remove the file system root
+            if (LocalFileSystem.isFileSystemRoot(path)) {
+                LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
+            }
+            else {
+                try {
+                    // delete the directory, setting recursive flag to true
+                    blackberry.io.dir.deleteDirectory(path, true);
+                    if (typeof successCallback === "function") {
+                        successCallback();
+                    }
+                } catch (e) {
+                    // permissions don't allow deletion
+                    console.log(e);
+                    LocalFileSystem.onError(FileError.NO_MODIFICATION_ALLOWED_ERR, errorCallback);
+                }
+            }
         }
         // it's a file, not a directory
         else if (blackberry.io.file.exists(path)) {
@@ -1361,6 +1337,15 @@ var LocalFileSystem = (function() {
         catch (e) {
             console.log('Error invoking callback: ' + e);
         }        
+    };
+    
+    /**
+     * Utility method to determine if the specified path is the root file 
+     * system path.
+     * @param path fully qualified path
+     */
+    LocalFileSystem.isFileSystemRoot = function(path) {
+        return PhoneGap.exec(null, null, "File", "isFileSystemRoot", [path]);
     };
     
     /**
