@@ -133,34 +133,47 @@ function CaptureAudioOptions() {
  * navigator.device.capture 
  */
 (function() {
+    /**
+     * Identification string for the capture plugin.
+     */
+    var captureId = 'navigator.device.capture';
     
     /**
      * Media capture object.
      */
     function Capture() {
-        var self = this;
+        var self = this, 
+            // let PhoneGap know we're ready after retrieving all of the 
+            // supported capture modes         
+            addCaptureModes = function(type, modes) {
+                self[type] = modes;
+                if (typeof self.supportedAudioModes !== 'undefined' 
+                    && typeof self.supportedImageModes !== 'undefined'
+                    && typeof self.supportedVideoModes !== 'undefined') {
+                    PhoneGap.initializationComplete(captureId);                    
+                }
+            };
         
-        // supported capture modes
-        self.supportedAudioModes = [];
-        self.supportedImageModes = [];
-        self.supportedVideoModes = [];
-        
+        // populate supported capture modes
         PhoneGap.exec(function(modes) {
-            self.supportedAudioModes = parseArray(modes);
+            addCaptureModes('supportedAudioModes', parseArray(modes));
         }, function(error) {
             console.log('Unable to retrieve supported audio modes: ' + error);
+            addCaptureModes('supportedAudioModes', []);
         }, 'MediaCapture', 'getSupportedAudioModes', []); 
         
         PhoneGap.exec(function(modes) {
-            self.supportedImageModes = parseArray(modes);
+            addCaptureModes('supportedImageModes', parseArray(modes));
         }, function(error) {
             console.log('Unable to retrieve supported image modes: ' + error);
+            addCaptureModes('supportedImageModes', []);
         }, 'MediaCapture', 'getSupportedImageModes', []); 
         
         PhoneGap.exec(function(modes) {
-            self.supportedVideoModes = parseArray(modes);
+            addCaptureModes('supportedVideoModes', parseArray(modes));
         }, function(error) {
             console.log('Unable to retrieve supported video modes: ' + error);
+            addCaptureModes('supportedVideoModes', []);
         }, 'MediaCapture', 'getSupportedVideoModes', []); 
     };
     
@@ -331,7 +344,8 @@ function CaptureAudioOptions() {
      * Define navigator.device.capture object.
      */
     PhoneGap.addConstructor(function() {
-        if (typeof navigator.device.capture === "undefined") {
+        if (typeof navigator.device.capture === 'undefined') {
+            PhoneGap.waitForInitialization(captureId);
             navigator.device.capture = new Capture();
         }
     });

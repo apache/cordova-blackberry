@@ -123,10 +123,11 @@ PhoneGap.Channel.prototype.fire = function(e) {
  */
 PhoneGap.Channel.join = function(h, c) {
     var i = c.length;
+    var len = i;
     var f = function() {
         if (!(--i)) h();
     }
-    for (var j=0; j<i; j++) {
+    for (var j=0; j<len; j++) {
         (!c[j].fired?c[j].subscribeOnce(f):i--);
     }
     if (!i) h();
@@ -263,6 +264,45 @@ if (typeof _nativeReady !== 'undefined') { PhoneGap.onNativeReady.fire(); }
 PhoneGap.onDeviceReady = new PhoneGap.Channel('onDeviceReady');
 
 /**
+ * PhoneGap Channels that must fire before "deviceready" is fired.
+ */ 
+PhoneGap.deviceReadyChannelsArray = [ PhoneGap.onPhoneGapReady, PhoneGap.onPhoneGapInfoReady ];
+
+/**
+ * User-defined channels that must also fire before "deviceready" is fired.
+ */
+PhoneGap.deviceReadyChannelsMap = {};
+
+/**
+ * Indicate that a feature needs to be initialized before it is ready to be
+ * used. This holds up PhoneGap's "deviceready" event until the feature has been
+ * initialized and PhoneGap.initializationComplete(feature) is called.
+ * 
+ * @param feature {String} The unique feature name
+ */
+PhoneGap.waitForInitialization = function(feature) {
+    var channel;
+    if (feature) {
+        channel = new PhoneGap.Channel(feature);
+        PhoneGap.deviceReadyChannelsMap[feature] = channel;
+        PhoneGap.deviceReadyChannelsArray.push(channel);
+    }
+};
+
+/**
+ * Indicate that initialization code has completed and the feature is ready to
+ * be used.
+ * 
+ * @param feature {String} The unique feature name
+ */
+PhoneGap.initializationComplete = function(feature) {
+    var channel = PhoneGap.deviceReadyChannelsMap[feature];
+    if (channel) {
+        channel.fire();
+    }
+};
+
+/**
  * Create all PhoneGap objects once page has fully loaded and native side is ready.
  */
 PhoneGap.Channel.join(function() {
@@ -273,18 +313,16 @@ PhoneGap.Channel.join(function() {
     // Fire event to notify that all objects are created
     PhoneGap.onPhoneGapReady.fire();
 
-}, [ PhoneGap.onDOMContentLoaded, PhoneGap.onNativeReady ]);
-
-/**
- * Fire onDeviceReady event once all constructors have run and PhoneGap info has been
- * received from native side.
- */
-PhoneGap.Channel.join(function() {
-    PhoneGap.onDeviceReady.fire();
+    // Fire onDeviceReady event once all constructors have run and 
+    // PhoneGap info has been received from native side.
+    PhoneGap.Channel.join(function() {
+        PhoneGap.onDeviceReady.fire();
+        
+        // Fire the onresume event, since first one happens before JavaScript is loaded
+        PhoneGap.onResume.fire();
+    }, PhoneGap.deviceReadyChannelsArray);    
     
-    // Fire the onresume event, since first one happens before JavaScript is loaded
-    PhoneGap.onResume.fire();
-}, [ PhoneGap.onPhoneGapReady, PhoneGap.onPhoneGapInfoReady]);
+}, [ PhoneGap.onDOMContentLoaded, PhoneGap.onNativeReady ]);
 
 // Listen for DOMContentLoaded and notify our channel subscribers
 document.addEventListener('DOMContentLoaded', function() {
