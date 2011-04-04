@@ -114,6 +114,7 @@ public class MediaCapture extends Plugin {
         if (!isAudioCaptureSupported()) {
             // if audio capture is not supported, return an empty array
             // of capture modes
+            Logger.log(this.getClass().getName() + ": audio capture not supported");
             return new PluginResult(PluginResult.Status.OK, "[]");
         }
                 
@@ -146,6 +147,8 @@ public class MediaCapture extends Plugin {
 
         // find matching encodings and parse them for dimensions
         // it's so annoying that we have to do this
+        CaptureMode mode = null;
+        Vector list = new Vector();
         JSONArray modes = new JSONArray();
         for (int i = 0; i < contentTypes.length; i++) {
             if (contentTypes[i].startsWith(ImageCaptureOperation.CONTENT_TYPE)) {
@@ -161,8 +164,13 @@ public class MediaCapture extends Plugin {
                         // "height=" 
                         String h = (String)parms.get("height");
                         long height = (h == null) ? 0 : Long.parseLong(h);
-                        // got one
-                        modes.add(new CaptureMode(contentTypes[i], width, height).toJSONObject());
+                        // new capture mode
+                        mode = new CaptureMode(contentTypes[i], width, height); 
+                        // don't want duplicates
+                        if (!list.contains(mode)) {
+                            list.addElement(mode);
+                            modes.add(mode.toJSONObject());
+                        }
                     }
                 }
             }
@@ -179,6 +187,7 @@ public class MediaCapture extends Plugin {
         if (!isVideoCaptureSupported()) {
             // if the device does not support video capture, return an empty
             // array of capture modes
+            Logger.log(this.getClass().getName() + ": video capture not supported");
             return new PluginResult(PluginResult.Status.OK, "[]");
         }
         
