@@ -20,7 +20,7 @@ MediaFileDataError.TIMEOUT_ERROR = 1;
 /**
  * Represents media file properties.
  */
-var MediaFile = (function() {
+var MediaFile = MediaFile || (function() {
     /**
      * Constructor.
      */
@@ -133,6 +133,13 @@ function CaptureAudioOptions() {
  * navigator.device.capture 
  */
 (function() {
+    /**
+     * Check that navigator.device.capture has not been initialized.
+     */
+    if (navigator.device && typeof navigator.device.capture !== 'undefined') {
+        return;
+    }
+    
     /**
      * Identification string for the capture plugin.
      */
@@ -344,9 +351,7 @@ function CaptureAudioOptions() {
      * Define navigator.device.capture object.
      */
     PhoneGap.addConstructor(function() {
-        if (typeof navigator.device.capture === 'undefined') {
-            PhoneGap.waitForInitialization(captureId);
-            navigator.device.capture = new Capture();
-        }
+        PhoneGap.waitForInitialization(captureId);
+        navigator.device.capture = new Capture();
     });
 }());
