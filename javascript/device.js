@@ -15,7 +15,14 @@
  */
 (function() {
     /**
-     * Device constructor.
+     * Check that navigator.device has not been initialized.
+     */
+    if (typeof navigator.device !== "undefined") {
+        return;
+    }
+    
+    /**
+     * @constructor
      */
     function Device() {
         this.platform = phonegap.device.platform;
