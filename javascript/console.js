@@ -1,3 +1,4 @@
+
 /*
  * PhoneGap is available under *either* the terms of the modified BSD license *or* the
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
@@ -7,7 +8,7 @@
  */
 
 /**
- * phonegap.Logger is a Blackberry Widget extension that will log to the 
+ * phonegap.Logger is a Blackberry WebWorks extension that will log to the 
  * BB Event Log and System.out.  Comment this line to disable.
  */ 
 phonegap.Logger.enable();
