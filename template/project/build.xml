@@ -89,7 +89,13 @@
         </condition>
         
         <echo message="Simulator executable=${simulator.dir}/${simulator.bin}" />
- 
+
+        <!-- Close running simulators -->
+        <echo message="Closing all running simulators..." />
+        <exec executable="${simulator.dir}/fledgecontroller.exe" dir="${simulator.dir}" spawn="false">
+            <arg value="/execute=kill" />
+        </exec>
+
         <!-- MDS directory: Use mds.dir property if set in project.properties file. 
              Otherwise, use bbwp MDS directory. -->
         <condition 
