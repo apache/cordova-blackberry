@@ -105,6 +105,7 @@
         </copy>
         <exec executable="${mds.dir}/run.bat" dir="${mds.dir}" spawn="true" />
         <exec executable="${simulator.dir}/${simulator.bin}" dir="${simulator.dir}" spawn="true" />
+        <exec executable="${properties.bbwp.dir}/FledgeHook.exe" dir="${properties.bbwp.dir}" spawn="true" />
     </target>
     
     <!-- PACKAGE-APP -->
