@@ -26,6 +26,8 @@
   <feature id="blackberry.app.event" required="true" version="1.0.0.0"/>
   <access subdomains="true" uri="file:///store/home"/>
   <access subdomains="true" uri="file:///SDCard"/>
+  <!-- Expose access to all URIs, including the file and http protocols -->
+  <access subdomains="true" uri="*"/>
   <icon rim:hover="false" src="resources/icon.png"/>
   <icon rim:hover="true" src="resources/icon_hover.png"/>
   <content src="index.html"/>
