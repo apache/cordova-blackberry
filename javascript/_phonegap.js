@@ -173,6 +173,12 @@ var PhoneGap = PhoneGap || (function() {
     PhoneGap.onPhoneGapInfoReady = new PhoneGap.Channel('onPhoneGapInfoReady');
 
     /**
+     * onPhoneGapConnectionReady channel is fired when the PhoneGap connection properties
+     * has been set.
+     */
+    PhoneGap.onPhoneGapConnectionReady = new PhoneGap.Channel('onPhoneGapConnectionReady');
+
+    /**
      * onResume channel is fired when the PhoneGap native code
      * resumes.
      */
@@ -193,7 +199,7 @@ var PhoneGap = PhoneGap || (function() {
     /**
      * PhoneGap Channels that must fire before "deviceready" is fired.
      */ 
-    PhoneGap.deviceReadyChannelsArray = [ PhoneGap.onPhoneGapReady, PhoneGap.onPhoneGapInfoReady ];
+    PhoneGap.deviceReadyChannelsArray = [ PhoneGap.onPhoneGapReady, PhoneGap.onPhoneGapInfoReady, PhoneGap.onPhoneGapConnectionReady ];
 
     /**
      * User-defined channels that must also fire before "deviceready" is fired.

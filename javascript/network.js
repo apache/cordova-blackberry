@@ -71,6 +71,7 @@ Connection = {
      */
     var NetworkConnection = function() {
         this.type = null;
+        this._firstRun = true;
 
         var me = this;
         this.getInfo(
@@ -78,6 +79,12 @@ Connection = {
                 me.type = info.type;
                 if (typeof info.event !== "undefined") {
                     PhoneGap.fireEvent(info.event);
+                }
+
+                // should only fire this once
+                if (me._firstRun) {
+                    me._firstRun = false;
+                    PhoneGap.onPhoneGapConnectionReady.fire();
                 }
             },
             function(e) {
