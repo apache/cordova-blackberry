@@ -48,12 +48,24 @@ website: http://phonegap.com
             console.log('doPause()');
         }
 
+        // invoked when application is online
+        function doOnline() {
+            console.log('Event: online\n' + 'Network Type: ' + navigator.network.connection.type + '\n');
+        }
+
+        // invoked when application is offline
+        function doOffline() {
+            console.log('Event: offline\n' + 'Network Type: ' + navigator.network.connection.type + '\n');
+        }
+
         // register PhoneGap event listeners when DOM content loaded
         function init() {
             console.log('init()');
             document.addEventListener("deviceready", deviceInfo, true); 
             document.addEventListener("resume", doResume, false);
             document.addEventListener("pause", doPause, false);
+            document.addEventListener("online", doOnline, false);
+            document.addEventListener("offline", doOffline, false);
         }
 
         function unload() {
@@ -98,6 +110,13 @@ website: http://phonegap.com
             confirmResult,
             "Are you sure?", 
             "Yes,No,Maybe");
+        }
+
+        //---------------------------------------------------------------------
+        // Network
+        //---------------------------------------------------------------------
+        function getNetworkType() {
+            alert('Network Type: ' + navigator.network.connection.type + '\n');
         }
 
         //---------------------------------------------------------------------
@@ -862,6 +881,7 @@ website: http://phonegap.com
     
     <h3>navigator.network</h3>
     <p id="networkStatus">[navigator.network.isReachable]</p>
+    <input type="button" value="Get Network Type" onclick="getNetworkType();return false;" />
 
     <h3>navigator.geolocation</h3>
     <dl id="location-data">
