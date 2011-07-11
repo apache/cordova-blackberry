@@ -111,6 +111,15 @@
         </copy>
         <exec executable="${mds.dir}/run.bat" dir="${mds.dir}" spawn="true" />
         <exec executable="${simulator.dir}/${simulator.bin}" dir="${simulator.dir}" spawn="true" />
+
+        <!-- Only invoke FledgeHook.exe if it is found. Newer versions of the
+             WebWorks SDK do not include it. -->
+        <if>
+            <available file="${properties.bbwp.dir}/FledgeHook.exe" />
+            <then>
+                <exec executable="${properties.bbwp.dir}/FledgeHook.exe" dir="${properties.bbwp.dir}" spawn="true" />
+            </then>
+        </if>
     </target>
     
     <!-- PACKAGE-APP -->
