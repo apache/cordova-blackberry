@@ -258,7 +258,7 @@ GETTING STARTED
         <xmlproperty file="www/config.xml" prefix="config.xml" />
         <propertyregex property="cod.name"
                        input="${config.xml.widget.name}"
-                       regexp="(\W+)"
+                       regexp="([\W_]+)"
                        replace=""
                        casesensitive="false"
                        global="true"
