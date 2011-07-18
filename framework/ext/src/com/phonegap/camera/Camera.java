@@ -2,14 +2,15 @@
  * PhoneGap is available under *either* the terms of the modified BSD license *or* the
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  * 
- * Copyright (c) 2005-2010, Nitobi Software Inc.
- * Copyright (c) 2010, IBM Corporation
+ * Copyright (c) 2005-2011, Nitobi Software Inc.
+ * Copyright (c) 2010-2011, IBM Corporation
  */
 package com.phonegap.camera;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 import javax.microedition.io.Connector;
@@ -20,14 +21,19 @@ import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.device.api.io.Base64OutputStream;
 import net.rim.device.api.io.IOUtilities;
 import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
 import net.rim.device.api.system.ControlledAccessException;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.EventInjector;
+import net.rim.device.api.system.JPEGEncodedImage;
+import net.rim.device.api.system.PNGEncodedImage;
 import net.rim.device.api.ui.UiApplication;
 
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.json4j.JSONArray;
+import com.phonegap.json4j.JSONException;
 import com.phonegap.util.Logger;
 
 /**
@@ -48,12 +54,6 @@ public class Camera extends Plugin
      */
     public static final String ACTION_TAKE_PICTURE = "takePicture";
 	
-    /**
-     * Destination type determines what result will be returned.
-     */
-    public static final int DATA_URL = 0;
-    public static final int FILE_URI = 1;
-
     /**
      * Maximum image encoding size (in bytes) to allow.  (Obtained unofficially 
      * through trial and error). Anything larger will cause stability issues 
@@ -76,23 +76,18 @@ public class Camera extends Plugin
         // take a picture
         if (action != null && action.equals(ACTION_TAKE_PICTURE)) 
         {
-            /**
-             * args JSONArray formatted as [ cameraArgs ], where cameraArgs:      
-             *          [ 80,                                    // quality (ignored)
-             *            Camera.DestinationType.DATA_URL,       // destinationType
-             *            Camera.PictureSourceType.PHOTOLIBRARY  // sourceType (ignored)]
-             */		    
-            // determine the desired destination type: encoded image or file URI
-            int destinationType = DATA_URL;
-            if (args != null && args.length() > 1 && !args.isNull(1))
-            {
-                Integer destType = (Integer)args.opt(1);
-                if (destType.intValue()== FILE_URI) 
-                    destinationType = FILE_URI;
+            // Parse the options specified for the take picture action.
+            CameraOptions options;
+            try {
+                options = CameraOptions.fromJSONArray(args);
+            } catch (NumberFormatException e) {
+                return new PluginResult(PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION, "One of the camera options is not a valid number.");
+            } catch (JSONException e) {
+                return new PluginResult(PluginResult.Status.JSONEXCEPTION, "One of the camera options is not valid JSON.");
             }
 
             // launch native camera application
-            launchCamera(new PhotoListener(destinationType, callbackId));
+            launchCamera(new PhotoListener(options, callbackId));
 
             // The native camera application runs in a separate process, so we 
             // must now wait for the listener to retrieve the photo taken. 
@@ -109,7 +104,7 @@ public class Camera extends Plugin
 
         return result;
     }
-	
+
     /**
      * Launches the native camera application.
      */
@@ -154,12 +149,11 @@ public class Camera extends Plugin
     /**
      * Returns the image file URI or the Base64-encoded image.
      * @param filePath The full path of the image file
-     * @param destinationType Specifies the format of the result
+     * @param options Specifies the format of the image and the result
      * @param callbackId The id of the callback to receive the result
      */
-    public static void processImage(String filePath, int destinationType, String callbackId)
-    {
-        Logger.log(Camera.class.getName() + ": processing image " + filePath);
+    public static void processImage(String filePath, CameraOptions options,
+            String callbackId) {
         PluginResult result = null;
         try 
         {
@@ -167,27 +161,26 @@ public class Camera extends Plugin
             // to avoid premature access to it (yes, this has happened)
             waitForImageFile(filePath);
 
-            if (destinationType == Camera.FILE_URI) 
-            {
-                // return just the photo URI
-                result = new PluginResult(PluginResult.Status.OK, filePath);
+            // Reformat the image if the specified options require it,
+            // otherwise, get encoded string if base 64 string is output format.
+            String imageURIorData = filePath;
+            if (options.reformat) {
+                imageURIorData = reformatImage(filePath, options);
+            } else if (options.destinationType == CameraOptions.DESTINATION_DATA_URL) {
+                imageURIorData = encodeImage(filePath);
             }
-            else 
-            {
-                String encodedImage = encodeImage(filePath);
 
-                // we have to check the size to avoid memory errors in the browser
-                if (encodedImage.length() > MAX_ENCODING_SIZE) 
-                {
-                    // it's a big one.  this is for your own good.
-                    String msg = "Encoded image is too large.  Try reducing camera image size.";
-                    Logger.log(Camera.class.getName() + ": " + msg);
-                    result =  new PluginResult(PluginResult.Status.ERROR, msg);
-                }
-                else 
-                {
-                    result = new PluginResult(PluginResult.Status.OK, encodedImage);
-                }
+            // we have to check the size to avoid memory errors in the browser
+            if (imageURIorData.length() > MAX_ENCODING_SIZE)
+            {
+                // it's a big one.  this is for your own good.
+                String msg = "Encoded image is too large.  Try reducing camera image size.";
+                Logger.log(Camera.class.getName() + ": " + msg);
+                result =  new PluginResult(PluginResult.Status.ERROR, msg);
+            }
+            else
+            {
+                result = new PluginResult(PluginResult.Status.OK, imageURIorData);
             }
         }
         catch (Exception e)
@@ -277,6 +270,136 @@ public class Camera extends Plugin
         return imageData;
     }
     
+    /**
+     * Reformats the image taken with the camera based on the options specified.
+     *
+     * Unfortunately, reformatting the image will cause EXIF data in the photo
+     * to be lost.  Most importantly the orientation data is lost so the
+     * picture is not auto rotated by software that recognizes EXIF data.
+     *
+     * @param filePath
+     *            The full path of the image file
+     * @param options
+     *            Specifies the format of the image and the result
+     * @return the reformatted image file URI or Base64-encoded image
+     * @throws IOException
+     */
+    private static String reformatImage(String filePath, CameraOptions options)
+            throws IOException {
+        long start = (new Date()).getTime();
+
+        // Open the original image created by the camera application and read
+        // it into an EncodedImage object.
+        FileConnection fconn = null;
+        InputStream in = null;
+        Bitmap originalImage = null;
+        try {
+            fconn = (FileConnection) Connector.open(filePath);
+            in = fconn.openInputStream();
+            originalImage = Bitmap.createBitmapFromBytes(IOUtilities.streamToBytes(in, 96*1024), 0, -1, 1);
+        } finally {
+            if (in != null)
+                in.close();
+            if (fconn != null)
+                fconn.close();
+        }
+
+        int newWidth = options.targetWidth;
+        int newHeight = options.targetHeight;
+        int origWidth = originalImage.getWidth();
+        int origHeight = originalImage.getHeight();
+
+        // If only width or only height was specified, the missing dimension is
+        // set based on the current aspect ratio of the image.
+        if (newWidth > 0 && newHeight <= 0) {
+            newHeight = (newWidth * origHeight) / origWidth;
+        } else if (newWidth <= 0 && newHeight > 0) {
+            newWidth = (newHeight * origWidth) / origHeight;
+        } else if (newWidth <= 0 && newHeight <= 0) {
+            newWidth = origWidth;
+            newHeight = origHeight;
+        } else {
+            // If the user specified both a positive width and height
+            // (potentially different aspect ratio) then the width or height is
+            // scaled so that the image fits while maintaining aspect ratio.
+            // Alternatively, the specified width and height could have been
+            // kept and Bitmap.SCALE_TO_FIT specified when scaling, but this
+            // would result in whitespace in the new image.
+            double newRatio = newWidth / (double)newHeight;
+            double origRatio = origWidth / (double)origHeight;
+
+            if (origRatio > newRatio) {
+                newHeight = (newWidth * origHeight) / origWidth;
+            } else if (origRatio < newRatio) {
+                newWidth = (newHeight * origWidth) / origHeight;
+            }
+        }
+
+        Bitmap newImage = new Bitmap(newWidth, newHeight);
+        originalImage.scaleInto(newImage, options.imageFilter, Bitmap.SCALE_TO_FILL);
+
+        // Convert the image to the appropriate encoding.  PNG does not allow
+        // quality to be specified so the only affect that the quality option
+        // has for a PNG is on the seelction of the image filter.
+        EncodedImage encodedImage;
+        if (options.encoding == CameraOptions.ENCODING_PNG) {
+            encodedImage = PNGEncodedImage.encode(newImage);
+        } else {
+            encodedImage = JPEGEncodedImage.encode(newImage, options.quality);
+        }
+
+        // Rewrite the modified image back out to the same file.  This is done
+        // to ensure that for every picture taken, only one shows up in the
+        // gallery.  If the encoding changed the file extension will differ
+        // from the original.
+        OutputStream out = null;
+        int dirIndex = filePath.lastIndexOf('/');
+        String filename = filePath.substring(dirIndex + 1, filePath.lastIndexOf('.'))
+                + options.fileExtension;
+        try {
+            fconn = (FileConnection) Connector.open(filePath);
+            fconn.truncate(0);
+            out = fconn.openOutputStream();
+            out.write(encodedImage.getData());
+            fconn.rename(filename);
+        } finally {
+            if (out != null)
+                out.close();
+            if (fconn != null)
+                fconn.close();
+        }
+
+        // Return either the Base64-encoded string or the image URI for the
+        // new image.
+        String imageURIorData;
+        if (options.destinationType == CameraOptions.DESTINATION_DATA_URL) {
+            ByteArrayOutputStream byteArrayOS = null;
+
+            try {
+                byteArrayOS = new ByteArrayOutputStream();
+                Base64OutputStream base64OS = new Base64OutputStream(
+                        byteArrayOS);
+                base64OS.write(encodedImage.getData());
+                base64OS.flush();
+                base64OS.close();
+                imageURIorData = byteArrayOS.toString();
+                Logger.log(Camera.class.getName() + ": Base64 encoding size="
+                        + Integer.toString(imageURIorData.length()));
+            } finally {
+                if (byteArrayOS != null) {
+                    byteArrayOS.close();
+                }
+            }
+        } else {
+            imageURIorData = filePath.substring(0, dirIndex + 1) + filename;
+        }
+
+        long end = (new Date()).getTime();
+        Logger.log(Camera.class.getName() + ": reformat time=" + Long.toString(end-start) + " ms");
+
+        return imageURIorData;
+    }
+
     /**
      * Sends result back to JavaScript.
      * @param result PluginResult

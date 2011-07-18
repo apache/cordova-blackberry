@@ -2,8 +2,8 @@
  * PhoneGap is available under *either* the terms of the modified BSD license *or* the
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  * 
- * Copyright (c) 2005-2010, Nitobi
- * Copyright (c) 2010, IBM Corporation
+ * Copyright (c) 2005-2011, Nitobi
+ * Copyright (c) 2010-2011, IBM Corporation
  */ 
 package com.phonegap.camera;
 
@@ -19,9 +19,9 @@ import net.rim.device.api.ui.UiApplication;
 public class PhotoListener implements FileSystemJournalListener {
 
     /**
-     * Destination type determines the format of the result to be returned.
+     * Image format options specified by the caller.
      */
-    private int destinationType;
+    private CameraOptions options;
     
     /**
      * Callback to be invoked with the result.
@@ -35,12 +35,12 @@ public class PhotoListener implements FileSystemJournalListener {
 
     /**
      * Constructor.
-     * @param destinationType Specifies the format of the result
+     * @param options         Specifies the format of the image and result
      * @param callbackId      The id of the callback to receive the result
      */
-    public PhotoListener(int destinationType, String callbackId)
+    public PhotoListener(CameraOptions options, String callbackId)
     {
-        this.destinationType = destinationType;
+        this.options = options;
         this.callbackId = callbackId;
     }
     
@@ -76,7 +76,7 @@ public class PhotoListener implements FileSystemJournalListener {
                     final String filePath = "file://" + path;
                     Thread thread = new Thread(new Runnable() {
                         public void run() {
-                            Camera.processImage(filePath, destinationType, callbackId);
+                            Camera.processImage(filePath, options, callbackId);
                         }
                     });
                     thread.start();
