@@ -8,14 +8,8 @@
  */
 
 /**
- * Network status.
+ * Network status
  */
-NetworkStatus = {
-    NOT_REACHABLE: 0,
-    REACHABLE_VIA_CARRIER_DATA_NETWORK: 1,
-    REACHABLE_VIA_WIFI_NETWORK: 2
-};
-
 Connection = {
 		UNKNOWN: "unknown",
 		ETHERNET: "ethernet",
@@ -36,34 +30,6 @@ Connection = {
     if (typeof navigator.network !== "undefined") {
         return;
     }
-    
-    /**
-     * This class provides access to device Network data (reachability).
-     * @constructor
-     */
-    function Network() {
-        /**
-         * The last known Network status.
-         * { hostName: string, ipAddress: string, 
-            remoteHostStatus: int(0/1/2), internetConnectionStatus: int(0/1/2), localWiFiConnectionStatus: int (0/2) }
-         */
-        this.lastReachability = null;
-    };
- 
-    /**
-     * Determine if a URI is reachable over the network.
-     *
-     * @param {Object} uri
-     * @param {Function} callback
-     * @param {Object} options  (isIpAddress:boolean)
-     */
-    Network.prototype.isReachable = function(uri, callback, options) {
-        var isIpAddress = false;
-        if (options && options.isIpAddress) {
-            isIpAddress = options.isIpAddress;
-        }
-        PhoneGap.exec(callback, null, 'Network Status', 'isReachable', [uri, isIpAddress]);
-    };
 
     /**
      * This class contains information about the current network Connection.
@@ -107,7 +73,7 @@ Connection = {
      * Define navigator.network and navigator.network.connection objects
      */
     PhoneGap.addConstructor(function() {
-        navigator.network = new Network();
+        navigator.network = new Object();
 
         navigator.network.connection = new NetworkConnection();
     });
