@@ -8,7 +8,7 @@ Directory Structure
 
     framework/ ... BlackBerry WebWorks JavaScript Extension (PhoneGap native code)
     javascript/ .. PhoneGap JavaScript (Non-concatenated, non-minified)
-    lib/ ......... Third party tools (YUICompressor for JS minification)
+    lib/ ......... Third party tools
     template/ .... Project template for creating a new projects
 
 Introduction
