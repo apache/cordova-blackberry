@@ -256,13 +256,22 @@ GETTING STARTED
     
     <target name="generate-cod-name">
         <xmlproperty file="www/config.xml" prefix="config.xml" />
-        <propertyregex property="cod.name"
+        <propertyregex property="replaced.name"
                        input="${config.xml.widget.name}"
                        regexp="([\W_]+)"
                        replace=""
                        casesensitive="false"
                        global="true"
                        defaultValue="${config.xml.widget.name}" />
+        <if>
+            <length string="${replaced.name}" length="0" />
+            <then>
+                <property name="cod.name" value="PhoneGapApplication" />
+            </then>
+            <else>
+                <property name="cod.name" value="${replaced.name}" />
+            </else>
+        </if>
         
         <echo message="Generated name: ${cod.name}.cod" />
     </target>
