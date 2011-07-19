@@ -28,14 +28,7 @@ website: http://phonegap.com
             document.getElementById('window.device.uuid').innerHTML     = 'window.device.uuid     = ' + window.device.uuid;
             document.getElementById('window.device.phonegap').innerHTML = 'window.device.phonegap = ' + window.device.phonegap;
 
-            navigator.network.isReachable("phonegap.com", function(reachability) {
-                var states = {};
-                states[NetworkStatus.NOT_REACHABLE]                      = 'No network connection';
-                states[NetworkStatus.REACHABLE_VIA_CARRIER_DATA_NETWORK] = 'Carrier data connection';
-                states[NetworkStatus.REACHABLE_VIA_WIFI_NETWORK]         = 'WiFi connection';
-                document.getElementById('networkStatus').innerHTML = 'isReachable = ' + states[reachability];
-            }, 
-            { isIpAddress: false });        
+            setNetworkType();
         }
         
         // invoked when application is resumed (brought to foregroud)
@@ -51,11 +44,13 @@ website: http://phonegap.com
         // invoked when application is online
         function doOnline() {
             console.log('Event: online\n' + 'Network Type: ' + navigator.network.connection.type + '\n');
+            setNetworkType();
         }
 
         // invoked when application is offline
         function doOffline() {
             console.log('Event: offline\n' + 'Network Type: ' + navigator.network.connection.type + '\n');
+            setNetworkType();
         }
 
         // register PhoneGap event listeners when DOM content loaded
@@ -115,8 +110,16 @@ website: http://phonegap.com
         //---------------------------------------------------------------------
         // Network
         //---------------------------------------------------------------------
-        function getNetworkType() {
-            alert('Network Type: ' + navigator.network.connection.type + '\n');
+        function setNetworkType() {
+            var states = {};
+            states[Connection.UNKNOWN]  = 'Unknown connection';
+            states[Connection.ETHERNET] = 'Ethernet connection';
+            states[Connection.WIFI]     = 'WiFi connection';
+            states[Connection.CELL_2G]  = 'Cell 2G connection';
+            states[Connection.CELL_3G]  = 'Cell 3G connection';
+            states[Connection.CELL_4G]  = 'Cell 4G connection';
+            states[Connection.NONE]     = 'No network connection';
+            document.getElementById('networkStatus').innerHTML = 'Connection type = ' + states[navigator.network.connection.type];
         }
 
         //---------------------------------------------------------------------
@@ -880,8 +883,7 @@ website: http://phonegap.com
     <input type="button" value="Confirm" onclick="callConfirm();return false;" />
     
     <h3>navigator.network</h3>
-    <p id="networkStatus">[navigator.network.isReachable]</p>
-    <input type="button" value="Get Network Type" onclick="getNetworkType();return false;" />
+    <p id="networkStatus">[navigator.network.connection.type]</p>
 
     <h3>navigator.geolocation</h3>
     <dl id="location-data">
