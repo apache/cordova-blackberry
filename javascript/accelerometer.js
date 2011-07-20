@@ -8,6 +8,16 @@
  */
 
 /**
+ * Acceleration object has 3D coordinates and timestamp.
+ */
+var Acceleration = function(x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.timestamp = new Date().getTime();
+};
+
+/**
  * navigator.accelerometer
  * 
  * Provides access to device accelerometer data.
@@ -19,16 +29,6 @@
     if (typeof navigator.accelerometer !== "undefined") {
         return;
     }
-
-    /**
-     * Acceleration object has 3D coordinates and timestamp.
-     */
-    function Acceleration(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.timestamp = new Date().getTime();
-    };
     
     /**
      * @constructor
