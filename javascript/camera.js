@@ -41,6 +41,20 @@ var Camera = Camera || (function() {
     };
 
     /**
+     * Encoding of image returned from getPicture.
+     *
+     * Example: navigator.camera.getPicture(success, fail,
+     *              { quality: 80,
+     *                destinationType: Camera.DestinationType.DATA_URL,
+     *                sourceType: Camera.PictureSourceType.CAMERA,
+     *                encodingType: Camera.EncodingType.PNG})
+     */
+    var EncodingType = {
+        JPEG: 0,                    // Return JPEG encoded image
+        PNG: 1                      // Return PNG encoded image
+    };
+
+    /**
      * @constructor
      */
     function Camera() {
@@ -52,6 +66,7 @@ var Camera = Camera || (function() {
      */
     Camera.prototype.DestinationType = DestinationType;
     Camera.prototype.PictureSourceType = PictureSourceType;
+    Camera.prototype.EncodingType = EncodingType;
     
     /**
      * Gets a picture from source defined by "options.sourceType", and returns the
@@ -77,19 +92,51 @@ var Camera = Camera || (function() {
             return;
         }
 
-        var quality = 80;
-        if (options.quality) {
+        if (typeof options.quality == "number") {
             quality = options.quality;
+        } else if (typeof options.quality == "string") {
+            var qlity = new Number(options.quality);
+            if (isNaN(qlity) === false) {
+                quality = qlity.valueOf();
+            }
         }
+
         var destinationType = DestinationType.DATA_URL;
         if (options.destinationType) {
             destinationType = options.destinationType;
         }
+
         var sourceType = PictureSourceType.CAMERA;
         if (typeof options.sourceType == "number") {
             sourceType = options.sourceType;
         }
-        PhoneGap.exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType]);
+
+        var targetWidth = -1;
+        if (typeof options.targetWidth == "number") {
+            targetWidth = options.targetWidth;
+        } else if (typeof options.targetWidth == "string") {
+            var width = new Number(options.targetWidth);
+            if (isNaN(width) === false) {
+                targetWidth = width.valueOf();
+            }
+        }
+
+        var targetHeight = -1;
+        if (typeof options.targetHeight == "number") {
+            targetHeight = options.targetHeight;
+        } else if (typeof options.targetHeight == "string") {
+            var height = new Number(options.targetHeight);
+            if (isNaN(height) === false) {
+                targetHeight = height.valueOf();
+            }
+        }
+
+        var encodingType = EncodingType.JPEG;
+        if (typeof options.encodingType == "number") {
+            encodingType = options.encodingType;
+        }
+
+        PhoneGap.exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType]);
     };
 
     /**
@@ -104,6 +151,7 @@ var Camera = Camera || (function() {
      */
     return {
         DestinationType: DestinationType,
-        PictureSourceType: PictureSourceType
+        PictureSourceType: PictureSourceType,
+        EncodingType: EncodingType
     };
 }());
