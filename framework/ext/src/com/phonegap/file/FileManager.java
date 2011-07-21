@@ -383,7 +383,10 @@ public class FileManager extends Plugin {
         int bytesWritten = 0;
         try {
             // write file data
-            bytesWritten = FileUtils.writeFile(filePath, data.getBytes(), position);
+            // The default String encoding on BB is ISO-8859-1 which causes
+            // issues with extended characters.  Force to UTF-8 to provide
+            // greater character support and match other platforms.
+            bytesWritten = FileUtils.writeFile(filePath, data.getBytes("UTF-8"), position);
             result = new PluginResult(PluginResult.Status.OK, bytesWritten);
         }
         catch (SecurityException e) {

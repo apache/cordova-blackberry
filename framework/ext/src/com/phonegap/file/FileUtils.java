@@ -125,6 +125,11 @@ public class FileUtils {
                     Connector.READ_WRITE);
             if (!fconn.exists()) {
                 fconn.create();
+            } else {
+                // Originally, this did an overwrite in place and did not
+                // truncate.  The truncate was added to match behavior on
+                // other platforms.
+                fconn.truncate(position);
             }
             os = fconn.openOutputStream(position);
             os.write(data);

@@ -341,6 +341,34 @@ var FileReader = FileReader || (function() {
         );
     };
     
+    /**
+     * Read file and return data as a binary data.
+     *
+     * @param file          {File} File object containing file properties
+     */
+    FileReader.prototype.readAsBinaryString = function(file) {
+        // TODO - Can't return binary data to browser.
+        if (typeof file.fullPath === "undefined") {
+            this.fileName = file;
+        } else {
+            this.fileName = file.fullPath;
+        }
+    };
+
+    /**
+     * Read file and return data as a binary data.
+     *
+     * @param file          {File} File object containing file properties
+     */
+    FileReader.prototype.readAsArrayBuffer = function(file) {
+        // TODO - Can't return binary data to browser.
+        if (typeof file.fullPath === "undefined") {
+            this.fileName = file;
+        } else {
+            this.fileName = file.fullPath;
+        }
+    };
+
     return FileReader;
 }());
 
@@ -551,10 +579,11 @@ var FileWriter = FileWriter || (function() {
                     return;
                 }
 
-                // new length is maximum of old length, or position plus bytes written
-                me.length = Math.max(me.length, me.position + result);
                 // position always increases by bytes written because file would be extended
                 me.position += result;
+
+                // new length is now where writing finished
+                me.length = me.position;
 
                 // success procedure
                 if (typeof me.onwrite == "function") {
