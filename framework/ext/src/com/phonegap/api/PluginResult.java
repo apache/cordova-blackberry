@@ -123,14 +123,13 @@ public class PluginResult {
 
         public static final Status NO_RESULT = new Status(0, "No result");
         public static final Status OK = new Status(1, "OK");
-        public static final Status CLASSNOTFOUNDEXCEPTION = new Status(2, "Class not found");
-        public static final Status ILLEGALACCESSEXCEPTION = new Status(3, "Illegal access");
-        public static final Status INSTANTIATIONEXCEPTION = new Status(4, "Instantiation error");
-        public static final Status MALFORMEDURLEXCEPTION = new Status(5, "Malformed URL");
-        public static final Status IOEXCEPTION = new Status(6, "IO error");
-        public static final Status INVALIDACTION = new Status(7, "Invalid action");
-        public static final Status JSONEXCEPTION = new Status(8, "JSON error");
+        public static final Status CLASS_NOT_FOUND_EXCEPTION = new Status(2, "Class not found");
+        public static final Status ILLEGAL_ACCESS_EXCEPTION = new Status(3, "Illegal access");
+        public static final Status INSTANTIATION_EXCEPTION = new Status(4, "Instantiation error");
+        public static final Status MALFORMED_URL_EXCEPTION = new Status(5, "Malformed URL");
+        public static final Status IO_EXCEPTION = new Status(6, "IO error");
+        public static final Status INVALID_ACTION = new Status(7, "Invalid action");
+        public static final Status JSON_EXCEPTION = new Status(8, "JSON error");
         public static final Status ERROR = new Status(9, "Error");
-        public static final Status ILLEGAL_ARGUMENT_EXCEPTION = new Status(10, "Illegal argument");
     }
 }
