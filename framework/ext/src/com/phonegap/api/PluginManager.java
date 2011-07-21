@@ -69,15 +69,6 @@ public final class PluginManager extends Scriptable {
      */
     public PluginManager(PhoneGapExtension ext) {
         this.pluginManagerFunction = new PluginManagerFunction(ext, this);
-        this.addService("Camera", "com.phonegap.camera.Camera");
-        this.addService("Network Status", "com.phonegap.network.Network");
-        this.addService("Notification", "com.phonegap.notification.Notification");
-        this.addService("Accelerometer", "com.phonegap.accelerometer.Accelerometer");
-        this.addService("Geolocation", "com.phonegap.geolocation.Geolocation");
-        this.addService("File", "com.phonegap.file.FileManager");
-        this.addService("FileTransfer", "com.phonegap.http.FileTransfer");
-        this.addService("Contact", "com.phonegap.pim.Contact");
-        this.addService("MediaCapture", "com.phonegap.media.MediaCapture");
     }
 	
     /**
@@ -133,22 +124,11 @@ public final class PluginManager extends Scriptable {
             };
         }
         else if (name.equals(FIELD_ADD_PLUGIN)) {
-            final PluginManager plugin_mgr = this;
-            return new ScriptableFunction() {
-                public Object invoke(Object obj, Object[] oargs) throws Exception {
-                    if (oargs.length > 1) {
-                        final String service = (String)oargs[0];
-                        final String className = (String)oargs[1];
-                        Logger.log("Registering plugin ["+service+":"+className+"]");
-                        plugin_mgr.addService(service, className);
-                    }
-                    return null;
-                }
-            };
+            Logger.log("Plugins are now added through the plugins.xml in the application root.");
         }
         return super.getField(name);
     }
-    
+
     /**
      * Add a class that implements a service.
      * 

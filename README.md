@@ -95,6 +95,13 @@ As you develop your application, there may be updates made to the PhoneGap sourc
 
     $ ant update -Dproject.path="C:\development\my_new_project"
 
+Customizing PhoneGap
+--------------------
+
+By default, PhoneGap gives access to all the core PhoneGap APIs as detailed at docs.phonegap.com. 
+If you want to remove some of those APIs you can do so by editing the plugins.xml document in your 
+application root. You need to edit the plugins.xml file to add third-party plugins to your application 
+as well.
 
 Troubleshooting
 ===============
@@ -110,3 +117,7 @@ __A:__ Windows 7 and the simulator's graphics acceleration do not mix. On the si
 __Q: When I use the PhoneGap [Camera.getPicture API](http://docs.phonegap.com/phonegap_camera_camera.md.html#camera.getPicture) on my device, the camera never returns to my application.  Why does this happen?__
 
 __A:__ PhoneGap uses a JavaScript Extension to invoke the native camera application so the user can take a picture.  When the picture is taken, PhoneGap will close the native camera application by emulating a key injection (pressing the back/escape button).  On a physical device, users will have to set permissions to allow the application to simulate key injections.  Setting application permissions is device-specific.  On a Storm2 (9550), for example, select the BlackBerry button from the Home screen to get to All Applications screen, then Options > Applications > Your Application.  Then select Edit Default Permissions > Interactions > Input Simulation and set it to 'Allow'.  Save your changes.
+
+__Q: None of the PhoneGap APIs are working, why is that?__
+
+__A:__ You probably need to update your plugins.xml file in the root of your application.
