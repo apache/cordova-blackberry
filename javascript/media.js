@@ -10,12 +10,28 @@
 /**
  * MediaFileData error.
  */
-function MediaFileDataError() {
+var MediaFileDataError = function() {
     this.code = 0;
 };
 
 MediaFileDataError.UNKNOWN_ERROR = 0;
 MediaFileDataError.TIMEOUT_ERROR = 1;
+
+/**
+ * Media file data.
+ * codecs {DOMString} The actual format of the audio and video content.
+ * bitrate {Number} The average bitrate of the content. In the case of an image, this attribute has value 0.
+ * height {Number} The height of the image or video in pixels. In the case of a sound clip, this attribute has value 0.
+ * width {Number The width of the image or video in pixels. In the case of a sound clip, this attribute has value 0.
+ * duration {Number} The length of the video or sound clip in seconds. In the case of an image, this attribute has value 0.
+ */
+var MediaFileData = function(){
+    this.codecs = null;
+    this.bitrate = 0;
+    this.height = 0;
+    this.width = 0;
+    this.duration = 0;
+};
 
 /**
  * Represents media file properties.
@@ -30,22 +46,6 @@ var MediaFile = MediaFile || (function() {
  
     // extend File
     PhoneGap.extend(MediaFile, File);
-    
-    /**
-     * Media file data.
-     * codecs {DOMString} The actual format of the audio and video content.
-     * bitrate {Number} The average bitrate of the content. In the case of an image, this attribute has value 0.
-     * height {Number} The height of the image or video in pixels. In the case of a sound clip, this attribute has value 0.
-     * width {Number The width of the image or video in pixels. In the case of a sound clip, this attribute has value 0.
-     * duration {Number} The length of the video or sound clip in seconds. In the case of an image, this attribute has value 0.
-     */
-    function MediaFileData() {
-        this.codecs = null;
-        this.bitrate = 0;
-        this.height = 0;
-        this.width = 0;
-        this.duration = 0;
-    };
     
     /**
      * Obtains the format data of the media file.
@@ -66,7 +66,7 @@ var MediaFile = MediaFile || (function() {
 /**
  * Media capture error.
  */
-function CaptureError() {
+var CaptureError = function() {
     this.code = 0;
 };
 
@@ -84,9 +84,9 @@ CaptureError.CAPTURE_NOT_SUPPORTED = 20;
 /**
  * Encapsulates a set of parameters that the capture device supports.
  */
-function ConfigurationData() {
+var ConfigurationData = function() {
     // The ASCII-encoded string in lower case representing the media type. 
-    this.type; 
+    this.type = null;
     // The height attribute represents height of the image or video in pixels. 
     // In the case of a sound clip this attribute has value 0. 
     this.height = 0;
@@ -98,35 +98,35 @@ function ConfigurationData() {
 /**
  * Encapsulates all image capture operation configuration options.
  */
-function CaptureImageOptions() {
+var CaptureImageOptions = function() {
     // Upper limit of images user can take. Value must be equal or greater than 1.
     this.limit = 1; 
     // The selected image mode. Must match with one of the elements in supportedImageModes array.
-    this.mode; 
+    this.mode = null;
 };
 
 /**
  * Encapsulates all video capture operation configuration options.
  */
-function CaptureVideoOptions() {
+var CaptureVideoOptions = function() {
     // Upper limit of videos user can record. Value must be equal or greater than 1.
     this.limit = 1;
     // Maximum duration of a single video clip in seconds.
-    this.duration;
+    this.duration = 0;
     // The selected video mode. Must match with one of the elements in supportedVideoModes array.
-    this.mode;
+    this.mode = null;
 };
 
 /**
  * Encapsulates all audio capture operation configuration options.
  */
-function CaptureAudioOptions() {
+var CaptureAudioOptions = function() {
     // Upper limit of sound clips user can record. Value must be equal or greater than 1.
     this.limit = 1;
     // Maximum duration of a single sound clip in seconds.
-    this.duration;
+    this.duration = 0;
     // The selected audio mode. Must match with one of the elements in supportedAudioModes array.
-    this.mode;
+    this.mode = null;
 };
 
 /**
@@ -345,7 +345,7 @@ function CaptureAudioOptions() {
      */
     Capture.prototype.cancelCaptures = function() { 
         PhoneGap.exec(null, null, 'MediaCapture', 'stopCaptures', []);
-    }
+    };
     
     /**
      * Define navigator.device.capture object.
