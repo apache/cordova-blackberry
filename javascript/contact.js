@@ -266,13 +266,13 @@ var Contact = Contact || (function() {
         //
         // name
         if (contact.name !== null) {   
-            if (contact.name.givenName !== null) {
+            if (contact.name.givenName) {
                 bbContact.firstName = contact.name.givenName;
             }
-            if (contact.name.familyName !== null) {
+            if (contact.name.familyName) {
                 bbContact.lastName = contact.name.familyName;
             }
-            if (contact.name.honorificPrefix !== null) {
+            if (contact.name.honorificPrefix) {
                 bbContact.title = contact.name.honorificPrefix;
             }
         }
@@ -848,7 +848,7 @@ var ContactFindOptions = function(filter, multiple) {
                 if (bbContact.otherPhone) {
                     phoneNumbers.push(new ContactField('other', bbContact.otherPhone));
                 }
-                contact.phoneNumbers = phoneNumbers;
+                contact.phoneNumbers = phoneNumbers.length > 0 ? phoneNumbers : null;
             }
             // emails
             else if (field.indexOf('emails') === 0) {
@@ -862,7 +862,7 @@ var ContactFindOptions = function(filter, multiple) {
                 if (bbContact.email3) { 
                     emails.push(new ContactField(null, bbContact.email3, null));
                 }
-                contact.emails = emails;
+                contact.emails = emails.length > 0 ? emails : null;
             }
             // addresses
             else if (field.indexOf('addresses') === 0) {
@@ -873,15 +873,19 @@ var ContactFindOptions = function(filter, multiple) {
                 if (bbContact.workAddress) {
                     addresses.push(createContactAddress("work", bbContact.workAddress));
                 }
-                contact.addresses = addresses;
+                contact.addresses = addresses.length > 0 ? addresses : null;
             }
             // birthday
             else if (field.indexOf('birthday') === 0) {
-                contact.birthday = bbContact.birthday;
+                if (bbContact.birthday) {
+                    contact.birthday = bbContact.birthday;
+                }
             }
             // note
             else if (field.indexOf('note') === 0) {
-                contact.note = bbContact.note;
+                if (bbContact.note) {
+                    contact.note = bbContact.note;
+                }
             }
             // organizations
             else if (field.indexOf('organizations') === 0) {
@@ -890,11 +894,15 @@ var ContactFindOptions = function(filter, multiple) {
                     organizations.push(
                         new ContactOrganization(null, null, bbContact.company, null, bbContact.jobTitle));
                 }
-                contact.organizations = organizations;
+                contact.organizations = organizations.length > 0 ? organizations : null;
             }
             // categories
             else if (field.indexOf('categories') === 0) {
-                contact.categories = bbContact.categories; 
+                if (bbContact.categories && bbContact.categories.length > 0) {
+                    contact.categories = bbContact.categories;
+                } else {
+                    contact.categories = null;
+                }
             }
             // urls
             else if (field.indexOf('urls') === 0) {
@@ -902,7 +910,7 @@ var ContactFindOptions = function(filter, multiple) {
                 if (bbContact.webpage) {
                     urls.push(new ContactField(null, bbContact.webpage));
                 }
-                contact.urls = urls;
+                contact.urls = urls.length > 0 ? urls : null;
             }
             // photos
             else if (field.indexOf('photos') === 0) {
@@ -912,7 +920,7 @@ var ContactFindOptions = function(filter, multiple) {
                 if (bbContact.picture) {
                     photos.push(new ContactField('base64', bbContact.picture));
                 }
-                contact.photos = photos;
+                contact.photos = photos.length > 0 ? photos : null;
             }
         }
 
