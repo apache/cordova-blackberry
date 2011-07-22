@@ -39,13 +39,13 @@ public class VibrateAction {
 				Alert.startVibrate(duration); 
 			}
 			catch (JSONException e) {
-				result = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
+				result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, "JSONException: " + e.getMessage());
 			}
 			
 			result = new PluginResult(PluginResult.Status.OK, "OK");
 		}
 		else {
-			result = new PluginResult(PluginResult.Status.ILLEGALACCESSEXCEPTION, "Vibrate not supported");
+			result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "Vibrate not supported");
 		}
 		
 		return result;

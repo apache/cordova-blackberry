@@ -92,7 +92,7 @@ public class Geolocation extends Plugin {
 		try {
 			listenerCallbackId = args.getString(ARG_CALLBACK_ID);
 		} catch (JSONException e) {
-			return new PluginResult(PluginResult.Status.JSONEXCEPTION, "Callback ID argument is not valid.");
+			return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "Callback ID argument is not valid.");
 		}
 		
 		if (!GPSInfo.isGPSModeAvailable(GPSInfo.GPS_DEVICE_INTERNAL)){
@@ -110,9 +110,9 @@ public class Geolocation extends Plugin {
 				try {
 					options = PositionOptions.fromJSONArray(args);
 				} catch (NumberFormatException e) {
-					return new PluginResult(PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION, "One of the position options is not a valid number.");					
+					return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "One of the position options is not a valid number.");					
 				} catch (JSONException e) {
-					return new PluginResult(PluginResult.Status.JSONEXCEPTION, "One of the position options is not valid JSON.");
+					return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "One of the position options is not valid JSON.");
 				}
 
 				this.watchPosition(listenerCallbackId, options);
@@ -123,9 +123,9 @@ public class Geolocation extends Plugin {
 				try {
 					options = PositionOptions.fromJSONArray(args);
 				} catch (NumberFormatException e) {
-					return new PluginResult(PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION, "One of the position options is not a valid number.");					
+					return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "One of the position options is not a valid number.");					
 				} catch (JSONException e) {
-					return new PluginResult(PluginResult.Status.JSONEXCEPTION, "One of the position options is not valid JSON.");
+					return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "One of the position options is not valid JSON.");
 				}
 
 				this.getCurrentPosition(listenerCallbackId, options);
@@ -136,7 +136,7 @@ public class Geolocation extends Plugin {
 				return null;
 		}
 		
-		return new PluginResult(PluginResult.Status.INVALIDACTION, "Geolocation: invalid action " + action);
+		return new PluginResult(PluginResult.Status.INVALID_ACTION, "Geolocation: invalid action " + action);
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class Geolocation extends Plugin {
             //			(maxAge < 1 and maxAge != -1)
             //		) 
             PhoneGapExtension.invokeErrorCallback(callbackId, 
-                    new GeolocationResult(GeolocationStatus.GPS_ILLEGAL_ARGUMENT_EXCEPTION, e.getMessage()));
+                    new GeolocationResult(GeolocationStatus.GPS_JSON_EXCEPTION, e.getMessage()));
             return;
         }
 
@@ -320,7 +320,7 @@ public class Geolocation extends Plugin {
             position = Position.fromLocation(location).toJSONObject();
         } catch (JSONException e) {
             PhoneGapExtension.invokeErrorCallback(callbackId, 
-                    new GeolocationResult(PluginResult.Status.JSONEXCEPTION, 
+                    new GeolocationResult(PluginResult.Status.JSON_EXCEPTION, 
                     "Converting the location to a JSON object failed"));
             return;
         }

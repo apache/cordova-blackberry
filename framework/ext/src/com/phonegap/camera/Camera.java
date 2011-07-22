@@ -81,9 +81,9 @@ public class Camera extends Plugin
             try {
                 options = CameraOptions.fromJSONArray(args);
             } catch (NumberFormatException e) {
-                return new PluginResult(PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION, "One of the camera options is not a valid number.");
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "One of the camera options is not a valid number.");
             } catch (JSONException e) {
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION, "One of the camera options is not valid JSON.");
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "One of the camera options is not valid JSON.");
             }
 
             // launch native camera application
@@ -99,7 +99,7 @@ public class Camera extends Plugin
         }
         else 
         {
-            result = new PluginResult(PluginResult.Status.INVALIDACTION, "Camera: Invalid action:" + action);
+            result = new PluginResult(PluginResult.Status.INVALID_ACTION, "Camera: Invalid action:" + action);
         }
 
         return result;
@@ -185,7 +185,7 @@ public class Camera extends Plugin
         }
         catch (Exception e)
         {
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION, e.toString());
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION, e.toString());
         }
 
         // send result back to JavaScript

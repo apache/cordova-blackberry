@@ -64,7 +64,7 @@ public class AlertAction {
             result = new PluginResult(PluginResult.Status.OK);
         }
         catch (JSONException e) {
-            result = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
+            result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, "JSONException: " + e.getMessage());
         }
 
         return result;

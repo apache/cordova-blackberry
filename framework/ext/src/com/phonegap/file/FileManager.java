@@ -94,7 +94,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return readAsText(filePath, args.optString(1));
@@ -108,7 +108,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return readAsDataURL(filePath);
@@ -122,7 +122,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             
@@ -134,7 +134,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Unable to parse file data: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
 
@@ -147,7 +147,7 @@ public class FileManager extends Plugin {
                 Logger.log(this.getClass().getName()
                         + ": Invalid position parameter: " + e);
                 return new PluginResult(
-                        PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION,
+                        PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return writeFile(filePath, data, position);
@@ -161,7 +161,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             
@@ -175,7 +175,7 @@ public class FileManager extends Plugin {
                 Logger.log(this.getClass().getName()
                         + ": Invalid file size parameter: " + e);
                 return new PluginResult(
-                        PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION,
+                        PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return truncateFile(filePath, fileSize);
@@ -190,7 +190,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid file system type: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return requestFileSystem(fileSystemType, fileSystemSize);
@@ -203,7 +203,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing file URI: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return resolveFileSystemURI(uri);
@@ -216,7 +216,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing file URI: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return getMetadata(path);
@@ -229,7 +229,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return listDirectory(path);
@@ -246,7 +246,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return copyTo(srcPath, parent, newName);            
@@ -263,7 +263,7 @@ public class FileManager extends Plugin {
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
             return moveTo(srcPath, parent, newName);            
@@ -274,7 +274,7 @@ public class FileManager extends Plugin {
         }
 
         // invalid action
-        return new PluginResult(PluginResult.Status.INVALIDACTION, 
+        return new PluginResult(PluginResult.Status.INVALID_ACTION, 
                 "File: invalid action " + action);
     }
     
@@ -301,17 +301,17 @@ public class FileManager extends Plugin {
         }
         catch (FileNotFoundException e) {
             logMsg = e.toString();
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_FOUND_ERR);
         }
         catch (UnsupportedEncodingException e) {
             logMsg = e.toString();
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     ENCODING_ERR);
         }
         catch (IOException e) {
             logMsg = e.toString();
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_READABLE_ERR);
         }
         finally {
@@ -347,12 +347,12 @@ public class FileManager extends Plugin {
         }
         catch (FileNotFoundException e) {
             Logger.log(FileManager.class.getName() + ": " + e);
-            return new PluginResult(PluginResult.Status.IOEXCEPTION,
+            return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_FOUND_ERR);
         }
         catch (IOException e) {
             Logger.log(FileManager.class.getName() + ": " + e);
-            return new PluginResult(PluginResult.Status.IOEXCEPTION,
+            return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_READABLE_ERR);
         }
 
@@ -391,14 +391,14 @@ public class FileManager extends Plugin {
         }
         catch (SecurityException e) {
             Logger.log(FileManager.class.getName() + ": " + e);
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NO_MODIFICATION_ALLOWED_ERR);
         }
         catch (IOException e) {
             // it's not a security issue, so the directory path is either
             // not fully created or a general error occurred
             Logger.log(FileManager.class.getName() + ": " + e);
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_FOUND_ERR);
         }
 
@@ -425,7 +425,7 @@ public class FileManager extends Plugin {
             if (!fconn.exists()) {
                 Logger.log(FileManager.class.getName() + ": path not found "
                         + filePath);
-                return new PluginResult(PluginResult.Status.IOEXCEPTION,
+                return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                         NOT_FOUND_ERR);
             }
             if (size >= 0) {
@@ -435,7 +435,7 @@ public class FileManager extends Plugin {
         }
         catch (IOException e) {
             Logger.log(FileManager.class.getName() + ": " + e);
-            return new PluginResult(PluginResult.Status.IOEXCEPTION,
+            return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NO_MODIFICATION_ALLOWED_ERR);
         }
         finally {
@@ -468,7 +468,7 @@ public class FileManager extends Plugin {
             Logger.log(FileManager.class.getName()
                     + ": Invalid file system type: " + Integer.toString(type));
             return new PluginResult(
-                    PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION,
+                    PluginResult.Status.JSON_EXCEPTION,
                     SYNTAX_ERR);
         }
 
@@ -482,7 +482,7 @@ public class FileManager extends Plugin {
             }
             catch (IOException e) {
                 Logger.log(FileManager.class.getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.IOEXCEPTION,
+                return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                         NO_MODIFICATION_ALLOWED_ERR);
             }
             break;
@@ -498,7 +498,7 @@ public class FileManager extends Plugin {
             // check the file system size
             if (size > FileUtils.availableSize(filePath)) {
                 return new PluginResult(
-                        PluginResult.Status.IOEXCEPTION,
+                        PluginResult.Status.IO_EXCEPTION,
                         QUOTA_EXCEEDED_ERR);                
             }
             
@@ -506,7 +506,7 @@ public class FileManager extends Plugin {
         }
         catch (Exception e) {
             // bad path (not likely)
-            return new PluginResult(PluginResult.Status.IOEXCEPTION, 
+            return new PluginResult(PluginResult.Status.IO_EXCEPTION, 
                     ENCODING_ERR);
         }
 
@@ -517,7 +517,7 @@ public class FileManager extends Plugin {
             result = new PluginResult(PluginResult.Status.OK, fileSystem);
         }
         catch (JSONException e) {
-            return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+            return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                     "File systen entry JSON conversion failed.");
         } 
 
@@ -540,12 +540,12 @@ public class FileManager extends Plugin {
         }
         catch (IllegalArgumentException e) {
             return new PluginResult(
-                    PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION,
+                    PluginResult.Status.JSON_EXCEPTION,
                     ENCODING_ERR);
         }
         
         if (entry == null) {
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_FOUND_ERR);
         }
         else {
@@ -573,19 +573,19 @@ public class FileManager extends Plugin {
                 result = new PluginResult(PluginResult.Status.OK, lastModified);
             }
             else {
-                result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+                result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                         NOT_FOUND_ERR);                
             }
         }
         catch (IllegalArgumentException e) {
             // bad path
             Logger.log(FileUtils.class.getName() + ": " + e);           
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_FOUND_ERR);
         }
         catch (IOException e) {
             Logger.log(FileUtils.class.getName() + ": " + e);
-            result = new PluginResult(PluginResult.Status.IOEXCEPTION,
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     e.getMessage());
         }
         finally {
@@ -615,7 +615,7 @@ public class FileManager extends Plugin {
         catch (Exception e) {
             // bad path
             Logger.log(FileUtils.class.getName() + ": " + e);
-            return new PluginResult(PluginResult.Status.IOEXCEPTION,
+            return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                     NOT_FOUND_ERR);
         }
 
@@ -649,22 +649,22 @@ public class FileManager extends Plugin {
         catch (IllegalArgumentException e) {
             Logger.log(FileManager.class.getName() + ": " + e.getMessage());
             return new PluginResult(
-                    PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION, ENCODING_ERR);
+                    PluginResult.Status.JSON_EXCEPTION, ENCODING_ERR);
         }
         catch (FileNotFoundException e) {
             Logger.log(FileManager.class.getName() + ": " + e.getMessage());
             return new PluginResult(
-                    PluginResult.Status.IOEXCEPTION, NOT_FOUND_ERR);
+                    PluginResult.Status.IO_EXCEPTION, NOT_FOUND_ERR);
         }
         catch (SecurityException e) {
             Logger.log(FileManager.class.getName() + ": " + e.getMessage());
             return new PluginResult(
-                    PluginResult.Status.IOEXCEPTION, SECURITY_ERR);
+                    PluginResult.Status.IO_EXCEPTION, SECURITY_ERR);
         }
         catch (IOException e) {
             Logger.log(FileManager.class.getName() + ": " + e.getMessage());
             return new PluginResult(
-                    PluginResult.Status.IOEXCEPTION, INVALID_MODIFICATION_ERR);
+                    PluginResult.Status.IO_EXCEPTION, INVALID_MODIFICATION_ERR);
         }
         
         return resolveFileSystemURI(getFullPath(parent, newName));
@@ -702,7 +702,7 @@ public class FileManager extends Plugin {
         if (parent == null || newName == null) {
             Logger.log(FileManager.class.getName() + ": Parameter cannot be null.");
             return new PluginResult(
-                    PluginResult.Status.IOEXCEPTION, NOT_FOUND_ERR);
+                    PluginResult.Status.IO_EXCEPTION, NOT_FOUND_ERR);
         }
         else if (!parent.endsWith(FileUtils.FILE_SEPARATOR)) {
             parent += FileUtils.FILE_SEPARATOR;
@@ -728,7 +728,7 @@ public class FileManager extends Plugin {
             if (!src.exists()) {
                 Logger.log(FileManager.class.getName() + ": Path not found: " + srcPath);
                 return new PluginResult(
-                        PluginResult.Status.IOEXCEPTION, NOT_FOUND_ERR);
+                        PluginResult.Status.IO_EXCEPTION, NOT_FOUND_ERR);
             }
             
             // cannot delete the destination path if it is a directory that is
@@ -736,7 +736,7 @@ public class FileManager extends Plugin {
             dst = (FileConnection) Connector.open(parent + newName, Connector.READ_WRITE);                
             if (dst.isDirectory() && dst.list("*", true).hasMoreElements()) {
                 return new PluginResult(
-                        PluginResult.Status.IOEXCEPTION, INVALID_MODIFICATION_ERR);                
+                        PluginResult.Status.IO_EXCEPTION, INVALID_MODIFICATION_ERR);                
             }
 
             // simply rename if source path and parent are same directory
@@ -747,7 +747,7 @@ public class FileManager extends Plugin {
                 // rename to itself is an error
                 if (FileUtils.stripSeparator(srcName).equals(
                         FileUtils.stripSeparator(newName))) {
-                    return new PluginResult(PluginResult.Status.IOEXCEPTION,
+                    return new PluginResult(PluginResult.Status.IO_EXCEPTION,
                             INVALID_MODIFICATION_ERR);
                 }
                 
@@ -768,14 +768,14 @@ public class FileManager extends Plugin {
         catch (IllegalArgumentException e) {
             Logger.log(FileManager.class.getName() + ": " + e);
             return new PluginResult(
-                    PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION,
+                    PluginResult.Status.JSON_EXCEPTION,
                     ENCODING_ERR);
         }
         catch (IOException e) {
             // rename failed
             Logger.log(FileManager.class.getName() + ": " + e);
             return new PluginResult(
-                    PluginResult.Status.IOEXCEPTION, 
+                    PluginResult.Status.IO_EXCEPTION, 
                     INVALID_MODIFICATION_ERR);
         }
         finally {

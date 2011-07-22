@@ -40,7 +40,7 @@ public class Network extends Plugin {
 			result = connectionInfo.getConnectionInfo(callbackId);
 		}
 		else {
-			result = new PluginResult(PluginResult.Status.INVALIDACTION, "Network: Invalid action: " + action);
+			result = new PluginResult(PluginResult.Status.INVALID_ACTION, "Network: Invalid action: " + action);
 		}
 		
 		return result;

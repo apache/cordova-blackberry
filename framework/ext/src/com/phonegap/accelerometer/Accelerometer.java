@@ -39,7 +39,7 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
 		PluginResult result = null;
 
 		if (!AccelerometerSensor.isSupported()) {
-			result = new PluginResult(PluginResult.Status.ILLEGALACCESSEXCEPTION, "Accelerometer sensor not supported");
+			result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "Accelerometer sensor not supported");
 		}
 		else if (ACTION_GET_ACCELERATION.equals(action)) {
 			JSONObject accel = new JSONObject();
@@ -50,7 +50,7 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
 				accel.put("z", (int)accelData.getLastZAcceleration());
 				accel.put("timestamp", accelData.getLastTimestamp());
 			} catch (JSONException e) {
-				return new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException:" + e.getMessage());
+				return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "JSONException:" + e.getMessage());
 			}
 			result = new PluginResult(PluginResult.Status.OK, accel);
 		}
@@ -66,7 +66,7 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
 			} catch (NumberFormatException e) {
 				return new PluginResult(PluginResult.Status.ERROR, e.getMessage());
 			} catch (JSONException e) {
-				return new PluginResult(PluginResult.Status.JSONEXCEPTION, e.getMessage());
+				return new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
 			}
 		}
 		else if (ACTION_STOP.equals(action)) {
@@ -74,7 +74,7 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
 			return new PluginResult(PluginResult.Status.OK, "");
 		}
 		else {
-			result = new PluginResult(PluginResult.Status.INVALIDACTION, "Accelerometer: Invalid action:" + action);
+			result = new PluginResult(PluginResult.Status.INVALID_ACTION, "Accelerometer: Invalid action:" + action);
 		}
 		
 		return result;
