@@ -112,6 +112,7 @@ Creating a Distribution
     
     $ git diff
     $ git commit -am "Update to version 1.0.0"
+    $ git tag 1.0.0
 
 ### Create distribution
 
