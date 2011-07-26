@@ -150,6 +150,26 @@ Path:
         </echo>
     </target>
     
+    <target name="version">
+        <replace dir="." token="${version}" value="${value}" />
+        
+        <echo>
+Version Update Complete!
+========================
+
+Version:
+--------
+
+  Previous: ${version}
+  Current:  ${value}
+
+Important Reminder:
+-------------------
+
+  Please review and check the updated files into your version control!
+        </echo>
+    </target>
+    
     <!-- UPDATE A PROJECT -->
     
     <target name="update" depends="clean, build-javascript, build-extension">
@@ -280,6 +300,10 @@ COMMANDS
 
   dist ............ Create a PhoneGap distribution build
                       ant dist
+
+  version ......... Update PhoneGap version
+                      ant version VERSION
+                      ant version -Dvalue="1.0.0"
 
   create-plugin ... Create a new plugin
                       ant create-plugin PATH
