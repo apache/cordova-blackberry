@@ -163,10 +163,14 @@ Version:
   Previous: ${version}
   Current:  ${value}
 
-Important Reminder:
--------------------
+Remember to:
+------------
 
-  Please review and check the updated files into your version control!
+  Review and commit the version update.
+  
+  $ git diff
+  $ git commit -am "Update to version ${value}"
+  $ git tag ${value}
         </echo>
     </target>
     
