@@ -103,6 +103,20 @@ If you want to remove some of those APIs you can do so by editing the plugins.xm
 application root. You need to edit the plugins.xml file to add third-party plugins to your application 
 as well.
 
+Creating a Distribution
+-----------------------
+
+### Update Version
+
+    $ ant version -Dvalue="1.0.0"
+    
+    $ git diff
+    $ git commit -am "Update to version 1.0.0"
+
+### Create distribution
+
+    $ ant dist
+    
 Troubleshooting
 ===============
 
