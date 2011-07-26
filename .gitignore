@@ -16,6 +16,7 @@ deliverables/
 # Generated libraries
 
 build/
+dist/
 
 # OS X
 

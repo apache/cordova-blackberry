@@ -12,8 +12,14 @@
     
     <property name="template.project.dir" location="template/project" />
     <property name="template.plugin.dir"  location="template/plugin" />
+    <property name="template.dist.dir"    location="template/dist" />
+    
     <property name="build.dir"            location="build" />
     <property name="update.dir"           value="lib/phonegap.${version}" />
+    
+    <property name="dist.path"         location="dist" />
+    <property name="dist.www.path"     location="${dist.path}/www" />
+    <property name="dist.project.path" location="${dist.path}/sample" />
     
     <property name="jar.src"      location="framework/ext/src" />
     <property name="jar.path"     value="ext" />
@@ -93,6 +99,54 @@ Getting Started:
   cd ${project.path}
 
   ant help
+        </echo>
+    </target>
+    
+    <!-- DISTRIBUTION -->
+    <target name="dist" depends="">
+        <!-- create a sample project -->
+        <antcall target="create">
+            <param name="project.path" value="${dist.project.path}" />
+        </antcall>
+        
+        <!-- copy dist template (README.md) -->
+        <copy todir="${dist.path}">
+            <fileset dir="${template.dist.dir}" />
+        </copy>
+        
+        <!-- copy phonegap.jar -->
+        <copy todir="${dist.www.path}/ext">
+            <fileset dir="${build.dir}/${jar.path}" />
+        </copy>
+        
+        <!-- copy phonegap.js -->
+        <copy todir="${dist.www.path}">
+            <fileset dir="${build.dir}/${js.path}" />
+        </copy>
+        
+        <!-- copy config.xml -->
+        <copy todir="${dist.www.path}">
+            <fileset file="${template.project.dir}/www/config.xml" />
+        </copy>
+        
+        <!-- copy plugins.xml -->
+        <copy todir="${dist.www.path}">
+            <fileset file="${template.project.dir}/www/plugins.xml" />
+        </copy>
+        
+        <echo>
+Distribution Complete!
+======================
+
+Version:
+--------
+
+  ${version}
+
+Path:
+-----
+
+  ${dist.path}
         </echo>
     </target>
     
@@ -194,6 +248,7 @@ Getting Started:
     
     <target name="clean">
         <delete dir="${build.dir}" />
+        <delete dir="${dist.path}" />
     </target>
     
     <!-- HELP -->
@@ -222,6 +277,9 @@ COMMANDS
   update .......... Update an existing project
                       ant update PATH
                       ant update -Dproject.path="C:\dev\my_project"
+
+  dist ............ Create a PhoneGap distribution build
+                      ant dist
 
   create-plugin ... Create a new plugin
                       ant create-plugin PATH
