@@ -51,7 +51,7 @@ var PhoneGap = PhoneGap || (function() {
      */
     PhoneGap.Channel = function(type) {
         this.type = type;
-        this.handlers = [];
+        this.handlers = { };
         this.guid = 0;
         this.fired = false;
         this.enabled = true;
