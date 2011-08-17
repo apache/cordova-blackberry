@@ -44,7 +44,7 @@ Connection = {
             function(info) {
                 me.type = info.type;
                 if (typeof info.event !== "undefined") {
-                    PhoneGap.fireEvent(info.event);
+                    PhoneGap.fireDocumentEvent(info.event);
                 }
 
                 // should only fire this once
