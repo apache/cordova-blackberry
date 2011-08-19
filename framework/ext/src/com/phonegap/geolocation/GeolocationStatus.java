@@ -21,5 +21,5 @@ public class GeolocationStatus extends PluginResult.Status {
 	public static final GeolocationStatus GPS_TIMEOUT = new GeolocationStatus(104, "GPS location acquisition timed out");
 	public static final GeolocationStatus GPS_INTERUPTED_EXCEPTION = new GeolocationStatus(105, "GPS location acquisition interrupted");
 	public static final GeolocationStatus GPS_INVALID_LOCATION = new GeolocationStatus(106, "GPS returned an invalid location");
-	public static final GeolocationStatus GPS_ILLEGAL_ARGUMENT_EXCEPTION = new GeolocationStatus(107, "An illegal argument was passed to the location listener");
+	public static final GeolocationStatus GPS_JSON_EXCEPTION = new GeolocationStatus(107, "An illegal argument was passed to the location listener");
 }

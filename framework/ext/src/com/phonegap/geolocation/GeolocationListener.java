@@ -113,7 +113,7 @@ public final class GeolocationListener implements LocationListener {
 			position = Position.fromLocation(location).toJSONObject();
 		} catch (JSONException e) {
 			PhoneGapExtension.invokeErrorCallback(callbackId, 
-				new GeolocationResult(PluginResult.Status.JSONEXCEPTION, "Converting the location to a JSON object failed"));
+				new GeolocationResult(PluginResult.Status.JSON_EXCEPTION, "Converting the location to a JSON object failed"));
 		}
 
 		PhoneGapExtension.invokeSuccessCallback(callbackId, 

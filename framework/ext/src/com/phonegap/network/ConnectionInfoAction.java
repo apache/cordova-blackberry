@@ -99,7 +99,7 @@ public class ConnectionInfoAction {
             connectInfo.put(TYPE, type);
         } catch (JSONException e) {
             Logger.error("JSONException: " + e.getMessage());
-            return new PluginResult(PluginResult.Status.JSONEXCEPTION,
+            return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                     "JSONException: " + e.getMessage());
         }
 
@@ -292,7 +292,7 @@ public class ConnectionInfoAction {
                     .hasMoreElements();) {
                 String callbackId = (String) callbacks.nextElement();
                 PhoneGapExtension.invokeErrorCallback(callbackId,
-                        new PluginResult(PluginResult.Status.JSONEXCEPTION,
+                        new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                                 "JSONException: " + e.getMessage()));
             }
             return;

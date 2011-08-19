@@ -79,28 +79,28 @@ public class FileTransfer extends Plugin {
             } 
             catch (FileNotFoundException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.IOEXCEPTION, 
+                return new PluginResult(PluginResult.Status.IO_EXCEPTION, 
                         Integer.toString(FILE_NOT_FOUND_ERR));
             } 
             catch (IllegalArgumentException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.MALFORMEDURLEXCEPTION,
+                return new PluginResult(PluginResult.Status.MALFORMED_URL_EXCEPTION,
                         Integer.toString(INVALID_URL_ERR));
             }
             catch (IOException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.IOEXCEPTION, 
+                return new PluginResult(PluginResult.Status.IO_EXCEPTION, 
                         Integer.toString(CONNECTION_ERR));
             } 
             catch (JSONException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION, 
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION, 
                         "Invalid or missing parameter");
             }
         } 
         else {
             // invalid action
-            result = new PluginResult(PluginResult.Status.INVALIDACTION, 
+            result = new PluginResult(PluginResult.Status.INVALID_ACTION, 
                     "File: invalid action " + action);
         }
         

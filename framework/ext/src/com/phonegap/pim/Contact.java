@@ -79,7 +79,7 @@ public class Contact extends Plugin {
                 value = args.isNull(2) ? null : args.getString(2);
             } catch (JSONException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION, 
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION, 
                         "Invalid or missing photo parameters");
             }
             
@@ -116,14 +116,14 @@ public class Contact extends Plugin {
                 uid = args.getString(0);
             } catch (JSONException e) {
                 Logger.log(this.getClass().getName() + ": " + e);
-                return new PluginResult(PluginResult.Status.JSONEXCEPTION, 
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION, 
                         "Invalid or missing image URL");
             }
             result = getPictureURI(uid);      
         }
         else {
             // invalid action
-            result = new PluginResult(PluginResult.Status.INVALIDACTION, 
+            result = new PluginResult(PluginResult.Status.INVALID_ACTION, 
                     "Contact: invalid action " + action);
         }
         
@@ -175,7 +175,7 @@ public class Contact extends Plugin {
         catch (IllegalArgumentException e) {
             // unsupported image format
             Logger.log(this.getClass().getName() + ": " + e);            
-            return new PluginResult(PluginResult.Status.ILLEGAL_ARGUMENT_EXCEPTION, "Unsupported image format.");
+            return new PluginResult(PluginResult.Status.JSON_EXCEPTION, "Unsupported image format.");
         }
 
         // lookup contact and save the photo

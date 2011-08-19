@@ -80,7 +80,7 @@ public class Notification extends Plugin {
 			result = VibrateAction.execute(args);
 			break;
 		default: 
-			result = new PluginResult(PluginResult.Status.INVALIDACTION, 
+			result = new PluginResult(PluginResult.Status.INVALID_ACTION, 
 					"Notification: Invalid action: " + action);
 		}
 		

@@ -80,17 +80,17 @@ public class BeepAction {
             }
             catch (JSONException e) {
                 Logger.log(BeepAction.class.getName() + ": " + e);
-                result = new PluginResult(PluginResult.Status.JSONEXCEPTION, e.getMessage());
+                result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
             }
             catch (Exception e) { 
                 Logger.log(BeepAction.class.getName() + ": " + e);
-                result = new PluginResult(PluginResult.Status.IOEXCEPTION, e.getMessage());
+                result = new PluginResult(PluginResult.Status.IO_EXCEPTION, e.getMessage());
             }
 
             result = new PluginResult(PluginResult.Status.OK);
         }
         else {
-            result = new PluginResult(PluginResult.Status.ILLEGALACCESSEXCEPTION, "Audio not supported");
+            result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "Audio not supported");
         }
 
         return result;

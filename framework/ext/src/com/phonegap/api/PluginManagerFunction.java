@@ -124,16 +124,16 @@ public class PluginManagerFunction extends ScriptableFunction {
 			}
 		} catch (ClassNotFoundException e) {
 		    Logger.log(this.getClass().getName() + ": " + e);
-			pr = new PluginResult(PluginResult.Status.CLASSNOTFOUNDEXCEPTION, "ClassNotFoundException: " + e.getMessage());
+			pr = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, "ClassNotFoundException: " + e.getMessage());
 		} catch (IllegalAccessException e) {
             Logger.log(this.getClass().getName() + ": " + e);
-			pr = new PluginResult(PluginResult.Status.ILLEGALACCESSEXCEPTION, "IllegalAccessException:" + e.getMessage());
+			pr = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "IllegalAccessException:" + e.getMessage());
 		} catch (InstantiationException e) {
             Logger.log(this.getClass().getName() + ": " + e);
-			pr = new PluginResult(PluginResult.Status.INSTANTIATIONEXCEPTION, "InstantiationException: " + e.getMessage());
+			pr = new PluginResult(PluginResult.Status.INSTANTIATION_EXCEPTION, "InstantiationException: " + e.getMessage());
 		} catch (JSONException e) {
             Logger.log(this.getClass().getName() + ": " + e);
-			pr = new PluginResult(PluginResult.Status.JSONEXCEPTION, "JSONException: " + e.getMessage());
+			pr = new PluginResult(PluginResult.Status.JSON_EXCEPTION, "JSONException: " + e.getMessage());
 		} 
 		// if async we have already returned at this point unless there was an error...
 		if (async) {

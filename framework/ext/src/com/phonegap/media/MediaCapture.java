@@ -85,7 +85,7 @@ public class MediaCapture extends Plugin {
             return new PluginResult(PluginResult.Status.OK);
         }
 
-        return new PluginResult(PluginResult.Status.INVALIDACTION,
+        return new PluginResult(PluginResult.Status.INVALID_ACTION,
                 "MediaCapture: invalid action " + action);
     }
 
