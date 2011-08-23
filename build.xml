@@ -1,4 +1,4 @@
-<project name="Create &amp; Update a PhoneGap BlackBerry WebWorks Project or Plugin" default="help">
+﻿<project name="Create &amp; Update a PhoneGap BlackBerry WebWorks Project or Plugin" default="help">
     
     <!-- LOAD VERSION -->
     
@@ -26,6 +26,12 @@
     <property name="jar.basename" value="phonegap.${version}.jar" />
     <property name="jar.file"     value="${jar.path}/${jar.basename}" />
     
+    <property name="playbook.js.src"    location="javascript/playbook" />
+    <property name="playbook.js.path"   value="javascript/playbook" />
+    <property name="playbook.js.file"   value="${playbook.js.path}/playbook.js" />
+    <property name="playbook.ext.src"   location="framework/ext-air" />
+    <property name="playbook.ext.path"  value="ext-air" />
+    
     <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
     <property name="js.basename"     value="phonegap.${version}.js" />
@@ -36,16 +42,29 @@
     <target name="build-javascript">
         <mkdir dir="${build.dir}/${js.path}" />
         
+        <!-- BB Javascript -->
         <concat destfile="${build.dir}/${js.file}" append="false">
             <fileset dir="${js.src}">
                 <include name="*.js" />
             </fileset>
         </concat>
+		<concat destfile="${build.dir}/${js.file}" append="true">
+            <fileset dir="${js.src}/blackberry" includes="*.js"/>
+        </concat>					 
+					 
+		<!-- PB Javascript -->
+        <mkdir dir="${build.dir}/${playbook.js.path}" />
+        <concat destfile="${build.dir}/${playbook.js.path}/${js.basename}" append="false">
+            <fileset dir="${js.src}" includes="*.js" />
+        </concat>
+        <concat destfile="${build.dir}/${playbook.js.path}/${js.basename}" append="true">
+            <fileset dir="${js.src}/playbook" includes="*.js"/>
+        </concat>
     </target>
     
-    <!-- BUILD WIDGET EXTENSION -->
+    <!-- BUILD BLACKBERRY EXTENSION -->
     
-    <target name="build-extension">
+    <target name="build-bb-extension">
         <mkdir dir="${build.dir}/${jar.path}" />
         
         <zip destfile="${build.dir}/${jar.file}">
@@ -54,8 +73,19 @@
         </zip>
     </target>
     
+    <!-- BUILD PLAYBOOK EXTENSION -->
+    
+    <target name="build-pb-extension">               
+
+        <!-- Copy Ext -->
+        <mkdir dir="${build.dir}/${playbook.ext.path}" />
+        <copy todir="${build.dir}/${playbook.ext.path}">
+            <fileset dir="${playbook.ext.src}" />
+        </copy>
+    </target>
+    
     <!-- CREATE A PROJECT -->
-    <target name="create" depends="clean, build-javascript, build-extension">
+    <target name="create" depends="clean, build-javascript, build-bb-extension, build-pb-extension">
         <fail unless="project.path" message="You must give a project PATH. Use the argument -Dproject.path=&#34;C:\dev\my_project&#34;" />
         
         <available file="${project.path}" property="project.exists" />
@@ -81,6 +111,11 @@
         <!-- copy ext/ -->
         <copy todir="${project.path}/www/ext">
             <fileset dir="${build.dir}/${jar.path}" />
+        </copy>
+        
+        <!-- copy ext-air/ -->
+        <copy todir="${project.path}/www/ext-air">
+            <fileset dir="${build.dir}/${playbook.ext.path}" />
         </copy>
         
         <!-- save release -->
@@ -176,7 +211,7 @@ Remember to:
     
     <!-- UPDATE A PROJECT -->
     
-    <target name="update" depends="clean, build-javascript, build-extension">
+    <target name="update" depends="clean, build-javascript, build-bb-extension, build-pb-extension">
         <fail unless="project.path" message="You must give a project PATH. Use the argument -Dproject.path=&#34;C:\dev\my_project&#34;" />
         
         <available file="${project.path}" property="project.exists" />
