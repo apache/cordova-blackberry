@@ -54,6 +54,12 @@ Connection = {
                 }
             },
             function(e) {
+                // If we can't get the network info we should still tell PhoneGap
+                // to fire the deviceready event.
+                if (me._firstRun) {
+                    me._firstRun = false;
+                    PhoneGap.onPhoneGapConnectionReady.fire();
+                }
                 console.log("Error initializing Network Connection: " + e);
             });
     };
