@@ -119,9 +119,16 @@ public final class PhoneGapExtension implements WidgetExtension {
 		// TODO Auto-generated method stub
 	}
 
-	public static void invokeScript(String js) {
-		script.executeScript(js, null);
-	}
+    public static void invokeScript(final String js) {
+        // Use a new thread so that JavaScript is invoked asynchronously.
+        // Otherwise executeScript doesn't return until JavaScript call back
+        // is finished.
+        (new Thread() {
+            public void run() {
+                script.executeScript(js, null);
+            }
+        }).start();
+    }
 	
 	/**
 	 * Invokes the PhoneGap success callback specified by callbackId.
