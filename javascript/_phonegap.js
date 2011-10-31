@@ -252,9 +252,6 @@ var PhoneGap = PhoneGap || (function() {
         // PhoneGap info has been received from native side.
         PhoneGap.Channel.join(function() {
             PhoneGap.onDeviceReady.fire();
-            
-            // Fire the onresume event, since first one happens before JavaScript is loaded
-            PhoneGap.onResume.fire();
         }, PhoneGap.deviceReadyChannelsArray);    
         
     }, [ PhoneGap.onDOMContentLoaded, PhoneGap.onNativeReady ]);
@@ -454,7 +451,11 @@ var PhoneGap = PhoneGap || (function() {
      * extension chance to clean up before exiting.
      */
     blackberry.app.event.onExit(function() {
-        PhoneGap.onPause.fire();
+        // Call onunload if it is defined since BlackBerry does not invoke
+        // on application exit.
+        if (typeof window.onunload === "function") {
+            window.onunload();
+        }
 
         // allow PhoneGap JavaScript Extension opportunity to cleanup
         phonegap.PluginManager.destroy();
