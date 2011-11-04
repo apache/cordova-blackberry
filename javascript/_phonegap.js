@@ -35,18 +35,15 @@ var PhoneGap = PhoneGap || (function() {
      * onPhoneGapReady            Internal event fired when all PhoneGap JavaScript objects have been created
      * onPhoneGapInfoReady        Internal event fired when device properties are available
      * onDeviceReady              User event fired to indicate that PhoneGap is ready
-     * onResume                   User event fired to indicate a start/resume lifecycle event
-     * onPause                    User event fired to indicate a background/pause lifecycle event
      *
-     * The only PhoneGap events that user code should register for are:
+     * The only PhoneGap event that user code should register for is:
      *      onDeviceReady
-     *      onResume
-     *      onPause
      *
-     * Listeners can be registered as:
+     * Listener can be registered as:
      *      document.addEventListener("deviceready", myDeviceReadyListener, false);
-     *      document.addEventListener("resume", myResumeListener, false);
-     *      document.addEventListener("pause", myPauseListener, false);
+     *
+     * Additional lifecycle events are enforced by the App plugin.  Reference
+     * app.js for details.
      */
 
     /**
@@ -176,22 +173,10 @@ var PhoneGap = PhoneGap || (function() {
     PhoneGap.onPhoneGapInfoReady = new PhoneGap.Channel('onPhoneGapInfoReady');
 
     /**
-     * onPhoneGapConnectionReady channel is fired when the PhoneGap connection properties
-     * has been set.
+     * onPhoneGapConnectionReady channel is fired when the PhoneGap connection
+     * properties have been set.
      */
     PhoneGap.onPhoneGapConnectionReady = new PhoneGap.Channel('onPhoneGapConnectionReady');
-
-    /**
-     * onResume channel is fired when the PhoneGap native code
-     * resumes.
-     */
-    PhoneGap.onResume = new PhoneGap.Channel('onResume');
-
-    /**
-     * onPause channel is fired when the PhoneGap native code
-     * pauses.
-     */
-    PhoneGap.onPause = new PhoneGap.Channel('onPause');
 
     /**
      * onDeviceReady is fired only after all PhoneGap objects are created and
@@ -304,14 +289,6 @@ var PhoneGap = PhoneGap || (function() {
         var e = evt.toLowerCase();
         if (e == 'deviceready') {
             PhoneGap.onDeviceReady.subscribeOnce(handler);
-        } else if (e == 'resume') {
-            PhoneGap.onResume.subscribe(handler);
-            // if subscribing listener after event has already fired, invoke the handler
-            if (PhoneGap.onResume.fired && handler instanceof Function) {
-                handler();
-            }
-        } else if (e == 'pause') {
-            PhoneGap.onPause.subscribe(handler);
         } else {
             if (typeof PhoneGap.documentEventHandler[e] !== "undefined") {
                 if (PhoneGap.documentEventHandler[e](e, handler, true)) {
@@ -423,46 +400,6 @@ var PhoneGap = PhoneGap || (function() {
         }
         window.dispatchEvent(e);
     };
-
-    /**
-     * When BlackBerry WebWorks application is brought to foreground, 
-     * fire onResume event.
-     */
-    blackberry.app.event.onForeground(function() {
-        PhoneGap.onResume.fire();
-        
-        // notify PhoneGap JavaScript Extension
-        phonegap.PluginManager.resume();
-    });
-
-    /**
-     * When BlackBerry WebWorks application is sent to background, 
-     * fire onPause event.
-     */
-    blackberry.app.event.onBackground(function() {
-       PhoneGap.onPause.fire();
-       
-       // notify PhoneGap JavaScript Extension
-       phonegap.PluginManager.pause();
-    });
-
-    /**
-     * Trap BlackBerry WebWorks exit. Fire onPause event, and give PhoneGap
-     * extension chance to clean up before exiting.
-     */
-    blackberry.app.event.onExit(function() {
-        // Call onunload if it is defined since BlackBerry does not invoke
-        // on application exit.
-        if (typeof window.onunload === "function") {
-            window.onunload();
-        }
-
-        // allow PhoneGap JavaScript Extension opportunity to cleanup
-        phonegap.PluginManager.destroy();
-        
-        // exit the app
-        blackberry.app.exit();
-    });
     
     //--------
     // Plugins

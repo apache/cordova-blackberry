@@ -113,10 +113,17 @@ public final class PhoneGapExtension implements WidgetExtension {
         Notification.registerProfile();
     }
 
-	// Called to clean up any features when the extension is unloaded
-	//
+	/**
+	 * Called to clean up any features when the extension is unloaded.  This is
+	 * invoked by the WebWorks Framework when another URL is loaded.
+	 *
+	 * @see net.rim.device.api.web.WidgetExtension#unloadFeatures(org.w3c.dom.Document)
+	 */
 	public void unloadFeatures(Document doc) {
-		// TODO Auto-generated method stub
+	    // Cleanup plugin resources.
+	    if (pluginManager != null) {
+	        pluginManager.destroy();
+	    }
 	}
 
     public static void invokeScript(final String js) {
@@ -125,7 +132,15 @@ public final class PhoneGapExtension implements WidgetExtension {
         // is finished.
         (new Thread() {
             public void run() {
-                script.executeScript(js, null);
+                try {
+                    script.executeScript(js, null);
+                } catch (Exception e) {
+                    // This is likely an IllegalStateException which is thrown
+                    // because the framework is in the process of being shutdown
+                    // so communication to JavaScript side is not allowed.
+                    Logger.log("Caught exception while executing script: "
+                            + e.getMessage());
+                }
             }
         }).start();
     }

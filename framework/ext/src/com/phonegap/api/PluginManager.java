@@ -85,22 +85,9 @@ public final class PluginManager extends Scriptable {
             return this.pluginManagerFunction;
         }
         else if (name.equals(FIELD_DESTROY)) {
-            final PluginManagerFunction plugin_mgr = this.pluginManagerFunction;
             return new ScriptableFunction() {
                 public Object invoke(Object obj, Object[] oargs) throws Exception {
-                    // allow plugins to clean up
-                    plugin_mgr.onDestroy();
-                    
-                    // delete temporary application directory
-                    // NOTE: doing this on a background thread doesn't work
-                    // because the app is closing and the thread is killed before it completes
-                    try { 
-                        FileUtils.deleteApplicationTempDirectory(); 
-                    } 
-                    catch (IOException e) {
-                        Logger.log(this.getClass().getName() + ": error deleting application temp directory: " +e);
-                    }
-                    
+                    destroy();
                     return null;
                 }
             };
@@ -138,7 +125,27 @@ public final class PluginManager extends Scriptable {
     public void addService(String serviceName, String className) {
         this.services.put(serviceName, className);
     }
-    
+
+    /**
+     * Cleanup the plugin resources and delete temporary directory that may have
+     * been created.
+     */
+    public void destroy() {
+        // allow plugins to clean up
+        pluginManagerFunction.onDestroy();
+
+        // delete temporary application directory
+        // NOTE: doing this on a background thread doesn't work because the app
+        // is closing and the thread is killed before it completes.
+        try {
+            FileUtils.deleteApplicationTempDirectory();
+        } catch (Exception e) {
+            Logger.log(this.getClass().getName()
+                    + ": error deleting application temp directory: "
+                    + e.getMessage());
+        }
+    }
+
     /**
      * Get the class that implements a service.
      * 
@@ -147,5 +154,5 @@ public final class PluginManager extends Scriptable {
      */
     public String getClassForService(String serviceName) {
         return (String)this.services.get(serviceName);
-    }    
+    }
 }
