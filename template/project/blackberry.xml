@@ -225,7 +225,7 @@
             <!-- Locate BBWP simulator directory. There may be multiple, so choose the first. -->
             <path id="bbwp.sim.path">
                 <first>
-                    <fileset dir="${properties.bbwp.dir}/simpack">
+                    <fileset dir="${properties.blackberry.bbwp.dir}/simpack">
                         <include name="**/handhelds.manifest.txt" />
                     </fileset>
                 </first>
