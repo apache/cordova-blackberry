@@ -1,7 +1,7 @@
 PhoneGap BlackBerry WebWorks
 ============================
 
-[PhoneGap framework](http://www.phonegap.com/) for __BlackBerry OS 5.0 and 6.0__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/browserdev/widgetsdk.jsp).
+[PhoneGap framework](http://www.phonegap.com/) for __BlackBerry Tablet OS__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
 
 Directory Structure
 -------------------
@@ -14,9 +14,9 @@ Directory Structure
 Introduction
 ------------
 
-BlackBerry WebWorks is a framework for developing hybrid applications for BlackBerry devices that support __Blackberry OS 5.0 and higher__.  BlackBerry WebWorks is not supported on BlackBerry OS 4.x.  
+BlackBerry WebWorks is a framework for developing web-based applications for BlackBerry SmartPhones (BlackBerry OS 5.0 and higher) and the TabletOS.  Creating a web application is one of the easiest ways to have an application that runs on both platforms.    
 
-The WebWorks framework allows developers to create applications using web content and resources (HTML/CSS/JavaScript) that are able to access device features through the [Blackberry WebWorks API](http://www.blackberry.com/developers/docs/widgetapi/).  In addition, the framework allows developers to create their own WebWorks JavaScript Extensions to expose additional device capabilities through JavaScript APIs.  These extensions are written using the native BlackBerry Java API.
+The WebWorks framework allows developers to create applications using web content and resources (HTML/CSS/JavaScript) that are able to access device features through the [Blackberry WebWorks API](http://www.blackberry.com/developers/docs/widgetapi/).  In addition, the framework allows developers to create their own WebWorks JavaScript Extensions to expose additional device capabilities through JavaScript APIs.  These extensions are written using either the BlackBerry Java API for SmartPhones, or Adobe AIR for the Tablet OS.
 
 The phonegap-blackberry-webworks platform allows web developers to develop applications targeting BlackBerry 5.0 and higher devices using the common [PhoneGap API](http://docs.phonegap.com).  When possible, PhoneGap makes use of the WebWorks JavaScript API; however, most PhoneGap features are implemented in the native Java environment as a WebWorks JavaScript Extension.
 

@@ -3,8 +3,9 @@
  * PhoneGap is available under *either* the terms of the modified BSD license *or* the
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  * 
- * Copyright (c) 2005-2010, Nitobi Software Inc.
+ * Copyright (c) 2005-2011, Nitobi Software Inc.
  * Copyright (c) 2010-2011, IBM Corporation
+ * Copyright (c) 2011, Research In Motion Limited.
  */
 
 /**
@@ -416,7 +417,7 @@ var PhoneGap = PhoneGap || (function() {
             try {
                 func();
             } catch(e) {
-                if (typeof(debug['log']) == 'function') {
+                if (typeof(debug) != 'undefined' && typeof(debug['log']) == 'function') {
                     debug.log("Failed to run constructor: " + debug.processMessage(e));
                 } else {
                     alert("Failed to run constructor: " + e.message);
@@ -534,17 +535,7 @@ var PhoneGap = PhoneGap || (function() {
      */
     PhoneGap.exec = function(success, fail, service, action, args) {
         try {
-            var callbackId = service + PhoneGap.callbackId++;
-            if (success || fail) {
-                PhoneGap.callbacks[callbackId] = {success:success, fail:fail};
-            }
-            
-            // Note: Device returns string, but for some reason emulator returns object - so convert to string.
-            var r = ""+phonegap.PluginManager.exec(service, action, callbackId, JSON.stringify(args), true);
-            
-            // If a result was returned
-            if (r.length > 0) {
-                eval("var v="+r+";");
+            var v = phonegap.PluginManager.exec(success, fail, service, action, args);
             
                 // If status is OK, then return value back to caller
                 if (v.status == PhoneGap.callbackStatus.OK) {
@@ -558,24 +549,13 @@ var PhoneGap = PhoneGap || (function() {
                             console.log("Error in success callback: "+callbackId+" = "+e);
                         }
 
-                        // Clear callback if not expecting any more results
-                        if (!v.keepCallback) {
-                            delete PhoneGap.callbacks[callbackId];
                         }
-                    }
                     return v.message;
-                }
-                // If no result
-                else if (v.status == PhoneGap.callbackStatus.NO_RESULT) {
+            }else if (v.status == PhoneGap.callbackStatus.NO_RESULT){
                         
-                    // Clear callback if not expecting any more results
-                    if (!v.keepCallback) {
-                        delete PhoneGap.callbacks[callbackId];
-                    }
-                }
+            }else {
                 // If error, then display error
-                else {
-                    console.log("Error: Status="+r.status+" Message="+v.message);
+                console.log("Error: Status="+v.status+" Message="+v.message);
 
                     // If there is a fail callback, then call it now with returned value
                     if (fail) {
@@ -585,15 +565,9 @@ var PhoneGap = PhoneGap || (function() {
                         catch (e) {
                             console.log("Error in error callback: "+callbackId+" = "+e);
                         }
-
-                        // Clear callback if not expecting any more results
-                        if (!v.keepCallback) {
-                            delete PhoneGap.callbacks[callbackId];
-                        }
                     }
                     return null;
                 }
-            }
         } catch (e) {
             console.log("Error: "+e);
         }
