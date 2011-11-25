@@ -211,6 +211,8 @@
     /**
      * Trap BlackBerry WebWorks exit. Allow plugins to clean up before exiting.
      */
-    blackberry.app.event.onExit(exitApp);
+    if (blackberry.app.event.onExit) {
+        blackberry.app.event.onExit(exitApp);
+    }
 
 }());
