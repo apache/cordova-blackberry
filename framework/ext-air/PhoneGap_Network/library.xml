@@ -17,6 +17,6 @@
 	</configurations>
 	
 	<features>
-		<feature id="com.phonegap" version="1.0.0rc1" />
+		<feature id="com.phonegap" version="1.0.0" />
 	</features>
 </library>
