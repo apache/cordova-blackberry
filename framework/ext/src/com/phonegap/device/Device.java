@@ -34,7 +34,7 @@ public final class Device extends Plugin {
 	public static final String ACTION_GET_DEVICE_INFO = "getDeviceInfo";
 		
 	public PluginResult execute(String action, JSONArray args, String callbackId) {
-		PluginResult result = new PluginResult(PluginResult.Status.INVALIDACTION, "Device: Invalid action:" + action);
+		PluginResult result = new PluginResult(PluginResult.Status.INVALID_ACTION, "Device: Invalid action:" + action);
 		
 		if(action.equals(ACTION_GET_DEVICE_INFO)){
 			try {
@@ -46,7 +46,7 @@ public final class Device extends Plugin {
 				device.put( FIELD_VERSION, new String(DeviceInfo.getSoftwareVersion()) );
 				result = new PluginResult(PluginResult.Status.OK, device);
 			} catch (JSONException e) {
-				result = new PluginResult(PluginResult.Status.JSONEXCEPTION, e.getMessage());
+				result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
 			}					
 		}
 		
