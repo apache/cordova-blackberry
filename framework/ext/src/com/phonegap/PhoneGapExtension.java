@@ -26,15 +26,20 @@ import com.phonegap.notification.Notification;
 import com.phonegap.util.Log;
 import com.phonegap.util.Logger;
 
+import java.lang.ref.WeakReference;
+
 /**
  * PhoneGapExtension is a BlackBerry WebWorks JavaScript extension.  It 
  * represents a single feature that can be used to access device capabilities. 
  */
 public final class PhoneGapExtension implements WidgetExtension {
 
-    // BrowserField object used to display the application
-    //
-    protected static BrowserField browser = null;
+    // Weak reference encapsulating BrowserField object used to display the application
+    // We use the weak reference because keeping a direct reference can
+    // cause memory leak issues in WebWorks. Original solution described
+    // and suggested by Tim Neil on the BlackBerry support forums.
+    // Thanks Tim!
+    protected static WeakReference browser = null;
     
     // Browser script engine
     //
@@ -56,12 +61,12 @@ public final class PhoneGapExtension implements WidgetExtension {
     //
     private static final String FEATURE_ID ="com.phonegap";
 
-	// Called when the BlackBerry Widget references this extension for the first time.
-	// It provides a list of feature IDs exposed by this extension.
-	//
-	public String[] getFeatureList() {
-		return new String[] {FEATURE_ID};
-	}
+    // Called when the BlackBerry Widget references this extension for the first time.
+    // It provides a list of feature IDs exposed by this extension.
+    //
+    public String[] getFeatureList() {
+      return new String[] {FEATURE_ID};
+    }
 
     // Called whenever a widget loads a resource that requires a feature ID that is supplied
     // in the getFeatureList
@@ -105,7 +110,7 @@ public final class PhoneGapExtension implements WidgetExtension {
     // Called so that the extension can get a reference to the configuration or browser field object
     //
     public void register(WidgetConfig widgetConfig, BrowserField browserField) {
-        browser = browserField;
+        browser = new WeakReference(browserField);
 
         // grab widget application name and use it to generate a unique ID
         appName = widgetConfig.getName();
@@ -115,18 +120,18 @@ public final class PhoneGapExtension implements WidgetExtension {
         Notification.registerProfile();
     }
 
-	/**
-	 * Called to clean up any features when the extension is unloaded.  This is
-	 * invoked by the WebWorks Framework when another URL is loaded.
-	 *
-	 * @see net.rim.device.api.web.WidgetExtension#unloadFeatures(org.w3c.dom.Document)
-	 */
-	public void unloadFeatures(Document doc) {
-	    // Cleanup plugin resources.
-	    if (pluginManager != null) {
-	        pluginManager.destroy();
-	    }
-	}
+    /**
+     * Called to clean up any features when the extension is unloaded.  This is
+     * invoked by the WebWorks Framework when another URL is loaded.
+     *
+     * @see net.rim.device.api.web.WidgetExtension#unloadFeatures(org.w3c.dom.Document)
+     */
+    public void unloadFeatures(Document doc) {
+        // Cleanup plugin resources.
+        if (pluginManager != null) {
+            pluginManager.destroy();
+        }
+    }
 
     public static void invokeScript(final String js) {
         // Use a new thread so that JavaScript is invoked asynchronously.
@@ -146,30 +151,35 @@ public final class PhoneGapExtension implements WidgetExtension {
             }
         }).start();
     }
-	
-	/**
-	 * Invokes the PhoneGap success callback specified by callbackId.
-	 * @param callbackId   unique callback ID
-	 * @param result       PhoneGap PluginResult containing result
-	 */
-	public static void invokeSuccessCallback(String callbackId, PluginResult result) {
-		invokeScript(result.toSuccessCallbackString(callbackId));
-	}
 
-	/**
-	 * Invokes the PhoneGap error callback specified by callbackId.
-	 * @param callbackId   unique callback ID
-	 * @param result       PhoneGap PluginResult containing result
-	 */
-	public static void invokeErrorCallback(String callbackId, PluginResult result) {
-		invokeScript(result.toErrorCallbackString(callbackId));
-	}
-	
-	/**
-	 * Provides access to the browser instance for the application.
-	 */
-	public static BrowserField getBrowserField() {
-	    return browser;
+    /**
+     * Invokes the PhoneGap success callback specified by callbackId.
+     * @param callbackId   unique callback ID
+     * @param result       PhoneGap PluginResult containing result
+     */
+    public static void invokeSuccessCallback(String callbackId, PluginResult result) {
+      invokeScript(result.toSuccessCallbackString(callbackId));
+    }
+
+    /**
+     * Invokes the PhoneGap error callback specified by callbackId.
+     * @param callbackId   unique callback ID
+     * @param result       PhoneGap PluginResult containing result
+     */
+    public static void invokeErrorCallback(String callbackId, PluginResult result) {
+      invokeScript(result.toErrorCallbackString(callbackId));
+    }
+
+    /**
+     * Provides access to the browser instance for the application.
+     */
+    public static BrowserField getBrowserField() {
+      Object o = browser.get();
+      if ( o instanceof BrowserField ) {
+        return (BrowserField)o;
+      } else {
+        return null;
+      }
     }
 
     /**
