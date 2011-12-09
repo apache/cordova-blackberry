@@ -319,7 +319,7 @@ function CaptureAudioOptions() {
     /**
      * Launch audio recorder application and start an operation to record audio
      * clip(s).
-     * param
+     *
      * @param successCallback
      *            invoked with a list of MediaFile objects containing captured
      *            audio file properties
@@ -362,7 +362,7 @@ function CaptureAudioOptions() {
      */
     Capture.prototype.cancelCaptures = function() { 
         PhoneGap.exec(null, null, 'MediaCapture', 'stopCaptures', []);
-    }
+    };
     
     /**
      * Define navigator.device.capture object.
