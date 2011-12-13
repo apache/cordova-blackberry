@@ -89,7 +89,7 @@ COMMANDS
 
   build ............. Compiles and packages the project for deployment.
                         ant build
-                                              
+
   clean ............. Remove all files from the build/ directory.
                         ant clean
 
@@ -112,6 +112,4 @@ GETTING STARTED
      &lt;ant load-device&gt;.
         </echo>
     </target>
-    
-    
 </project>

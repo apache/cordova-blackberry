@@ -8,19 +8,35 @@
     <property name="code.sign"    value="false" />
     <property name="generate.ext"   value="cod" />
     
-    
     <!-- BlackBerry WebWorks Packager directory is required. -->
-    <fail unless="properties.blackberry.bbwp.dir" message="Please specify BlackBerry WebWorks Packager directory using 'bbwp.dir' in your 'project.properties' file." />
+    <fail unless="properties.blackberry.bbwp.dir" message="Please specify BlackBerry WebWorks Packager directory using 'blackberry.bbwp.dir' in your 'project.properties' file." />
+
+    <!-- OS identification -->
+    <condition property="isMacOSX" else="false">
+        <and>
+            <os family="mac" />
+            <os family="unix" />
+        </and>
+    </condition>
+
+    <condition property="javaloader" value="${properties.blackberry.bbwp.dir}/bin/javaloader" else="${properties.blackberry.bbwp.dir}/bin/JavaLoader.exe">
+        <equals arg1="${isMacOSX}" arg2="true" />
+    </condition>
+
+    <condition property="bbwp" value="${properties.blackberry.bbwp.dir}/bbwp" else="${properties.blackberry.bbwp.dir}/bbwp.exe">
+        <equals arg1="${isMacOSX}" arg2="true" />
+    </condition>
+
 
     <!-- LOAD DEVICE -->
     
     <target name="load-device" depends="package-app">
         <bbwp code-sign="true" />
-        <exec executable="${properties.blackberry.bbwp.dir}/bin/JavaLoader.exe" dir="." failonerror="true">
+        <exec executable="${javaloader}" dir="." failonerror="true">
             <arg value="-u" />
-			<arg value="-w${properties.blackberry.sim.password}" />
-            <arg value="load" />			
-            <arg file="${build.dir}/StandardInstall/${cod.name}.cod" />			
+            <arg value="-w${properties.blackberry.sim.password}" />
+            <arg value="load" />
+            <arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
         </exec>
     </target>
     
@@ -147,9 +163,9 @@
         <sequential>
 
             <!-- Ensure bbwp executable exists. -->
-            <property name="properties.blackberry.bbwp.bin" location="${properties.blackberry.bbwp.dir}/bbwp.exe" />
+            <property name="properties.blackberry.bbwp.bin" location="${bbwp}" /> 
             <available file="${properties.blackberry.bbwp.bin}" property="properties.blackberry.bbwp.exists" />
-            <fail unless="properties.blackberry.bbwp.exists" message="Cannot find ${properties.blackberry.bbwp.bin}. Please edit 'bbwp.dir' in your 'project.properties' file." />
+            <fail unless="properties.blackberry.bbwp.exists" message="Cannot find ${properties.blackberry.bbwp.bin}. Please edit 'blackberry.bbwp.dir' in your 'project.properties' file." />
 
             <if>
                 <equals arg1="@{code-sign}" arg2="true" />
@@ -183,7 +199,7 @@
     <!-- CLEAN DEVICE -->
     
     <target name="clean-device" depends="generate-cod-name">
-        <exec executable="${properties.blackberry.bbwp.dir}/bin/JavaLoader.exe">
+        <exec executable="${javaloader}">
             <arg value="-usb" />
             <arg value="erase" />
             <arg value="-f" />
@@ -214,7 +230,7 @@
                        replace=""
                        casesensitive="false"
                        global="true"
-                       defaultValue="${config.xml.widget.name}" />        
+                       defaultValue="${config.xml.widget.name}" />
         <echo message="Generated name: ${cod.name}.cod" />
     </target>
     
@@ -297,5 +313,4 @@ GETTING STARTED
      &lt;ant load-device&gt;.
         </echo>
     </target>
-    
 </project>

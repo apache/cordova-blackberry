@@ -48,11 +48,11 @@
                 <include name="*.js" />
             </fileset>
         </concat>
-		<concat destfile="${build.dir}/${js.file}" append="true">
+        <concat destfile="${build.dir}/${js.file}" append="true">
             <fileset dir="${js.src}/blackberry" includes="*.js"/>
-        </concat>					 
-					 
-		<!-- PB Javascript -->
+        </concat>
+
+        <!-- PB Javascript -->
         <mkdir dir="${build.dir}/${playbook.js.path}" />
         <concat destfile="${build.dir}/${playbook.js.path}/${js.basename}" append="false">
             <fileset dir="${js.src}" includes="*.js" />
@@ -61,12 +61,12 @@
             <fileset dir="${js.src}/playbook" includes="*.js"/>
         </concat>
     </target>
-    
+
     <!-- BUILD BLACKBERRY EXTENSION -->
-    
+
     <target name="build-bb-extension">
         <mkdir dir="${build.dir}/${jar.path}" />
-        
+
         <zip destfile="${build.dir}/${jar.file}">
             <fileset dir="${jar.src}" includes="library.xml" />
             <fileset dir="${jar.src}" includes="**/*.java" />
@@ -75,7 +75,7 @@
     
     <!-- BUILD PLAYBOOK EXTENSION -->
     
-    <target name="build-pb-extension">               
+    <target name="build-pb-extension">
 
         <!-- Copy Ext -->
         <mkdir dir="${build.dir}/${playbook.ext.path}" />
@@ -353,5 +353,4 @@ COMMANDS
                       ant update-plugin -Dplugin.path="C:\dev\my_plugin"
         </echo>
     </target>
-
 </project>
