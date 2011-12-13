@@ -44,14 +44,13 @@
         
         <!-- BB Javascript -->
         <concat destfile="${build.dir}/${js.file}" append="false">
-            <fileset dir="${js.src}">
+            <filelist dir="${js.src}" files="_phonegap.js,webWorksPluginManager.js,console.js" />
+            <fileset dir="${js.src}/blackberry" includes="*.js"/>
+            <filelist dir="${js.src}" files="device.js,file.js" />
+            <fileset dir="${js.src}" excludes="_phonegap.js,webWorksPluginManager.js,console.js,device.js,file.js">
                 <include name="*.js" />
             </fileset>
         </concat>
-        <concat destfile="${build.dir}/${js.file}" append="true">
-            <fileset dir="${js.src}/blackberry" includes="*.js"/>
-        </concat>
-
         <!-- PB Javascript -->
         <mkdir dir="${build.dir}/${playbook.js.path}" />
         <concat destfile="${build.dir}/${playbook.js.path}/${js.basename}" append="false">
