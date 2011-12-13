@@ -93,6 +93,11 @@ window.phonegap.PluginManager = (function (webworksPluginManager) {
                     }
                 }
                 execResult = evalResult;
+            } else {
+                // Asynchronous calls return an empty string. Return a NO_RESULT
+                // status for those executions.
+                execResult = {"status" : PhoneGap.callbackStatus.NO_RESULT,
+                        "message" : ""};
             }
         } catch (e) {
             console.log("BlackBerryPluginManager Error: " + e);

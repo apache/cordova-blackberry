@@ -536,38 +536,38 @@ var PhoneGap = PhoneGap || (function() {
     PhoneGap.exec = function(success, fail, service, action, args) {
         try {
             var v = phonegap.PluginManager.exec(success, fail, service, action, args);
-            
-                // If status is OK, then return value back to caller
-                if (v.status == PhoneGap.callbackStatus.OK) {
 
-                    // If there is a success callback, then call it now with returned value
-                    if (success) {
-                        try {
-                            success(v.message);
-                        }
-                        catch (e) {
-                            console.log("Error in success callback: "+callbackId+" = "+e);
-                        }
+            // If status is OK, then return value back to caller
+            if (v.status == PhoneGap.callbackStatus.OK) {
 
-                        }
-                    return v.message;
-            }else if (v.status == PhoneGap.callbackStatus.NO_RESULT){
-                        
-            }else {
+                // If there is a success callback, then call it now with returned value
+                if (success) {
+                    try {
+                        success(v.message);
+                    }
+                    catch (e) {
+                        console.log("Error in success callback: "+callbackId+" = "+e);
+                    }
+
+                }
+                return v.message;
+            } else if (v.status == PhoneGap.callbackStatus.NO_RESULT) {
+
+            } else {
                 // If error, then display error
                 console.log("Error: Status="+v.status+" Message="+v.message);
 
-                    // If there is a fail callback, then call it now with returned value
-                    if (fail) {
-                        try {
-                            fail(v.message);
-                        }
-                        catch (e) {
-                            console.log("Error in error callback: "+callbackId+" = "+e);
-                        }
+                // If there is a fail callback, then call it now with returned value
+                if (fail) {
+                    try {
+                        fail(v.message);
                     }
-                    return null;
+                    catch (e) {
+                        console.log("Error in error callback: "+callbackId+" = "+e);
+                    }
                 }
+                return null;
+            }
         } catch (e) {
             console.log("Error: "+e);
         }
