@@ -1,7 +1,7 @@
 PhoneGap BlackBerry WebWorks
 ============================
 
-[PhoneGap framework](http://www.phonegap.com/) for __BlackBerry Tablet OS__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
+[PhoneGap framework](http://www.phonegap.com/) for __BlackBerry Tablet OS and Smartphones__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
 
 Directory Structure
 -------------------
@@ -14,7 +14,7 @@ Directory Structure
 Introduction
 ------------
 
-BlackBerry WebWorks is a framework for developing web-based applications for BlackBerry SmartPhones (BlackBerry OS 5.0 and higher) and the TabletOS.  Creating a web application is one of the easiest ways to have an application that runs on both platforms.    
+BlackBerry WebWorks is a framework for developing web-based applications for BlackBerry SmartPhones (BlackBerry OS 5.0 and higher) and the TabletOS.  Creating a web application is one of the easiest ways to have an application that runs on both platforms.
 
 The WebWorks framework allows developers to create applications using web content and resources (HTML/CSS/JavaScript) that are able to access device features through the [Blackberry WebWorks API](http://www.blackberry.com/developers/docs/widgetapi/).  In addition, the framework allows developers to create their own WebWorks JavaScript Extensions to expose additional device capabilities through JavaScript APIs.  These extensions are written using either the BlackBerry Java API for SmartPhones, or Adobe AIR for the Tablet OS.
 
@@ -47,17 +47,17 @@ As an alternative, you can download packaged releases of PhoneGap from the [Phon
 Creating a New PhoneGap Project
 -------------------------------
 
-The PhoneGap build script enables you to create multiple, independent PhoneGap projects.  
+The PhoneGap build script enables you to create multiple, independent PhoneGap projects.
 
-(Note: The PhoneGap build script requries Apache ANT 1.8 or higher.  See the [Getting Started guide](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks) for instructions on how to install and configure Apache ANT).  
+(Note: The PhoneGap build script requries Apache ANT 1.8 or higher.  See the [Getting Started guide](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks) for instructions on how to install and configure Apache ANT).
 
 The build script packages the PhoneGap source code and resources into each project you create.  This allows you to easily distribute the project to other BlackBerry WebWorks developers.  To create a PhoneGap project:
 
     $ cd phonegap-blackberry-webworks
     $ ant help
-    
+
     $ ant create -Dproject.path="C:\development\my_new_project"
-    
+
     $ cd C:\development\my_new_project
     $ ant help
 
@@ -72,18 +72,21 @@ The PhoneGap build scripts automate common tasks, such as compiling your project
 
     $ cd C:\development\my_new_project
     $ ant help
-    
+
+Every command is in the form `ant TARGET COMMAND [options]`, where
+target is either `blackberry` or `playbook`.
+
 To build your project into a deployable application (.cod/.jad) file:
 
-	$ ant build
-	
+    $ ant TARGET build
+
 To build your project and load it in a BlackBerry simulator:
 
-    $ ant load-simulator
-    
+    $ ant TARGET load-simulator
+
 To build your project and load it onto a USB-attached device:
 
-    $ ant load-device
+    $ ant TARGET load-device
 
 Updating the PhoneGap Framework
 -------------------------------
@@ -109,7 +112,7 @@ Creating a Distribution
 ### Update Version
 
     $ ant version -Dvalue="1.0.0"
-    
+
     $ git diff
     $ git commit -am "Update to version 1.0.0"
     $ git tag 1.0.0
@@ -117,7 +120,7 @@ Creating a Distribution
 ### Create distribution
 
     $ ant dist
-    
+
 Troubleshooting
 ===============
 
