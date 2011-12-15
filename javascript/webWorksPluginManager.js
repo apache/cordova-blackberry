@@ -14,69 +14,9 @@ if (!window.phonegap) { window.phonegap = {}; }
     "use strict";
     var retAsyncCall = { "status" : PhoneGap.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" },
         retInvalidAction = { "status" : PhoneGap.callbackStatus.INVALID_ACTION, "message" : "Action not found" },
-
-        cameraAPI = {
-            execute: function (action, args, win, fail) {
-                switch (action) {
-                case 'takePicture':
-                    blackberry.media.camera.takePicture(win, fail, fail);
-                    return retAsyncCall;
-                }
-                return retInvalidAction;
-            }
-        },
-
-        mediaCaptureAPI = {
-            execute: function (action, args, win, fail) {
-                var limit = args[0],
-                    pictureFiles = [],
-                    captureMethod;
-
-                function captureCB(filePath) {
-                    var mediaFile;
-
-                    if (filePath) {
-                        mediaFile = new MediaFile();
-                        mediaFile.fullPath = filePath;
-                        pictureFiles.push(mediaFile);
-                    }
-
-                    if (limit > 0) {
-                        limit--;
-                        blackberry.media.camera[captureMethod](win, fail, fail);
-                        return;
-                    }
-
-                    win(pictureFiles);
-
-                    return retAsyncCall;
-                }
-
-                switch (action) {
-                case 'getSupportedAudioModes':
-                case 'getSupportedImageModes':
-                case 'getSupportedVideoModes':
-                    return {"status": PhoneGap.callbackStatus.OK, "message": []};
-                case 'captureImage':
-                    captureMethod = "takePicture";
-                    captureCB();
-                    break;
-                case 'captureVideo':
-                    captureMethod = "takeVideo";
-                    captureCB();
-                    break;
-                case 'captureAudio':
-                    return {"status": PhoneGap.callbackStatus.INVALID_ACTION, "message": "captureAudio is not currently supported"};
-                }
-
-                return retAsyncCall;
-            }
-        },
-
-        plugins = {
-            'Camera' : cameraAPI,
-            'MediaCapture' : mediaCaptureAPI
-        };
+        // Define JavaScript plugin implementations that are common across
+        // WebWorks platforms (phone/tablet).
+        plugins = {};
 
 	phonegap.WebWorksPluginManager = function () {
 	};
