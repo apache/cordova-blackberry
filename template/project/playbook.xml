@@ -1,33 +1,46 @@
 <project default="help">
     
-        <!-- LOAD PROPERTIES -->
+    <!-- LOAD PROPERTIES -->
     
     <property prefix="properties" file="project.properties" />
     <property name="build.dir"    location="build" />
     <property name="widget.dir"   location="${build.dir}/widget" />
     <property name="code.sign"    value="false" />
     <property name="generate.ext"   value="cod" />
-	<property name="build.num.file" value="buildId.txt" />
+    <property name="build.num.file" value="buildId.txt" />
     
-    
-    <!-- BlackBerry WebWorks Packager directory is required. -->
-    <fail unless="properties.playbook.bbwp.dir" message="Please specify BlackBerry WebWorks Packager directory using 'bbwp.dir' in your 'project.properties' file." />
+    <!-- BlackBerry WebWorks Packager for Tablets directory is required. -->
+    <fail unless="properties.playbook.bbwp.dir" message="Please specify BlackBerry WebWorks Packager directory using 'playbook.bbwp.dir' in your 'project.properties' file." />
+
+    <!-- OS identification -->
+    <condition property="isMacOSX" else="false">
+        <and>
+            <os family="mac" />
+            <os family="unix" />
+        </and>
+    </condition>
+
+    <condition property="bbwp" value="${properties.playbook.bbwp.dir}/bbwp/bbwp" else="${properties.playbook.bbwp.dir}/bbwp/bbwp.exe">
+        <equals arg1="${isMacOSX}" arg2="true" />
+    </condition>
+
+    <condition property="blackberry-deploy" value="${properties.playbook.bbwp.dir}/bbwp/blackberry-tablet-sdk/bin/blackberry-deploy" else="${properties.playbook.bbwp.dir}/bbwp/blackberry-tablet-sdk/bin/blackberry-deploy.bat">
+        <equals arg1="${isMacOSX}" arg2="true" />
+    </condition>
 
     <!-- LOAD DEVICE -->
     
     <target name="load-device" depends="package-app">
         <bbwp code-sign="true" />
 
-        <exec executable="cmd" dir="." failonerror="true">
-            <arg value="/c"/>
-            <arg value="${properties.playbook.bbwp.dir}\blackberry-tablet-sdk\bin\blackberry-deploy.bat"/>
+        <exec executable="${blackberry-deploy}" dir="." failonerror="true">
             <arg value="-installApp" />
             <arg value="-launchApp" />
             <arg value="-device" />
             <arg value="${properties.playbook.device.ip}" />
             <arg value="-password" />
             <arg value="${properties.playbook.device.password}" />
-			<arg value="-package" />
+            <arg value="-package" />
             <arg file="${build.dir}/${cod.name}.bar" />
         </exec>
     </target>
@@ -36,21 +49,18 @@
     
     <target name="load-simulator" depends="build">
 
-		<echo>This tool will not open the simulator for you </echo>
-		
-		<exec executable="cmd" dir="." failonerror="true">
-            <arg value="/c"/>
-            <arg value="${properties.playbook.bbwp.dir}\blackberry-tablet-sdk\bin\blackberry-deploy.bat"/>
+        <echo>This tool will not open the simulator for you </echo>
+
+        <exec executable="${blackberry-deploy}" dir="." failonerror="true">
             <arg value="-installApp" />
             <arg value="-launchApp" />
             <arg value="-device" />
             <arg value="${properties.playbook.sim.ip}" />
             <arg value="-password" />
             <arg value="${properties.playbook.sim.password}" />
-			<arg value="-package" />
+            <arg value="-package" />
             <arg file="${build.dir}/${cod.name}.bar" />
         </exec>
-        
     </target>
     
     <!-- PACKAGE-APP -->
@@ -94,34 +104,29 @@
     <macrodef name="bbwp">
         <attribute name="code-sign" default="false" />
         <sequential>
-
-            <!-- Ensure bbwp executable exists. -->
-            <property name="properties.playbook.bbwp.bin" location="${properties.playbook.bbwp.dir}/bbwp.exe" />
-            <available file="${properties.playbook.bbwp.bin}" property="properties.playbook.bbwp.exists" />
-            <fail unless="properties.playbook.bbwp.exists" message="Cannot find ${properties.playbook.bbwp.bin}. Please edit 'bbwp.dir' in your 'project.properties' file." />
-			<buildnumber file="${build.num.file}" />
+            <buildnumber file="${build.num.file}" />
             <if>
                 <equals arg1="@{code-sign}" arg2="true" />
                 <then>
-                    <exec executable="${properties.playbook.bbwp.bin}">
+                    <exec executable="${bbwp}">
                         <arg file="${build.dir}/${cod.name}.zip" />
                         <arg value="-gcsk" />
                         <arg value="${properties.playbook.sigtool.csk.password}" />
-						<arg value="-gp12" />
+                        <arg value="-gp12" />
                         <arg value="${properties.playbook.sigtool.p12.password}" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
-						<arg value="-buildId" />
-						<arg value="${build.number}" />
+                        <arg value="-buildId" />
+                        <arg value="${build.number}" />
                     </exec>
                 </then>
                 <else>
-                    <exec executable="${properties.playbook.bbwp.bin}">
+                    <exec executable="${bbwp}">
                         <arg file="${build.dir}/${cod.name}.zip" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
-						<arg value="-buildId" />
-						<arg value="${build.number}" />
+                        <arg value="-buildId" />
+                        <arg value="${build.number}" />
                     </exec>
                 </else>
             </if>
@@ -138,15 +143,13 @@
     <!-- CLEAN DEVICE -->
     
     <target name="clean-device" depends="generate-cod-name">
-        <exec executable="cmd" dir="." failonerror="true">
-            <arg value="/c"/>
-            <arg value="${properties.playbook.bbwp.dir}\blackberry-tablet-sdk\bin\blackberry-deploy.bat"/>
+        <exec executable="${blackberry-deploy}" dir="." failonerror="true">
             <arg value="-uninstallApp" />
             <arg value="-device" />
             <arg value="${properties.playbook.device.ip}" />
             <arg value="-password" />
             <arg value="${properties.playbook.device.password}" />
-			<arg value="-package" />
+            <arg value="-package" />
             <arg file="${build.dir}/${cod.name}.bar" />
         </exec>
     </target>
@@ -154,15 +157,13 @@
     <!-- CLEAN SIMULATOR -->
     
     <target name="clean-simulator">
-		<exec executable="cmd" dir="." failonerror="true">
-            <arg value="/c"/>
-            <arg value="${properties.playbook.bbwp.dir}\blackberry-tablet-sdk\bin\blackberry-deploy.bat"/>
+        <exec executable="${blackberry-deploy}" dir="." failonerror="true">
             <arg value="-uninstallApp" />
             <arg value="-device" />
             <arg value="${properties.playbook.sim.ip}" />
             <arg value="-password" />
             <arg value="${properties.playbook.sim.password}" />
-			<arg value="-package" />
+            <arg value="-package" />
             <arg file="${build.dir}/${cod.name}.bar" />
         </exec>
     </target>
@@ -177,12 +178,12 @@
                        replace=""
                        casesensitive="false"
                        global="true"
-                       defaultValue="${config.xml.widget.name}" />        
+                       defaultValue="${config.xml.widget.name}" />
         <echo message="Generated name: ${cod.name}.bar" />
     </target>
-	
-	    <!-- HELP -->
-    
+
+    <!-- HELP -->
+
     <target name="help">
         <echo>
 NAME
@@ -211,7 +212,7 @@ COMMANDS
 
   build ............. Compiles and packages the project for deployment.
                         ant build
-                                              
+
   clean ............. Remove all files from the build/ directory.
                         ant clean
 
@@ -224,15 +225,14 @@ COMMANDS
 GETTING STARTED
   1. Edit project.properties
 
-  2. &lt;ant load-simulator&gt; to run the project on the simulator
+  2. &lt;ant &lt;TARGET&gt; load-simulator&gt; to run the project on the simulator
 
   3. Customize your project by editing www/config.xml
 
   4. To run the project on a BlackBerry device, you will need to obtain
      code signing keys from RIM. Once you have the key, a project is
      installed by connecting a BlackBerry via USB and running
-     &lt;ant load-device&gt;.
+     &lt;ant &lt;TARGET&gt; load-device&gt;.
         </echo>
     </target>
-    
 </project>

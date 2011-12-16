@@ -1,6 +1,6 @@
 <project default="help">
     
-        <!-- LOAD PROPERTIES -->
+    <!-- LOAD PROPERTIES -->
     
     <property prefix="properties" file="project.properties" />
     <property name="build.dir"    location="build" />
