@@ -17,7 +17,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
         retInvalidAction = { "status" : PhoneGap.callbackStatus.INVALID_ACTION, "message" : "Action not found" },
         retAsyncCall = { "status" : PhoneGap.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" },
         cameraAPI = {
-            execute: function (action, args, win, fail) {
+            execute: function (webWorksResult, action, args, win, fail) {
                 switch (action) {
                 case 'takePicture':
                     blackberry.media.camera.takePicture(win, fail, fail);
@@ -30,11 +30,14 @@ phonegap.PluginManager = (function (webworksPluginManager) {
             execute: function (webWorksResult, action, args, win, fail) {
                 if (action === 'getDeviceInfo') {
                     return {"status" : PhoneGap.callbackStatus.OK,
-                            "message" : {"version" : blackberry.system.softwareVersion,
-                            "name" : blackberry.system.model,
-                            "uuid" : blackberry.identity.PIN,
-                            "platform" : "PlayBook",
-                            "phonegap" : "1.3.0"}};
+                            "message" : {
+                                "version" : blackberry.system.softwareVersion,
+                                "name" : blackberry.system.model,
+                                "uuid" : blackberry.identity.PIN,
+                                "platform" : "PlayBook",
+                                "phonegap" : "1.3.0"
+                            }
+                    };
                 }
                 return retInvalidAction;
             }
@@ -51,7 +54,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
             }
         },
         mediaAPI = {
-            execute: function (action, args, win, fail) {
+            execute: function (webWorksResult, action, args, win, fail) {
                 if (!args.length) {
                     return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
                 }
@@ -153,7 +156,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
             }
         },
         mediaCaptureAPI = {
-            execute: function (action, args, win, fail) {
+            execute: function (webWorksResult, action, args, win, fail) {
                 var limit = args[0],
                     pictureFiles = [],
                     captureMethod;
