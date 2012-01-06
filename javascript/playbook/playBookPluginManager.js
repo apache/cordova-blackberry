@@ -142,7 +142,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                 case 'release':
                     if (audio) {
                         audioObjects[id] = undefined;
-						audio.src = undefined;
+                        audio.src = undefined;
                         //delete audio;
                     }
 
@@ -237,16 +237,16 @@ phonegap.PluginManager = (function (webworksPluginManager) {
 
         notificationAPI = {
             execute: function (webWorksResult, action, args, win, fail) {
-				if (args.length !== 3) {
-					return {"status" : 9, "message" : "Notification action - " + action + " arguments not found"};
+                if (args.length !== 3) {
+                  return {"status" : 9, "message" : "Notification action - " + action + " arguments not found"};
 
-				}
-				
-				//Unpack and map the args
+                }
+                
+                //Unpack and map the args
                 var msg = args[0],
                     title = args[1],
-					btnLabel = args[2],
-					btnLabels;
+                    btnLabel = args[2],
+                    btnLabels;
 
                 switch (action) {
                 case 'alert':
@@ -282,8 +282,8 @@ phonegap.PluginManager = (function (webworksPluginManager) {
         //We got a sync result or a not found from WW that we can pass on to get a native mixin
         //For async calls there's nothing to do
         if ((wwResult.status === PhoneGap.callbackStatus.OK || 
-		        wwResult.status === PhoneGap.callbackStatus.CLASS_NOT_FOUND_EXCEPTION) &&
-			    plugins[clazz]) {
+          wwResult.status === PhoneGap.callbackStatus.CLASS_NOT_FOUND_EXCEPTION) &&
+          plugins[clazz]) {
             return plugins[clazz].execute(wwResult.message, action, args, win, fail);
         }
 

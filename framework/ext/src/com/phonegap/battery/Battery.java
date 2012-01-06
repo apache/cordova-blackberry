@@ -197,3 +197,4 @@ public class Battery extends Plugin {
     }
 
 }
+

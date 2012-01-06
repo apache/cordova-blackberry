@@ -18,8 +18,8 @@ if (!window.phonegap) { window.phonegap = {}; }
         // WebWorks platforms (phone/tablet).
         plugins = {};
 
-	phonegap.WebWorksPluginManager = function () {
-	};
+    phonegap.WebWorksPluginManager = function () {
+    };
 
     phonegap.WebWorksPluginManager.prototype.exec = function (win, fail, clazz, action, args) {
         if (plugins[clazz]) {

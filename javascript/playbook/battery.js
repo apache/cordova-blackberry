@@ -17,7 +17,6 @@
     if (typeof navigator.battery !== "undefined") {
         return;
     }
-
     /**
      * This class contains information about the current battery status.
      * @constructor
@@ -28,6 +27,9 @@
         this._batteryListener = [];
         this._lowListener = [];
         this._criticalListener = [];
+        // Register one listener to each of level and state change events using WebWorks API.
+        blackberry.system.event.deviceBatteryStateChange(this._stateChange);
+        blackberry.system.event.deviceBatteryLevelChange(this._levelChange);
     };
 
     /**
@@ -40,13 +42,6 @@
     Battery.prototype.eventHandler = function(eventType, handler, add) {
         var me = navigator.battery;
         if (add) {
-            // If there are no current registered event listeners start the
-            // battery listener on native side.
-            if (me._batteryListener.length === 0 && me._lowListener.length === 0
-                    && me._criticalListener.length === 0) {
-                PhoneGap.exec(me._status, me._error, "Battery", "start", []);
-            }
-
             // Register the event listener in the proper array
             if (eventType === "batterystatus") {
                 var pos = me._batteryListener.indexOf(handler);
@@ -82,51 +77,83 @@
                     me._criticalListener.splice(pos, 1);
                 }
             }
-
-            // If there are no more registered event listeners stop the battery
-            // listener on native side.
-            if (me._batteryListener.length === 0 && me._lowListener.length === 0
-                    && me._criticalListener.length === 0) {
-                PhoneGap.exec(null, null, "Battery", "stop", []);
-            }
         }
     };
 
     /**
-     * Callback for battery status
+     * Callback for battery state change using WebWorks API
      *
-     * @param {Object} info         keys: level, isPlugged
+     * @param {Object} state
      */
-    Battery.prototype._status = function(info) {
-        if (info) {
-            var me = this;
-            if (me._level != info.level || me._isPlugged != info.isPlugged) {
-                // Fire batterystatus event
-                PhoneGap.fireWindowEvent("batterystatus", info);
+    Battery.prototype._stateChange = function(state) {
+        var me = navigator.battery;
+        if (state === 2 || state === 3) { // state is either CHARGING or UNPLUGGED
+          var info = {
+            "level":me._level,
+            "isPlugged":me._isPlugged
+          };
 
-                // Fire low battery event
-                if (info.level == 20 || info.level == 5) {
-                    if (info.level == 20) {
-                        PhoneGap.fireWindowEvent("batterylow", info);
-                    }
-                    else {
-                        PhoneGap.fireWindowEvent("batterycritical", info);
-                    }
-                }
-            }
-            me._level = info.level;
-            me._isPlugged = info.isPlugged;
+          if (state === 2 && (me._isPlugged === false || me._isPlugged === null)) {
+            me._isPlugged = info.isPlugged = true;
+            me._fire('status', info);
+          } else if (state === 3 && (me._isPlugged === true || me._isPlugged === null)) {
+            me._isPlugged = info.isPlugged = false;
+
+            me._fire('status', info);
+          }
         }
     };
 
     /**
-     * Error callback for battery start
+     * Callback for battery level change using WebWorks API
+     *
+     * @param {Object} level
      */
-    Battery.prototype._error = function(e) {
-        console.log("Error initializing Battery: " + e);
+    Battery.prototype._levelChange = function(level) {
+        var me = navigator.battery;
+
+        if (level != me._level) {
+          me._level = level;
+          var info = {
+            "level":me._level,
+            "isPlugged":me._isPlugged
+          };
+
+          // Fire off the basic battery status change event listeners.
+          me._fire('status', info);
+
+          // Fire low battery events if applicable
+          if (level == 20 || level == 5) {
+              if (level == 20) {
+                me._fire('low', info);
+              } else {
+                me._fire('critical', info);
+              }
+          }
+        }
+    };
+
+    /**
+     * Helper function to fire all listeners of a type.
+     *
+     * @param {Object} type
+     * @param {Object} data
+     */
+    Battery.prototype._fire = function(type, data) {
+      var targetAr = '_batteryListener';
+
+      if (type == 'critical') {
+        targetAr = '_criticalListener';
+      } else if (type == 'low') {
+        targetAr = '_lowListener';
+      }
+      for (var i = 0, l = this[targetAr].length; i < l; i++) {
+        this[targetAr][i](data);
+      }
     };
 
     PhoneGap.addConstructor(function() {
+
         if (typeof navigator.battery === "undefined") {
             navigator.battery = new Battery();
             PhoneGap.addWindowEventHandler("batterystatus", navigator.battery.eventHandler);
