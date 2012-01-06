@@ -101,7 +101,7 @@ var Camera = Camera || (function() {
             }
         }
 
-        var destinationType = DestinationType.DATA_URL;
+        var destinationType = DestinationType.FILE_URI;
         if (options.destinationType) {
             destinationType = options.destinationType;
         }
