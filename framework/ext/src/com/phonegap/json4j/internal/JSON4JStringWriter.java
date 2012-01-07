@@ -23,6 +23,15 @@ public class JSON4JStringWriter extends Writer {
         _mark = 0;
     }
 
+    // Resizes an array; doubles up every time.
+    public static char[] resizeArray(char[] expandMe) {
+        int newSize = expandMe.length * 2;
+        char[] newArray = new char[newSize];
+        System.arraycopy(expandMe, 0, newArray, 0, expandMe.length);
+        return newArray;
+    }
+
+
     public void close() throws IOException {
         return;
     }
@@ -32,11 +41,14 @@ public class JSON4JStringWriter extends Writer {
     }
 
     public void write(char[] cbuf, int off, int len) throws IOException {
+        if (((len - off) + _mark) >= _buffer.length) {
+            // Resize the array first.
+            _buffer = JSON4JStringWriter.resizeArray(_buffer);
+        }
         for (int x=0; x < len; x++) {
             _buffer[_mark] = cbuf[off+x];
             _mark++;
         }
-        // MSN RESIZE THIS!!!
     }
 
     public String toString() {
