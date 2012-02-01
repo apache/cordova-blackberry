@@ -35,7 +35,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                                 "name" : blackberry.system.model,
                                 "uuid" : blackberry.identity.PIN,
                                 "platform" : "PlayBook",
-                                "phonegap" : "1.4.0"
+                                "phonegap" : "1.4.1"
                             }
                     };
                 }
