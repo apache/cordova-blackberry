@@ -55,7 +55,7 @@ var ContactName = function(formatted, familyName, givenName, middle, prefix, suf
  * Generic contact field.
  * @param type contains the type of information for this field, e.g. 'home', 'mobile'
  * @param value contains the value of this field
- * @param pref indicates whether this instance is preferred 
+ * @param pref indicates whether this instance is preferred
  */
 var ContactField = function(type, value, pref) {
     this.type = type || null;
@@ -106,20 +106,20 @@ var ContactOrganization = function(pref, type, name, dept, title) {
  */
 var Contact = Contact || (function() {
     /**
-     * Contains information about a single contact.  
+     * Contains information about a single contact.
      * @param {DOMString} id unique identifier
      * @param {DOMString} displayName
-     * @param {ContactName} name 
+     * @param {ContactName} name
      * @param {DOMString} nickname
      * @param {ContactField[]} phoneNumbers array of phone numbers
      * @param {ContactField[]} emails array of email addresses
      * @param {ContactAddress[]} addresses array of addresses
      * @param {ContactField[]} ims instant messaging user ids
-     * @param {ContactOrganization[]} organizations 
+     * @param {ContactOrganization[]} organizations
      * @param {Date} birthday contact's birthday
      * @param {DOMString} note user notes about contact
      * @param {ContactField[]} photos
-     * @param {DOMString[]} categories 
+     * @param {DOMString[]} categories
      * @param {ContactField[]} urls contact's web sites
      */
     function Contact(id, displayName, name, nickname, phoneNumbers, emails, addresses,
@@ -139,7 +139,7 @@ var Contact = Contact || (function() {
         this.categories = categories || null; // DOMString[]
         this.urls = urls || null; // ContactField[]
     };
-    
+
     /**
      * Persists contact to device storage.
      */
@@ -168,7 +168,7 @@ var Contact = Contact || (function() {
 
     /**
      * Removes contact from device storage.
-     * 
+     *
      * @param success success callback
      * @param fail error callback
      */
@@ -189,13 +189,13 @@ var Contact = Contact || (function() {
                 }
             }
             // attempting to remove a contact that hasn't been saved
-            else if (fail) { 
+            else if (fail) {
                 fail(new ContactError(ContactError.UNKNOWN_ERROR));
             }
-        } 
+        }
         catch (e) {
             console.log('Error removing contact ' + this.id + ": " + e);
-            if (fail) { 
+            if (fail) {
                 fail(new ContactError(ContactError.UNKNOWN_ERROR));
             }
         }
@@ -203,24 +203,24 @@ var Contact = Contact || (function() {
 
     /**
      * Creates a deep copy of this Contact.
-     * 
+     *
      * @return copy of this Contact
      */
     Contact.prototype.clone = function() {
-        var clonedContact = PhoneGap.clone(this);
+        var clonedContact = Cordova.clone(this);
         clonedContact.id = null;
         return clonedContact;
     };
-    
+
     //------------------
     // Utility functions
     //------------------
-    
+
     /**
      * Retrieves a BlackBerry contact from the device by unique id.
-     * 
+     *
      * @param uid Unique id of the contact on the device
-     * @return {blackberry.pim.Contact} BlackBerry contact or null if contact 
+     * @return {blackberry.pim.Contact} BlackBerry contact or null if contact
      * with specified id is not found
      */
     var findByUniqueId = function(uid) {
@@ -233,9 +233,9 @@ var Contact = Contact || (function() {
     };
 
     /**
-     * Creates a BlackBerry contact object from the W3C Contact object 
+     * Creates a BlackBerry contact object from the W3C Contact object
      * and persists it to device storage.
-     * 
+     *
      * @param {Contact} contact The contact to save
      * @return a new contact object with all properties set
      */
@@ -244,17 +244,17 @@ var Contact = Contact || (function() {
         if (!contact) {
             return;
         }
-        
+
         var bbContact = null;
         var update = false;
 
         // if the underlying BlackBerry contact already exists, retrieve it for update
         if (contact.id) {
-            // we must attempt to retrieve the BlackBerry contact from the device 
+            // we must attempt to retrieve the BlackBerry contact from the device
             // because this may be an update operation
             bbContact = findByUniqueId(contact.id);
         }
-        
+
         // contact not found on device, create a new one
         if (!bbContact) {
             bbContact = new blackberry.pim.Contact();
@@ -263,20 +263,20 @@ var Contact = Contact || (function() {
         else {
             update = true;
         }
-        
+
         // NOTE: The user may be working with a partial Contact object, because only
-        // user-specified Contact fields are returned from a find operation (blame 
-        // the W3C spec).  If this is an update to an existing Contact, we don't 
-        // want to clear an attribute from the contact database simply because the 
+        // user-specified Contact fields are returned from a find operation (blame
+        // the W3C spec).  If this is an update to an existing Contact, we don't
+        // want to clear an attribute from the contact database simply because the
         // Contact object that the user passed in contains a null value for that
-        // attribute.  So we only copy the non-null Contact attributes to the 
+        // attribute.  So we only copy the non-null Contact attributes to the
         // BlackBerry contact object before saving.
         //
-        // This means that a user must explicitly set a Contact attribute to a 
+        // This means that a user must explicitly set a Contact attribute to a
         // non-null value in order to update it in the contact database.
         //
         // name
-        if (contact.name !== null) {   
+        if (contact.name !== null) {
             if (contact.name.givenName) {
                 bbContact.firstName = contact.name.givenName;
             }
@@ -287,12 +287,12 @@ var Contact = Contact || (function() {
                 bbContact.title = contact.name.honorificPrefix;
             }
         }
-        
+
         // display name
         if (contact.displayName !== null) {
             bbContact.user1 = contact.displayName;
         }
-        
+
         // note
         if (contact.note !== null) {
             bbContact.note = contact.note;
@@ -300,10 +300,10 @@ var Contact = Contact || (function() {
 
         // birthday
         //
-        // user may pass in Date object or a string representation of a date 
+        // user may pass in Date object or a string representation of a date
         // if it is a string, we don't know the date format, so try to create a
         // new Date with what we're given
-        // 
+        //
         // NOTE: BlackBerry's Date.parse() does not work well, so use new Date()
         //
         if (contact.birthday !== null) {
@@ -317,20 +317,20 @@ var Contact = Contact || (function() {
 
         // BlackBerry supports three email addresses
         if (contact.emails && contact.emails instanceof Array) {
-            
+
             // if this is an update, re-initialize email addresses
             if (update) {
                 bbContact.email1 = "";
                 bbContact.email2 = "";
                 bbContact.email3 = "";
             }
-            
+
             // copy the first three email addresses found
             var email = null;
             for (var i=0; i<contact.emails.length; i+=1) {
                 email = contact.emails[i];
-                if (!email || !email.value) { 
-                    continue; 
+                if (!email || !email.value) {
+                    continue;
                 }
                 if (bbContact.email1 === "") {
                     bbContact.email1 = email.value;
@@ -358,29 +358,29 @@ var Contact = Contact || (function() {
                 bbContact.faxPhone = "";
                 bbContact.pagerPhone = "";
                 bbContact.otherPhone = "";
-            }        
-            
+            }
+
             var type = null;
             var number = null;
             for (var i=0; i<contact.phoneNumbers.length; i+=1) {
-                if (!contact.phoneNumbers[i] || !contact.phoneNumbers[i].value) { 
-                    continue; 
+                if (!contact.phoneNumbers[i] || !contact.phoneNumbers[i].value) {
+                    continue;
                 }
                 type = contact.phoneNumbers[i].type;
                 number = contact.phoneNumbers[i].value;
                 if (type === 'home') {
-                    if (bbContact.homePhone === "") { 
-                        bbContact.homePhone = number; 
+                    if (bbContact.homePhone === "") {
+                        bbContact.homePhone = number;
                     }
-                    else if (bbContact.homePhone2 === "") { 
-                        bbContact.homePhone2 = number; 
+                    else if (bbContact.homePhone2 === "") {
+                        bbContact.homePhone2 = number;
                     }
                 } else if (type === 'work') {
-                    if (bbContact.workPhone === "") { 
-                        bbContact.workPhone = number; 
+                    if (bbContact.workPhone === "") {
+                        bbContact.workPhone = number;
                     }
-                    else if (bbContact.workPhone2 === "") { 
-                        bbContact.workPhone2 = number; 
+                    else if (bbContact.workPhone2 === "") {
+                        bbContact.workPhone2 = number;
                     }
                 } else if (type === 'mobile' && bbContact.mobilePhone === "") {
                     bbContact.mobilePhone = number;
@@ -393,26 +393,26 @@ var Contact = Contact || (function() {
                 }
             }
         }
-        
+
         // BlackBerry supports two addresses: home and work
         // copy the first two addresses found from Contact
         if (contact.addresses && contact.addresses instanceof Array) {
-            
+
             // if this is an update, re-initialize addresses
             if (update) {
                 bbContact.homeAddress = null;
                 bbContact.workAddress = null;
             }
-            
+
             var address = null;
             var bbHomeAddress = null;
             var bbWorkAddress = null;
             for (var i=0; i<contact.addresses.length; i+=1) {
                 address = contact.addresses[i];
                 if (!address || address instanceof ContactAddress === false) {
-                    continue; 
+                    continue;
                 }
-                
+
                 if (bbHomeAddress === null &&
                         (!address.type || address.type === "home")) {
                     bbHomeAddress = createBlackBerryAddress(address);
@@ -428,17 +428,17 @@ var Contact = Contact || (function() {
 
         // copy first url found to BlackBerry 'webpage' field
         if (contact.urls && contact.urls instanceof Array) {
-            
+
             // if this is an update, re-initialize web page
             if (update) {
                 bbContact.webpage = "";
             }
-            
+
             var url = null;
             for (var i=0; i<contact.urls.length; i+=1) {
                 url = contact.urls[i];
-                if (!url || !url.value) { 
-                    continue; 
+                if (!url || !url.value) {
+                    continue;
                 }
                 if (bbContact.webpage === "") {
                     bbContact.webpage = url.value;
@@ -446,21 +446,21 @@ var Contact = Contact || (function() {
                 }
             }
         }
-       
-        // copy fields from first organization to the 
+
+        // copy fields from first organization to the
         // BlackBerry 'company' and 'jobTitle' fields
         if (contact.organizations && contact.organizations instanceof Array) {
-            
+
             // if this is an update, re-initialize org attributes
             if (update) {
                 bbContact.company = "";
             }
-            
+
             var org = null;
             for (var i=0; i<contact.organizations.length; i+=1) {
                 org = contact.organizations[i];
-                if (!org) { 
-                    continue; 
+                if (!org) {
+                    continue;
                 }
                 if (bbContact.company === "") {
                     bbContact.company = org.name || "";
@@ -471,7 +471,7 @@ var Contact = Contact || (function() {
         }
 
         // categories
-        if (contact.categories && contact.categories instanceof Array) {   
+        if (contact.categories && contact.categories instanceof Array) {
             bbContact.categories = [];
             var category = null;
             for (var i=0; i<contact.categories.length; i+=1) {
@@ -480,8 +480,8 @@ var Contact = Contact || (function() {
                     bbContact.categories.push(category);
                 }
             }
-        }    
-        
+        }
+
         // save to device
         bbContact.save();
 
@@ -491,10 +491,10 @@ var Contact = Contact || (function() {
             var photo = null;
             for (var i=0; i<contact.photos.length; i+=1) {
                 photo = contact.photos[i];
-                if (!photo || !photo.value) { 
-                    continue; 
+                if (!photo || !photo.value) {
+                    continue;
                 }
-                PhoneGap.exec(
+                Cordova.exec(
                         // success
                         function() {
                         },
@@ -507,33 +507,33 @@ var Contact = Contact || (function() {
                 break;
             }
         }
-        
+
         // Use the fully populated BlackBerry contact object to create a
         // corresponding W3C contact object.
         return navigator.contacts._createContact(bbContact, ["*"]);
     };
-    
+
     /**
      * Creates a BlackBerry Address object from a W3C ContactAddress.
-     * 
+     *
      * @return {blackberry.pim.Address} a BlackBerry address object
      */
     var createBlackBerryAddress = function(address) {
         var bbAddress = new blackberry.pim.Address();
-        
+
         if (!address) {
             return bbAddress;
         }
-        
+
         bbAddress.address1 = address.streetAddress || "";
         bbAddress.city = address.locality || "";
         bbAddress.stateProvince = address.region || "";
         bbAddress.zipPostal = address.postalCode || "";
         bbAddress.country = address.country || "";
-        
+
         return bbAddress;
     };
-    
+
     return Contact;
 }());
 
@@ -549,7 +549,7 @@ var ContactFindOptions = function(filter, multiple) {
 
 /**
  * navigator.contacts
- * 
+ *
  * Provides access to the device contacts database.
  */
 (function() {
@@ -559,13 +559,13 @@ var ContactFindOptions = function(filter, multiple) {
     if (typeof navigator.contacts !== 'undefined') {
         return;
     }
-    
+
     /**
      * @constructor
      */
     var Contacts = function() {
     };
-    
+
     /**
      * This function creates a new contact, but it does not persist the contact
      * to device storage.  To persist the contact to device storage, invoke
@@ -580,7 +580,7 @@ var ContactFindOptions = function(filter, multiple) {
         }
         return contact;
     };
-    
+
     /**
      * Returns an array of Contacts matching the search criteria.
      * @return array of Contacts matching search criteria
@@ -599,7 +599,7 @@ var ContactFindOptions = function(filter, multiple) {
             }
             return;
         } else if (fields.length == 1 && fields[0] === "*") {
-            // PhoneGap enhancement to allow fields value of ["*"] to indicate
+            // Cordova enhancement to allow fields value of ["*"] to indicate
             // all supported fields.
             fields = allFields;
         }
@@ -617,25 +617,25 @@ var ContactFindOptions = function(filter, multiple) {
             }
             filter = options.filter;
         }
-        
-        // build the filter expression to use in find operation 
-        var filterExpression = buildFilterExpression(fields, filter); 
+
+        // build the filter expression to use in find operation
+        var filterExpression = buildFilterExpression(fields, filter);
 
         // find matching contacts
         // Note: the filter expression can be null here, in which case, the find won't filter
         var bbContacts = blackberry.pim.Contact.find(filterExpression, null, numContacts);
-        
+
         // convert to Contact from blackberry.pim.Contact
         var contacts = [];
         for (var i in bbContacts) {
-            if (bbContacts[i]) { 
+            if (bbContacts[i]) {
                 // W3C Contacts API specification states that only the fields
-                // in the search filter should be returned, so we create 
+                // in the search filter should be returned, so we create
                 // a new Contact object, copying only the fields specified
                 contacts.push(this._createContact(bbContacts[i], fields));
             }
         }
-        
+
         // return results
         if (success && success instanceof Function) {
             success(contacts);
@@ -643,36 +643,36 @@ var ContactFindOptions = function(filter, multiple) {
             console.log("Error invoking Contacts.find success callback.");
         }
     };
-    
+
     //---------------
     // Find utilities
     //---------------
-    
+
     /**
-     * Mappings for each Contact field that may be used in a find operation. 
-     * Maps W3C Contact fields to one or more fields in a BlackBerry 
+     * Mappings for each Contact field that may be used in a find operation.
+     * Maps W3C Contact fields to one or more fields in a BlackBerry
      * contact object.
      *
      * Example: user searches with a filter on the Contact 'name' field:
      *
      * <code>Contacts.find(['name'], onSuccess, onFail, {filter:'Bob'});</code>
-     * 
+     *
      * The 'name' field does not exist in a BlackBerry contact.  Instead, a
      * filter expression will be built to search the BlackBerry contacts using
-     * the BlackBerry 'title', 'firstName' and 'lastName' fields.   
+     * the BlackBerry 'title', 'firstName' and 'lastName' fields.
      */
     var fieldMappings = {
          "id"                        : "uid",
-         "displayName"               : "user1", 
+         "displayName"               : "user1",
          "name"                      : [ "title", "firstName", "lastName" ],
          "name.formatted"            : [ "title", "firstName", "lastName" ],
          "name.givenName"            : "firstName",
          "name.familyName"           : "lastName",
          "name.honorificPrefix"      : "title",
-         "phoneNumbers"              : [ "faxPhone", "homePhone", "homePhone2", 
+         "phoneNumbers"              : [ "faxPhone", "homePhone", "homePhone2",
                                          "mobilePhone", "pagerPhone", "otherPhone",
                                          "workPhone", "workPhone2" ],
-         "phoneNumbers.value"        : [ "faxPhone", "homePhone", "homePhone2", 
+         "phoneNumbers.value"        : [ "faxPhone", "homePhone", "homePhone2",
                                          "mobilePhone", "pagerPhone", "otherPhone",
                                          "workPhone", "workPhone2" ],
          "emails"                    : [ "email1", "email2", "email3" ],
@@ -715,30 +715,30 @@ var ContactFindOptions = function(filter, multiple) {
     }
 
     /**
-     * Builds a BlackBerry filter expression for contact search using the 
-     * contact fields and search filter provided.  
-     * 
+     * Builds a BlackBerry filter expression for contact search using the
+     * contact fields and search filter provided.
+     *
      * @param {String[]} fields Array of Contact fields to search
      * @param {String} filter Filter, or search string
      * @return filter expression or null if fields is empty or filter is null or empty
      */
     var buildFilterExpression = function(fields, filter) {
-        
+
         // ensure filter exists
         if (!filter || filter === "") {
             return null;
         }
 
-        // BlackBerry API uses specific operators to build filter expressions for 
+        // BlackBerry API uses specific operators to build filter expressions for
         // querying Contact lists.  The operators are ["!=","==","<",">","<=",">="].
         // Use of regex is also an option, and the only one we can use to simulate
-        // an SQL '%LIKE%' clause.  
+        // an SQL '%LIKE%' clause.
         //
-        // Note: The BlackBerry regex implementation doesn't seem to support 
-        // conventional regex switches that would enable a case insensitive search.  
-        // It does not honor the (?i) switch (which causes Contact.find() to fail). 
-        // We need case INsensitivity to match the W3C Contacts API spec.  
-        // So the guys at RIM proposed this method: 
+        // Note: The BlackBerry regex implementation doesn't seem to support
+        // conventional regex switches that would enable a case insensitive search.
+        // It does not honor the (?i) switch (which causes Contact.find() to fail).
+        // We need case INsensitivity to match the W3C Contacts API spec.
+        // So the guys at RIM proposed this method:
         //
         // original filter = "norm"
         // case insensitive filter = "[nN][oO][rR][mM]"
@@ -747,10 +747,10 @@ var ContactFindOptions = function(filter, multiple) {
         for (var i = 0; i < filter.length; i++) {
             ciFilter = ciFilter + "[" + filter[i].toLowerCase() + filter[i].toUpperCase() + "]";
         }
-        
+
         // match anything that contains our filter string
         filter = ".*" + ciFilter + ".*";
-        
+
         // build a filter expression using all Contact fields provided
         var filterExpression = null;
         if (fields && fields instanceof Array) {
@@ -762,7 +762,7 @@ var ContactFindOptions = function(filter, multiple) {
 
                 // retrieve the BlackBerry contact fields that map to the one specified
                 var bbFields = fieldMappings[fields[i]];
-                
+
                 // BlackBerry doesn't support the field specified
                 if (!bbFields) {
                     continue;
@@ -783,10 +783,10 @@ var ContactFindOptions = function(filter, multiple) {
         }
 
         return filterExpression;
-    };    
-    
+    };
+
     /**
-     * Creates a Contact object from a BlackBerry Contact object, 
+     * Creates a Contact object from a BlackBerry Contact object,
      * copying only the fields specified.
      *
      * This is intended as a privately used function but it is made globally
@@ -795,7 +795,7 @@ var ContactFindOptions = function(filter, multiple) {
      *
      * @param {blackberry.pim.Contact} bbContact BlackBerry Contact object
      * @param {String[]} fields array of contact fields that should be copied
-     * @return {Contact} a contact object containing the specified fields 
+     * @return {Contact} a contact object containing the specified fields
      * or null if the specified contact is null
      */
     Contacts.prototype._createContact = function(bbContact, fields) {
@@ -803,20 +803,20 @@ var ContactFindOptions = function(filter, multiple) {
         if (!bbContact) {
             return null;
         }
-        
+
         // construct a new contact object
         // always copy the contact id and displayName fields
         var contact = new Contact(bbContact.uid, bbContact.user1);
-        
+
         // nothing to do
         if (!fields || !(fields instanceof Array) || fields.length == 0) {
             return contact;
         } else if (fields.length == 1 && fields[0] === "*") {
-            // PhoneGap enhancement to allow fields value of ["*"] to indicate
+            // Cordova enhancement to allow fields value of ["*"] to indicate
             // all supported fields.
             fields = allFields;
         }
-        
+
         // add the fields specified
         for (var i in fields) {
             var field = fields[i];
@@ -824,15 +824,15 @@ var ContactFindOptions = function(filter, multiple) {
             if (!field) {
                 continue;
             }
-            
+
             // name
             if (field.indexOf('name') === 0) {
-                var formattedName = bbContact.title + ' ' + 
+                var formattedName = bbContact.title + ' ' +
                     bbContact.firstName + ' ' + bbContact.lastName;
-                contact.name = new ContactName(formattedName, bbContact.lastName, 
+                contact.name = new ContactName(formattedName, bbContact.lastName,
                         bbContact.firstName, null, bbContact.title, null);
-            } 
-            // phone numbers        
+            }
+            // phone numbers
             else if (field.indexOf('phoneNumbers') === 0) {
                 var phoneNumbers = [];
                 if (bbContact.homePhone) {
@@ -867,10 +867,10 @@ var ContactFindOptions = function(filter, multiple) {
                 if (bbContact.email1) {
                     emails.push(new ContactField(null, bbContact.email1, null));
                 }
-                if (bbContact.email2) { 
+                if (bbContact.email2) {
                     emails.push(new ContactField(null, bbContact.email2, null));
                 }
-                if (bbContact.email3) { 
+                if (bbContact.email3) {
                     emails.push(new ContactField(null, bbContact.email3, null));
                 }
                 contact.emails = emails.length > 0 ? emails : null;
@@ -936,22 +936,22 @@ var ContactFindOptions = function(filter, multiple) {
         }
 
         return contact;
-    };    
-    
+    };
+
     /**
      * Create a W3C ContactAddress object from a BlackBerry Address object.
-     * 
+     *
      * @param {String} type the type of address (e.g. work, home)
      * @param {blackberry.pim.Address} bbAddress a BlakcBerry Address object
      * @return {ContactAddress} a contact address object or null if the specified
      * address is null
      */
     var createContactAddress = function(type, bbAddress) {
-        
+
         if (!bbAddress) {
             return null;
         }
-        
+
         var address1 = bbAddress.address1 || "";
         var address2 = bbAddress.address2 || "";
         var streetAddress = address1 + ", " + address2;
@@ -963,11 +963,11 @@ var ContactFindOptions = function(filter, multiple) {
 
         return new ContactAddress(null, type, formatted, streetAddress, locality, region, postalCode, country);
     };
-    
+
     /**
      * Define navigator.contacts object.
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator.contacts = new Contacts();
     });
 }());

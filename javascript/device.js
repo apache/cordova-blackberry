@@ -16,13 +16,13 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- * 
+ *
  * Copyright (c) 2011, Research In Motion Limited.
  */
 
 /**
  * navigator.device
- * 
+ *
  * Represents the mobile device, and provides properties for inspecting the
  * model, version, UUID of the phone, etc.
  */
@@ -35,19 +35,19 @@
     function Device() {
         var me = this;
 
-        PhoneGap.exec(
+        Cordova.exec(
             function (device) {
                 me.platform = device.platform;
                 me.version  = device.version;
                 me.name     = device.name;
                 me.uuid     = device.uuid;
-                me.phonegap = device.phonegap;
+                me.cordova  = device.cordova;
             },
             function (e) {
-                console.log("Error initializing PhoneGap: " + e);
-            }, 
-            "Device", 
-            "getDeviceInfo", 
+                console.log("Error initializing Cordova: " + e);
+            },
+            "Device",
+            "getDeviceInfo",
             []
         );
 
@@ -56,7 +56,7 @@
     /**
      * Define navigator.device.
      */
-    PhoneGap.addConstructor(function () {
+    Cordova.addConstructor(function () {
         var key;
 
         window.device = new Device();
@@ -66,11 +66,11 @@
             navigator.device = {};
         }
 
-        /* Add PhoneGap device properties */
+        /* Add Cordova device properties */
         for (key in window.device) {
             navigator.device[key] = window.device[key];
         }
 
-        PhoneGap.onPhoneGapInfoReady.fire();
+        Cordova.onCordovaInfoReady.fire();
     });
 }());

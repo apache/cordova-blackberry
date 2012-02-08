@@ -19,8 +19,8 @@
  */
 
 /**
- * navigator.camera 
- * 
+ * navigator.camera
+ *
  * Provides access to the device camera.
  */
 var Camera = Camera || (function() {
@@ -46,9 +46,9 @@ var Camera = Camera || (function() {
      *                sourceType: Camera.PictureSourceType.PHOTOLIBRARY})
      */
     var PictureSourceType = {       // Ignored on Blackberry
-        PHOTOLIBRARY : 0,           // Choose image from picture library 
+        PHOTOLIBRARY : 0,           // Choose image from picture library
         CAMERA : 1,                 // Take picture from camera
-        SAVEDPHOTOALBUM : 2         // Choose image from picture library 
+        SAVEDPHOTOALBUM : 2         // Choose image from picture library
     };
 
     /**
@@ -78,7 +78,7 @@ var Camera = Camera || (function() {
     Camera.prototype.DestinationType = DestinationType;
     Camera.prototype.PictureSourceType = PictureSourceType;
     Camera.prototype.EncodingType = EncodingType;
-    
+
     /**
      * Gets a picture from source defined by "options.sourceType", and returns the
      * image as defined by the "options.destinationType" option.
@@ -147,16 +147,16 @@ var Camera = Camera || (function() {
             encodingType = options.encodingType;
         }
 
-        PhoneGap.exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType]);
+        Cordova.exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType]);
     };
 
     /**
      * Define navigator.camera object.
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator.camera = new Camera();
     });
-    
+
     /**
      * Return an object that contains the static constants.
      */

@@ -16,7 +16,7 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- * 
+ *
  * Copyright (c) 2011, Research In Motion Limited
  */
 
@@ -24,31 +24,31 @@
     "use strict";
 
     function Logger() {
-        if (typeof (phonegap.Logger) !== 'undefined') {
+        if (typeof (cordova.Logger) !== 'undefined') {
             return;
         }
 
         /**
          * If Blackberry doesn't define a console object, we create our own.
-         * console.log will use phonegap.Logger to log to BB Event Log and System.out.
+         * console.log will use cordova.Logger to log to BB Event Log and System.out.
          */
         if (typeof console === "undefined") {
             console = { log :
                 function (msg) {
-                    PhoneGap.exec(null, null, 'Logger', 'log', msg);
+                    Cordova.exec(null, null, 'Logger', 'log', msg);
                 }
                 };
         }
     }
 
     Logger.prototype.log = function (msg) {
-        PhoneGap.exec(null, null, 'Logger', 'log', msg);
+        Cordova.exec(null, null, 'Logger', 'log', msg);
     };
 
     /**
-     * Define phonegap.Logger object where the BB API expects to see it
+     * Define cordova.Logger object where the BB API expects to see it
      */
-    PhoneGap.addConstructor(function () {
-        phonegap.Logger = new Logger();
+    Cordova.addConstructor(function () {
+        cordova.Logger = new Logger();
     });
 }());

@@ -1,4 +1,4 @@
-<project name="Create &amp; Update a PhoneGap BlackBerry WebWorks Project or Plugin" default="help">
+<project name="Create &amp; Update a Cordova BlackBerry WebWorks Project or Plugin" default="help">
     
     <!-- LOAD VERSION -->
     
@@ -15,7 +15,7 @@
     <property name="template.dist.dir"    location="template/dist" />
     
     <property name="build.dir"            location="build" />
-    <property name="update.dir"           value="lib/phonegap.${version}" />
+    <property name="update.dir"           value="lib/cordova.${version}" />
     
     <property name="dist.path"         location="dist" />
     <property name="dist.www.path"     location="${dist.path}/www" />
@@ -23,7 +23,7 @@
     
     <property name="jar.src"      location="framework/ext/src" />
     <property name="jar.path"     value="ext" />
-    <property name="jar.basename" value="phonegap.${version}.jar" />
+    <property name="jar.basename" value="cordova.${version}.jar" />
     <property name="jar.file"     value="${jar.path}/${jar.basename}" />
     
     <property name="playbook.js.src"    location="javascript/playbook" />
@@ -34,7 +34,7 @@
     
     <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
-    <property name="js.basename"     value="phonegap-${version}.js" />
+    <property name="js.basename"     value="cordova-${version}.js" />
     <property name="js.file"         value="${js.path}/${js.basename}" />
     
     <!-- BUILD JAVASCRIPT -->
@@ -44,10 +44,10 @@
         
         <!-- BB Javascript -->
         <concat destfile="${build.dir}/${js.file}" append="false">
-            <filelist dir="${js.src}" files="_phonegap.js,webWorksPluginManager.js,console.js" />
+            <filelist dir="${js.src}" files="_cordova.js,webWorksPluginManager.js,console.js" />
             <fileset dir="${js.src}/blackberry" includes="*.js"/>
             <filelist dir="${js.src}" files="device.js,file.js" />
-            <fileset dir="${js.src}" excludes="_phonegap.js,webWorksPluginManager.js,console.js,device.js,file.js">
+            <fileset dir="${js.src}" excludes="_cordova.js,webWorksPluginManager.js,console.js,device.js,file.js">
                 <include name="*.js" />
             </fileset>
         </concat>
@@ -96,13 +96,13 @@
             <fileset dir="${template.project.dir}" />
         </copy>
         
-        <!-- update project files to reference phonegap.x.x.x.js -->
-        <replaceregexp match="phonegap\.js" replace="${js.basename}" byline="true">
+        <!-- update project files to reference cordova.x.x.x.js -->
+        <replaceregexp match="cordova\.js" replace="${js.basename}" byline="true">
             <fileset file="${project.path}/www/index.html" />
             <fileset file="${project.path}/build.xml" />
         </replaceregexp>
         
-        <!-- copy phonegap.js -->
+        <!-- copy cordova.js -->
         <copy todir="${project.path}/www">
             <fileset dir="${build.dir}/${js.path}" />
         </copy>
@@ -148,12 +148,12 @@ Getting Started:
             <fileset dir="${template.dist.dir}" />
         </copy>
         
-        <!-- copy phonegap.jar -->
+        <!-- copy cordova.jar -->
         <copy todir="${dist.www.path}/ext">
             <fileset dir="${build.dir}/${jar.path}" />
         </copy>
         
-        <!-- copy phonegap.js -->
+        <!-- copy cordova.js -->
         <copy todir="${dist.www.path}">
             <fileset dir="${build.dir}/${js.path}" />
         </copy>
@@ -226,11 +226,11 @@ Remember to:
 Update complete!
 ================
 
-  PhoneGap ${version} has been created.
+  Cordova ${version} has been created.
   
   Update does not alter your project files.
   
-  See below for instructions to install PhoneGap ${version}.
+  See below for instructions to install Cordova ${version}.
 
 Where:
 ------
@@ -242,14 +242,14 @@ Install:
 
   1. Install the Java Extension:
 
-    - delete /www/${jar.path}/phonegap.jar
+    - delete /www/${jar.path}/cordova.jar
     
     - copy /${update.dir}/${jar.file}
         to /www/${jar.file}
 
   2. Install the JavaScript library:
 
-    - delete /www/phonegap.js
+    - delete /www/cordova.js
     
     - copy /${update.dir}/${js.file}
         to /www/${js.basename}
@@ -320,7 +320,7 @@ SYNOPSIS
   ant COMMAND [-D&lt;argument&gt;=&lt;value&gt;]...
 
 DESCRIPTION
-  This tool allows you to create and update PhoneGap-BlackBerry-WebWorks projects.
+  This tool allows you to create and update Cordova-BlackBerry-WebWorks projects.
   You will want to run update after you have updated the framework source.
   In other words, when you &lt;git pull origin master&gt;.
 
@@ -336,10 +336,10 @@ COMMANDS
                       ant update PATH
                       ant update -Dproject.path="C:\dev\my_project"
 
-  dist ............ Create a PhoneGap distribution build
+  dist ............ Create a Cordova distribution build
                       ant dist
 
-  version ......... Update PhoneGap version
+  version ......... Update Cordova version
                       ant version VERSION
                       ant version -Dvalue="1.0.0"
 

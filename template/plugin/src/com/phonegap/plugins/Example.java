@@ -1,7 +1,7 @@
-package com.phonegap.plugins;
+package org.apache.cordova.plugins;
 
-import com.phonegap.api.Plugin;
-import com.phonegap.api.PluginResult;
+import org.apache.cordova.api.Plugin;
+import org.apache.cordova.api.PluginResult;
 
 import org.json.me.JSONArray;
 

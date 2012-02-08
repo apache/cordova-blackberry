@@ -19,15 +19,15 @@
  * Copyright (c) 2011, Research In Motion Limited.
  */
 
-phonegap.PluginManager = (function (webworksPluginManager) {
+cordova.PluginManager = (function (webworksPluginManager) {
     "use strict";
 
     /**
-     * Private list of HTML 5 audio objects, indexed by the PhoneGap media object ids
+     * Private list of HTML 5 audio objects, indexed by the Cordova media object ids
      */
     var audioObjects = {},
-        retInvalidAction = { "status" : PhoneGap.callbackStatus.INVALID_ACTION, "message" : "Action not found" },
-        retAsyncCall = { "status" : PhoneGap.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" },
+        retInvalidAction = { "status" : Cordova.callbackStatus.INVALID_ACTION, "message" : "Action not found" },
+        retAsyncCall = { "status" : Cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" },
         cameraAPI = {
             execute: function (webWorksResult, action, args, win, fail) {
                 switch (action) {
@@ -41,13 +41,13 @@ phonegap.PluginManager = (function (webworksPluginManager) {
         deviceAPI = {
             execute: function (webWorksResult, action, args, win, fail) {
                 if (action === 'getDeviceInfo') {
-                    return {"status" : PhoneGap.callbackStatus.OK,
+                    return {"status" : Cordova.callbackStatus.OK,
                             "message" : {
                                 "version" : blackberry.system.softwareVersion,
                                 "name" : blackberry.system.model,
                                 "uuid" : blackberry.identity.PIN,
                                 "platform" : "PlayBook",
-                                "phonegap" : "1.4.1"
+                                "cordova" : "1.4.1"
                             }
                     };
                 }
@@ -59,7 +59,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                 switch (action) {
                 case 'log':
                     console.log(args);
-                    return {"status" : PhoneGap.callbackStatus.OK,
+                    return {"status" : Cordova.callbackStatus.OK,
                             "message" : 'Message logged to console: ' + args};
                 }
                 return retInvalidAction;
@@ -197,7 +197,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                     case 'getSupportedAudioModes':
                     case 'getSupportedImageModes':
                     case 'getSupportedVideoModes':
-                        return {"status": PhoneGap.callbackStatus.OK, "message": []};
+                        return {"status": Cordova.callbackStatus.OK, "message": []};
                     case 'captureImage':
                         captureMethod = "takePicture";
                         captureCB();
@@ -207,7 +207,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                         captureCB();
                         break;
                     case 'captureAudio':
-                        return {"status": PhoneGap.callbackStatus.INVALID_ACTION, "message": "captureAudio is not currently supported"};
+                        return {"status": Cordova.callbackStatus.INVALID_ACTION, "message": "captureAudio is not currently supported"};
                 }
 
                 return retAsyncCall;
@@ -237,11 +237,11 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                     callbackID = blackberry.events.registerEventHandler("networkChange", win);
 
                     //pass our callback id down to our network extension
-                    request = new blackberry.transport.RemoteFunctionCall("com/phonegap/getConnectionInfo");
+                    request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getConnectionInfo");
                     request.addParam("networkStatusChangedID", callbackID);
                     request.makeSyncCall();
 
-                    return { "status": PhoneGap.callbackStatus.OK, "message": {"type": connectionType, "event": eventType } };
+                    return { "status": Cordova.callbackStatus.OK, "message": {"type": connectionType, "event": eventType } };
                 }
                 return retInvalidAction;
             }
@@ -253,7 +253,7 @@ phonegap.PluginManager = (function (webworksPluginManager) {
                   return {"status" : 9, "message" : "Notification action - " + action + " arguments not found"};
 
                 }
-                
+
                 //Unpack and map the args
                 var msg = args[0],
                     title = args[1],
@@ -284,17 +284,17 @@ phonegap.PluginManager = (function (webworksPluginManager) {
             'Notification' : notificationAPI
         };
 
-    phonegap.PlayBookPluginManager = function () {
-        PhoneGap.onNativeReady.fire();
+    cordova.PlayBookPluginManager = function () {
+        Cordova.onNativeReady.fire();
     };
 
-    phonegap.PlayBookPluginManager.prototype.exec = function (win, fail, clazz, action, args) {
+    cordova.PlayBookPluginManager.prototype.exec = function (win, fail, clazz, action, args) {
         var wwResult = webworksPluginManager.exec(win, fail, clazz, action, args);
 
         //We got a sync result or a not found from WW that we can pass on to get a native mixin
         //For async calls there's nothing to do
-        if ((wwResult.status === PhoneGap.callbackStatus.OK || 
-          wwResult.status === PhoneGap.callbackStatus.CLASS_NOT_FOUND_EXCEPTION) &&
+        if ((wwResult.status === Cordova.callbackStatus.OK ||
+          wwResult.status === Cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION) &&
           plugins[clazz]) {
             return plugins[clazz].execute(wwResult.message, action, args, win, fail);
         }
@@ -302,10 +302,10 @@ phonegap.PluginManager = (function (webworksPluginManager) {
         return wwResult;
     };
 
-    phonegap.PlayBookPluginManager.prototype.resume = function () {};
-    phonegap.PlayBookPluginManager.prototype.pause = function () {};
-    phonegap.PlayBookPluginManager.prototype.destroy = function () {};
+    cordova.PlayBookPluginManager.prototype.resume = function () {};
+    cordova.PlayBookPluginManager.prototype.pause = function () {};
+    cordova.PlayBookPluginManager.prototype.destroy = function () {};
 
     //Instantiate it
-    return new phonegap.PlayBookPluginManager();
-}(new phonegap.WebWorksPluginManager()));
+    return new cordova.PlayBookPluginManager();
+}(new cordova.WebWorksPluginManager()));

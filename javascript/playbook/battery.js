@@ -163,13 +163,13 @@
       }
     };
 
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
 
         if (typeof navigator.battery === "undefined") {
             navigator.battery = new Battery();
-            PhoneGap.addWindowEventHandler("batterystatus", navigator.battery.eventHandler);
-            PhoneGap.addWindowEventHandler("batterylow", navigator.battery.eventHandler);
-            PhoneGap.addWindowEventHandler("batterycritical", navigator.battery.eventHandler);
+            Cordova.addWindowEventHandler("batterystatus", navigator.battery.eventHandler);
+            Cordova.addWindowEventHandler("batterylow", navigator.battery.eventHandler);
+            Cordova.addWindowEventHandler("batterycritical", navigator.battery.eventHandler);
         }
     });
 

@@ -55,21 +55,21 @@ Connection = {
             function(info) {
                 me.type = info.type;
                 if (typeof info.event !== "undefined") {
-                    PhoneGap.fireDocumentEvent(info.event);
+                    Cordova.fireDocumentEvent(info.event);
                 }
 
                 // should only fire this once
                 if (me._firstRun) {
                     me._firstRun = false;
-                    PhoneGap.onPhoneGapConnectionReady.fire();
+                    Cordova.onCordovaConnectionReady.fire();
                 }
             },
             function(e) {
-                // If we can't get the network info we should still tell PhoneGap
+                // If we can't get the network info we should still tell Cordova
                 // to fire the deviceready event.
                 if (me._firstRun) {
                     me._firstRun = false;
-                    PhoneGap.onPhoneGapConnectionReady.fire();
+                    Cordova.onCordovaConnectionReady.fire();
                 }
                 console.log("Error initializing Network Connection: " + e);
             });
@@ -83,13 +83,13 @@ Connection = {
      */
     NetworkConnection.prototype.getInfo = function(successCallback, errorCallback) {
         // Get info
-        PhoneGap.exec(successCallback, errorCallback, "Network Status", "getConnectionInfo", []);
+        Cordova.exec(successCallback, errorCallback, "Network Status", "getConnectionInfo", []);
     };
 
     /**
      * Define navigator.network and navigator.network.connection objects
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator.network = new Object();
 
         navigator.network.connection = new NetworkConnection();

@@ -110,7 +110,7 @@ var FileTransfer = FileTransfer || (function() {
             }
         }
 
-        PhoneGap.exec(successCallback, errorCallback, 'FileTransfer', 'upload',
+        Cordova.exec(successCallback, errorCallback, 'FileTransfer', 'upload',
                 [ filePath, server, fileKey, fileName, mimeType, params, debug,
                         chunkedMode ]);
     };
@@ -136,7 +136,7 @@ var FileTransfer = FileTransfer || (function() {
                 successCallback(entry);
             }
         };
-        PhoneGap.exec(castSuccess, errorCallback, 'FileTransfer',
+        Cordova.exec(castSuccess, errorCallback, 'FileTransfer',
                 'download', [ source, target ]);
     };
 

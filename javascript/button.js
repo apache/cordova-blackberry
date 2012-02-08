@@ -24,7 +24,7 @@
 (function() {
 
     // Ensure that event handlers are only registered once.
-    if (typeof PhoneGap.documentEventHandler['backbutton'] !== "undefined") {
+    if (typeof Cordova.documentEventHandler['backbutton'] !== "undefined") {
         return;
     }
 
@@ -74,7 +74,7 @@
      */
     var fireEvent = function(event) {
         return function() {
-            PhoneGap.fireDocumentEvent(event, null);
+            Cordova.fireDocumentEvent(event, null);
         };
     };
 
@@ -135,12 +135,12 @@
         }
     };
 
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         var button = new Button();
 
         // Register button event handlers so application can listen for events.
         for (var item in buttonMapping) {
-            PhoneGap.addDocumentEventHandler(item, button.eventHandler);
+            Cordova.addDocumentEventHandler(item, button.eventHandler);
         }
     });
 }());

@@ -35,7 +35,7 @@ PositionError.TIMEOUT = 3;
 
 /**
  * navigator._geo
- * 
+ *
  * Provides access to device GPS.
  */
 var Geolocation = Geolocation || (function() {
@@ -50,7 +50,7 @@ var Geolocation = Geolocation || (function() {
         // Geolocation listeners
         this.listeners = {};
     };
-    
+
     /**
      * Acquires the current geo position.
      *
@@ -64,18 +64,18 @@ var Geolocation = Geolocation || (function() {
         if (navigator._geo.listeners[id]) {
             console.log("Geolocation Error: Still waiting for previous getCurrentPosition() request.");
             try {
-                errorCallback(new PositionError(PositionError.TIMEOUT, 
+                errorCallback(new PositionError(PositionError.TIMEOUT,
                         "Geolocation Error: Still waiting for previous getCurrentPosition() request."));
             } catch (e) {
             }
             return;
         }
-        
-        // default maximumAge value should be 0, and set if positive 
+
+        // default maximumAge value should be 0, and set if positive
         var maximumAge = 0;
 
         // default timeout value should be infinity, but that's a really long time
-        var timeout = 3600000; 
+        var timeout = 3600000;
 
         var enableHighAccuracy = false;
         if (options) {
@@ -90,12 +90,12 @@ var Geolocation = Geolocation || (function() {
             }
         }
         navigator._geo.listeners[id] = {"success" : successCallback, "fail" : errorCallback };
-        PhoneGap.exec(null, errorCallback, "Geolocation", "getCurrentPosition", 
+        Cordova.exec(null, errorCallback, "Geolocation", "getCurrentPosition",
                 [id, maximumAge, timeout, enableHighAccuracy]);
     };
 
     /**
-     * Monitors changes to geo position.  When a change occurs, the successCallback 
+     * Monitors changes to geo position.  When a change occurs, the successCallback
      * is invoked with the new location.
      *
      * @param {Function} successCallback    The function to call each time the location data is available
@@ -105,13 +105,13 @@ var Geolocation = Geolocation || (function() {
      */
     Geolocation.prototype.watchPosition = function(successCallback, errorCallback, options) {
 
-        // default maximumAge value should be 0, and set if positive 
+        // default maximumAge value should be 0, and set if positive
         var maximumAge = 0;
 
-        // DO NOT set timeout to a large value for watchPosition in BlackBerry.  
-        // The interval used for updates is half the timeout value, so a large 
+        // DO NOT set timeout to a large value for watchPosition in BlackBerry.
+        // The interval used for updates is half the timeout value, so a large
         // timeout value will mean a long wait for the first location.
-        var timeout = 10000; 
+        var timeout = 10000;
 
         var enableHighAccuracy = false;
         if (options) {
@@ -125,9 +125,9 @@ var Geolocation = Geolocation || (function() {
                 timeout = (options.timeout < 0) ? 0 : options.timeout;
             }
         }
-        var id = PhoneGap.createUUID();
+        var id = Cordova.createUUID();
         navigator._geo.listeners[id] = {"success" : successCallback, "fail" : errorCallback };
-        PhoneGap.exec(null, errorCallback, "Geolocation", "watchPosition", 
+        Cordova.exec(null, errorCallback, "Geolocation", "watchPosition",
                 [id, maximumAge, timeout, enableHighAccuracy]);
         return id;
     };
@@ -138,7 +138,7 @@ var Geolocation = Geolocation || (function() {
     Geolocation.prototype.success = function(id, result) {
 
         var p = result.message;
-        var coords = new Coordinates(p.latitude, p.longitude, p.altitude, 
+        var coords = new Coordinates(p.latitude, p.longitude, p.altitude,
                 p.accuracy, p.heading, p.speed, p.alt_accuracy);
         var loc = new Position(coords, p.timestamp);
         try {
@@ -181,23 +181,23 @@ var Geolocation = Geolocation || (function() {
      * @param {String} id       The ID of the watch returned from #watchPosition
      */
     Geolocation.prototype.clearWatch = function(id) {
-        PhoneGap.exec(null, null, "Geolocation", "stop", [id]);
+        Cordova.exec(null, null, "Geolocation", "stop", [id]);
         delete navigator._geo.listeners[id];
     };
 
     /**
-     * Is PhoneGap implementation being used.
+     * Is Cordova implementation being used.
      */
-    var usingPhoneGap = false;
-    
+    var usingCordova = false;
+
     /**
-     * Force PhoneGap implementation to override navigator.geolocation.
+     * Force Cordova implementation to override navigator.geolocation.
      */
-    var usePhoneGap = function() {
-        if (usingPhoneGap) {
+    var useCordova = function() {
+        if (usingCordova) {
             return;
         }
-        usingPhoneGap = true;
+        usingCordova = true;
 
         // Set built-in geolocation methods to our own implementations
         // (Cannot replace entire geolocation, but can replace individual methods)
@@ -211,20 +211,20 @@ var Geolocation = Geolocation || (function() {
     /**
      * Define navigator.geolocation object.
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator._geo = new Geolocation();
 
-        // if no native geolocation object, use PhoneGap geolocation
+        // if no native geolocation object, use Cordova geolocation
         if (typeof navigator.geolocation === 'undefined') {
             navigator.geolocation = navigator._geo;
-            usingPhoneGap = true;
+            usingCordova = true;
         }
     });
-    
+
     /**
      * Enable developers to override browser implementation.
      */
     return {
-        usePhoneGap: usePhoneGap
+        useCordova: useCordova
     };
 }());

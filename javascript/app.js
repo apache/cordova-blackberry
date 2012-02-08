@@ -59,10 +59,10 @@
      * application from another application.
      */
     var resumeApp = function() {
-        PhoneGap.fireDocumentEvent("resume");
+        Cordova.fireDocumentEvent("resume");
 
-        // notify PhoneGap JavaScript Extension
-        phonegap.PluginManager.resume();
+        // notify Cordova JavaScript Extension
+        cordova.PluginManager.resume();
     };
 
     /**
@@ -71,10 +71,10 @@
      * application from this application.
      */
     var pauseApp = function() {
-        PhoneGap.fireDocumentEvent("pause");
+        Cordova.fireDocumentEvent("pause");
 
-        // notify PhoneGap JavaScript Extension
-        phonegap.PluginManager.pause();
+        // notify Cordova JavaScript Extension
+        cordova.PluginManager.pause();
     };
 
     /**
@@ -88,8 +88,8 @@
             window.onunload();
         }
 
-        // allow PhoneGap JavaScript Extension opportunity to cleanup
-        phonegap.PluginManager.destroy();
+        // allow Cordova JavaScript Extension opportunity to cleanup
+        cordova.PluginManager.destroy();
 
         // exit the app
         blackberry.app.exit();
@@ -101,7 +101,7 @@
     App.prototype.backHistory = function() {
         // window.history.back() behaves oddly on BlackBerry, so use
         // native implementation.
-        PhoneGap.exec(null, null, "App", "backHistory", []);
+        Cordova.exec(null, null, "App", "backHistory", []);
     };
 
     /**
@@ -120,7 +120,7 @@
      * Clear the browser history.
      */
     App.prototype.clearHistory = function() {
-        PhoneGap.exec(null, null, "App", "clearHistory", []);
+        Cordova.exec(null, null, "App", "clearHistory", []);
     };
 
     /**
@@ -154,7 +154,7 @@
             // backlight system listener on native side.
             if (me._resumeListener.length === 0
                     && me._pauseListener.length === 0) {
-                PhoneGap.exec(function(on) {
+                Cordova.exec(function(on) {
                     if (on === true) {
                         resumeApp();
                     } else {
@@ -195,17 +195,17 @@
             // backlight system listener on native side.
             if (me._resumeListener.length === 0
                     && me._pauseListener.length === 0) {
-                PhoneGap.exec(null, null, "App", "ignoreBacklight", []);
+                Cordova.exec(null, null, "App", "ignoreBacklight", []);
             }
         }
     };
 
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator.app = new App();
 
         // Register the event handlers so application can listen for events.
-        PhoneGap.addDocumentEventHandler("pause", navigator.app._eventHandler);
-        PhoneGap.addDocumentEventHandler("resume",navigator.app._eventHandler);
+        Cordova.addDocumentEventHandler("pause", navigator.app._eventHandler);
+        Cordova.addDocumentEventHandler("resume",navigator.app._eventHandler);
     });
 
     /**

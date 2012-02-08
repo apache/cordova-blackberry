@@ -44,7 +44,7 @@ FileError.PATH_EXISTS_ERR = 12;
 
 /**
  * navigator.fileMgr
- * 
+ *
  * Provides file utility methods.
  */
 (function() {
@@ -54,7 +54,7 @@ FileError.PATH_EXISTS_ERR = 12;
     if (typeof navigator.fileMgr !== "undefined") {
         return;
     }
-    
+
     /**
      * @constructor
      */
@@ -64,7 +64,7 @@ FileError.PATH_EXISTS_ERR = 12;
     /**
      * Returns the available memory in bytes for the root file system of the
      * specified file path.
-     * 
+     *
      * @param filePath A file system path
      */
     FileMgr.prototype.getFreeDiskSpace = function(filePath) {
@@ -73,8 +73,8 @@ FileError.PATH_EXISTS_ERR = 12;
 
     /**
      * Tests whether file exists.  Will return false if the path specifies a directory.
-     * 
-     * @param fullPath             The full path of the file 
+     *
+     * @param fullPath             The full path of the file
      */
     FileMgr.prototype.testFileExists = function(fullPath) {
         return blackberry.io.file.exists(fullPath);
@@ -82,7 +82,7 @@ FileError.PATH_EXISTS_ERR = 12;
 
     /**
      * Tests whether directory exists.  Will return false if the path specifies a file.
-     * 
+     *
      * @param fullPath             The full path of the directory
      */
     FileMgr.prototype.testDirectoryExists = function(fullPath) {
@@ -90,32 +90,32 @@ FileError.PATH_EXISTS_ERR = 12;
     };
 
     /**
-     * Reads a file from the device and encodes the contents using the specified 
-     * encoding. 
-     * 
+     * Reads a file from the device and encodes the contents using the specified
+     * encoding.
+     *
      * @param fileName          The full path of the file to read
      * @param encoding          The encoding to use to encode the file's content
      * @param successCallback   Callback invoked with file contents
      * @param errorCallback     Callback invoked on error
      */
     FileMgr.prototype.readAsText = function(fileName, encoding, successCallback, errorCallback) {
-        PhoneGap.exec(successCallback, errorCallback, "File", "readAsText", [fileName, encoding]);
+        Cordova.exec(successCallback, errorCallback, "File", "readAsText", [fileName, encoding]);
     };
 
     /**
-     * Reads a file from the device and encodes the contents using BASE64 encoding.  
-     * 
+     * Reads a file from the device and encodes the contents using BASE64 encoding.
+     *
      * @param fileName          The full path of the file to read.
      * @param successCallback   Callback invoked with file contents
      * @param errorCallback     Callback invoked on error
      */
     FileMgr.prototype.readAsDataURL = function(fileName, successCallback, errorCallback) {
-        PhoneGap.exec(successCallback, errorCallback, "File", "readAsDataURL", [fileName]);
+        Cordova.exec(successCallback, errorCallback, "File", "readAsDataURL", [fileName]);
     };
 
     /**
      * Writes data to the specified file.
-     * 
+     *
      * @param fileName          The full path of the file to write
      * @param data              The data to be written
      * @param position          The position in the file to begin writing
@@ -123,32 +123,32 @@ FileError.PATH_EXISTS_ERR = 12;
      * @param errorCallback     Callback invoked on error
      */
     FileMgr.prototype.write = function(fileName, data, position, successCallback, errorCallback) {
-        PhoneGap.exec(successCallback, errorCallback, "File", "write", [fileName, data, position]);
+        Cordova.exec(successCallback, errorCallback, "File", "write", [fileName, data, position]);
     };
 
     /**
-     * Changes the length of the specified file.  Data beyond new length is discarded.  
-     * 
+     * Changes the length of the specified file.  Data beyond new length is discarded.
+     *
      * @param fileName          The full path of the file to truncate
      * @param size              The size to which the length of the file is to be adjusted
      * @param successCallback   Callback invoked after successful write operation
      * @param errorCallback     Callback invoked on error
      */
     FileMgr.prototype.truncate = function(fileName, size, successCallback, errorCallback) {
-        PhoneGap.exec(successCallback, errorCallback, "File", "truncate", [fileName, size]);
+        Cordova.exec(successCallback, errorCallback, "File", "truncate", [fileName, size]);
     };
 
     /**
      * Define navigator.fileMgr object.
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator.fileMgr = new FileMgr();
     });
 }());
 
 /**
  * FileReader
- * 
+ *
  * Reads files from the device file system.
  */
 var FileReader = FileReader || (function() {
@@ -174,24 +174,24 @@ var FileReader = FileReader || (function() {
         this.onloadend = null;      // When the request has completed (either in success or failure).
         this.onabort = null;        // When the read has been aborted. For instance, by invoking the abort() method.
     };
-    
+
     /**
      * States
      */
     FileReader.EMPTY = 0;
     FileReader.LOADING = 1;
     FileReader.DONE = 2;
-    
+
     /**
      * Abort read file operation.
      */
     FileReader.prototype.abort = function() {
         var event;
-        
+
         // reset everything
         this.readyState = FileReader.DONE;
         this.result = null;
-        
+
         // set error
         var error = new FileError();
         error.code = error.ABORT_ERR;
@@ -220,10 +220,10 @@ var FileReader = FileReader || (function() {
      */
     FileReader.prototype.readAsText = function(file, encoding) {
         var event;
-        
+
         // Use UTF-8 as default encoding
         var enc = encoding ? encoding : "UTF-8";
-        
+
         // start
         this.readyState = FileReader.LOADING;
         if (typeof this.onloadstart == "function") {
@@ -234,7 +234,7 @@ var FileReader = FileReader || (function() {
         // read and encode file
         this.fileName = file.fullPath;
         var me = this;
-        navigator.fileMgr.readAsText(file.fullPath, enc, 
+        navigator.fileMgr.readAsText(file.fullPath, enc,
 
             // success callback
             function(result) {
@@ -267,7 +267,7 @@ var FileReader = FileReader || (function() {
                 var err = new FileError();
                 err.code = error;
                 me.error = err;
-                
+
                 // error procedure
                 me.result = null;
                 if (typeof me.onerror == "function") {
@@ -292,18 +292,18 @@ var FileReader = FileReader || (function() {
      */
     FileReader.prototype.readAsDataURL = function(file) {
         var event;
-        
+
         // start
         this.readyState = FileReader.LOADING;
         if (typeof this.onloadstart == "function") {
             event = {"type":"loadstart", "target":this};
             this.onloadstart(event);
         }
-        
+
         // read and encode file
         this.fileName = file.fullPath;
         var me = this;
-        navigator.fileMgr.readAsDataURL(file.fullPath, 
+        navigator.fileMgr.readAsDataURL(file.fullPath,
 
             // success callback
             function(result) {
@@ -336,7 +336,7 @@ var FileReader = FileReader || (function() {
                 var err = new FileError();
                 err.code = error;
                 me.error = err;
-                
+
                 // error procedure
                 me.result = null;
                 if (typeof me.onerror == "function") {
@@ -351,7 +351,7 @@ var FileReader = FileReader || (function() {
             }
         );
     };
-    
+
     /**
      * Read file and return data as a binary data.
      *
@@ -385,7 +385,7 @@ var FileReader = FileReader || (function() {
 
 /**
  * FileWriter
- * 
+ *
  * Writes files to the device file system.
  */
 var FileWriter = FileWriter || (function() {
@@ -396,12 +396,12 @@ var FileWriter = FileWriter || (function() {
     function FileWriter(file) {
         this.fileName = file.fullPath || null;
         this.length = file.size || 0;
-        
+
         // default is to write at the beginning of the file
         this.position = 0;
-        
+
         this.readyState = 0; // EMPTY
-        
+
         // Error
         this.error = null;
 
@@ -420,18 +420,18 @@ var FileWriter = FileWriter || (function() {
     FileWriter.INIT = 0;
     FileWriter.WRITING = 1;
     FileWriter.DONE = 2;
-    
+
     /**
      * Abort writing file.
      */
     FileWriter.prototype.abort = function() {
         var event;
 
-        // check for invalid state 
+        // check for invalid state
         if (this.readyState === FileWriter.DONE || this.readyState === FileWriter.INIT) {
             throw FileError.INVALID_STATE_ERR;
         }
-        
+
         // set error
         var error = new FileError();
         error.code = error.ABORT_ERR;
@@ -449,17 +449,17 @@ var FileWriter = FileWriter || (function() {
 
         // set state
         this.readyState = FileWriter.DONE;
-        
+
         // done
         if (typeof this.writeend == "function") {
             event = {"type":"writeend", "target":this};
             this.writeend(event);
         }
-    };    
+    };
 
     /**
      * Sets the file position at which the next write will occur.
-     * 
+     *
      * @param offset    Absolute byte offset into the file
      */
     FileWriter.prototype.seek = function(offset) {
@@ -471,34 +471,34 @@ var FileWriter = FileWriter || (function() {
         if (!offset) {
             return;
         }
-        
+
         // offset is bigger than file size, set to length of file
-        if (offset > this.length) { 
+        if (offset > this.length) {
             this.position = this.length;
         }
         // seek back from end of file
-        else if (offset < 0) { 
+        else if (offset < 0) {
             this.position = Math.max(offset + this.length, 0);
-        } 
+        }
         // offset in the middle of file
         else {
             this.position = offset;
         }
     };
-    
+
     /**
      * Truncates the file to the specified size.
-     * 
+     *
      * @param size      The size to which the file length is to be adjusted
      */
     FileWriter.prototype.truncate = function(size) {
         var event;
-        
+
         // Throw an exception if we are already writing a file
         if (this.readyState === FileWriter.WRITING) {
             throw FileError.INVALID_STATE_ERR;
         }
-        
+
         // start
         this.readyState = FileWriter.WRITING;
         if (typeof this.onwritestart == "function") {
@@ -508,7 +508,7 @@ var FileWriter = FileWriter || (function() {
 
         // truncate file
         var me = this;
-        navigator.fileMgr.truncate(this.fileName, size, 
+        navigator.fileMgr.truncate(this.fileName, size,
             // Success callback receives the new file size
             function(result) {
                 // If DONE (canceled), then don't do anything
@@ -555,18 +555,18 @@ var FileWriter = FileWriter || (function() {
                     event = {"type":"writeend", "target":me};
                     me.onwriteend(event);
                 }
-            }            
+            }
         );
     };
 
     /**
      * Writes the contents of a file to the device.
-     * 
+     *
      * @param data      contents to be written
      */
     FileWriter.prototype.write = function(data) {
         var event;
-        
+
         // Throw an exception if we are already writing a file
         if (this.readyState === FileWriter.WRITING) {
             throw FileError.INVALID_STATE_ERR;
@@ -643,7 +643,7 @@ var FileWriter = FileWriter || (function() {
 var Entry = Entry || (function() {
     /**
      * Represents a file or directory on the local file system.
-     * 
+     *
      * @param isFile
      *            {boolean} true if Entry is a file (readonly)
      * @param isDirectory
@@ -663,12 +663,12 @@ var Entry = Entry || (function() {
         this.isFile = (entry && entry.isFile === true) ? true : false;
         this.isDirectory = (entry && entry.isDirectory === true) ? true : false;
         this.name = (entry && entry.name) || "";
-        this.fullPath = (entry && entry.fullPath) || "";            
+        this.fullPath = (entry && entry.fullPath) || "";
     };
 
     /**
      * Look up the metadata of the entry.
-     * 
+     *
      * @param successCallback
      *            {Function} is called with a Metadata object
      * @param errorCallback
@@ -685,13 +685,13 @@ var Entry = Entry || (function() {
             fail = function(error) {
                 LocalFileSystem.onError(error, errorCallback);
             };
-            
-        PhoneGap.exec(success, fail, "File", "getMetadata", [this.fullPath]);
+
+        Cordova.exec(success, fail, "File", "getMetadata", [this.fullPath]);
     };
 
     /**
      * Move a file or directory to a new location.
-     * 
+     *
      * @param parent
      *            {DirectoryEntry} the directory to which to move this entry
      * @param newName
@@ -709,18 +709,18 @@ var Entry = Entry || (function() {
             // destination path
             dstPath,
             success = function(entry) {
-                var result; 
+                var result;
 
                 if (entry) {
                     // create appropriate Entry object
-                    result = (entry.isDirectory) ? new DirectoryEntry(entry) : new FileEntry(entry);                
+                    result = (entry.isDirectory) ? new DirectoryEntry(entry) : new FileEntry(entry);
                     try {
                         successCallback(result);
                     }
                     catch (e) {
                         console.log('Error invoking callback: ' + e);
                     }
-                } 
+                }
                 else {
                     // no Entry object returned
                     fail(FileError.NOT_FOUND_ERR);
@@ -737,15 +737,15 @@ var Entry = Entry || (function() {
         }
 
         // copy
-        PhoneGap.exec(success, fail, "File", "moveTo", [srcPath, parent.fullPath, name]);
+        Cordova.exec(success, fail, "File", "moveTo", [srcPath, parent.fullPath, name]);
     };
 
     /**
      * Copy a directory to a different location.
-     * 
-     * @param parent 
+     *
+     * @param parent
      *            {DirectoryEntry} the directory to which to copy the entry
-     * @param newName 
+     * @param newName
      *            {DOMString} new name of the entry, defaults to the current name
      * @param successCallback
      *            {Function} called with the new Entry object
@@ -759,18 +759,18 @@ var Entry = Entry || (function() {
             name = newName || this.name,
             // success callback
             success = function(entry) {
-                var result; 
+                var result;
 
                 if (entry) {
                     // create appropriate Entry object
-                    result = (entry.isDirectory) ? new DirectoryEntry(entry) : new FileEntry(entry);                
+                    result = (entry.isDirectory) ? new DirectoryEntry(entry) : new FileEntry(entry);
                     try {
                         successCallback(result);
                     }
                     catch (e) {
                         console.log('Error invoking callback: ' + e);
-                    }         
-                } 
+                    }
+                }
                 else {
                     // no Entry object returned
                     fail(FileError.NOT_FOUND_ERR);
@@ -787,12 +787,12 @@ var Entry = Entry || (function() {
         }
 
         // copy
-        PhoneGap.exec(success, fail, "File", "copyTo", [srcPath, parent.fullPath, name]);
+        Cordova.exec(success, fail, "File", "copyTo", [srcPath, parent.fullPath, name]);
     };
 
     /**
      * Return a URI that can be used to identify this entry.
-     * 
+     *
      * @param mimeType
      *            {DOMString} for a FileEntry, the mime type to be used to
      *            interpret the file, when loaded through this URI.
@@ -804,13 +804,13 @@ var Entry = Entry || (function() {
     Entry.prototype.toURI = function(mimeType, successCallback, errorCallback) {
         // fullPath attribute contains the full URI on BlackBerry
         return this.fullPath;
-    };    
+    };
 
     /**
      * Remove a file or directory. It is an error to attempt to delete a
      * directory that is not empty. It is an error to attempt to delete a
      * root directory of a file system.
-     * 
+     *
      * @param successCallback {Function} called with no parameters
      * @param errorCallback {Function} called with a FileError
      */
@@ -818,18 +818,18 @@ var Entry = Entry || (function() {
         var path = this.fullPath,
             // directory contents
             contents = [];
-        
+
         // file
         if (blackberry.io.file.exists(path)) {
             try {
                 blackberry.io.file.deleteFile(path);
                 if (typeof successCallback === "function") {
                     successCallback();
-                }                
+                }
             }
             catch (e) {
                 // permissions don't allow
-                LocalFileSystem.onError(FileError.INVALID_MODIFICATION_ERR, errorCallback);                
+                LocalFileSystem.onError(FileError.INVALID_MODIFICATION_ERR, errorCallback);
             }
         }
         // directory
@@ -867,42 +867,42 @@ var Entry = Entry || (function() {
 
     /**
      * Look up the parent DirectoryEntry of this entry.
-     * 
+     *
      * @param successCallback {Function} called with the parent DirectoryEntry object
      * @param errorCallback {Function} called with a FileError
      */
     Entry.prototype.getParent = function(successCallback, errorCallback) {
         var that = this;
-        
+
         try {
-            // On BlackBerry, the TEMPORARY file system is actually a temporary 
+            // On BlackBerry, the TEMPORARY file system is actually a temporary
             // directory that is created on a per-application basis.  This is
             // to help ensure that applications do not share the same temporary
             // space.  So we check to see if this is the TEMPORARY file system
             // (directory).  If it is, we must return this Entry, rather than
             // the Entry for its parent.
             window.requestFileSystem(LocalFileSystem.TEMPORARY, 0,
-                    function(fileSystem) {                        
+                    function(fileSystem) {
                         if (fileSystem.root.fullPath === that.fullPath) {
                             successCallback(fileSystem.root);
                         }
                         else {
                             window.resolveLocalFileSystemURI(
-                                    blackberry.io.dir.getParentDirectory(that.fullPath), 
-                                    successCallback, 
+                                    blackberry.io.dir.getParentDirectory(that.fullPath),
+                                    successCallback,
                                     errorCallback);
                         }
                     },
                     function (error) {
                         LocalFileSystem.onError(error, errorCallback);
                     });
-        } 
+        }
         catch (e) {
             // FIXME: need a generic error code
             LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);
         }
     };
-    
+
     return Entry;
 }());
 
@@ -916,13 +916,13 @@ var DirectoryEntry = DirectoryEntry || (function() {
     function DirectoryEntry(entry) {
         DirectoryEntry.__super__.constructor.apply(this, arguments);
     };
-    
+
     // extend Entry
-    PhoneGap.extend(DirectoryEntry, Entry);
-    
+    Cordova.extend(DirectoryEntry, Entry);
+
     /**
      * Create or look up a file.
-     * 
+     *
      * @param path {DOMString}
      *            either a relative or absolute path from this directory in
      *            which to look up or create a file
@@ -944,9 +944,9 @@ var DirectoryEntry = DirectoryEntry || (function() {
             createEntry = function() {
                 var path_parts = path.split('/'),
                     name = path_parts[path_parts.length - 1],
-                    fileEntry = new FileEntry({name: name, 
+                    fileEntry = new FileEntry({name: name,
                         isDirectory: false, isFile: true, fullPath: path});
-                
+
                 // invoke success callback
                 if (typeof successCallback === 'function') {
                     successCallback(fileEntry);
@@ -974,16 +974,16 @@ var DirectoryEntry = DirectoryEntry || (function() {
             LocalFileSystem.onError(FileError.ENCODING_ERR, errorCallback);
             return;
         }
-        
+
         // path is a file
         if (exists) {
             if (create && exclusive) {
                 // can't guarantee exclusivity
-                LocalFileSystem.onError(FileError.PATH_EXISTS_ERR, errorCallback);                
+                LocalFileSystem.onError(FileError.PATH_EXISTS_ERR, errorCallback);
             }
             else {
                 // create entry for existing file
-                createEntry();                
+                createEntry();
             }
         }
         // will return true if path exists AND is a directory
@@ -1008,12 +1008,12 @@ var DirectoryEntry = DirectoryEntry || (function() {
         else {
             // file doesn't exist
             LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);
-        }   
-    };    
+        }
+    };
 
     /**
      * Creates or looks up a directory.
-     * 
+     *
      * @param path
      *            {DOMString} either a relative or absolute path from this
      *            directory in which to look up or create a directory
@@ -1036,26 +1036,26 @@ var DirectoryEntry = DirectoryEntry || (function() {
             createEntry = function() {
                 var path_parts = path.split('/'),
                     name = path_parts[path_parts.length - 1],
-                    dirEntry = new DirectoryEntry({name: name, 
+                    dirEntry = new DirectoryEntry({name: name,
                         isDirectory: true, isFile: false, fullPath: path});
-            
+
                 // invoke success callback
                 if (typeof successCallback === 'function') {
                     successCallback(dirEntry);
                 }
             };
-            
+
         // determine if path is relative or absolute
         if (!path) {
             LocalFileSystem.onError(FileError.ENCODING_ERR, errorCallback);
             return;
-        } 
+        }
         else if (path.indexOf(this.fullPath) !== 0) {
             // path does not begin with the fullPath of this directory
             // therefore, it is relative
             path = this.fullPath + '/' + path;
         }
-        
+
         // determine if directory exists
         try {
             // will return true if path exists AND is a directory
@@ -1066,16 +1066,16 @@ var DirectoryEntry = DirectoryEntry || (function() {
             LocalFileSystem.onError(FileError.ENCODING_ERR, errorCallback);
             return;
         }
-        
+
         // path is a directory
         if (exists) {
             if (create && exclusive) {
                 // can't guarantee exclusivity
-                LocalFileSystem.onError(FileError.PATH_EXISTS_ERR, errorCallback);                
+                LocalFileSystem.onError(FileError.PATH_EXISTS_ERR, errorCallback);
             }
             else {
                 // create entry for existing directory
-                createEntry();                
+                createEntry();
             }
         }
         // will return true if path exists AND is a file
@@ -1096,26 +1096,26 @@ var DirectoryEntry = DirectoryEntry || (function() {
             }
             catch (e) {
                 // unable to create directory
-                LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);                
+                LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);
             }
         }
         // path does not exist, don't create
         else {
             // directory doesn't exist
             LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);
-        }             
+        }
     };
 
     /**
      * Delete a directory and all of it's contents.
-     * 
+     *
      * @param successCallback {Function} called with no parameters
      * @param errorCallback {Function} called with a FileError
      */
     DirectoryEntry.prototype.removeRecursively = function(successCallback, errorCallback) {
         // we're removing THIS directory
         var path = this.fullPath;
-            
+
         // attempt to delete directory
         if (blackberry.io.dir.exists(path)) {
             // it is an error to attempt to remove the file system root
@@ -1152,29 +1152,29 @@ var DirectoryEntry = DirectoryEntry || (function() {
     function DirectoryReader(path) {
         this.path = path || null;
     };
-    
+
     /**
      * Creates a new DirectoryReader to read entries from this directory
      */
     DirectoryEntry.prototype.createReader = function() {
         return new DirectoryReader(this.fullPath);
     };
-    
+
     /**
      * Reads the contents of the directory.
      * @param successCallback {Function} called with a list of entries
      * @param errorCallback {Function} called with a FileError
      */
     DirectoryReader.prototype.readEntries = function(successCallback, errorCallback) {
-        var path = this.path,    
+        var path = this.path,
             // process directory contents
             createEntries = function(array) {
                 var entries, entry, num_entries, i, name, result = [];
-                
+
                 // get objects from JSONArray
                 try {
                     entries = JSON.parse(array);
-                } 
+                }
                 catch (e) {
                     console.log('unable to parse JSON: ' + e);
                     LocalFileSystem.onError(FileError.SYNTAX_ERR, errorCallback);
@@ -1193,7 +1193,7 @@ var DirectoryEntry = DirectoryEntry || (function() {
                     // if name ends with '/', it's a directory
                     if (/\/$/.test(name) === true) {
                         // trim file separator
-                        name = name.substring(0, name.length - 1); 
+                        name = name.substring(0, name.length - 1);
                         entry = new DirectoryEntry({
                             name: name,
                             fullPath: path + name,
@@ -1213,20 +1213,20 @@ var DirectoryEntry = DirectoryEntry || (function() {
                 }
                 try {
                     successCallback(result);
-                } 
+                }
                 catch (e) {
                     console.log("Error invoking callback: " + e);
                 }
-            };        
-        
+            };
+
         // sanity check
         if (!blackberry.io.dir.exists(path)) {
             LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);
             return;
         }
-        
+
         // list directory contents
-        PhoneGap.exec(createEntries, errorCallback, "File", "readEntries", [path]);
+        Cordova.exec(createEntries, errorCallback, "File", "readEntries", [path]);
     };
 
     return DirectoryEntry;
@@ -1242,14 +1242,14 @@ var FileEntry = FileEntry || (function() {
     function FileEntry(entry) {
         FileEntry.__super__.constructor.apply(this, arguments);
     };
-    
+
     // extend Entry
-    PhoneGap.extend(FileEntry, Entry);
-    
+    Cordova.extend(FileEntry, Entry);
+
     /**
      * Creates a new FileWriter associated with the file that this FileEntry
      * represents.
-     * 
+     *
      * @param successCallback
      *            {Function} called with the new FileWriter
      * @param errorCallback
@@ -1263,17 +1263,17 @@ var FileEntry = FileEntry || (function() {
             try {
                 writer = new FileWriter(file);
                 successCallback(writer);
-            } 
+            }
             catch (e) {
                 console.log("Error invoking callback: " + e);
-            }            
+            }
         }, errorCallback);
     };
 
     /**
      * Returns a File that represents the current state of the file that this
      * FileEntry represents.
-     * 
+     *
      * @param successCallback
      *            {Function} called with the new File object
      * @param errorCallback
@@ -1290,15 +1290,15 @@ var FileEntry = FileEntry || (function() {
             file.name = this.name;
             file.fullPath = this.fullPath;
             file.type = properties.mimeType;
-            file.lastModifiedDate = properties.dateModified; 
+            file.lastModifiedDate = properties.dateModified;
             file.size = properties.size;
-            
+
             try {
                 successCallback(file);
             }
             catch (e) {
-                console.log("Error invoking callback: " + e);            
-            }            
+                console.log("Error invoking callback: " + e);
+            }
         }
         // entry is a directory
         else if (blackberry.io.dir.exists(this.fullPath)) {
@@ -1306,8 +1306,8 @@ var FileEntry = FileEntry || (function() {
         }
         // entry has been deleted
         else {
-            LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);            
-        }        
+            LocalFileSystem.onError(FileError.NOT_FOUND_ERR, errorCallback);
+        }
     };
 
     return FileEntry;
@@ -1315,7 +1315,7 @@ var FileEntry = FileEntry || (function() {
 
 /**
  * An interface representing a file system
- * 
+ *
  * name {DOMString} unique name of the file system (readonly)
  * root {DirectoryEntry} directory of the file system (readonly)
  */
@@ -1326,7 +1326,7 @@ function FileSystem() {
 
 /**
  * Information about the state of the file or directory.
- * 
+ *
  * modificationTime {Date} (readonly)
  */
 function Metadata() {
@@ -1335,7 +1335,7 @@ function Metadata() {
 
 /**
  * Supplies arguments to methods that lookup or create files and directories.
- * 
+ *
  * @param create
  *            {boolean} file or directory if it doesn't exist
  * @param exclusive
@@ -1363,10 +1363,10 @@ var File = (function() {
         this.name = null;
         this.fullPath = null;
         this.type = null;
-        this.lastModifiedDate = null; 
+        this.lastModifiedDate = null;
         this.size = 0;
     };
-    
+
     return File;
 }());
 
@@ -1374,7 +1374,7 @@ var File = (function() {
  * Represents a local file system.
  */
 var LocalFileSystem = LocalFileSystem || (function() {
-    
+
     /**
      * Define file system types.
      */
@@ -1382,7 +1382,7 @@ var LocalFileSystem = LocalFileSystem || (function() {
         TEMPORARY: 0,    // temporary, with no guarantee of persistence
         PERSISTENT: 1    // persistent
     };
-    
+
     /**
      * Static method for invoking error callbacks.
      * @param error FileError code
@@ -1393,21 +1393,21 @@ var LocalFileSystem = LocalFileSystem || (function() {
         err.code = error;
         try {
             errorCallback(err);
-        } 
+        }
         catch (e) {
             console.log('Error invoking callback: ' + e);
-        }        
+        }
     };
-    
+
     /**
-     * Utility method to determine if the specified path is the root file 
+     * Utility method to determine if the specified path is the root file
      * system path.
      * @param path fully qualified path
      */
     LocalFileSystem.isFileSystemRoot = function(path) {
-        return PhoneGap.exec(null, null, "File", "isFileSystemRoot", [path]);
+        return Cordova.exec(null, null, "File", "isFileSystemRoot", [path]);
     };
-    
+
     /**
      * Request a file system in which to store application data.
      * @param type  local file system type
@@ -1423,18 +1423,18 @@ var LocalFileSystem = LocalFileSystem || (function() {
                 if (file_system) {
                     // grab the name from the file system object
                     result = {
-                        name: file_system.name || null   
+                        name: file_system.name || null
                     };
-                
+
                     // create Entry object from file system root
-                    result.root = new DirectoryEntry(file_system.root);          
+                    result.root = new DirectoryEntry(file_system.root);
                     try {
                         successCallback(result);
                     }
                     catch (e) {
                         console.log('Error invoking callback: ' + e);
-                    }         
-                } 
+                    }
+                }
                 else {
                     // no FileSystem object returned
                     fail(FileError.NOT_FOUND_ERR);
@@ -1444,31 +1444,31 @@ var LocalFileSystem = LocalFileSystem || (function() {
             fail = function(error) {
                 LocalFileSystem.onError(error, errorCallback);
             };
-            
-        PhoneGap.exec(success, fail, "File", "requestFileSystem", [type, size]);
+
+        Cordova.exec(success, fail, "File", "requestFileSystem", [type, size]);
     };
-    
+
     /**
      * Look up file system Entry referred to by local URI.
-     * @param {DOMString} uri  URI referring to a local file or directory 
+     * @param {DOMString} uri  URI referring to a local file or directory
      * @param successCallback  invoked with Entry object corresponding to URI
      * @param errorCallback    invoked if error occurs retrieving file system entry
      */
     var _resolveLocalFileSystemURI = function(uri, successCallback, errorCallback) {
         // if successful, return either a file or directory entry
         var success = function(entry) {
-            var result; 
+            var result;
 
             if (entry) {
                 // create appropriate Entry object
-                result = (entry.isDirectory) ? new DirectoryEntry(entry) : new FileEntry(entry);                
+                result = (entry.isDirectory) ? new DirectoryEntry(entry) : new FileEntry(entry);
                 try {
                     successCallback(result);
                 }
                 catch (e) {
                     console.log('Error invoking callback: ' + e);
-                }         
-            } 
+                }
+            }
             else {
                 // no Entry object returned
                 fail(FileError.NOT_FOUND_ERR);
@@ -1479,13 +1479,13 @@ var LocalFileSystem = LocalFileSystem || (function() {
         var fail = function(error) {
             LocalFileSystem.onError(error, errorCallback);
         };
-        PhoneGap.exec(success, fail, "File", "resolveLocalFileSystemURI", [uri]);
-    };    
+        Cordova.exec(success, fail, "File", "resolveLocalFileSystemURI", [uri]);
+    };
 
     /**
      * Add the FileSystem interface into the browser.
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         if(typeof window.requestFileSystem === "undefined") {
             window.requestFileSystem  = _requestFileSystem;
         }

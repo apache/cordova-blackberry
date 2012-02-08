@@ -1,4 +1,4 @@
-<project name="Package PhoneGap BlackBerry WebWorks Plugin" default="help">
+<project name="Package Cordova BlackBerry WebWorks Plugin" default="help">
 
     <!-- LOAD PROPERTIES -->
 
@@ -71,7 +71,7 @@ SYNOPSIS
   ant COMMAND [-D&lt;argument&gt;=&lt;value&gt;]...
 
 DESCRIPTION
-  You can package your plugin for use in PhoneGap BlackBerry WebWorks projects.
+  You can package your plugin for use in Cordova BlackBerry WebWorks projects.
 
 COMMANDS
   help .............. Show this help menu.

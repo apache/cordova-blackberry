@@ -16,8 +16,8 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- * 
- * Copyright (c) 2011, Research In Motion Limited 
+ *
+ * Copyright (c) 2011, Research In Motion Limited
  */
 
 /**
@@ -40,10 +40,10 @@ var MediaFile = MediaFile || (function() {
     function MediaFile() {
         MediaFile.__super__.constructor.apply(this, arguments);
     };
- 
+
     // extend File
-    PhoneGap.extend(MediaFile, File);
-    
+    Cordova.extend(MediaFile, File);
+
     /**
      * Media file data.
      * codecs {DOMString} The actual format of the audio and video content.
@@ -59,7 +59,7 @@ var MediaFile = MediaFile || (function() {
         this.width = 0;
         this.duration = 0;
     };
-    
+
     /**
      * Obtains the format data of the media file.
      */
@@ -67,12 +67,12 @@ var MediaFile = MediaFile || (function() {
         // there is no API (WebWorks or native) that provides this info
         try {
             successCallback(new MediaFileData());
-        } 
+        }
         catch (e) {
             console.log('Unable to invoke success callback: ' + e);
         }
     };
-    
+
     return MediaFile;
 }());
 
@@ -83,7 +83,7 @@ function CaptureError() {
     this.code = 0;
 };
 
-// Camera or microphone failed to capture image or sound. 
+// Camera or microphone failed to capture image or sound.
 CaptureError.CAPTURE_INTERNAL_ERR = 0;
 // Camera application or audio capture application is currently serving other capture request.
 CaptureError.CAPTURE_APPLICATION_BUSY = 1;
@@ -98,12 +98,12 @@ CaptureError.CAPTURE_NOT_SUPPORTED = 20;
  * Encapsulates a set of parameters that the capture device supports.
  */
 function ConfigurationData() {
-    // The ASCII-encoded string in lower case representing the media type. 
-    this.type; 
-    // The height attribute represents height of the image or video in pixels. 
-    // In the case of a sound clip this attribute has value 0. 
+    // The ASCII-encoded string in lower case representing the media type.
+    this.type;
+    // The height attribute represents height of the image or video in pixels.
+    // In the case of a sound clip this attribute has value 0.
     this.height = 0;
-    // The width attribute represents width of the image or video in pixels. 
+    // The width attribute represents width of the image or video in pixels.
     // In the case of a sound clip this attribute has value 0
     this.width = 0;
 };
@@ -113,9 +113,9 @@ function ConfigurationData() {
  */
 function CaptureImageOptions() {
     // Upper limit of images user can take. Value must be equal or greater than 1.
-    this.limit = 1; 
+    this.limit = 1;
     // The selected image mode. Must match with one of the elements in supportedImageModes array.
-    this.mode; 
+    this.mode;
 };
 
 /**
@@ -143,7 +143,7 @@ function CaptureAudioOptions() {
 };
 
 /**
- * navigator.device.capture 
+ * navigator.device.capture
  */
 (function() {
     /**
@@ -152,51 +152,51 @@ function CaptureAudioOptions() {
     if (navigator.device && typeof navigator.device.capture !== 'undefined') {
         return;
     }
-    
+
     /**
      * Identification string for the capture plugin.
      */
     var captureId = 'navigator.device.capture';
-    
+
     /**
      * Media capture object.
      */
     function Capture() {
-        var self = this, 
-            // let PhoneGap know we're ready after retrieving all of the 
-            // supported capture modes         
+        var self = this,
+            // let Cordova know we're ready after retrieving all of the
+            // supported capture modes
             addCaptureModes = function(type, modes) {
                 self[type] = modes;
-                if (typeof self.supportedAudioModes !== 'undefined' 
+                if (typeof self.supportedAudioModes !== 'undefined'
                     && typeof self.supportedImageModes !== 'undefined'
                     && typeof self.supportedVideoModes !== 'undefined') {
-                    PhoneGap.initializationComplete(captureId);                    
+                    Cordova.initializationComplete(captureId);
                 }
             };
-        
+
         // populate supported capture modes
-        PhoneGap.exec(function(modes) {
+        Cordova.exec(function(modes) {
             addCaptureModes('supportedAudioModes', parseArray(modes));
         }, function(error) {
             console.log('Unable to retrieve supported audio modes: ' + error);
             addCaptureModes('supportedAudioModes', []);
-        }, 'MediaCapture', 'getSupportedAudioModes', []); 
-        
-        PhoneGap.exec(function(modes) {
+        }, 'MediaCapture', 'getSupportedAudioModes', []);
+
+        Cordova.exec(function(modes) {
             addCaptureModes('supportedImageModes', parseArray(modes));
         }, function(error) {
             console.log('Unable to retrieve supported image modes: ' + error);
             addCaptureModes('supportedImageModes', []);
-        }, 'MediaCapture', 'getSupportedImageModes', []); 
-        
-        PhoneGap.exec(function(modes) {
+        }, 'MediaCapture', 'getSupportedImageModes', []);
+
+        Cordova.exec(function(modes) {
             addCaptureModes('supportedVideoModes', parseArray(modes));
         }, function(error) {
             console.log('Unable to retrieve supported video modes: ' + error);
             addCaptureModes('supportedVideoModes', []);
-        }, 'MediaCapture', 'getSupportedVideoModes', []); 
+        }, 'MediaCapture', 'getSupportedVideoModes', []);
     };
-    
+
     /**
      * Utility function to parse JSON array.
      */
@@ -211,16 +211,16 @@ function CaptureAudioOptions() {
             console.log('unable to parse JSON: ' + e);
             return result;
         }
-        
+
         return result;
     };
-    
+
     /**
      * Utility function to create MediaFile objects from JSON.
      */
     var getMediaFiles = function(array) {
         var mediaFiles = [], file, objs, obj, len, i, j;
-        
+
         objs = parseArray(array);
         for (i = 0; len = objs.length, i < len; i += 1) {
             obj = objs[i];
@@ -230,13 +230,13 @@ function CaptureAudioOptions() {
             }
             mediaFiles.push(file);
         }
-        
+
         return mediaFiles;
     };
-    
+
     /**
      * Static method for invoking error callbacks.
-     * 
+     *
      * @param error         CaptureError code
      * @param errorCallback error callback to invoke
      */
@@ -252,7 +252,7 @@ function CaptureAudioOptions() {
 
     /**
      * Launch camera application and start an operation to record images.
-     * 
+     *
      * @param successCallback
      *            invoked with a list of MediaFile objects containing captured
      *            image file properties
@@ -269,28 +269,28 @@ function CaptureAudioOptions() {
             if (typeof options.limit === 'number' && options.limit > limit) {
                 limit = options.limit;
             }
-            if (options.mode) { 
+            if (options.mode) {
                 mode = options.mode;
             }
         }
-        
-        PhoneGap.exec(
+
+        Cordova.exec(
             function(mediaFiles) {
                 successCallback(getMediaFiles(mediaFiles));
-            }, 
+            },
             function(error) {
                 Capture.onError(error, errorCallback);
-            }, 
-            'MediaCapture', 
-            'captureImage', 
+            },
+            'MediaCapture',
+            'captureImage',
             [limit, mode]
-        );         
+        );
     };
-    
+
     /**
      * Launch video recorder application and start an operation to record video
      * clips.
-     * 
+     *
      * @param successCallback
      *            invoked with a list of MediaFile objects containing captured
      *            video file properties
@@ -299,7 +299,7 @@ function CaptureAudioOptions() {
      * @param options
      *            {CaptureVideoOptions} options for capturing video
      */
-    Capture.prototype.captureVideo = function(successCallback, errorCallback, options) { 
+    Capture.prototype.captureVideo = function(successCallback, errorCallback, options) {
         var limit = 1,
             duration = 0,
             mode = null;
@@ -310,22 +310,22 @@ function CaptureAudioOptions() {
             }
             if (typeof options.duration === 'number' && options.duration > 0) {
                 duration = options.duration;
-            }   
-            if (options.mode) { 
+            }
+            if (options.mode) {
                 mode = options.mode;
             }
         }
-        
-        PhoneGap.exec(
+
+        Cordova.exec(
             function(mediaFiles) {
                 successCallback(getMediaFiles(mediaFiles));
-            }, 
+            },
             function(error) {
                 Capture.onError(error, errorCallback);
             },
             'MediaCapture',
             'captureVideo',
-            [limit, duration, mode]);         
+            [limit, duration, mode]);
     };
 
     /**
@@ -340,53 +340,53 @@ function CaptureAudioOptions() {
      * @param options
      *            {CaptureAudioOptions} options for capturing audio
      */
-    Capture.prototype.captureAudio = function(successCallback, errorCallback, options) { 
-        var limit = 1, 
+    Capture.prototype.captureAudio = function(successCallback, errorCallback, options) {
+        var limit = 1,
             duration = 0,
             mode = null;
-        
+
         if (options) {
             if (typeof options.limit === 'number' && options.limit > limit) {
                 limit = options.limit;
             }
             if (typeof options.duration === 'number' && options.duration > 0) {
                 duration = options.duration;
-            }   
-            if (options.mode) { 
+            }
+            if (options.mode) {
                 mode = options.mode;
             }
-        }   
-        
-        PhoneGap.exec(
+        }
+
+        Cordova.exec(
            function(mediaFiles) {
                 successCallback(getMediaFiles(mediaFiles));
-            }, 
+            },
             function(error) {
                 Capture.onError(error, errorCallback);
             },
             'MediaCapture',
             'captureAudio',
-            [limit, duration, mode]);         
+            [limit, duration, mode]);
     };
-    
+
     /**
      * Cancels all pending capture operations.
      */
-    Capture.prototype.cancelCaptures = function() { 
-        PhoneGap.exec(null, null, 'MediaCapture', 'stopCaptures', []);
+    Capture.prototype.cancelCaptures = function() {
+        Cordova.exec(null, null, 'MediaCapture', 'stopCaptures', []);
     };
-    
+
     /**
      * Define navigator.device.capture object.
      */
-    PhoneGap.addConstructor(function() {
-        PhoneGap.waitForInitialization(captureId);
-		
+    Cordova.addConstructor(function() {
+        Cordova.waitForInitialization(captureId);
+
         //No way to guarantee order of constructors so just incase this goes first
 		if (typeof navigator.device === 'undefined') {
             navigator.device = {};
         }
-		
+
         navigator.device.capture = new Capture();
     });
 }());

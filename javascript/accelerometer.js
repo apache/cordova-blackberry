@@ -30,7 +30,7 @@ var Acceleration = function(x, y, z) {
 
 /**
  * navigator.accelerometer
- * 
+ *
  * Provides access to device accelerometer data.
  */
 (function() {
@@ -40,7 +40,7 @@ var Acceleration = function(x, y, z) {
     if (typeof navigator.accelerometer !== "undefined") {
         return;
     }
-    
+
     /**
      * @constructor
      */
@@ -77,7 +77,7 @@ var Acceleration = function(x, y, z) {
         }
 
         // Get acceleration
-        PhoneGap.exec(successCallback, errorCallback, "Accelerometer", "getAcceleration", []);
+        Cordova.exec(successCallback, errorCallback, "Accelerometer", "getAcceleration", []);
     };
 
     /**
@@ -105,18 +105,18 @@ var Acceleration = function(x, y, z) {
         }
 
         // Make sure accelerometer timeout > frequency + 10 sec
-        PhoneGap.exec(
+        Cordova.exec(
                 function(timeout) {
                     if (timeout < (frequency + 10000)) {
-                        PhoneGap.exec(null, null, "Accelerometer", "setTimeout", [frequency + 10000]);
+                        Cordova.exec(null, null, "Accelerometer", "setTimeout", [frequency + 10000]);
                     }
                 },
                 function(e) { }, "Accelerometer", "getTimeout", []);
 
         // Start watch timer
-        var id = PhoneGap.createUUID();
+        var id = Cordova.createUUID();
         navigator.accelerometer.timers[id] = setInterval(function() {
-            PhoneGap.exec(successCallback, errorCallback, "Accelerometer", "getAcceleration", []);
+            Cordova.exec(successCallback, errorCallback, "Accelerometer", "getAcceleration", []);
         }, (frequency ? frequency : 1));
 
         return id;
@@ -138,7 +138,7 @@ var Acceleration = function(x, y, z) {
     /**
      * Define navigator.accelerometer object.
      */
-    PhoneGap.addConstructor(function() {
+    Cordova.addConstructor(function() {
         navigator.accelerometer = new Accelerometer();
     });
 }());
