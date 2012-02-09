@@ -1,4 +1,4 @@
-<project name="Create &amp; Update a Cordova BlackBerry WebWorks Project or Plugin" default="help">
+<project name="Create &amp; Update a Cordova BlackBerry WebWorks Project" default="help">
     
     <!-- LOAD VERSION -->
     
@@ -11,7 +11,6 @@
     <!-- LOAD PROPERTIES -->
     
     <property name="template.project.dir" location="template/project" />
-    <property name="template.plugin.dir"  location="template/plugin" />
     <property name="template.dist.dir"    location="template/dist" />
     
     <property name="build.dir"            location="build" />
@@ -260,48 +259,6 @@ Install:
         </echo>
     </target>
     
-    <!-- CREATE A PLUGIN -->
-
-    <target name="create-plugin" depends="">
-        <!-- validate arguments -->
-        <fail unless="plugin.path" message="You must give a plugin PATH. Use the argument -Dplugin.path=&#34;C:\dev\my_plugin&#34;" />
-
-        <!-- destination must be empty -->
-        <available file="${plugin.path}" property="plugin.exists" />
-        <fail if="plugin.exists" message="The plugin path must be an empty directory." />
-
-        <!-- copy plugin directory -->
-        <mkdir dir="${plugin.path}" />
-        <copy todir="${plugin.path}">
-            <fileset dir="${template.plugin.dir}" />
-        </copy>
-
-        <echo>
-Plugin Creation Complete!
-=========================
-
-Getting Started:
-----------------
-
-  cd ${plugin.path}
-
-  ant help
-        </echo>
-    </target>
-
-    <!-- UPDATE A PLUGIN -->
-
-    <target name="update-plugin" depends="">
-        <fail unless="plugin.path" message="You must give a plugin PATH. Use the argument -Dplugin.path=&#34;C:\dev\my_plugin&#34;" />
-
-        <available file="${plugin.path}" property="plugin.exists" />
-        <fail unless="plugin.exists" message="The plugin path cannot be empty." />
-
-        <!-- build.xml -->
-        <copy todir="${plugin.path}" file="${template.plugin.dir}/build.xml" />
-        <echo message="Updated build.xml" />
-    </target>
-
     <!-- CLEAN -->
     
     <target name="clean">
@@ -342,14 +299,6 @@ COMMANDS
   version ......... Update Cordova version
                       ant version VERSION
                       ant version -Dvalue="1.0.0"
-
-  create-plugin ... Create a new plugin
-                      ant create-plugin PATH
-                      ant create-plugin -Dplugin.path="C:\dev\my_plugin"
-
-  update-plugin ... Update a plugin's ANT script
-                      ant update-plugin PATH
-                      ant update-plugin -Dplugin.path="C:\dev\my_plugin"
         </echo>
     </target>
 </project>
