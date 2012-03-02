@@ -47,7 +47,7 @@ cordova.PluginManager = (function (webworksPluginManager) {
                                 "name" : blackberry.system.model,
                                 "uuid" : blackberry.identity.PIN,
                                 "platform" : "PlayBook",
-                                "cordova" : "1.4.1"
+                                "cordova" : "1.5.0"
                             }
                     };
                 }
