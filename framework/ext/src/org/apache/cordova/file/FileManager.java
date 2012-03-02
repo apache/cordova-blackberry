@@ -77,6 +77,7 @@ public class FileManager extends Plugin {
     protected static String ACTION_REQUEST_FILE_SYSTEM = "requestFileSystem";
     protected static String ACTION_RESOLVE_FILE_SYSTEM_URI = "resolveLocalFileSystemURI";
     protected static String ACTION_GET_METADATA = "getMetadata";
+    protected static String ACTION_GET_FILE_METADATA = "getFileMetadata";
     protected static String ACTION_LIST_DIRECTORY = "readEntries";
     protected static String ACTION_COPY_TO = "copyTo";
     protected static String ACTION_MOVE_TO = "moveTo";
@@ -219,7 +220,7 @@ public class FileManager extends Plugin {
             }
             return resolveFileSystemURI(uri);
         }
-        else if (ACTION_GET_METADATA.equals(action)) {
+        else if (ACTION_GET_METADATA.equals(action) || ACTION_GET_FILE_METADATA.equals(action)) {
             String path = null;
             try {
                 path = args.getString(0);
@@ -230,7 +231,7 @@ public class FileManager extends Plugin {
                 return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
-            return getMetadata(path);
+            return getMetadata(path, ACTION_GET_FILE_METADATA.equals(action));
         }
         else if (ACTION_LIST_DIRECTORY.equals(action)) {
             String path = null;
@@ -529,7 +530,7 @@ public class FileManager extends Plugin {
         }
         catch (JSONException e) {
             return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
-                    "File systen entry JSON conversion failed.");
+                    "File system entry JSON conversion failed.");
         }
 
         return result;
@@ -571,17 +572,30 @@ public class FileManager extends Plugin {
      *
      * @param path
      *            full path name of the file or directory
+     * @param full
+     *            return full or partial meta data.
      * @return PluginResult containing metadata for file system entry or an
      *         error code if unable to retrieve metadata
      */
-    protected static PluginResult getMetadata(String path) {
+    protected static PluginResult getMetadata(String path, boolean full) {
         PluginResult result = null;
         FileConnection fconn = null;
         try {
             fconn = (FileConnection)Connector.open(path);
             if (fconn.exists()) {
-                long lastModified = fconn.lastModified();
-                result = new PluginResult(PluginResult.Status.OK, lastModified);
+                if (full) {
+                    JSONObject metadata = new JSONObject();
+                    metadata.put("size", fconn.fileSize());
+                    metadata.put("type",
+                            MIMETypeAssociations.getMIMEType(fconn.getURL()));
+                    metadata.put("name", fconn.getName());
+                    metadata.put("fullPath", fconn.getURL());
+                    metadata.put("lastModifiedDate", fconn.lastModified());
+                    result = new PluginResult(PluginResult.Status.OK, metadata);
+                } else {
+                    result = new PluginResult(PluginResult.Status.OK,
+                            fconn.lastModified());
+                }
             }
             else {
                 result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
@@ -597,7 +611,11 @@ public class FileManager extends Plugin {
         catch (IOException e) {
             Logger.log(FileUtils.class.getName() + ": " + e);
             result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
-                    e.getMessage());
+                    NOT_READABLE_ERR);
+        }
+        catch (JSONException e) {
+            result = new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                    "File system entry JSON conversion failed.");
         }
         finally {
             try {
@@ -607,6 +625,18 @@ public class FileManager extends Plugin {
             }
         }
         return result;
+    }
+
+    private static JSONObject buildEntry(String dirPath, String filePath) throws JSONException {
+        JSONObject entry = new JSONObject();
+        boolean isDir = filePath.endsWith(FileUtils.FILE_SEPARATOR);
+
+        entry.put("isFile", !isDir);
+        entry.put("isDirectory", isDir);
+        entry.put("name", isDir ? filePath.substring(0, filePath.length()-1) : filePath);
+        entry.put("fullPath", dirPath + filePath);
+
+        return entry;
     }
 
     /**
@@ -630,13 +660,18 @@ public class FileManager extends Plugin {
                     NOT_FOUND_ERR);
         }
 
-        // pass directory contents back as an array of Strings (names)
-        JSONArray array = new JSONArray();
-        while (listing.hasMoreElements()) {
-            array.add((String)listing.nextElement());
-        }
+        try {
+            // pass directory contents back as an array of JSONObjects (entries)
+            JSONArray array = new JSONArray();
+            while (listing.hasMoreElements()) {
+                array.add(buildEntry(path, (String) listing.nextElement()));
+            }
 
-        return new PluginResult(PluginResult.Status.OK, array.toString());
+            return new PluginResult(PluginResult.Status.OK, array);
+        } catch (JSONException e) {
+            return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                    "File system entry JSON conversion failed.");
+        }
     }
 
     /**

@@ -113,7 +113,7 @@ public final class CordovaExtension implements WidgetExtension {
             // if this is premature, we at least set the _nativeReady flag to true
             // so that when the JS side is ready, it knows native side is too
             Logger.log(this.getClass().getName() + ": invoking Cordova.onNativeReady.fire()");
-            scriptEngine.executeScript("try {Cordova.onNativeReady.fire();} catch(e) {_nativeReady = true;}", null);
+            scriptEngine.executeScript("try {require('cordova/channel').onNativeReady.fire();} catch(e) {_nativeReady = true;}", null);
         }
     }
 

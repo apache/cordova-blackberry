@@ -18,6 +18,7 @@
  */
 package org.apache.cordova.api;
 
+import org.apache.cordova.json4j.JSONArray;
 import org.apache.cordova.json4j.JSONObject;
 
 /**
@@ -38,6 +39,11 @@ public class PluginResult {
     public PluginResult(Status status, String message) {
         this.status = status.ordinal();
         this.message = JSONObject.quote(message);
+    }
+
+    public PluginResult(Status status, JSONArray message) {
+        this.status = status.ordinal();
+        this.message = message.toString();
     }
 
     public PluginResult(Status status, JSONObject message) {
@@ -93,7 +99,7 @@ public class PluginResult {
      * @return JavaScript string that invokes the appropriate plugin success callback
      */
     public String toSuccessCallbackString(String callbackId) {
-        return "try { Cordova.callbackSuccess('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
+        return "try { require('cordova').callbackSuccess('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
     }
 
     /**
@@ -104,7 +110,7 @@ public class PluginResult {
      * @return JavaScript string that invokes the appropriate plugin error callback
      */
     public String toErrorCallbackString(String callbackId) {
-        return "try { Cordova.callbackError('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackError:' + e.message); }";
+        return "try { require('cordova').callbackError('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackError:' + e.message); }";
     }
 
     public String toErrorString() {
