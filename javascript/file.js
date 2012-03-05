@@ -801,8 +801,25 @@ var Entry = Entry || (function() {
      * @param errorCallback
      *            {Function} called with a FileError
      */
+    Entry.prototype.toURL = function() {
+        // fullPath attribute contains the full URI on BlackBerry
+        return this.fullPath;
+    };
+
+    /**
+     * Return a URI that can be used to identify this entry.
+     *
+     * @param mimeType
+     *            {DOMString} for a FileEntry, the mime type to be used to
+     *            interpret the file, when loaded through this URI.
+     * @param successCallback
+     *            {Function} called with the new Entry object
+     * @param errorCallback
+     *            {Function} called with a FileError
+     */
     Entry.prototype.toURI = function(mimeType, successCallback, errorCallback) {
         // fullPath attribute contains the full URI on BlackBerry
+        console.log("DEPRECATED: Update your code to use 'toURL'");
         return this.fullPath;
     };
 
