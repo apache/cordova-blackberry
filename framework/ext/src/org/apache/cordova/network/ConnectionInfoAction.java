@@ -23,8 +23,6 @@ import java.util.Hashtable;
 
 import org.apache.cordova.CordovaExtension;
 import org.apache.cordova.api.PluginResult;
-import org.apache.cordova.json4j.JSONException;
-import org.apache.cordova.json4j.JSONObject;
 import org.apache.cordova.util.Logger;
 
 import net.rim.device.api.system.Application;
@@ -41,10 +39,6 @@ import net.rim.device.api.system.WLANInfo;
  * plug-in.
  */
 public class ConnectionInfoAction {
-    // Returned JSON attributes
-    private static final String EVENT = "event";
-    private static final String TYPE = "type";
-
     // Return types
     private static final String TYPE_UNKNOWN = "unknown";
     private static final String TYPE_ETHERNET = "ethernet";
@@ -104,18 +98,8 @@ public class ConnectionInfoAction {
 
         // Retrieve the current active connection type and build the return
         // result.
-        String type = getConnectionType(true, true);
-        JSONObject connectInfo = new JSONObject();
-        try {
-            connectInfo.put(TYPE, type);
-        } catch (JSONException e) {
-            Logger.error("JSONException: " + e.getMessage());
-            return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
-                    "JSONException: " + e.getMessage());
-        }
-
         PluginResult result = new PluginResult(PluginResult.Status.OK,
-                connectInfo);
+                getConnectionType(true, true));
 
         // Need to keep the call back since listeners have been registered to
         // fire events on the specified call back ID.
@@ -293,22 +277,6 @@ public class ConnectionInfoAction {
      */
     private void sendResult(String type, String event) {
 
-        JSONObject connectionInfo = new JSONObject();
-        try {
-            connectionInfo.put(TYPE, type);
-            connectionInfo.put(EVENT, event);
-        } catch (JSONException e) {
-            Logger.error("JSONException: " + e.getMessage());
-            for (Enumeration callbacks = this.callbackIds.elements(); callbacks
-                    .hasMoreElements();) {
-                String callbackId = (String) callbacks.nextElement();
-                CordovaExtension.invokeErrorCallback(callbackId,
-                        new PluginResult(PluginResult.Status.JSON_EXCEPTION,
-                                "JSONException: " + e.getMessage()));
-            }
-            return;
-        }
-
         // Only send the event if it is different then the last sent event.
         synchronized (prevType) {
             if (prevType != null && prevEvent != null && prevType.equals(type)
@@ -321,7 +289,7 @@ public class ConnectionInfoAction {
         }
 
         PluginResult result = new PluginResult(PluginResult.Status.OK,
-                connectionInfo);
+                type);
 
         // Must keep the call back active for future events.
         result.setKeepCallback(true);
