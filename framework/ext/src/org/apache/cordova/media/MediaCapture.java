@@ -28,6 +28,8 @@ import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 import org.apache.cordova.file.File;
 import org.apache.cordova.json4j.JSONArray;
+import org.apache.cordova.json4j.JSONException;
+import org.apache.cordova.json4j.JSONObject;
 import org.apache.cordova.util.Logger;
 import org.apache.cordova.util.StringUtils;
 
@@ -40,6 +42,8 @@ import org.apache.cordova.util.StringUtils;
 public class MediaCapture extends Plugin {
 
     public static String PROTOCOL_CAPTURE = "capture";
+
+    private static final String LOG_TAG = "MediaCapture: ";
 
     /**
      * Error codes.
@@ -58,13 +62,11 @@ public class MediaCapture extends Plugin {
     /**
      * Possible actions.
      */
-    protected static final int ACTION_GET_SUPPORTED_AUDIO_MODES = 0;
-    protected static final int ACTION_GET_SUPPORTED_IMAGE_MODES = 1;
-    protected static final int ACTION_GET_SUPPORTED_VIDEO_MODES = 2;
-    protected static final int ACTION_CAPTURE_AUDIO = 3;
-    protected static final int ACTION_CAPTURE_IMAGE = 4;
-    protected static final int ACTION_CAPTURE_VIDEO = 5;
-    protected static final int ACTION_CANCEL_CAPTURES = 6;
+    protected static final String ACTION_GET_SUPPORTED_MODES = "captureModes";
+    protected static final String ACTION_CAPTURE_AUDIO = "captureAudio";
+    protected static final String ACTION_CAPTURE_IMAGE = "captureImage";
+    protected static final String ACTION_CAPTURE_VIDEO = "captureVideo";
+    protected static final String ACTION_CANCEL_CAPTURES = "stopCaptures";
 
     /**
      * Executes the requested action and returns a PluginResult.
@@ -78,27 +80,25 @@ public class MediaCapture extends Plugin {
      * @return A PluginResult object with a status and message.
      */
     public PluginResult execute(String action, JSONArray args, String callbackId) {
+        PluginResult result = null;
 
-        switch (getAction(action)) {
-        case ACTION_GET_SUPPORTED_AUDIO_MODES:
-            return getAudioCaptureModes();
-        case ACTION_GET_SUPPORTED_IMAGE_MODES:
-            return getImageCaptureModes();
-        case ACTION_GET_SUPPORTED_VIDEO_MODES:
-            return getVideoCaptureModes();
-        case ACTION_CAPTURE_AUDIO:
-            return captureAudio(args, callbackId);
-        case ACTION_CAPTURE_IMAGE:
-            return captureImage(args, callbackId);
-        case ACTION_CAPTURE_VIDEO:
-            return captureVideo(args, callbackId);
-        case ACTION_CANCEL_CAPTURES:
+        if (ACTION_GET_SUPPORTED_MODES.equals(action)) {
+            result = getCaptureModes();
+        } else if (ACTION_CAPTURE_AUDIO.equals(action)) {
+            result = captureAudio(args, callbackId);
+        } else if (ACTION_CAPTURE_IMAGE.equals(action)) {
+            result = captureImage(args, callbackId);
+        } else if (ACTION_CAPTURE_VIDEO.equals(action)) {
+            result = captureVideo(args, callbackId);
+        } else if (ACTION_CANCEL_CAPTURES.equals(action)) {
             CaptureControl.getCaptureControl().stopPendingOperations(true);
-            return new PluginResult(PluginResult.Status.OK);
+            result =  new PluginResult(PluginResult.Status.OK);
+        } else {
+            result = new PluginResult(PluginResult.Status.INVALID_ACTION,
+                "MediaCapture: invalid action " + action);
         }
 
-        return new PluginResult(PluginResult.Status.INVALID_ACTION,
-                "MediaCapture: invalid action " + action);
+        return result;
     }
 
     /**
@@ -119,52 +119,33 @@ public class MediaCapture extends Plugin {
     }
 
     /**
-     * Retrieves supported audio capture modes (content types).
-     * @return supported audio capture modes
+     * Return the supported capture modes for audio, image and video.
+     * @return supported capture modes.
      */
-    protected PluginResult getAudioCaptureModes() {
-        if (!isAudioCaptureSupported()) {
-            // if audio capture is not supported, return an empty array
-            // of capture modes
-            Logger.log(this.getClass().getName() + ": audio capture not supported");
-            return new PluginResult(PluginResult.Status.OK, "[]");
-        }
-
-        // get all supported capture content types
-        String[] contentTypes = getCaptureContentTypes();
-
-        // return audio content types only
-        JSONArray modes = new JSONArray();
-        for (int i = 0; i < contentTypes.length; i++) {
-            if (contentTypes[i].startsWith(AudioCaptureOperation.CONTENT_TYPE)) {
-                modes.add(new CaptureMode(contentTypes[i]).toJSONObject());
-            }
-        }
-
-        return new PluginResult(PluginResult.Status.OK, modes.toString());
-    }
-
-    /**
-     * Retrieves supported image capture modes (content type, width and height).
-     * @return supported image capture modes
-     */
-    protected PluginResult getImageCaptureModes() {
-        // get supported capture content types
-        String[] contentTypes = getCaptureContentTypes();
+    private PluginResult getCaptureModes() {
+        JSONArray audioModes = new JSONArray();
+        JSONArray imageModes = new JSONArray();
+        boolean audioSupported = isAudioCaptureSupported();
 
         // need to get the recording dimensions from supported image encodings
         String imageEncodings = System.getProperty("video.snapshot.encodings");
-        Logger.log(this.getClass().getName() + ": video.snapshot.encodings=" + imageEncodings);
+        Logger.log(this.getClass().getName() + ": video.snapshot.encodings="
+                + imageEncodings);
         String[] encodings = StringUtils.split(imageEncodings, "encoding=");
-
-        // find matching encodings and parse them for dimensions
-        // it's so annoying that we have to do this
         CaptureMode mode = null;
         Vector list = new Vector();
-        JSONArray modes = new JSONArray();
+
+        // get all supported capture content types for audio and image
+        String[] contentTypes = getCaptureContentTypes();
         for (int i = 0; i < contentTypes.length; i++) {
-            if (contentTypes[i].startsWith(ImageCaptureOperation.CONTENT_TYPE)) {
-                String type = contentTypes[i].substring(ImageCaptureOperation.CONTENT_TYPE.length());
+            if (audioSupported
+                    && contentTypes[i]
+                            .startsWith(AudioCaptureOperation.CONTENT_TYPE)) {
+                audioModes.add(new CaptureMode(contentTypes[i]).toJSONObject());
+            } else if (contentTypes[i]
+                    .startsWith(ImageCaptureOperation.CONTENT_TYPE)) {
+                String type = contentTypes[i]
+                        .substring(ImageCaptureOperation.CONTENT_TYPE.length());
                 for (int j = 0; j < encodings.length; j++) {
                     // format: "jpeg&width=2592&height=1944 "
                     String enc = encodings[j];
@@ -181,26 +162,39 @@ public class MediaCapture extends Plugin {
                         // don't want duplicates
                         if (!list.contains(mode)) {
                             list.addElement(mode);
-                            modes.add(mode.toJSONObject());
+                            imageModes.add(mode.toJSONObject());
                         }
                     }
                 }
             }
         }
 
-        return new PluginResult(PluginResult.Status.OK, modes.toString());
+        JSONObject captureModes = new JSONObject();
+        try {
+            captureModes.put("supportedAudioModes", audioModes.toString());
+            captureModes.put("supportedImageModes", imageModes.toString());
+            captureModes.put("supportedVideoModes", getVideoCaptureModes().toString());
+        } catch (JSONException e) {
+            Logger.error("JSONException: " + e.getMessage());
+            return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                    "Failed to build supported capture modes.");
+        }
+
+        return new PluginResult(PluginResult.Status.OK, captureModes);
     }
 
     /**
      * Retrieves supported video capture modes (content type, width and height).
      * @return supported video capture modes
      */
-    protected PluginResult getVideoCaptureModes() {
+    protected JSONArray getVideoCaptureModes() {
+        JSONArray videoModes = new JSONArray();
+
         if (!isVideoCaptureSupported()) {
             // if the device does not support video capture, return an empty
             // array of capture modes
             Logger.log(this.getClass().getName() + ": video capture not supported");
-            return new PluginResult(PluginResult.Status.OK, "[]");
+            return videoModes;
         }
 
         /**
@@ -223,7 +217,6 @@ public class MediaCapture extends Plugin {
         String[] encodings = StringUtils.split(videoEncodings, "encoding=");
 
         // parse them into CaptureModes
-        JSONArray modes = new JSONArray();
         String enc = null;
         CaptureMode mode = null;
         Vector list = new Vector();
@@ -245,12 +238,12 @@ public class MediaCapture extends Plugin {
                 // don't want duplicates
                 if (!list.contains(mode)) {
                     list.addElement(mode);
-                    modes.add(mode.toJSONObject());
+                    videoModes.add(mode.toJSONObject());
                 }
             }
         }
 
-        return new PluginResult(PluginResult.Status.OK, modes.toString());
+        return videoModes;
     }
 
     /**
@@ -302,21 +295,28 @@ public class MediaCapture extends Plugin {
 
         // if audio is not being recorded, start audio capture
         if (!AudioControl.hasAudioRecorderApplication()) {
-            Logger.log(this.getClass().getName()
-                    + ": Audio recorder application is not installed.");
-            result = new PluginResult(PluginResult.Status.ERROR,
-                    CAPTURE_NOT_SUPPORTED);
-        }
-        else if (AudioControl.isAudioRecorderActive()) {
-            Logger.log(this.getClass().getName()
-                    + ": Audio recorder application is busy.");
-            result = new PluginResult(PluginResult.Status.ERROR,
-                    CAPTURE_APPLICATION_BUSY);
+            result = errorResult(CAPTURE_NOT_SUPPORTED,
+                    "Audio recorder application is not installed.");
+        } else if (AudioControl.isAudioRecorderActive()) {
+            result = errorResult(CAPTURE_APPLICATION_BUSY,
+                    "Audio recorder application is busy.");
         }
         else {
             // optional parameters
-            int limit = args.optInt(0, 1);
-            long duration = args.optLong(1, 0);
+            long limit = 1;
+            double duration = 0.0f;
+
+            try {
+                JSONObject options = args.getJSONObject(0);
+                if (options != null) {
+                    limit = options.optLong("limit", 1);
+                    duration = options.optDouble("duration", 0.0f);
+                }
+            } catch (JSONException e) {
+                // Eat it and use default value of 1.
+                Logger.log(this.getClass().getName()
+                        + ": Invalid captureAudio options format. " + e.getMessage());
+            }
 
             // start audio capture
             // start capture operation in the background
@@ -347,14 +347,23 @@ public class MediaCapture extends Plugin {
         PluginResult result = null;
 
         if (CameraControl.isCameraActive()) {
-            Logger.log(this.getClass().getName()
-                    + ": Camera application is busy.");
-            result = new PluginResult(PluginResult.Status.ERROR,
-                    CAPTURE_APPLICATION_BUSY);
+            result = errorResult(CAPTURE_APPLICATION_BUSY,
+                    "Camera application is busy.");
         }
         else {
             // optional parameters
-            int limit = args.optInt(0, 1);
+            long limit = 1;
+
+            try {
+                JSONObject options = args.getJSONObject(0);
+                if (options != null) {
+                    limit = options.optLong("limit", 1);
+                }
+            } catch (JSONException e) {
+                // Eat it and use default value of 1.
+                Logger.log(this.getClass().getName()
+                        + ": Invalid captureImage options format. " + e.getMessage());
+            }
 
             // start capture operation in the background
             CaptureControl.getCaptureControl().startImageCaptureOperation(
@@ -384,20 +393,26 @@ public class MediaCapture extends Plugin {
         PluginResult result = null;
 
         if (!isVideoCaptureSupported()) {
-            Logger.log(this.getClass().getName()
-                    + ": Video capture is not supported.");
-            result = new PluginResult(PluginResult.Status.ERROR,
-                    CAPTURE_NOT_SUPPORTED);
-        }
-        else if (CameraControl.isVideoRecorderActive()) {
-            Logger.log(this.getClass().getName()
-                    + ": Video recorder application is busy.");
-            result = new PluginResult(PluginResult.Status.ERROR,
-                    CAPTURE_APPLICATION_BUSY);
+            result = errorResult(CAPTURE_NOT_SUPPORTED,
+                    "Video capture is not supported.");
+        } else if (CameraControl.isVideoRecorderActive()) {
+            result = errorResult(CAPTURE_APPLICATION_BUSY,
+                    "Video recorder application is busy.");
         }
         else {
             // optional parameters
-            int limit = args.optInt(0, 1);
+            long limit = 1;
+
+            try {
+                JSONObject options = args.getJSONObject(0);
+                if (options != null) {
+                    limit = options.optLong("limit", 1);
+                }
+            } catch (JSONException e) {
+                // Eat it and use default value of 1.
+                Logger.log(this.getClass().getName()
+                        + ": Invalid captureVideo options format. " + e.getMessage());
+            }
 
             // start capture operation in the background
             CaptureControl.getCaptureControl().startVideoCaptureOperation(
@@ -430,7 +445,7 @@ public class MediaCapture extends Plugin {
         }
 
         // invoke the appropriate callback
-        result = new PluginResult(PluginResult.Status.OK, array.toString());
+        result = new PluginResult(PluginResult.Status.OK, array);
         success(result, callbackId);
     }
 
@@ -441,8 +456,7 @@ public class MediaCapture extends Plugin {
      *            the callback to receive the error
      */
     public static void captureError(String callbackId) {
-        error(new PluginResult(PluginResult.Status.ERROR,
-                CAPTURE_NO_MEDIA_FILES), callbackId);
+        error(errorResult(CAPTURE_NO_MEDIA_FILES, ""), callbackId);
     }
 
     /**
@@ -472,33 +486,17 @@ public class MediaCapture extends Plugin {
         CaptureControl.getCaptureControl().stopPendingOperations(true);
     }
 
-    /**
-     * Returns action to perform.
-     * @param action
-     * @return action to perform
-     */
-    protected static int getAction(String action) {
-        if ("getSupportedAudioModes".equals(action)) {
-            return ACTION_GET_SUPPORTED_AUDIO_MODES;
+    private static PluginResult errorResult(int code, String message) {
+        Logger.log(LOG_TAG + message);
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("code", code);
+            obj.put("message", message);
+        } catch (JSONException e) {
+            // This will never happen
         }
-        if ("getSupportedImageModes".equals(action)) {
-            return ACTION_GET_SUPPORTED_IMAGE_MODES;
-        }
-        if ("getSupportedVideoModes".equals(action)) {
-            return ACTION_GET_SUPPORTED_VIDEO_MODES;
-        }
-        if ("captureAudio".equals(action)) {
-            return ACTION_CAPTURE_AUDIO;
-        }
-        if ("captureImage".equals(action)) {
-            return ACTION_CAPTURE_IMAGE;
-        }
-        if ("captureVideo".equals(action)) {
-            return ACTION_CAPTURE_VIDEO;
-        }
-        if ("stopCaptures".equals(action)) {
-            return ACTION_CANCEL_CAPTURES;
-        }
-        return -1;
+
+        return new PluginResult(PluginResult.Status.ERROR, obj);
     }
 }

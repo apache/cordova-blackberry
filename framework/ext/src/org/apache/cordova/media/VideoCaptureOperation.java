@@ -48,7 +48,7 @@ public class VideoCaptureOperation extends CaptureOperation {
      * @param queue
      *            the queue from which to retrieve captured media files
      */
-    public VideoCaptureOperation(int limit, String callbackId, MediaQueue queue) {
+    public VideoCaptureOperation(long limit, String callbackId, MediaQueue queue) {
         super(limit, callbackId, queue);
 
         // listener to capture image files added to file system

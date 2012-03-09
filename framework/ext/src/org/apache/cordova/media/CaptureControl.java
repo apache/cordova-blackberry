@@ -83,7 +83,7 @@ public class CaptureControl {
      * @param callbackId
      *            the callback to be invoked with capture file properties
      */
-    public void startImageCaptureOperation(int limit, String callbackId) {
+    public void startImageCaptureOperation(long limit, String callbackId) {
         // setup a queue to receive image file paths
         MediaQueue queue = new MediaQueue();
 
@@ -104,7 +104,7 @@ public class CaptureControl {
      * @param callbackId
      *            the callback to be invoked with capture file properties
      */
-    public void startVideoCaptureOperation(int limit, String callbackId) {
+    public void startVideoCaptureOperation(long limit, String callbackId) {
         // setup a queue to receive video recording file paths
         MediaQueue queue = new MediaQueue();
 
@@ -128,7 +128,7 @@ public class CaptureControl {
      * @param callbackId
      *            the callback to be invoked with the capture results
      */
-    public void startAudioCaptureOperation(int limit, long duration, String callbackId) {
+    public void startAudioCaptureOperation(long limit, double duration, String callbackId) {
         // setup a queue to receive recording file paths
         MediaQueue queue = new MediaQueue();
 

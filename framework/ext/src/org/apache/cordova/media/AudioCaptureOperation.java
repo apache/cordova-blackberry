@@ -19,6 +19,7 @@
 package org.apache.cordova.media;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -36,7 +37,7 @@ public class AudioCaptureOperation extends CaptureOperation {
     public static final String CONTENT_TYPE = "audio/";
 
     // maximum duration to capture media (milliseconds)
-    private long duration = 0;
+    private double duration = 0;
 
     // file system listener
     private AudioCaptureListener listener = null;
@@ -53,7 +54,7 @@ public class AudioCaptureOperation extends CaptureOperation {
      * @param queue
      *            the queue from which to retrieve captured media files
      */
-    public AudioCaptureOperation(int limit, long duration, String callbackId, MediaQueue queue) {
+    public AudioCaptureOperation(long limit, double duration, String callbackId, MediaQueue queue) {
         super(limit, callbackId, queue);
 
         if (duration > 0) {
@@ -103,19 +104,53 @@ public class AudioCaptureOperation extends CaptureOperation {
     protected void processFile(String filePath) {
         Logger.log(this.getClass().getName() + ": processing file: " + filePath);
 
+        // wait for file to finish writing and add it to captured files
+        addCaptureFile(getMediaFile(filePath));
+    }
+
+    /**
+     * Waits for file to be fully written to the file system before retrieving
+     * its file properties.
+     *
+     * @param filePath
+     *            Full path of the image file
+     * @throws IOException
+     */
+    private File getMediaFile(String filePath) {
         File file = new File(FileUtils.stripSeparator(filePath));
 
-        // grab file properties
+        // time begin waiting for file write
+        long start = (new Date()).getTime();
+
+        // wait for the file to be fully written, then grab its properties
         FileConnection fconn = null;
         try {
             fconn = (FileConnection) Connector.open(filePath, Connector.READ);
             if (fconn.exists()) {
-                long size = fconn.fileSize();
+                // wait for file to be fully written
+                long fileSize = fconn.fileSize();
+                long size = 0;
+                Thread thisThread = Thread.currentThread();
+                while (myThread == thisThread) {
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e) {
+                        break;
+                    }
+                    size = fconn.fileSize();
+                    if (fileSize != 0 && size == fileSize) {
+                        break;
+                    }
+                    fileSize = size;
+                }
                 Logger.log(this.getClass().getName() + ": " + filePath + " size="
-                        + Long.toString(size) + " bytes");
+                        + Long.toString(fileSize) + " bytes");
+
+                // retrieve file properties
                 file.setLastModifiedDate(fconn.lastModified());
                 file.setName(FileUtils.stripSeparator(fconn.getName()));
-                file.setSize(size);
+                file.setSize(fileSize);
                 file.setType(MIMETypeAssociations.getMIMEType(filePath));
             }
         }
@@ -128,6 +163,11 @@ public class AudioCaptureOperation extends CaptureOperation {
             } catch (IOException ignored) {}
         }
 
-        addCaptureFile(file);
+        // log time it took to write the file
+        long end = (new Date()).getTime();
+        Logger.log(this.getClass().getName() + ": wait time="
+                + Long.toString(end - start) + " ms");
+
+        return file;
     }
 }

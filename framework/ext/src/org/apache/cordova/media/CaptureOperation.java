@@ -28,7 +28,7 @@ import org.apache.cordova.util.Logger;
 
 public abstract class CaptureOperation implements Runnable {
     // max number of media files to capture
-    protected int limit = 1;
+    protected long limit = 1;
 
     // for sending results
     protected String callbackId = null;
@@ -55,7 +55,7 @@ public abstract class CaptureOperation implements Runnable {
      * @param queue
      *            the queue from which to retrieve captured media files
      */
-    public CaptureOperation(int limit, String callbackId, MediaQueue queue) {
+    public CaptureOperation(long limit, String callbackId, MediaQueue queue) {
         if (limit > 1) {
             this.limit = limit;
         }

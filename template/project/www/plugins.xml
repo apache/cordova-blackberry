@@ -10,6 +10,6 @@
   <plugin name="File"           value="org.apache.cordova.file.FileManager"/>
   <plugin name="FileTransfer"   value="org.apache.cordova.http.FileTransfer"/>
   <plugin name="Contact"        value="org.apache.cordova.pim.Contact"/>
-  <plugin name="MediaCapture"   value="org.apache.cordova.media.MediaCapture"/>
+  <plugin name="Capture"        value="org.apache.cordova.media.MediaCapture"/>
   <plugin name="Battery"        value="org.apache.cordova.battery.Battery"/>
 </plugins>
