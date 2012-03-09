@@ -99,7 +99,7 @@ public class PluginResult {
      * @return JavaScript string that invokes the appropriate plugin success callback
      */
     public String toSuccessCallbackString(String callbackId) {
-        return "try { require('cordova').callbackSuccess('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
+        return "try { cordova.callbackSuccess('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackSuccess:' + e.message); }";
     }
 
     /**
@@ -110,7 +110,7 @@ public class PluginResult {
      * @return JavaScript string that invokes the appropriate plugin error callback
      */
     public String toErrorCallbackString(String callbackId) {
-        return "try { require('cordova').callbackError('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackError:' + e.message); }";
+        return "try { cordova.callbackError('"+callbackId+"', " + this.getJSONString() + "); } catch(e) { alert('error in callbackError:' + e.message); }";
     }
 
     public String toErrorString() {
