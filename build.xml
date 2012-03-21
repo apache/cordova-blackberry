@@ -25,9 +25,7 @@
     <property name="jar.basename" value="cordova.${version}.jar" />
     <property name="jar.file"     value="${jar.path}/${jar.basename}" />
     
-    <property name="playbook.js.src"    location="javascript/playbook" />
     <property name="playbook.js.path"   value="javascript/playbook" />
-    <property name="playbook.js.file"   value="${playbook.js.path}/playbook.js" />
     <property name="playbook.ext.src"   location="framework/ext-air" />
     <property name="playbook.ext.path"  value="ext-air" />
     
@@ -39,25 +37,14 @@
     <!-- BUILD JAVASCRIPT -->
     
     <target name="build-javascript">
-        <mkdir dir="${build.dir}/${js.path}" />
-        
         <!-- BB Javascript -->
-        <concat destfile="${build.dir}/${js.file}" append="false">
-            <filelist dir="${js.src}" files="_cordova.js,webWorksPluginManager.js,console.js" />
-            <fileset dir="${js.src}/blackberry" includes="*.js"/>
-            <filelist dir="${js.src}" files="device.js,file.js" />
-            <fileset dir="${js.src}" excludes="_cordova.js,webWorksPluginManager.js,console.js,device.js,file.js">
-                <include name="*.js" />
-            </fileset>
-        </concat>
+        <mkdir dir="${build.dir}/${js.path}" />
+        <copy file="${js.src}/cordova.blackberry.js" tofile="${build.dir}/${js.file}" />
+
         <!-- PB Javascript -->
         <mkdir dir="${build.dir}/${playbook.js.path}" />
-        <concat destfile="${build.dir}/${playbook.js.path}/${js.basename}" append="false">
-            <fileset dir="${js.src}" includes="*.js" />
-        </concat>
-        <concat destfile="${build.dir}/${playbook.js.path}/${js.basename}" append="true">
-            <fileset dir="${js.src}/playbook" includes="*.js"/>
-        </concat>
+        <copy file="${js.src}/cordova.playbook.js" tofile="${build.dir}/${playbook.js.path}/${js.basename}" />
+
     </target>
 
     <!-- BUILD BLACKBERRY EXTENSION -->
@@ -150,6 +137,11 @@ Getting Started:
         <!-- copy cordova.jar -->
         <copy todir="${dist.www.path}/ext">
             <fileset dir="${build.dir}/${jar.path}" />
+        </copy>
+
+        <!-- copy ext-air/ -->
+        <copy todir="${dist.www.path}/ext-air">
+            <fileset dir="${build.dir}/${playbook.ext.path}" />
         </copy>
         
         <!-- copy cordova.js -->
