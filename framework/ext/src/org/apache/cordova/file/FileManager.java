@@ -777,6 +777,13 @@ public class FileManager extends Plugin {
                         PluginResult.Status.IO_EXCEPTION, NOT_FOUND_ERR);
             }
 
+            if (src.isDirectory() && !srcPath.endsWith(FileUtils.FILE_SEPARATOR)) {
+                // Rename of a directory on OS 7+ is quirky in that it requires
+                // the opened file path to have a trailing slash.
+                src.close();
+                src = (FileConnection)Connector.open(srcPath + '/', Connector.READ_WRITE);
+            }
+
             // cannot delete the destination path if it is a directory that is
             // not empty
             dst = (FileConnection) Connector.open(parent + newName, Connector.READ_WRITE);
