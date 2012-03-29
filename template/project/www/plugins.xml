@@ -3,7 +3,7 @@
   <plugin name="App"            value="org.apache.cordova.app.App"/>
   <plugin name="Device"         value="org.apache.cordova.device.Device"/>
   <plugin name="Camera"         value="org.apache.cordova.camera.Camera"/>
-  <plugin name="Network Status" value="org.apache.cordova.network.Network"/>
+  <plugin name="NetworkStatus"  value="org.apache.cordova.network.Network"/>
   <plugin name="Notification"   value="org.apache.cordova.notification.Notification"/>
   <plugin name="Accelerometer"  value="org.apache.cordova.accelerometer.Accelerometer"/>
   <plugin name="Geolocation"    value="org.apache.cordova.geolocation.Geolocation"/>
