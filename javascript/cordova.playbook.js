@@ -3917,7 +3917,7 @@ var webworks = require('cordova/plugin/webworks/manager'),
                             "name" : blackberry.system.model,
                             "uuid" : blackberry.identity.PIN,
                             "platform" : "PlayBook",
-                            "cordova" : "1.6.0"
+                            "cordova" : "1.6.1"
                         }
                 };
             }
