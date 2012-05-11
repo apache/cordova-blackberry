@@ -12,4 +12,5 @@
   <plugin name="Contact"        value="org.apache.cordova.pim.Contact"/>
   <plugin name="Capture"        value="org.apache.cordova.capture.MediaCapture"/>
   <plugin name="Battery"        value="org.apache.cordova.battery.Battery"/>
+  <plugin name="Media"          value="org.apache.cordova.media.Media"/>
 </plugins>

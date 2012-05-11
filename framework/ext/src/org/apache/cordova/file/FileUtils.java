@@ -41,8 +41,9 @@ import net.rim.device.api.system.Application;
  */
 public class FileUtils {
 
-    public static final String  FILE_SEPARATOR = System.getProperty("file.separator");
-    public static final String  LOCAL_PROTOCOL = "local:///";
+    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static final String LOCAL_PROTOCOL = "local://";
+    public static final String FILE_PROTOCOL = "file://";
 
     private static final String APP_TMP_DIR    = "tmp" + CordovaExtension.getAppID();
 
@@ -671,5 +672,28 @@ public class FileUtils {
             path = path.substring(0, path.length() - len);
         }
         return path;
+    }
+
+
+    /**
+     * If the specified file path does not have a URI prefix, prefix it with the
+     * file:/// prefix.
+     *
+     * @param filePath
+     * @return the prefixed URI.
+     */
+    public static String prefixFileURI(String filePath) {
+        if (!filePath.startsWith(LOCAL_PROTOCOL)
+                && !filePath.startsWith(FILE_PROTOCOL)
+                && !filePath.startsWith("http://")
+                && !filePath.startsWith("https://")) {
+            if (filePath.indexOf(FILE_SEPARATOR) != 0) {
+                filePath = FILE_PROTOCOL + FILE_SEPARATOR + filePath;
+            } else {
+                filePath = FILE_PROTOCOL + filePath;
+            }
+        }
+
+        return filePath;
     }
 }
