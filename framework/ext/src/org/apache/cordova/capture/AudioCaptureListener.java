@@ -16,64 +16,60 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cordova.media;
+package org.apache.cordova.capture;
 
 import net.rim.device.api.io.file.FileSystemJournal;
 import net.rim.device.api.io.file.FileSystemJournalEntry;
 import net.rim.device.api.io.file.FileSystemJournalListener;
 
 /**
- * Listens for image files that are added to file system.
+ * Listens for audio recording files that are added to file system.
+ * <p>
+ * Audio recordings are added to the file system when the user stops the
+ * recording. The audio recording file extension is '.amr'. Therefore, we listen
+ * for the <code>FileSystemJournalEntry.FILE_ADDED</code> event, capturing when
+ * the new file is written.
  * <p>
  * The file system notifications will arrive on the application event thread.
  * When it receives a notification, it adds the image file path to a MediaQueue
  * so that the capture thread can process the file.
  */
-class ImageCaptureListener implements FileSystemJournalListener {
-
+public class AudioCaptureListener implements FileSystemJournalListener {
     /**
      * Used to track file system changes.
      */
     private long lastUSN = 0;
 
     /**
-     * Collection of media files.
+     * Queue to send media files to for processing.
      */
     private MediaQueue queue = null;
 
     /**
      * Constructor.
      */
-    ImageCaptureListener(MediaQueue queue) {
+    AudioCaptureListener(MediaQueue queue) {
         this.queue = queue;
     }
 
-    /**
-     * Listens for file system changes.  When a JPEG file is added, we process
-     * it and send it back.
-     */
-    public void fileJournalChanged()
-    {
+    public void fileJournalChanged() {
         // next sequence number file system will use
         long USN = FileSystemJournal.getNextUSN();
 
-        for (long i = USN - 1; i >= lastUSN && i < USN; --i)
-        {
+        for (long i = USN - 1; i >= lastUSN && i < USN; --i) {
             FileSystemJournalEntry entry = FileSystemJournal.getEntry(i);
-            if (entry == null)
-            {
+            if (entry == null) {
                 break;
             }
 
-            if (entry.getEvent() == FileSystemJournalEntry.FILE_ADDED)
-            {
-                String path = entry.getPath();
-                if (path != null && path.indexOf(".jpg") != -1)
-                {
-                    // add file path to the capture queue
-                    queue.add("file://" + path);
-                    break;
-                }
+            // has audio recording file has been added to the file system?
+            String path = entry.getPath();
+            if (entry.getEvent() == FileSystemJournalEntry.FILE_ADDED
+                    && path.endsWith(".amr")) {
+                // add file path to the capture queue
+                queue.add("file://" + path);
+
+                break;
             }
         }
 

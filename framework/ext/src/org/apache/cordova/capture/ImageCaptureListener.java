@@ -16,28 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cordova.media;
+package org.apache.cordova.capture;
 
 import net.rim.device.api.io.file.FileSystemJournal;
 import net.rim.device.api.io.file.FileSystemJournalEntry;
 import net.rim.device.api.io.file.FileSystemJournalListener;
 
 /**
- * Listens for video recording files that are added to file system.
- * <p>
- * Video recordings are added to the file system in a multi-step process. The
- * video recorder application records the video on a background thread. While
- * the recording is in progress, it is added to the file system with a '.lock'
- * extension. When the user stops the recording, the file is renamed to the
- * video recorder extension (e.g. .3GP). Therefore, we listen for the
- * <code>FileSystemJournalEntry.FILE_RENAMED</code> event, capturing when the
- * new path name ends in the video recording file extension.
+ * Listens for image files that are added to file system.
  * <p>
  * The file system notifications will arrive on the application event thread.
  * When it receives a notification, it adds the image file path to a MediaQueue
  * so that the capture thread can process the file.
  */
-class VideoCaptureListener implements FileSystemJournalListener {
+class ImageCaptureListener implements FileSystemJournalListener {
 
     /**
      * Used to track file system changes.
@@ -45,23 +37,23 @@ class VideoCaptureListener implements FileSystemJournalListener {
     private long lastUSN = 0;
 
     /**
-     * Queue to send media files to for processing.
+     * Collection of media files.
      */
     private MediaQueue queue = null;
 
     /**
-     * Newly added video recording.
-     */
-    private String newFilePath = null;
-
-    /**
      * Constructor.
      */
-    VideoCaptureListener(MediaQueue queue) {
+    ImageCaptureListener(MediaQueue queue) {
         this.queue = queue;
     }
 
-    public void fileJournalChanged() {
+    /**
+     * Listens for file system changes.  When a JPEG file is added, we process
+     * it and send it back.
+     */
+    public void fileJournalChanged()
+    {
         // next sequence number file system will use
         long USN = FileSystemJournal.getNextUSN();
 
@@ -73,25 +65,13 @@ class VideoCaptureListener implements FileSystemJournalListener {
                 break;
             }
 
-            String path = entry.getPath();
-            if (entry.getEvent() == FileSystemJournalEntry.FILE_ADDED
-                    && newFilePath == null) {
-                // a new file has been added to the file system
-                // if it has a video recording extension, store it until
-                // it is renamed, indicating it has finished being written to
-                int index = path.indexOf(".3GP");
-                if (index != -1) {
-                    newFilePath = path.substring(0, index + 4);
-                }
-            }
-            else if (entry.getEvent() == FileSystemJournalEntry.FILE_RENAMED) {
-                if (path != null && path.equals(newFilePath))
+            if (entry.getEvent() == FileSystemJournalEntry.FILE_ADDED)
+            {
+                String path = entry.getPath();
+                if (path != null && path.indexOf(".jpg") != -1)
                 {
                     // add file path to the capture queue
                     queue.add("file://" + path);
-
-                    // get ready for next file
-                    newFilePath = null;
                     break;
                 }
             }
