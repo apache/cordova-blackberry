@@ -21,7 +21,7 @@ package org.apache.cordova.api;
 import java.util.Hashtable;
 
 import org.apache.cordova.CordovaExtension;
-import org.apache.cordova.file.FileUtils;
+import org.apache.cordova.util.FileUtils;
 import org.apache.cordova.util.Logger;
 
 import net.rim.device.api.script.Scriptable;

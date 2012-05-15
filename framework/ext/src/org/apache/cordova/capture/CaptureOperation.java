@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import org.apache.cordova.file.File;
-import org.apache.cordova.file.FileUtils;
+import org.apache.cordova.util.FileUtils;
 import org.apache.cordova.util.Logger;
 
 public abstract class CaptureOperation implements Runnable {

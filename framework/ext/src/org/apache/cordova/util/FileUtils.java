@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cordova.file;
+package org.apache.cordova.util;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
 import org.apache.cordova.CordovaExtension;
-import org.apache.cordova.util.Logger;
+import org.apache.cordova.file.File;
 
 import net.rim.device.api.io.FileNotFoundException;
 import net.rim.device.api.io.IOUtilities;

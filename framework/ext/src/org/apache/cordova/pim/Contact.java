@@ -30,10 +30,10 @@ import javax.microedition.pim.PIMItem;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
-import org.apache.cordova.file.FileUtils;
 import org.apache.cordova.http.HttpUtils;
 import org.apache.cordova.json4j.JSONArray;
 import org.apache.cordova.json4j.JSONException;
+import org.apache.cordova.util.FileUtils;
 import org.apache.cordova.util.Logger;
 
 import net.rim.blackberry.api.pdap.BlackBerryContact;

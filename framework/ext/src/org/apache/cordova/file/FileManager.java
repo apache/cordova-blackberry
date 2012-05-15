@@ -32,6 +32,7 @@ import org.apache.cordova.api.PluginResult;
 import org.apache.cordova.json4j.JSONArray;
 import org.apache.cordova.json4j.JSONException;
 import org.apache.cordova.json4j.JSONObject;
+import org.apache.cordova.util.FileUtils;
 import org.apache.cordova.util.Logger;
 
 import net.rim.device.api.io.Base64OutputStream;

@@ -35,7 +35,7 @@ import javax.microedition.media.protocol.DataSource;
 
 import net.rim.device.api.media.protocol.ByteArrayInputStreamDataSource;
 
-import org.apache.cordova.file.FileUtils;
+import org.apache.cordova.util.FileUtils;
 import org.apache.cordova.util.Logger;
 
 /**

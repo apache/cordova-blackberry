@@ -24,7 +24,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
 import org.apache.cordova.file.File;
-import org.apache.cordova.file.FileUtils;
+import org.apache.cordova.util.FileUtils;
 import org.apache.cordova.util.Logger;
 
 import net.rim.device.api.io.MIMETypeAssociations;
