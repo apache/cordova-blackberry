@@ -18,6 +18,15 @@
  */
 package org.apache.cordova.accelerometer;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import net.rim.device.api.system.AccelerometerData;
+import net.rim.device.api.system.AccelerometerListener;
+import net.rim.device.api.system.AccelerometerSensor;
+import net.rim.device.api.system.Application;
+
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 import org.apache.cordova.json4j.JSONArray;
@@ -25,16 +34,8 @@ import org.apache.cordova.json4j.JSONException;
 import org.apache.cordova.json4j.JSONObject;
 import org.apache.cordova.util.Logger;
 
-import net.rim.device.api.system.AccelerometerData;
-import net.rim.device.api.system.AccelerometerListener;
-import net.rim.device.api.system.AccelerometerSensor;
-import net.rim.device.api.system.Application;
-
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.Hashtable;
-
 public class Accelerometer extends Plugin implements AccelerometerListener {
+    private static final String LOG_TAG = "Accelerometer: ";
 
     private static final String ACTION_GET_ACCELERATION = "getAcceleration";
     private static final String ACTION_ADD_WATCH = "addWatch";
@@ -53,57 +54,37 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
     // the single channel to the device sensor
     private static AccelerometerSensor.Channel _rawDataChannel = null;
 
-    private int status = STOPPED; // status of this listener
+    private int state = STOPPED; // state of this listener
+    private long initTime = 0;
 
-    private Hashtable watches = new Hashtable();
-    private Vector callbacks = new Vector();
-
-    private short x, y, z;
-    private long timestamp;
+    /**
+     * Hash of all the listeners created, keyed on callback ids.
+     */
+    private final Vector callbackIds = new Vector();
+    private final Hashtable watchIds = new Hashtable();
 
     public PluginResult execute(String action, JSONArray args, String callbackId) {
-
-        PluginResult result = null;
-
+        PluginResult result;
         try {
             if (!AccelerometerSensor.isSupported()) {
                 result = new PluginResult(
-                    PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION,
-                    "Accelerometer sensor not supported");
+                        PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION,
+                        "Accelerometer sensor not supported");
             } else if (ACTION_GET_ACCELERATION.equals(action)) {
-                if (this.status != RUNNING) {
-                    result = new PluginResult(PluginResult.Status.NO_RESULT);
-                    result.setKeepCallback(true);
-                    this.callbacks.addElement(callbackId);
-                    this.start();
-                } else {
-                    result = new PluginResult(
-                        PluginResult.Status.OK,
-                        this.getAccelerationJSON());
-                }
+                result = getAcceleration(callbackId);
             } else if (ACTION_ADD_WATCH.equals(action)) {
                 String watchId = args.getString(0);
-                this.watches.put(watchId, callbackId);
-                if (this.status != RUNNING) {
-                    this.start();
-                }
-                result = new PluginResult(PluginResult.Status.NO_RESULT);
-                result.setKeepCallback(true);
+                result = addWatch(watchId, callbackId);
             } else if (ACTION_CLEAR_WATCH.equals(action)) {
                 String watchId = args.getString(0);
-                if (this.watches.containsKey(watchId)) {
-                    this.watches.remove(watchId);
-                    if (this.size() == 0) {
-                        this.stop();
-                    }
-                }
-                result = new PluginResult(PluginResult.Status.OK);
+                result = clearWatch(watchId);
             } else {
                 result = new PluginResult(PluginResult.Status.INVALID_ACTION,
                         "Accelerometer: Invalid action:" + action);
             }
-        } catch(JSONException e) {
-            result = new PluginResult(PluginResult.Status.JSON_EXCEPTION);
+        } catch (JSONException e) {
+            result = new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                    e.getMessage());
         }
 
         return result;
@@ -118,152 +99,61 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
      * @return T=returns value
      */
     public boolean isSynch(String action) {
-        if (action.equals("getAcceleration") && this.status == RUNNING) {
+        if (ACTION_GET_ACCELERATION.equals(action) && state == RUNNING) {
             return true;
-        } else if (action.equals("addWatch") && this.status == RUNNING) {
+        } else if (ACTION_ADD_WATCH.equals(action) && state == RUNNING) {
             return true;
-        } else if (action.equals("clearWatch")) {
+        } else if (ACTION_CLEAR_WATCH.equals(action)) {
             return true;
         }
         return false;
     }
 
     /**
-     * Opens a raw data channel to the accelerometer sensor.
-     *
-     * @return the AccelerometerSensor.Channel for the application
+     * Implements the AccelerometerListener method. We listen for the purpose of
+     * closing the application's accelerometer sensor channel after timeout has
+     * been exceeded.
      */
-    private static AccelerometerSensor.Channel getChannel() {
-        // an application can only have one open channel
-        if (_rawDataChannel == null || !_rawDataChannel.isOpen()) {
-            _rawDataChannel = AccelerometerSensor
-                    .openRawDataChannel(Application.getApplication());
-            Logger.log(Accelerometer.class.getName()
-                    + ": sensor channel opened");
-        }
-        return _rawDataChannel;
-    }
-
-    /**
-     * Implements the AccelerometerListener method.
-     *
-     */
-
     public void onData(AccelerometerData accelData) {
-        if (this.status == STOPPED) return;
+        short x = accelData.getLastXAcceleration();
+        short y = accelData.getLastYAcceleration();
+        short z = accelData.getLastZAcceleration();
 
-        this.timestamp = accelData.getLastTimestamp();
-        this.x = accelData.getLastXAcceleration();
-        this.y = accelData.getLastYAcceleration();
-        this.z = accelData.getLastZAcceleration();
-
-        this.win();
-
-        if (this.size() == 0) {
-            this.stop();
+        // If any value is not zero, assume sensor is now active and set state.
+        if (state == STARTING && (x != 0 || y != 0 || z != 0)) {
+            state = RUNNING;
         }
-    }
 
-    /**
-     * Adds this listener to sensor channel.
-     */
-    private void start() {
-        // If already started or starting, return.
-        if (this.status == RUNNING || this.status == STARTING) return;
-
-        this.status = STARTING;
-
-        // open the sensor channel and register listener
-        getChannel().setAccelerometerListener(this);
-        Logger.log(this.getClass().getName() + ": sensor listener added");
-
-        // Need to wait until sensor is active. Otherwise, first query will
-        // return zeros for all values. Wait up to 2 seconds.
-        int waittime = 2000;
-        AccelerometerData accelData = null;
-        while (waittime > 0) {
-            accelData = getChannel().getAccelerometerData();
-            // If any value is not zero, assume sensor is active and break out.
-            if (accelData.getLastXAcceleration() != 0
-                    || accelData.getLastYAcceleration() != 0
-                    || accelData.getLastZAcceleration() != 0) {
-                break;
-            }
-
-            // Sleep and give sensor more time to warm up.
-            waittime -= 100;
+        if (state == RUNNING) {
+            // Send the new accelerometer data.
+            JSONObject accel = new JSONObject();
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                accel.put("x", normalize(x));
+                accel.put("y", normalize(y));
+                accel.put("z", normalize(z));
+                accel.put("timestamp", accelData.getLastTimestamp());
+                sendResult(true,
+                        new PluginResult(PluginResult.Status.OK, accel), true);
+            } catch (JSONException e) {
+                sendResult(false, new PluginResult(
+                        PluginResult.Status.JSON_EXCEPTION, "JSONException:"
+                                + e.getMessage()), false);
             }
-        }
-
-        // Sensor failed to start.
-        if (waittime == 0) {
+        } else if ((System.currentTimeMillis() - initTime) > 2000) {
+            // If the sensor does not become active within 2 seconds of
+            // the request to start it, fail out.
             stop();
-            this.status = ERROR_FAILED_TO_START;
-            this.fail(this.status, "Accelerometer could not be started.");
-            return;
-        }
-
-        this.status = RUNNING;
-    }
-
-    /**
-     * Stops accelerometer listener and closes the sensor channel.
-     */
-    private void stop() {
-        // close the sensor channel
-        if (_rawDataChannel != null && _rawDataChannel.isOpen()) {
-            _rawDataChannel.close();
-            Logger.log(this.getClass().getName() + ": sensor channel closed");
-        }
-
-        this.status = STOPPED;
-    }
-
-    private void fail(int code, String message) {
-        // Error object
-        JSONObject errorObj = new JSONObject();
-        try {
-            errorObj.put("code", code);
-            errorObj.put("message", message);
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PluginResult err = new PluginResult(PluginResult.Status.ERROR, errorObj);
-    	
-        for (Enumeration e = this.callbacks.elements(); e.hasMoreElements();)
-        {
-            this.error(err, (String)e.nextElement());
-        }
-        this.callbacks.removeAllElements();
-        
-        err.setKeepCallback(true);
-
-        for (Enumeration e = this.watches.keys(); e.hasMoreElements();)
-        {
-            this.error(err, (String)this.watches.get((String)e.nextElement()));
-        }
-    }
-    
-    private void win() {
-        // Success return object
-        PluginResult result = new PluginResult(PluginResult.Status.OK, this.getAccelerationJSON());
-        
-        for (Enumeration e = this.callbacks.elements(); e.hasMoreElements();)
-        {
-            this.success(result, (String)e.nextElement());
-        }
-        this.callbacks.removeAllElements();
-
-        result.setKeepCallback(true);
-        
-        for (Enumeration e = this.watches.keys(); e.hasMoreElements();)
-        {
-            this.success(result, (String)this.watches.get((String)e.nextElement()));
+            state = ERROR_FAILED_TO_START;
+            JSONObject errorObj = new JSONObject();
+            try {
+                errorObj.put("code", ERROR_FAILED_TO_START);
+                errorObj.put("message", "Accelerometer could not be started.");
+            } catch (JSONException e) {
+                Logger.log(LOG_TAG
+                        + "Failed to build JSON object for ERROR_FAILED_TO_START.");
+            }
+            sendResult(false, new PluginResult(PluginResult.Status.ERROR,
+                    errorObj), false);
         }
     }
 
@@ -271,11 +161,96 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
      * Called when Plugin is destroyed.
      */
     public void onDestroy() {
-        stop();
+        // Close out the call back IDs and stop.
+        sendResult(true, new PluginResult(PluginResult.Status.NO_RESULT), false);
     }
 
-    private int size() {
-        return this.watches.size() + this.callbacks.size();
+    /**
+     * Adds a SystemListener to listen for changes to the battery state. The
+     * listener is only registered if one has not already been added.
+     */
+    private int addListener() {
+        if (_rawDataChannel == null || !_rawDataChannel.isOpen()) {
+            _rawDataChannel = AccelerometerSensor
+                    .openRawDataChannel(Application.getApplication());
+            Logger.log(LOG_TAG + "sensor channel opened");
+
+            initTime = System.currentTimeMillis();
+            state = STARTING;
+            _rawDataChannel.setAccelerometerListener(this);
+            Logger.log(LOG_TAG + "sensor listener added");
+        }
+
+        return state;
+    }
+
+    /**
+     * Track the specified watch ID and start the accelerometer channel if it
+     * hasn't been started.
+     *
+     * @param watchId
+     * @param callbackId
+     * @return
+     */
+    private synchronized PluginResult addWatch(String watchId, String callbackId) {
+        watchIds.put(watchId, callbackId);
+        addListener();
+        PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT,
+                "");
+        result.setKeepCallback(true);
+
+        return result;
+    }
+
+    /**
+     * Removes the specified watch ID and stops the accelerometer channel if
+     * this it was the last active listener.
+     *
+     * @param watchId
+     * @return
+     */
+    private synchronized PluginResult clearWatch(String watchId) {
+        if (watchIds.containsKey(watchId)) {
+            watchIds.remove(watchId);
+            if (watchIds.size() == 0 && callbackIds.size() == 0) {
+                stop();
+            }
+        }
+        return new PluginResult(PluginResult.Status.OK, "");
+    }
+
+    /**
+     * If the sensor is active, return the last acquired accelerometer data,
+     * otherwise start the sensor and listen for data.
+     *
+     * @return AccelerometerData with last acceleration data
+     */
+    private synchronized PluginResult getAcceleration(String callbackId) {
+        PluginResult result;
+
+        if (state != RUNNING) {
+            callbackIds.addElement(callbackId);
+            addListener();
+            result = new PluginResult(PluginResult.Status.NO_RESULT, "");
+            result.setKeepCallback(true);
+        } else {
+            // get the last acceleration
+            AccelerometerData accelData = _rawDataChannel
+                    .getAccelerometerData();
+            JSONObject accel = new JSONObject();
+            try {
+                accel.put("x", normalize(accelData.getLastXAcceleration()));
+                accel.put("y", normalize(accelData.getLastYAcceleration()));
+                accel.put("z", normalize(accelData.getLastZAcceleration()));
+                accel.put("timestamp", accelData.getLastTimestamp());
+                result = new PluginResult(PluginResult.Status.OK, accel);
+            } catch (JSONException e) {
+                result = new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                        "JSONException:" + e.getMessage());
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -303,15 +278,73 @@ public class Accelerometer extends Plugin implements AccelerometerListener {
         return Double.parseDouble(buf.toString());
     }
 
-    private JSONObject getAccelerationJSON() {
-        JSONObject accel = new JSONObject();
-        try {
-            accel.put("x", normalize(this.x));
-            accel.put("y", normalize(this.y));
-            accel.put("z", normalize(this.z));
-            accel.put("timestamp", this.timestamp);
-        } catch (JSONException e) {
+    /**
+     * Helper function to send a PluginResult to the saved call back IDs.
+     *
+     * @param issuccess
+     *            true if this is a successful result, false otherwise.
+     * @param result
+     *            the PluginResult to return
+     * @param keepCallback
+     *            Boolean value indicating whether to keep the call back id
+     *            active.
+     */
+    private synchronized void sendResult(boolean issuccess,
+            PluginResult result, boolean keepCallback) {
+
+        if (result != null) {
+            // Must keep the call back active for future watch events.
+            result.setKeepCallback(keepCallback);
+
+            // Iterate through the saved watch IDs.
+            for (Enumeration watches = watchIds.elements(); watches
+                    .hasMoreElements();) {
+                if (issuccess) {
+                    success(result, (String) watches.nextElement());
+                } else {
+                    error(result, (String) watches.nextElement());
+                }
+            }
+
+            // callbackIds are from getAcceleration() requests so they are
+            // one time and should not keep callback.
+            result.setKeepCallback(false);
+
+            // Iterate through the saved call back IDs.
+            for (Enumeration callbacks = callbackIds.elements(); callbacks
+                    .hasMoreElements();) {
+                if (issuccess) {
+                    success(result, (String) callbacks.nextElement());
+                } else {
+                    error(result, (String) callbacks.nextElement());
+                }
+            }
         }
-        return accel;
+
+        if (!keepCallback) {
+            watchIds.clear();
+        }
+        callbackIds.removeAllElements();
+
+        if (watchIds.size() == 0) {
+            stop();
+        }
+    }
+
+    /**
+     * Stops accelerometer listener and closes the sensor channel.
+     */
+    private synchronized void stop() {
+        if (_rawDataChannel != null && _rawDataChannel.isOpen()) {
+
+            // Remove the battery listener.
+            _rawDataChannel.removeAccelerometerListener();
+            _rawDataChannel.close();
+            _rawDataChannel = null;
+
+            Logger.log(LOG_TAG + "sensor channel closed");
+        }
+
+        state = STOPPED;
     }
 }
