@@ -106,6 +106,7 @@ public class FileTransfer extends Plugin {
                 }
             }
 
+            FileUploader uploader = null;
             try {
                 // Setup the options
                 String fileKey = getArgument(args, 2, "file");
@@ -117,27 +118,35 @@ public class FileTransfer extends Plugin {
                     params = args.getJSONObject(5);
                 }
 
-                FileUploader f = new FileUploader();
-                FileUploadResult r = f.upload(source, target, fileKey,
+                uploader = new FileUploader();
+                FileUploadResult r = uploader.upload(source, target, fileKey,
                         fileName, mimeType, params);
+
+                int status = r.getResponseCode();
+                if (status < 200 || status > 399) {
+                    Logger.log(LOG_TAG + "HTTP Status " + status);
+                    JSONObject error = createFileTransferError(CONNECTION_ERR, source, target, new Integer(status));
+                    return new PluginResult(PluginResult.Status.IO_EXCEPTION, error);
+                }
+
                 result = new PluginResult(PluginResult.Status.OK,
                         r.toJSONObject());
             } catch (FileNotFoundException e) {
                 Logger.log(LOG_TAG + e.getMessage());
                 JSONObject error = createFileTransferError(FILE_NOT_FOUND_ERR,
-                        source, target);
+                        source, target, uploader);
                 result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                         error);
             } catch (IllegalArgumentException e) {
                 Logger.log(LOG_TAG + e.getMessage());
                 JSONObject error = createFileTransferError(INVALID_URL_ERR,
-                        source, target);
+                        source, target, uploader);
                 result = new PluginResult(
                         PluginResult.Status.MALFORMED_URL_EXCEPTION, error);
             } catch (IOException e) {
                 Logger.log(LOG_TAG + e.getMessage());
                 JSONObject error = createFileTransferError(CONNECTION_ERR,
-                        source, target);
+                        source, target, uploader);
                 result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
                         error);
             } catch (JSONException e) {
@@ -164,13 +173,69 @@ public class FileTransfer extends Plugin {
      * @return JSONObject containing the error
      */
     private JSONObject createFileTransferError(int errorCode, String source,
-            String target) {
+                                               String target) {
+        return createFileTransferError(errorCode, source, target, (Integer)null);
+    }
+
+    /**
+     * Create an error object based on the passed in errorCode
+     *
+     * @param errorCode
+     *            the error
+     * @return JSONObject containing the error
+     */
+    private JSONObject createFileTransferError(int errorCode, String source,
+                                               String target, FileUploader fileUploader) {
+
+        Integer httpStatus = null;
+
+        if (fileUploader != null) {
+            httpStatus = fileUploader.getResponseCode();
+        }
+        return createFileTransferError(errorCode, source, target, httpStatus);
+    }
+
+        /**
+        * Create an error object based on the passed in errorCode
+        *
+        * @param errorCode
+        *            the error
+        * @return JSONObject containing the error
+        */
+    private JSONObject createFileTransferError(int errorCode, String source,
+                                               String target, HttpConnection connection) {
+
+        Integer httpStatus = null;
+
+        if (connection != null) {
+            try {
+                httpStatus = new Integer(connection.getResponseCode());
+            } catch (IOException e) {
+                Logger.log(LOG_TAG + " exception getting http response code " + e.toString());
+            }
+        }
+
+        return createFileTransferError(errorCode, source, target, httpStatus);
+    }
+
+    /**
+        * Create an error object based on the passed in errorCode
+        *
+        * @param errorCode
+        *            the error
+        * @return JSONObject containing the error
+        */
+    private JSONObject createFileTransferError(int errorCode, String source,
+            String target, Integer httpStatus) {
         JSONObject error = null;
         try {
             error = new JSONObject();
             error.put("code", errorCode);
             error.put("source", source);
             error.put("target", target);
+            if (httpStatus != null) {
+                error.put("http_status", httpStatus);
+            }
         } catch (JSONException e) {
             Logger.log(LOG_TAG + e.getMessage());
         }
@@ -228,6 +293,8 @@ public class FileTransfer extends Plugin {
         String filename = null;
         String path = null;
 
+        Logger.debug(LOG_TAG + "downloading " + source + " to " + target);
+
         // Target needs to follow the file URI protocol so add "file:///"
         // prefix if it doesn't exist.
         if (!target.startsWith("file:///")) {
@@ -278,13 +345,19 @@ public class FileTransfer extends Plugin {
             }
 
             // Open the http connection to the server.
-            httpConn = HttpUtils.getHttpConnection(source);
+            try {
+                httpConn = HttpUtils.getHttpConnection(source);
+            } catch (IllegalArgumentException e) {
+                JSONObject error = createFileTransferError(INVALID_URL_ERR, source, target, httpConn);
+                return new PluginResult(PluginResult.Status.MALFORMED_URL_EXCEPTION, error);
+            }
             if (httpConn == null) {
                 Logger.log(LOG_TAG + "Failed to create http connection.");
-                JSONObject error = createFileTransferError(INVALID_URL_ERR,
+                // TODO separate malformed url from actual connection error
+                JSONObject error = createFileTransferError(CONNECTION_ERR,
                         source, target);
                 return new PluginResult(
-                        PluginResult.Status.MALFORMED_URL_EXCEPTION, error);
+                        PluginResult.Status.IO_EXCEPTION, error);
             }
 
             // Set the request headers
@@ -305,6 +378,13 @@ public class FileTransfer extends Plugin {
             }
 
             InputStream inputStream = httpConn.openInputStream();
+            int status = httpConn.getResponseCode();
+            if (status < 200 || status > 399) {
+                Logger.log(LOG_TAG + "HTTP Status " + status);
+                JSONObject error = createFileTransferError(CONNECTION_ERR, source, target, httpConn);
+                return new PluginResult(PluginResult.Status.IO_EXCEPTION, error);
+            }
+
             outputStream = fileConn.openOutputStream();
 
             // Read from the connection and write bytes to the file.
@@ -316,15 +396,19 @@ public class FileTransfer extends Plugin {
         } catch (IOException e) {
             Logger.log(LOG_TAG + e.getMessage());
             JSONObject error = createFileTransferError(CONNECTION_ERR, source,
-                    target);
+                    target, httpConn);
             return new PluginResult(PluginResult.Status.IO_EXCEPTION, error);
         } catch (ClassCastException e) {
             // in case something really funky gets passed in
             Logger.log(LOG_TAG + e.getMessage());
             JSONObject error = createFileTransferError(INVALID_URL_ERR, source,
-                    target);
+                    target, httpConn);
             return new PluginResult(
                     PluginResult.Status.MALFORMED_URL_EXCEPTION, error);
+        } catch (Throwable t) {
+            Logger.log(LOG_TAG + t.toString());
+            JSONObject error = createFileTransferError(CONNECTION_ERR, source, target, httpConn);
+            return new PluginResult(PluginResult.Status.IO_EXCEPTION, error);
         } finally {
             try {
                 if (httpConn != null) {

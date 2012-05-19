@@ -53,6 +53,8 @@ public class FileUploader {
     private static final String LINE_END = "\r\n";
     private static final String TD = "--";
 
+    private Integer responseCode = null;
+
     /**
      * Uploads the specified file to the server URL provided using an HTTP
      * multipart request.
@@ -117,7 +119,7 @@ public class FileUploader {
             // get HttpConnection
             httpConn = HttpUtils.getHttpConnection(server);
             if (httpConn == null) {
-                throw new IllegalArgumentException("Invalid URL: " + server);
+                throw new IOException("Failed to connect to " + server);
             }
             Logger.log(this.getClass().getName() + ": server URL=" + httpConn.getURL());
 
@@ -164,13 +166,19 @@ public class FileUploader {
 
             // send request and get response
             in = httpConn.openDataInputStream();
-            int rc = httpConn.getResponseCode();
+            //int rc = httpConn.getResponseCode();
             result.setResponse(new String(IOUtilities.streamToBytes(in)));
-            result.setResponseCode(rc);
+            //result.setResponseCode(rc);
             result.setBytesSent(contentLength);
             Logger.log(this.getClass().getName() + ": sent " + contentLength + " bytes");
         }
         finally {
+
+            if (httpConn != null) {
+                result.setResponseCode(httpConn.getResponseCode());
+                responseCode = new Integer(httpConn.getResponseCode());
+            }
+
             try {
                 if (fconn != null) fconn.close();
                 if (in != null) in.close();
@@ -254,5 +262,9 @@ public class FileUploader {
                 .append(value).append(LINE_END);
         }
         return buf.toString();
+    }
+
+    Integer getResponseCode() {
+        return responseCode;
     }
 }
