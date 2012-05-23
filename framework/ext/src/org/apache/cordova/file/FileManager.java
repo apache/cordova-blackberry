@@ -897,8 +897,6 @@ public class FileManager extends Plugin {
         else {
             FileConnection fconn = null;
             try {
-                // Prefix file:// protocol if it doesn't exist.
-                path = FileUtils.prefixFileURI(path);
                 fconn = (FileConnection) Connector.open(path);
                 if (fconn.exists()) {
                     // create a new Entry
