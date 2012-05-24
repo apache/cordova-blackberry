@@ -173,8 +173,9 @@ public class FileTransfer extends Plugin {
      * @return JSONObject containing the error
      */
     private JSONObject createFileTransferError(int errorCode, String source,
-                                               String target) {
-        return createFileTransferError(errorCode, source, target, (Integer)null);
+            String target) {
+        return createFileTransferError(errorCode, source, target,
+                (Integer) null);
     }
 
     /**
@@ -185,7 +186,7 @@ public class FileTransfer extends Plugin {
      * @return JSONObject containing the error
      */
     private JSONObject createFileTransferError(int errorCode, String source,
-                                               String target, FileUploader fileUploader) {
+            String target, FileUploader fileUploader) {
 
         Integer httpStatus = null;
 
@@ -195,15 +196,15 @@ public class FileTransfer extends Plugin {
         return createFileTransferError(errorCode, source, target, httpStatus);
     }
 
-        /**
-        * Create an error object based on the passed in errorCode
-        *
-        * @param errorCode
-        *            the error
-        * @return JSONObject containing the error
-        */
+    /**
+     * Create an error object based on the passed in errorCode
+     *
+     * @param errorCode
+     *            the error
+     * @return JSONObject containing the error
+     */
     private JSONObject createFileTransferError(int errorCode, String source,
-                                               String target, HttpConnection connection) {
+            String target, HttpConnection connection) {
 
         Integer httpStatus = null;
 
@@ -211,7 +212,8 @@ public class FileTransfer extends Plugin {
             try {
                 httpStatus = new Integer(connection.getResponseCode());
             } catch (IOException e) {
-                Logger.log(LOG_TAG + " exception getting http response code " + e.toString());
+                Logger.log(LOG_TAG + " exception getting http response code "
+                        + e.toString());
             }
         }
 
@@ -219,12 +221,12 @@ public class FileTransfer extends Plugin {
     }
 
     /**
-        * Create an error object based on the passed in errorCode
-        *
-        * @param errorCode
-        *            the error
-        * @return JSONObject containing the error
-        */
+     * Create an error object based on the passed in errorCode
+     *
+     * @param errorCode
+     *            the error
+     * @return JSONObject containing the error
+     */
     private JSONObject createFileTransferError(int errorCode, String source,
             String target, Integer httpStatus) {
         JSONObject error = null;
