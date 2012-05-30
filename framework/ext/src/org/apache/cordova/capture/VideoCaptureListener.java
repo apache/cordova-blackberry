@@ -80,6 +80,9 @@ class VideoCaptureListener implements FileSystemJournalListener {
                 // if it has a video recording extension, store it until
                 // it is renamed, indicating it has finished being written to
                 int index = path.indexOf(".3GP");
+                if (index == -1) {
+                    index = path.indexOf(".MP4");
+                }
                 if (index != -1) {
                     newFilePath = path.substring(0, index + 4);
                 }
