@@ -1,6 +1,6 @@
-// commit ac0a3990438f4a89faa993316fb5614f61cf3be6
+// commit 575cebe92a3f91e2720ee7ccc3a8103ef8038344
 
-// File generated at :: Tue Jun 05 2012 14:11:27 GMT-0700 (PDT)
+// File generated at :: Tue Jun 12 2012 15:09:13 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -924,9 +924,9 @@ module.exports = {
 
 });
 
-// file: lib/playbook/exec.js
+// file: lib/webworks/exec.js
 define("cordova/exec", function(require, exports, module) {
-var playbook = require('cordova/plugin/playbook/manager'),
+var manager = require('cordova/plugin/manager'),
     cordova = require('cordova'),
     utils = require('cordova/utils');
 
@@ -947,7 +947,7 @@ var playbook = require('cordova/plugin/playbook/manager'),
 
 module.exports = function(success, fail, service, action, args) {
     try {
-        var v = playbook.exec(success, fail, service, action, args);
+        var v = manager.exec(success, fail, service, action, args);
 
         // If status is OK, then return value back to caller
         if (v.status == cordova.callbackStatus.OK) {
@@ -984,6 +984,7 @@ module.exports = function(success, fail, service, action, args) {
         utils.alert("Error: "+e);
     }
 };
+
 });
 
 // file: lib/playbook/platform.js
@@ -994,6 +995,24 @@ module.exports = {
     objects: {
         device: {
             path: "cordova/plugin/playbook/device"
+        },
+        DirectoryReader:{
+            path: 'cordova/plugin/playbook/DirectoryReader'
+        },
+        File:{
+            path: 'cordova/plugin/playbook/File'
+        },
+        FileReader:{
+            path: 'cordova/plugin/playbook/FileReader'
+        },
+        FileWriter:{
+            path: 'cordova/plugin/playbook/FileWriter'
+        },
+        requestFileSystem:{
+            path: 'cordova/plugin/playbook/requestFileSystem'
+        },
+        resolveLocalFileSystemURI:{
+            path: 'cordova/plugin/playbook/resolveLocalFileSystemURI'
         }
     },
     merges: {
@@ -1003,9 +1022,19 @@ module.exports = {
                     path: "cordova/plugin/playbook/device"
                 }
             }
+        },
+        DirectoryEntry: {
+            path: 'cordova/plugin/playbook/DirectoryEntry'
+        },
+        Entry: {
+            path: 'cordova/plugin/playbook/Entry'
+        },
+        FileEntry:{
+            path: 'cordova/plugin/playbook/FileEntry'
         }
     }
 };
+
 });
 
 // file: lib/common/plugin/Acceleration.js
@@ -1129,6 +1158,10 @@ cameraExport.getPicture = function(successCallback, errorCallback, options) {
     }
 
     exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType, mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, popoverOptions]);
+};
+
+cameraExport.cleanup = function(successCallback, errorCallback) {
+    exec(successCallback, errorCallback, "Camera", "cleanup", []);
 };
 
 module.exports = cameraExport;
@@ -2438,6 +2471,8 @@ var DirectoryEntry = require('cordova/plugin/DirectoryEntry');
 var FileSystem = function(name, root) {
     this.name = name || null;
     if (root) {
+        console.log('root.name ' + name);
+        console.log('root.root ' + root);
         this.root = new DirectoryEntry(root.name, root.fullPath);
     }
 };
@@ -4350,6 +4385,42 @@ document.addEventListener("deviceready", logger.__onDeviceReady, false);
 
 });
 
+// file: lib/playbook/plugin/manager.js
+define("cordova/plugin/manager", function(require, exports, module) {
+var cordova = require('cordova'),
+    plugins = {
+        'Battery' : require('cordova/plugin/playbook/battery'),
+        'Camera' : require('cordova/plugin/playbook/camera'),
+        'Logger' : require('cordova/plugin/playbook/logger'),
+        'Media' : require('cordova/plugin/playbook/media'),
+        'Capture' : require('cordova/plugin/playbook/capture'),
+        'Accelerometer' : require('cordova/plugin/playbook/accelerometer'),
+        'NetworkStatus' : require('cordova/plugin/playbook/network'),
+        'Notification' : require('cordova/plugin/playbook/notification')
+    };
+
+module.exports = {
+    exec: function (win, fail, clazz, action, args) {
+        var result = {"status" : cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION, "message" : "Class " + clazz + " cannot be found"};
+
+        if (plugins[clazz]) {
+            if (plugins[clazz][action]) {
+                result = plugins[clazz][action](args, win, fail);
+            }
+            else {
+                result = { "status" : cordova.callbackStatus.INVALID_ACTION, "message" : "Action not found: " + action };
+            }
+        }
+
+        return result;
+    },
+    resume: function () {},
+    pause: function () {},
+    destroy: function () {}
+};
+
+});
+
 // file: lib/common/plugin/network.js
 define("cordova/plugin/network", function(require, exports, module) {
 var exec = require('cordova/exec'),
@@ -4474,358 +4545,1856 @@ module.exports = {
 };
 });
 
-// file: lib/playbook/plugin/playbook/device.js
-define("cordova/plugin/playbook/device", function(require, exports, module) {
-var me = {},
-    exec = require('cordova/exec'),
-    channel = require('cordova/channel');
+// file: lib/playbook/plugin/playbook/DirectoryEntry.js
+define("cordova/plugin/playbook/DirectoryEntry", function(require, exports, module) {
+var DirectoryEntry = require('cordova/plugin/DirectoryEntry'),
+    DirectoryReader = require('cordova/plugin/playbook/DirectoryReader'),
+    FileEntry = require('cordova/plugin/FileEntry'),
+    FileError = require('cordova/plugin/FileError');
 
-channel.onCordovaReady.subscribeOnce(function() {
-    exec(function (device) {
-        me.platform = device.platform;
-        me.version  = device.version;
-        me.name     = device.name;
-        me.uuid     = device.uuid;
-        me.cordova  = device.cordova;
-
-        channel.onCordovaInfoReady.fire();
-    },
-    function (e) {
-        console.log("error initializing cordova: " + e);
-    },
-    "Device",
-    "getDeviceInfo",
-    []
-    );
-});
-
-module.exports = me;
-});
-
-// file: lib/playbook/plugin/playbook/manager.js
-define("cordova/plugin/playbook/manager", function(require, exports, module) {
-var webworks = require('cordova/plugin/webworks/manager'),
-    cordova = require('cordova'),
-    MediaFile = require('cordova/plugin/MediaFile'),
-    /**
-     * Private list of HTML 5 audio objects, indexed by the Cordova media object ids
-     */
-    audioObjects = {},
-    retInvalidAction = function () {
-        return { "status" : cordova.callbackStatus.INVALID_ACTION, "message" : "Action not found" };
-    },
-    retAsyncCall = function () {
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
-    },
-    batteryAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (action === 'start') {
-                // Register one listener to each of level and state change
-                // events using WebWorks API.
-                blackberry.system.event.deviceBatteryStateChange(function(state) {
-                    var me = navigator.battery;
-                    // state is either CHARGING or UNPLUGGED
-                    if (state === 2 || state === 3) {
-                        var info = {
-                            "level" : me._level,
-                            "isPlugged" : state === 2
-                        };
-
-                        if (me._isPlugged !== info.isPlugged && typeof win === 'function') {
-                            win(info);
-                        }
-                    }
-                });
-                blackberry.system.event.deviceBatteryLevelChange(function(level) {
-                    var me = navigator.battery;
-                    if (level != me._level && typeof win === 'function') {
-                        win({'level' : level, 'isPlugged' : me._isPlugged});
-                    }
-                });
-            } else if (action === 'stop') {
-                // Unregister battery listeners.
-                blackberry.system.event.deviceBatteryStateChange(null);
-                blackberry.system.event.deviceBatteryLevelChange(null);
-            } else {
-                return retInvalidAction();
-            }
-        }
-    },
-    cameraAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (action === 'takePicture') {
-                blackberry.media.camera.takePicture(win, fail, fail);
-                return retAsyncCall();
-            }
-            else {
-                return retInvalidAction();
-            }
-        }
-    },
-    deviceAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (action === 'getDeviceInfo') {
-                return {"status" : cordova.callbackStatus.OK,
-                        "message" : {
-                            "version" : blackberry.system.softwareVersion,
-                            "name" : blackberry.system.model,
-                            "uuid" : blackberry.identity.PIN,
-                            "platform" : "PlayBook",
-                            "cordova" : "1.8.0"
-                        }
-                };
-            }
-            return retInvalidAction();
-        }
-    },
-    loggerAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (action === 'log') {
-                console.log(args);
-                return {"status" : cordova.callbackStatus.OK,
-                        "message" : 'Message logged to console: ' + args};
-            }
-            else {
-                return retInvalidAction();
-            }
-        }
-    },
-    mediaAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (!args.length) {
-                return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
-            }
-
-            var id = args[0],
-                audio = audioObjects[id],
-                result;
-
-            switch (action) {
-            case 'startPlayingAudio':
-                if (args.length === 1) {
-                    result = {"status" : 9, "message" : "Media source argument not found"};
-
-                }
-
-                if (audio) {
-                    audio.pause();
-                    audioObjects[id] = undefined;
-                }
-
-                audio = audioObjects[id] = new Audio(args[1]);
-                audio.play();
-
-                result = {"status" : 1, "message" : "Audio play started" };
-                break;
-            case 'stopPlayingAudio':
-                if (!audio) {
-                    return {"status" : 2, "message" : "Audio Object has not been initialized"};
-                }
-
-                audio.pause();
-                audioObjects[id] = undefined;
-
-                result = {"status" : 1, "message" : "Audio play stopped" };
-                break;
-            case 'seekToAudio':
-                if (!audio) {
-                    result = {"status" : 2, "message" : "Audio Object has not been initialized"};
-                } else if (args.length === 1) {
-                    result = {"status" : 9, "message" : "Media seek time argument not found"};
-                } else {
-                    try {
-                        audio.currentTime = args[1];
-                    } catch (e) {
-                        console.log('Error seeking audio: ' + e);
-                        return {"status" : 3, "message" : "Error seeking audio: " + e};
-                    }
-
-                    result = {"status" : 1, "message" : "Seek to audio succeeded" };
-                }
-                break;
-            case 'pausePlayingAudio':
-                if (!audio) {
-                    return {"status" : 2, "message" : "Audio Object has not been initialized"};
-                }
-
-                audio.pause();
-
-                result = {"status" : 1, "message" : "Audio paused" };
-                break;
-            case 'getCurrentPositionAudio':
-                if (!audio) {
-                    return {"status" : 2, "message" : "Audio Object has not been initialized"};
-                }
-
-                result = {"status" : 1, "message" : audio.currentTime };
-                break;
-            case 'getDuration':
-                if (!audio) {
-                    return {"status" : 2, "message" : "Audio Object has not been initialized"};
-                }
-
-                result = {"status" : 1, "message" : audio.duration };
-                break;
-            case 'startRecordingAudio':
-                if (args.length <= 1) {
-                    result = {"status" : 9, "message" : "Media start recording, insufficient arguments"};
-                }
-
-                blackberry.media.microphone.record(args[1], win, fail);
-                result = retAsyncCall();
-                break;
-            case 'stopRecordingAudio':
-                break;
-            case 'release':
-                if (audio) {
-                    audioObjects[id] = undefined;
-                    audio.src = undefined;
-                    //delete audio;
-                }
-
-                result = {"status" : 1, "message" : "Media resources released"};
-                break;
-            default:
-                result = retInvalidAction();
-            }
-
-            return result;
-        }
-    },
-    mediaCaptureAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            var limit = args[0],
-                pictureFiles = [],
-                captureMethod;
-
-            function captureCB(filePath) {
-                var mediaFile;
-
-                if (filePath) {
-                    mediaFile = new MediaFile();
-                    mediaFile.fullPath = filePath;
-                    pictureFiles.push(mediaFile);
-                }
-
-                if (limit > 0) {
-                    limit--;
-                    blackberry.media.camera[captureMethod](win, fail, fail);
-                    return;
-                }
-
-                win(pictureFiles);
-
-                return retAsyncCall();
-            }
-
-            switch (action) {
-                case 'getSupportedAudioModes':
-                case 'getSupportedImageModes':
-                case 'getSupportedVideoModes':
-                    return {"status": cordova.callbackStatus.OK, "message": []};
-                case 'captureImage':
-                    captureMethod = "takePicture";
-                    captureCB();
-                    break;
-                case 'captureVideo':
-                    captureMethod = "takeVideo";
-                    captureCB();
-                    break;
-                case 'captureAudio':
-                    return {"status": cordova.callbackStatus.INVALID_ACTION, "message": "captureAudio is not currently supported"};
-            }
-
-            return retAsyncCall();
-        }
-    },
-    networkAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (action !== 'getConnectionInfo') {
-                return retInvalidAction();
-            }
-
-            var connectionType = require("cordova/plugin/Connection").NONE,
-                eventType = "offline",
-                callbackID,
-                request;
-
-            /**
-             * For PlayBooks, we currently only have WiFi connections, so
-             * return WiFi if there is any access at all.
-             * TODO: update if/when PlayBook gets other connection types...
-             */
-            if (blackberry.system.hasDataCoverage()) {
-                connectionType = require("cordova/plugin/Connection").WIFI;
-                eventType = "online";
-            }
-
-            //Register an event handler for the networkChange event
-            callbackID = blackberry.events.registerEventHandler("networkChange", function (status) {
-                win(status.type);
-            });
-
-            //pass our callback id down to our network extension
-            request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getConnectionInfo");
-            request.addParam("networkStatusChangedID", callbackID);
-            request.makeSyncCall();
-
-            return { "status": cordova.callbackStatus.OK, "message": connectionType};
-        }
-    },
-    notificationAPI = {
-        execute: function (webWorksResult, action, args, win, fail) {
-            if (args.length !== 3) {
-              return {"status" : 9, "message" : "Notification action - " + action + " arguments not found"};
-
-            }
-
-            //Unpack and map the args
-            var msg = args[0],
-                title = args[1],
-                btnLabel = args[2],
-                btnLabels;
-
-            switch (action) {
-            case 'alert':
-                blackberry.ui.dialog.customAskAsync.apply(this, [ msg, [ btnLabel ], win, { "title" : title } ]);
-                return retAsyncCall();
-            case 'confirm':
-                btnLabels = btnLabel.split(",");
-                blackberry.ui.dialog.customAskAsync.apply(this, [msg, btnLabels, win, {"title" : title} ]);
-                return retAsyncCall();
-            }
-            return retInvalidAction();
-
-        }
-    },
-    plugins = {
-        'Battery' : batteryAPI,
-        'Camera' : cameraAPI,
-        'Device' : deviceAPI,
-        'Logger' : loggerAPI,
-        'Media' : mediaAPI,
-        'Capture' : mediaCaptureAPI,
-        'NetworkStatus' : networkAPI,
-        'Notification' : notificationAPI
-    };
+var validFileRe = new RegExp('^[a-zA-Z][0-9a-zA-Z._ ]*$');
 
 module.exports = {
-    exec: function (win, fail, clazz, action, args) {
-        var wwResult = webworks.exec(win, fail, clazz, action, args);
+    createReader : function() {
+        return new DirectoryReader(this.fullPath);
+    },
+    /**
+     * Creates or looks up a directory; override for BlackBerry.
+     *
+     * @param path
+     *            {DOMString} either a relative or absolute path from this
+     *            directory in which to look up or create a directory
+     * @param options
+     *            {Flags} options to create or exclusively create the directory
+     * @param successCallback
+     *            {Function} called with the new DirectoryEntry
+     * @param errorCallback
+     *            {Function} called with a FileError
+     */
+    getDirectory : function(path, options, successCallback, errorCallback) {
+    // create directory if it doesn't exist
+        var create = (options && options.create === true) ? true : false,
+        // if true, causes failure if create is true and path already exists
+        exclusive = (options && options.exclusive === true) ? true : false,
+        // directory exists
+        exists,
+        // create a new DirectoryEntry object and invoke success callback
+        createEntry = function() {
+            var path_parts = path.split('/'),
+                name = path_parts[path_parts.length - 1],
+                dirEntry = new DirectoryEntry(name, path);
 
-        //We got a sync result or a not found from WW that we can pass on to get a native mixin
-        //For async calls there's nothing to do
-        if ((wwResult.status === cordova.callbackStatus.OK ||
-          wwResult.status === cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION) &&
-          plugins[clazz]) {
-            return plugins[clazz].execute(wwResult.message, action, args, win, fail);
+            // invoke success callback
+            if (typeof successCallback === 'function') {
+                successCallback(dirEntry);
+            }
+        };
+
+        var fail = function(error) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(error));
+            }
+        };
+
+        // invalid path
+        if(!validFileRe.exec(path)){
+            fail(FileError.ENCODING_ERR);
+            return;
         }
 
-        return wwResult;
+        // determine if path is relative or absolute
+        if (!path) {
+            fail(FileError.ENCODING_ERR);
+            return;
+        } else if (path.indexOf(this.fullPath) !== 0) {
+            // path does not begin with the fullPath of this directory
+            // therefore, it is relative
+            path = this.fullPath + '/' + path;
+        }
+
+        // determine if directory exists
+        try {
+            // will return true if path exists AND is a directory
+            exists = blackberry.io.dir.exists(path);
+        } catch (e) {
+            // invalid path
+            // TODO this will not work on playbook - need to think how to find invalid urls
+            fail(FileError.ENCODING_ERR);
+            return;
+        }
+
+
+        // path is a directory
+        if (exists) {
+            if (create && exclusive) {
+                // can't guarantee exclusivity
+                fail(FileError.PATH_EXISTS_ERR);
+            } else {
+                // create entry for existing directory
+                createEntry();
+            }
+        }
+        // will return true if path exists AND is a file
+        else if (blackberry.io.file.exists(path)) {
+            // the path is a file
+            fail(FileError.TYPE_MISMATCH_ERR);
+        }
+        // path does not exist, create it
+        else if (create) {
+            try {
+                // directory path must have trailing slash
+                var dirPath = path;
+                if (dirPath.substr(-1) !== '/') {
+                    dirPath += '/';
+                }
+                console.log('creating dir path at: ' + dirPath);
+                blackberry.io.dir.createNewDir(dirPath);
+                createEntry();
+            } catch (eone) {
+                // unable to create directory
+                fail(FileError.NOT_FOUND_ERR);
+            }
+        }
+        // path does not exist, don't create
+        else {
+            // directory doesn't exist
+            fail(FileError.NOT_FOUND_ERR);
+        }
     },
-    resume: function () {},
-    pause: function () {},
-    destroy: function () {}
+
+    /**
+     * Create or look up a file.
+     *
+     * @param path {DOMString}
+     *            either a relative or absolute path from this directory in
+     *            which to look up or create a file
+     * @param options {Flags}
+     *            options to create or exclusively create the file
+     * @param successCallback {Function}
+     *            called with the new FileEntry object
+     * @param errorCallback {Function}
+     *            called with a FileError object if error occurs
+     */
+    getFile : function(path, options, successCallback, errorCallback) {
+        // create file if it doesn't exist
+        var create = (options && options.create === true) ? true : false,
+            // if true, causes failure if create is true and path already exists
+            exclusive = (options && options.exclusive === true) ? true : false,
+            // file exists
+            exists,
+            // create a new FileEntry object and invoke success callback
+            createEntry = function() {
+                var path_parts = path.split('/'),
+                    name = path_parts[path_parts.length - 1],
+                    fileEntry = new FileEntry(name, path);
+
+                // invoke success callback
+                if (typeof successCallback === 'function') {
+                    successCallback(fileEntry);
+                }
+            };
+
+        var fail = function(error) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(error));
+            }
+        };
+
+        // invalid path
+        if(!validFileRe.exec(path)){
+            fail(FileError.ENCODING_ERR);
+            return;
+        }
+        // determine if path is relative or absolute
+        if (!path) {
+            fail(FileError.ENCODING_ERR);
+            return;
+        }
+        else if (path.indexOf(this.fullPath) !== 0) {
+            // path does not begin with the fullPath of this directory
+            // therefore, it is relative
+            path = this.fullPath + '/' + path;
+        }
+
+        // determine if file exists
+        try {
+            // will return true if path exists AND is a file
+            exists = blackberry.io.file.exists(path);
+        }
+        catch (e) {
+            // invalid path
+            fail(FileError.ENCODING_ERR);
+            return;
+        }
+
+        // path is a file
+        if (exists) {
+            if (create && exclusive) {
+                // can't guarantee exclusivity
+                fail(FileError.PATH_EXISTS_ERR);
+            }
+            else {
+                // create entry for existing file
+                createEntry();
+            }
+        }
+        // will return true if path exists AND is a directory
+        else if (blackberry.io.dir.exists(path)) {
+            // the path is a directory
+            fail(FileError.TYPE_MISMATCH_ERR);
+        }
+        // path does not exist, create it
+        else if (create) {
+            // create empty file
+            var emptyBlob = blackberry.utils.stringToBlob('');
+            blackberry.io.file.saveFile(path,emptyBlob);
+            createEntry();
+        }
+        // path does not exist, don't create
+        else {
+            // file doesn't exist
+            fail(FileError.NOT_FOUND_ERR);
+        }
+    },
+
+    /**
+     * Delete a directory and all of it's contents.
+     *
+     * @param successCallback {Function} called with no parameters
+     * @param errorCallback {Function} called with a FileError
+     */
+    removeRecursively : function(successCallback, errorCallback) {
+        // we're removing THIS directory
+        var path = this.fullPath;
+
+        var fail = function(error) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(error));
+            }
+        };
+
+        // attempt to delete directory
+        if (blackberry.io.dir.exists(path)) {
+            // it is an error to attempt to remove the file system root
+            //exec(null, null, "File", "isFileSystemRoot", [ path ]) === true
+            if (false) {
+                fail(FileError.NO_MODIFICATION_ALLOWED_ERR);
+            }
+            else {
+                try {
+                    // delete the directory, setting recursive flag to true
+                    blackberry.io.dir.deleteDirectory(path, true);
+                    if (typeof successCallback === "function") {
+                        successCallback();
+                    }
+                } catch (e) {
+                    // permissions don't allow deletion
+                    console.log(e);
+                    fail(FileError.NO_MODIFICATION_ALLOWED_ERR);
+                }
+            }
+        }
+        // it's a file, not a directory
+        else if (blackberry.io.file.exists(path)) {
+            fail(FileError.TYPE_MISMATCH_ERR);
+        }
+        // not found
+        else {
+            fail(FileError.NOT_FOUND_ERR);
+        }
+    }
+};
+});
+
+// file: lib/playbook/plugin/playbook/DirectoryReader.js
+define("cordova/plugin/playbook/DirectoryReader", function(require, exports, module) {
+var FileError = require('cordova/plugin/FileError');
+
+/**
+ * An interface that lists the files and directories in a directory.
+ */
+function DirectoryReader(path) {
+    this.path = path || null;
+}
+
+/**
+ * Returns a list of entries from a directory.
+ *
+ * @param {Function} successCallback is called with a list of entries
+ * @param {Function} errorCallback is called with a FileError
+ */
+DirectoryReader.prototype.readEntries = function(successCallback, errorCallback) {
+    var win = typeof successCallback !== 'function' ? null : function(result) {
+        var retVal = [];
+        for (var i=0; i<result.length; i++) {
+            var entry = null;
+            if (result[i].isDirectory) {
+                entry = new (require('cordova/plugin/DirectoryEntry'))();
+            }
+            else if (result[i].isFile) {
+                entry = new (require('cordova/plugin/FileEntry'))();
+            }
+            entry.isDirectory = result[i].isDirectory;
+            entry.isFile = result[i].isFile;
+            entry.name = result[i].name;
+            entry.fullPath = result[i].fullPath;
+            retVal.push(entry);
+        }
+        successCallback(retVal);
+    };
+    var fail = typeof errorCallback !== 'function' ? null : function(code) {
+        errorCallback(new FileError(code));
+    };
+
+    var theEntries = [];
+    // Entry object is borked - unable to instantiate a new Entry object so just create one
+    var anEntry = function (isDirectory, name, fullPath) {
+        this.isDirectory = (isDirectory ? true : false);
+        this.isFile = (isDirectory ? false : true);
+        this.name = name;
+        this.fullPath = fullPath;
+    };
+
+    if(blackberry.io.dir.exists(this.path)){
+        var theDirectories = blackberry.io.dir.listDirectories(this.path);
+        var theFiles = blackberry.io.dir.listFiles(this.path);
+
+        var theDirectoriesLength = theDirectories.length;
+        var theFilesLength = theFiles.length;
+        for(var i=0;i<theDirectoriesLength;i++){
+            theEntries.push(new anEntry(true, theDirectories[i], this.path+theDirectories[i]));
+        }
+
+        for(var j=0;j<theFilesLength;j++){
+            theEntries.push(new anEntry(false, theFiles[j], this.path+theFiles[j]));
+        }
+        win(theEntries);
+    }else{
+        fail(FileError.NOT_FOUND_ERR);
+    }
+
+
+};
+
+module.exports = DirectoryReader;
+
+});
+
+// file: lib/playbook/plugin/playbook/Entry.js
+define("cordova/plugin/playbook/Entry", function(require, exports, module) {
+var FileError = require('cordova/plugin/FileError'),
+    LocalFileSystem = require('cordova/plugin/LocalFileSystem'),
+    Metadata = require('cordova/plugin/Metadata'),
+    resolveLocalFileSystemURI = require('cordova/plugin/playbook/resolveLocalFileSystemURI'),
+    DirectoryEntry = require('cordova/plugin/DirectoryEntry'),
+    FileEntry = require('cordova/plugin/FileEntry'),
+    requestFileSystem = require('cordova/plugin/playbook/requestFileSystem');
+
+var recursiveCopy = function(srcDirPath, dstDirPath){
+    // get all the contents (file+dir) of the dir
+    var files = blackberry.io.dir.listFiles(srcDirPath);
+    var dirs = blackberry.io.dir.listDirectories(srcDirPath);
+
+    for(var i=0;i<files.length;i++){
+        blackberry.io.file.copy(srcDirPath + '/' + files[i], dstDirPath + '/' + files[i]);
+    }
+
+    for(var j=0;j<dirs.length;j++){
+        if(!blackberry.io.dir.exists(dstDirPath + '/' + dirs[j])){
+            blackberry.io.dir.createNewDir(dstDirPath + '/' + dirs[j]);
+        }
+        recursiveCopy(srcDirPath + '/' + dirs[j], dstDirPath + '/' + dirs[j]);
+    }
+};
+
+var validFileRe = new RegExp('^[a-zA-Z][0-9a-zA-Z._ ]*$');
+
+module.exports = {
+    getMetadata : function(successCallback, errorCallback){
+        var success = typeof successCallback !== 'function' ? null : function(lastModified) {
+          var metadata = new Metadata(lastModified);
+          successCallback(metadata);
+        };
+        var fail = typeof errorCallback !== 'function' ? null : function(code) {
+          errorCallback(new FileError(code));
+        };
+
+        if(this.isFile){
+            if(blackberry.io.file.exists(this.fullPath)){
+                var theFileProperties = blackberry.io.file.getFileProperties(this.fullPath);
+                success(theFileProperties.dateModified);
+            }
+        }else{
+            console.log('Unsupported for directories');
+            fail(FileError.INVALID_MODIFICATION_ERR);
+        }
+    },
+
+    setMetadata : function(successCallback, errorCallback , metadataObject){
+        console.log('setMetadata is unsupported for playbook');
+    },
+
+    moveTo : function(parent, newName, successCallback, errorCallback){
+        var fail = function(code) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(code));
+            }
+        };
+        // user must specify parent Entry
+        if (!parent) {
+            fail(FileError.NOT_FOUND_ERR);
+            return;
+        }
+        // source path
+        var srcPath = this.fullPath,
+            // entry name
+            name = newName || this.name,
+            success = function(entry) {
+                if (entry) {
+                    if (typeof successCallback === 'function') {
+                        // create appropriate Entry object
+                        var result = (entry.isDirectory) ? new DirectoryEntry(entry.name, entry.fullPath) : new FileEntry(entry.name, entry.fullPath);
+                        try {
+                            successCallback(result);
+                        }
+                        catch (e) {
+                            console.log('Error invoking callback: ' + e);
+                        }
+                    }
+                }
+                else {
+                    // no Entry object returned
+                    fail(FileError.NOT_FOUND_ERR);
+                }
+            };
+
+
+        // Entry object is borked
+        var theEntry = {};
+        var dstPath = parent.fullPath + '/' + name;
+
+        // invalid path
+        if(!validFileRe.exec(name)){
+            fail(FileError.ENCODING_ERR);
+            return;
+        }
+
+        if(this.isFile){
+            if(srcPath != dstPath){
+                if(blackberry.io.file.exists(dstPath)){
+                    blackberry.io.file.deleteFile(dstPath);
+                    blackberry.io.file.copy(srcPath,dstPath);
+                    blackberry.io.file.deleteFile(srcPath);
+
+                    theEntry.fullPath = dstPath;
+                    theEntry.name = name;
+                    theEntry.isDirectory = false;
+                    theEntry.isFile = true;
+                    success(theEntry);
+                }else if(blackberry.io.dir.exists(dstPath)){
+                    // destination path is a directory
+                    fail(FileError.INVALID_MODIFICATION_ERR);
+                }else{
+                    // make sure the directory that we are moving to actually exists
+                    if(blackberry.io.dir.exists(parent.fullPath)){
+                        blackberry.io.file.copy(srcPath,dstPath);
+                        blackberry.io.file.deleteFile(srcPath);
+
+                        theEntry.fullPath = dstPath;
+                        theEntry.name = name;
+                        theEntry.isDirectory = false;
+                        theEntry.isFile = true;
+                        success(theEntry);
+                    }else{
+                        fail(FileError.NOT_FOUND_ERR);
+                    }
+                }
+            }else{
+                // file onto itself
+                fail(FileError.INVALID_MODIFICATION_ERR);
+            }
+        }else{
+            if(srcPath != dstPath){
+                if(blackberry.io.file.exists(dstPath) || srcPath == parent.fullPath){
+                    // destination path is either a file path or moving into parent
+                    fail(FileError.INVALID_MODIFICATION_ERR);
+                }else{
+                    if(!blackberry.io.dir.exists(dstPath)){
+                        blackberry.io.dir.createNewDir(dstPath);
+                        recursiveCopy(srcPath,dstPath);
+                        blackberry.io.dir.deleteDirectory(srcPath, true);
+                        theEntry.fullPath = dstPath;
+                        theEntry.name = name;
+                        theEntry.isDirectory = true;
+                        theEntry.isFile = false;
+                        success(theEntry);
+                    }else{
+                        var numOfEntries = 0;
+                        numOfEntries += blackberry.io.dir.listDirectories(dstPath).length;
+                        numOfEntries += blackberry.io.dir.listFiles(dstPath).length;
+                        if(numOfEntries === 0){
+                            blackberry.io.dir.createNewDir(dstPath);
+                            recursiveCopy(srcPath,dstPath);
+                            blackberry.io.dir.deleteDirectory(srcPath, true);
+                            theEntry.fullPath = dstPath;
+                            theEntry.name = name;
+                            theEntry.isDirectory = true;
+                            theEntry.isFile = false;
+                            success(theEntry);
+                        }else{
+                            // destination directory not empty
+                            fail(FileError.INVALID_MODIFICATION_ERR);
+                        }
+                    }
+                }
+            }else{
+                // directory onto itself
+                fail(FileError.INVALID_MODIFICATION_ERR);
+            }
+        }
+
+    },
+
+    copyTo : function(parent, newName, successCallback, errorCallback) {
+        var fail = function(code) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(code));
+            }
+        };
+        // user must specify parent Entry
+        if (!parent) {
+            fail(FileError.NOT_FOUND_ERR);
+            return;
+        }
+        // source path
+        var srcPath = this.fullPath,
+            // entry name
+            name = newName || this.name,
+            success = function(entry) {
+                if (entry) {
+                    if (typeof successCallback === 'function') {
+                        // create appropriate Entry object
+                        var result = (entry.isDirectory) ? new DirectoryEntry(entry.name, entry.fullPath) : new FileEntry(entry.name, entry.fullPath);
+                        try {
+                            successCallback(result);
+                        }
+                        catch (e) {
+                            console.log('Error invoking callback: ' + e);
+                        }
+                    }
+                }
+                else {
+                    // no Entry object returned
+                    fail(FileError.NOT_FOUND_ERR);
+                }
+            };
+
+        // Entry object is borked
+        var theEntry = {};
+        var dstPath = parent.fullPath + '/' + name;
+
+        // invalid path
+        if(!validFileRe.exec(name)){
+            fail(FileError.ENCODING_ERR);
+            return;
+        }
+
+        if(this.isFile){
+            if(srcPath != dstPath){
+                if(blackberry.io.file.exists(dstPath)){
+                    if(blackberry.io.dir.exists(dstPath)){
+                        blackberry.io.file.copy(srcPath,dstPath);
+
+                        theEntry.fullPath = dstPath;
+                        theEntry.name = name;
+                        theEntry.isDirectory = false;
+                        theEntry.isFile = true;
+                        success(theEntry);
+                    }else{
+                        // destination directory doesn't exist
+                        fail(FileError.NOT_FOUND_ERR);
+                    }
+
+                }else{
+                    blackberry.io.file.copy(srcPath,dstPath);
+
+                    theEntry.fullPath = dstPath;
+                    theEntry.name = name;
+                    theEntry.isDirectory = false;
+                    theEntry.isFile = true;
+                    success(theEntry);
+                }
+            }else{
+                // file onto itself
+                fail(FileError.INVALID_MODIFICATION_ERR);
+            }
+        }else{
+            if(srcPath != dstPath){
+                // allow back up to the root but not child dirs
+                if((parent.name != "root" && dstPath.indexOf(srcPath)>=0) || blackberry.io.file.exists(dstPath)){
+                    // copying directory into child or is file path
+                    fail(FileError.INVALID_MODIFICATION_ERR);
+                }else{
+                    recursiveCopy(srcPath, dstPath);
+
+                    theEntry.fullPath = dstPath;
+                    theEntry.name = name;
+                    theEntry.isDirectory = true;
+                    theEntry.isFile = false;
+                    success(theEntry);
+                }
+            }else{
+                // directory onto itself
+                fail(FileError.INVALID_MODIFICATION_ERR);
+            }
+        }
+
+    },
+
+    remove : function(successCallback, errorCallback) {
+        var path = this.fullPath,
+            // directory contents
+            contents = [];
+
+        var fail = function(error) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(error));
+            }
+        };
+
+        // file
+        if (blackberry.io.file.exists(path)) {
+            try {
+                blackberry.io.file.deleteFile(path);
+                if (typeof successCallback === "function") {
+                    successCallback();
+                }
+            } catch (e) {
+                // permissions don't allow
+                fail(FileError.INVALID_MODIFICATION_ERR);
+            }
+        }
+        // directory
+        else if (blackberry.io.dir.exists(path)) {
+            // it is an error to attempt to remove the file system root
+            console.log('entry directory');
+            // TODO: gotta figure out how to get root dirs on playbook -
+            // getRootDirs doesn't work
+            if (false) {
+                fail(FileError.NO_MODIFICATION_ALLOWED_ERR);
+            } else {
+                // check to see if directory is empty
+                contents = blackberry.io.dir.listFiles(path);
+                if (contents.length !== 0) {
+                    fail(FileError.INVALID_MODIFICATION_ERR);
+                } else {
+                    try {
+                        // delete
+                        blackberry.io.dir.deleteDirectory(path, false);
+                        if (typeof successCallback === "function") {
+                            successCallback();
+                        }
+                    } catch (eone) {
+                        // permissions don't allow
+                        fail(FileError.NO_MODIFICATION_ALLOWED_ERR);
+                    }
+                }
+            }
+        }
+        // not found
+        else {
+            fail(FileError.NOT_FOUND_ERR);
+        }
+    },
+    getParent : function(successCallback, errorCallback) {
+        var that = this;
+
+        try {
+            // On BlackBerry, the TEMPORARY file system is actually a temporary
+            // directory that is created on a per-application basis. This is
+            // to help ensure that applications do not share the same temporary
+            // space. So we check to see if this is the TEMPORARY file system
+            // (directory). If it is, we must return this Entry, rather than
+            // the Entry for its parent.
+            requestFileSystem(LocalFileSystem.TEMPORARY, 0,
+                    function(fileSystem) {
+                        if (fileSystem.root.fullPath === that.fullPath) {
+                            if (typeof successCallback === 'function') {
+                                successCallback(fileSystem.root);
+                            }
+                        } else {
+                            resolveLocalFileSystemURI(blackberry.io.dir
+                                    .getParentDirectory(that.fullPath),
+                                    successCallback, errorCallback);
+                        }
+                    }, errorCallback);
+        } catch (e) {
+            if (typeof errorCallback === 'function') {
+                errorCallback(new FileError(FileError.NOT_FOUND_ERR));
+            }
+        }
+    }
+};
+
+
+});
+
+// file: lib/playbook/plugin/playbook/File.js
+define("cordova/plugin/playbook/File", function(require, exports, module) {
+/**
+ * Constructor.
+ * name {DOMString} name of the file, without path information
+ * fullPath {DOMString} the full path of the file, including the name
+ * type {DOMString} mime type
+ * lastModifiedDate {Date} last modified date
+ * size {Number} size of the file in bytes
+ */
+
+var File = function(name, fullPath, type, lastModifiedDate, size){
+    this.name = name || '';
+    this.fullPath = fullPath || null;
+    this.type = type || null;
+    this.lastModifiedDate = lastModifiedDate || null;
+    this.size = size || 0;
+};
+
+module.exports = File;
+});
+
+// file: lib/playbook/plugin/playbook/FileEntry.js
+define("cordova/plugin/playbook/FileEntry", function(require, exports, module) {
+var FileEntry = require('cordova/plugin/FileEntry'),
+    Entry = require('cordova/plugin/playbook/Entry'),
+    FileWriter = require('cordova/plugin/playbook/FileWriter'),
+    File = require('cordova/plugin/playbook/File'),
+    FileError = require('cordova/plugin/FileError');
+
+module.exports = {
+    /**
+     * Creates a new FileWriter associated with the file that this FileEntry represents.
+     *
+     * @param {Function} successCallback is called with the new FileWriter
+     * @param {Function} errorCallback is called with a FileError
+     */
+    createWriter : function(successCallback, errorCallback) {
+        this.file(function(filePointer) {
+            var writer = new FileWriter(filePointer);
+
+            if (writer.fileName === null || writer.fileName === "") {
+                if (typeof errorCallback === "function") {
+                    errorCallback(new FileError(FileError.INVALID_STATE_ERR));
+                }
+            } else {
+                if (typeof successCallback === "function") {
+                    successCallback(writer);
+                }
+            }
+        }, errorCallback);
+    },
+
+    /**
+     * Returns a File that represents the current state of the file that this FileEntry represents.
+     *
+     * @param {Function} successCallback is called with the new File object
+     * @param {Function} errorCallback is called with a FileError
+     */
+    file : function(successCallback, errorCallback) {
+        var win = typeof successCallback !== 'function' ? null : function(f) {
+            var file = new File(f.name, f.fullPath, f.type, f.lastModifiedDate, f.size);
+            successCallback(file);
+        };
+        var fail = typeof errorCallback !== 'function' ? null : function(code) {
+            errorCallback(new FileError(code));
+        };
+
+        if(blackberry.io.file.exists(this.fullPath)){
+            var theFileProperties = blackberry.io.file.getFileProperties(this.fullPath);
+            var theFile = {};
+
+            theFile.fullPath = this.fullPath;
+            theFile.type = theFileProperties.fileExtension;
+            theFile.lastModifiedDate = theFileProperties.dateModified;
+            theFile.size = theFileProperties.size;
+            win(theFile);
+        }else{
+            fail(FileError.NOT_FOUND_ERR);
+        }
+    }
+};
+
+
+});
+
+// file: lib/playbook/plugin/playbook/FileReader.js
+define("cordova/plugin/playbook/FileReader", function(require, exports, module) {
+var FileError = require('cordova/plugin/FileError'),
+    ProgressEvent = require('cordova/plugin/ProgressEvent');
+
+/**
+ * This class reads the mobile device file system.
+ *
+ * For Android:
+ *      The root directory is the root of the file system.
+ *      To read from the SD card, the file name is "sdcard/my_file.txt"
+ * @constructor
+ */
+var FileReader = function() {
+    this.fileName = "";
+
+    this.readyState = 0; // FileReader.EMPTY
+
+    // File data
+    this.result = null;
+
+    // Error
+    this.error = null;
+
+    // Event handlers
+    this.onloadstart = null;    // When the read starts.
+    this.onprogress = null;     // While reading (and decoding) file or fileBlob data, and reporting partial file data (progess.loaded/progress.total)
+    this.onload = null;         // When the read has successfully completed.
+    this.onerror = null;        // When the read has failed (see errors).
+    this.onloadend = null;      // When the request has completed (either in success or failure).
+    this.onabort = null;        // When the read has been aborted. For instance, by invoking the abort() method.
+};
+
+// States
+FileReader.EMPTY = 0;
+FileReader.LOADING = 1;
+FileReader.DONE = 2;
+
+/**
+ * Abort reading file.
+ */
+FileReader.prototype.abort = function() {
+    this.result = null;
+
+    if (this.readyState == FileReader.DONE || this.readyState == FileReader.EMPTY) {
+      return;
+    }
+
+    this.readyState = FileReader.DONE;
+
+    // If abort callback
+    if (typeof this.onabort === 'function') {
+        this.onabort(new ProgressEvent('abort', {target:this}));
+    }
+    // If load end callback
+    if (typeof this.onloadend === 'function') {
+        this.onloadend(new ProgressEvent('loadend', {target:this}));
+    }
+};
+
+/**
+ * Read text file.
+ *
+ * @param file          {File} File object containing file properties
+ * @param encoding      [Optional] (see http://www.iana.org/assignments/character-sets)
+ */
+FileReader.prototype.readAsText = function(file, encoding) {
+    // Figure out pathing
+    this.fileName = '';
+    if (typeof file.fullPath === 'undefined') {
+        this.fileName = file;
+    } else {
+        this.fileName = file.fullPath;
+    }
+
+    // Already loading something
+    if (this.readyState == FileReader.LOADING) {
+        throw new FileError(FileError.INVALID_STATE_ERR);
+    }
+
+    // LOADING state
+    this.readyState = FileReader.LOADING;
+
+    // If loadstart callback
+    if (typeof this.onloadstart === "function") {
+        this.onloadstart(new ProgressEvent("loadstart", {target:this}));
+    }
+
+    // Default encoding is UTF-8
+    var enc = encoding ? encoding : "UTF-8";
+
+    var me = this;
+    // Read file
+    if(blackberry.io.file.exists(this.fileName)){
+        var theText = '';
+        var getFileContents = function(path,blob){
+            if(blob){
+
+                theText = blackberry.utils.blobToString(blob, enc);
+                me.result = theText;
+
+                if (typeof me.onload === "function") {
+                    me.onload(new ProgressEvent("load", {target:me}));
+                }
+
+                me.readyState = FileReader.DONE;
+
+                if (typeof me.onloadend === "function") {
+                    me.onloadend(new ProgressEvent("loadend", {target:me}));
+                }
+            }
+        };
+        // setting asynch to off
+        blackberry.io.file.readFile(this.fileName, getFileContents, false);
+
+    }else{
+        // If DONE (cancelled), then don't do anything
+        if (me.readyState === FileReader.DONE) {
+            return;
+        }
+
+        // DONE state
+        me.readyState = FileReader.DONE;
+
+        me.result = null;
+
+        // Save error
+        me.error = new FileError(FileError.NOT_FOUND_ERR);
+
+        // If onerror callback
+        if (typeof me.onerror === "function") {
+            me.onerror(new ProgressEvent("error", {target:me}));
+        }
+
+        // If onloadend callback
+        if (typeof me.onloadend === "function") {
+            me.onloadend(new ProgressEvent("loadend", {target:me}));
+        }
+    }
+};
+
+
+/**
+ * Read file and return data as a base64 encoded data url.
+ * A data url is of the form:
+ *      data:[<mediatype>][;base64],<data>
+ *
+ * @param file          {File} File object containing file properties
+ */
+FileReader.prototype.readAsDataURL = function(file) {
+    this.fileName = "";
+    if (typeof file.fullPath === "undefined") {
+        this.fileName = file;
+    } else {
+        this.fileName = file.fullPath;
+    }
+
+    // Already loading something
+    if (this.readyState == FileReader.LOADING) {
+        throw new FileError(FileError.INVALID_STATE_ERR);
+    }
+
+    // LOADING state
+    this.readyState = FileReader.LOADING;
+
+    // If loadstart callback
+    if (typeof this.onloadstart === "function") {
+        this.onloadstart(new ProgressEvent("loadstart", {target:this}));
+    }
+
+    var enc = "BASE64";
+
+    var me = this;
+
+    // Read file
+    if(blackberry.io.file.exists(this.fileName)){
+        var theText = '';
+        var getFileContents = function(path,blob){
+            if(blob){
+                theText = blackberry.utils.blobToString(blob, enc);
+                me.result = "data:text/plain;base64," +theText;
+
+                if (typeof me.onload === "function") {
+                    me.onload(new ProgressEvent("load", {target:me}));
+                }
+
+                me.readyState = FileReader.DONE;
+
+                if (typeof me.onloadend === "function") {
+                    me.onloadend(new ProgressEvent("loadend", {target:me}));
+                }
+            }
+        };
+        // setting asynch to off
+        blackberry.io.file.readFile(this.fileName, getFileContents, false);
+
+    }else{
+        // If DONE (cancelled), then don't do anything
+        if (me.readyState === FileReader.DONE) {
+            return;
+        }
+
+        // DONE state
+        me.readyState = FileReader.DONE;
+
+        me.result = null;
+
+        // Save error
+        me.error = new FileError(FileError.NOT_FOUND_ERR);
+
+        // If onerror callback
+        if (typeof me.onerror === "function") {
+            me.onerror(new ProgressEvent("error", {target:me}));
+        }
+
+        // If onloadend callback
+        if (typeof me.onloadend === "function") {
+            me.onloadend(new ProgressEvent("loadend", {target:me}));
+        }
+    }
+};
+
+/**
+ * Read file and return data as a binary data.
+ *
+ * @param file          {File} File object containing file properties
+ */
+FileReader.prototype.readAsBinaryString = function(file) {
+    // TODO - Can't return binary data to browser.
+    console.log('method "readAsBinaryString" is not supported at this time.');
+};
+
+/**
+ * Read file and return data as a binary data.
+ *
+ * @param file          {File} File object containing file properties
+ */
+FileReader.prototype.readAsArrayBuffer = function(file) {
+    // TODO - Can't return binary data to browser.
+    console.log('This method is not supported at this time.');
+};
+
+module.exports = FileReader;
+
+});
+
+// file: lib/playbook/plugin/playbook/FileWriter.js
+define("cordova/plugin/playbook/FileWriter", function(require, exports, module) {
+var FileError = require('cordova/plugin/FileError'),
+    ProgressEvent = require('cordova/plugin/ProgressEvent');
+
+/**
+ * @constructor
+ * @param file {File} File object containing file properties
+ * @param append if true write to the end of the file, otherwise overwrite the file
+ */
+var FileWriter = function(file) {
+    this.fileName = "";
+    this.length = 0;
+    if (file) {
+        this.fileName = file.fullPath || file;
+        this.length = file.size || 0;
+    }
+    // default is to write at the beginning of the file
+    this.position = 0;
+
+    this.readyState = 0; // EMPTY
+
+    this.result = null;
+
+    // Error
+    this.error = null;
+
+    // Event handlers
+    this.onwritestart = null;   // When writing starts
+    this.onprogress = null;     // While writing the file, and reporting partial file data
+    this.onwrite = null;        // When the write has successfully completed.
+    this.onwriteend = null;     // When the request has completed (either in success or failure).
+    this.onabort = null;        // When the write has been aborted. For instance, by invoking the abort() method.
+    this.onerror = null;        // When the write has failed (see errors).
+};
+
+// States
+FileWriter.INIT = 0;
+FileWriter.WRITING = 1;
+FileWriter.DONE = 2;
+
+/**
+ * Abort writing file.
+ */
+FileWriter.prototype.abort = function() {
+    // check for invalid state
+    if (this.readyState === FileWriter.DONE || this.readyState === FileWriter.INIT) {
+        throw new FileError(FileError.INVALID_STATE_ERR);
+    }
+
+    // set error
+    this.error = new FileError(FileError.ABORT_ERR);
+
+    this.readyState = FileWriter.DONE;
+
+    // If abort callback
+    if (typeof this.onabort === "function") {
+        this.onabort(new ProgressEvent("abort", {"target":this}));
+    }
+
+    // If write end callback
+    if (typeof this.onwriteend === "function") {
+        this.onwriteend(new ProgressEvent("writeend", {"target":this}));
+    }
+};
+
+/**
+ * Writes data to the file
+ *
+ * @param text to be written
+ */
+FileWriter.prototype.write = function(text) {
+    // Throw an exception if we are already writing a file
+    if (this.readyState === FileWriter.WRITING) {
+        throw new FileError(FileError.INVALID_STATE_ERR);
+    }
+
+    // WRITING state
+    this.readyState = FileWriter.WRITING;
+
+    var me = this;
+
+    // If onwritestart callback
+    if (typeof me.onwritestart === "function") {
+        me.onwritestart(new ProgressEvent("writestart", {"target":me}));
+    }
+
+    if (typeof me.onwrite === "function") {
+        me.onwrite(new ProgressEvent("write", {"target":me}));
+    }
+
+    var textBlob = blackberry.utils.stringToBlob(text);
+
+    if(blackberry.io.file.exists(this.fileName)){
+
+        var oldText = '';
+        var newText = text;
+
+        var getFileContents = function(path,blob){
+
+            if(blob){
+                oldText = blackberry.utils.blobToString(blob);
+                if(oldText.length>0){
+                    newText = oldText.substr(0,me.position) + text;
+                }
+            }
+
+            var tempFile = me.fileName+'temp';
+            if(blackberry.io.file.exists(tempFile)){
+                blackberry.io.file.deleteFile(tempFile);
+            }
+
+            var newTextBlob = blackberry.utils.stringToBlob(newText);
+
+            // crete a temp file, delete file we are 'overwriting', then rename temp file
+            blackberry.io.file.saveFile(tempFile, newTextBlob);
+            blackberry.io.file.deleteFile(me.fileName);
+            blackberry.io.file.rename(tempFile, me.fileName.split('/').pop());
+
+            me.position = newText.length;
+            me.length = me.position;
+        };
+
+        // setting asynch to off
+        blackberry.io.file.readFile(this.fileName, getFileContents, false);
+
+    }else{
+
+        // file is new so just save it
+        blackberry.io.file.saveFile(this.fileName, textBlob);
+        me.position = text.length;
+        me.length = me.position;
+    }
+
+    me.readyState = FileWriter.DONE;
+
+    if (typeof me.onwriteend === "function") {
+                me.onwriteend(new ProgressEvent("writeend", {"target":me}));
+    }
+};
+
+/**
+ * Moves the file pointer to the location specified.
+ *
+ * If the offset is a negative number the position of the file
+ * pointer is rewound.  If the offset is greater than the file
+ * size the position is set to the end of the file.
+ *
+ * @param offset is the location to move the file pointer to.
+ */
+FileWriter.prototype.seek = function(offset) {
+    // Throw an exception if we are already writing a file
+    if (this.readyState === FileWriter.WRITING) {
+        throw new FileError(FileError.INVALID_STATE_ERR);
+    }
+
+    if (!offset && offset !== 0) {
+        return;
+    }
+
+    // See back from end of file.
+    if (offset < 0) {
+        this.position = Math.max(offset + this.length, 0);
+    }
+    // Offset is bigger then file size so set position
+    // to the end of the file.
+    else if (offset > this.length) {
+        this.position = this.length;
+    }
+    // Offset is between 0 and file size so set the position
+    // to start writing.
+    else {
+        this.position = offset;
+    }
+};
+
+/**
+ * Truncates the file to the size specified.
+ *
+ * @param size to chop the file at.
+ */
+FileWriter.prototype.truncate = function(size) {
+    // Throw an exception if we are already writing a file
+    if (this.readyState === FileWriter.WRITING) {
+        throw new FileError(FileError.INVALID_STATE_ERR);
+    }
+
+    // WRITING state
+    this.readyState = FileWriter.WRITING;
+
+    var me = this;
+
+    // If onwritestart callback
+    if (typeof me.onwritestart === "function") {
+        me.onwritestart(new ProgressEvent("writestart", {"target":this}));
+    }
+
+    if (typeof me.onwrite === "function") {
+        me.onwrite(new ProgressEvent("write", {"target":me}));
+    }
+
+    if(blackberry.io.file.exists(this.fileName)){
+
+        var oldText = '';
+        var newText = '';
+
+        var getFileContents = function(path,blob){
+
+            if(blob){
+                oldText = blackberry.utils.blobToString(blob);
+                if(oldText.length>0){
+                    newText = oldText.slice(0,size);
+                }else{
+                    // TODO: throw error
+                }
+            }
+
+            var tempFile = me.fileName+'temp';
+            if(blackberry.io.file.exists(tempFile)){
+                blackberry.io.file.deleteFile(tempFile);
+            }
+
+            var newTextBlob = blackberry.utils.stringToBlob(newText);
+
+            // crete a temp file, delete file we are 'overwriting', then rename temp file
+            blackberry.io.file.saveFile(tempFile, newTextBlob);
+            blackberry.io.file.deleteFile(me.fileName);
+            blackberry.io.file.rename(tempFile, me.fileName.split('/').pop());
+
+            me.position = newText.length;
+            me.length = me.position;
+        };
+
+        // setting asynch to off - worry about making this all callbacks later
+        blackberry.io.file.readFile(this.fileName, getFileContents, false);
+
+    }else{
+
+        // TODO: file doesn't exist - throw error
+
+    }
+
+    me.readyState = FileWriter.DONE;
+
+    if (typeof me.onwriteend === "function") {
+                me.onwriteend(new ProgressEvent("writeend", {"target":me}));
+    }
+};
+
+module.exports = FileWriter;
+
+});
+
+// file: lib/playbook/plugin/playbook/accelerometer.js
+define("cordova/plugin/playbook/accelerometer", function(require, exports, module) {
+var cordova = require('cordova'),
+    callback;
+
+module.exports = {
+    start: function (args, win, fail) {
+        window.removeEventListener("devicemotion", callback);
+        callback = function (motion) {
+            win({
+                x: motion.accelerationIncludingGravity.x,
+                y: motion.accelerationIncludingGravity.y,
+                z: motion.accelerationIncludingGravity.z,
+                timestamp: motion.timestamp
+            });
+        };
+        window.addEventListener("devicemotion", callback);
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+    stop: function (args, win, fail) {
+        window.removeEventListener("devicemotion", callback);
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/battery.js
+define("cordova/plugin/playbook/battery", function(require, exports, module) {
+var cordova = require('cordova');
+
+module.exports = {
+    start: function (args, win, fail) {
+        // Register one listener to each of level and state change
+        // events using WebWorks API.
+        blackberry.system.event.deviceBatteryStateChange(function(state) {
+            var me = navigator.battery;
+            // state is either CHARGING or UNPLUGGED
+            if (state === 2 || state === 3) {
+                var info = {
+                    "level" : me._level,
+                    "isPlugged" : state === 2
+                };
+
+                if (me._isPlugged !== info.isPlugged && typeof win === 'function') {
+                    win(info);
+                }
+            }
+        });
+        blackberry.system.event.deviceBatteryLevelChange(function(level) {
+            var me = navigator.battery;
+            if (level != me._level && typeof win === 'function') {
+                win({'level' : level, 'isPlugged' : me._isPlugged});
+            }
+        });
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+    stop: function (args, win, fail) {
+        // Unregister battery listeners.
+        blackberry.system.event.deviceBatteryStateChange(null);
+        blackberry.system.event.deviceBatteryLevelChange(null);
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/camera.js
+define("cordova/plugin/playbook/camera", function(require, exports, module) {
+var cordova = require('cordova');
+
+module.exports = {
+    takePicture: function (args, win, fail) {
+        var onCaptured = blackberry.events.registerEventHandler("onCaptured", win),
+            onCameraClosed = blackberry.events.registerEventHandler("onCameraClosed", function () {}),
+            onError = blackberry.events.registerEventHandler("onError", fail),
+            request = new blackberry.transport.RemoteFunctionCall('blackberry/media/camera/takePicture');
+
+        request.addParam("onCaptured", onCaptured);
+        request.addParam("onCameraClosed", onCameraClosed);
+        request.addParam("onError", onError);
+
+        //HACK: this is a sync call due to:
+        //https://github.com/blackberry/WebWorks-TabletOS/issues/51
+        request.makeSyncCall();
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/capture.js
+define("cordova/plugin/playbook/capture", function(require, exports, module) {
+var cordova = require('cordova');
+
+function capture(action, win, fail) {
+    var onCaptured = blackberry.events.registerEventHandler("onCaptured", function (path) {
+            var file = blackberry.io.file.getFileProperties(path);
+            win([{
+                fullPath: path,
+                lastModifiedDate: file.dateModified,
+                name: path.replace(file.directory + "/", ""),
+                size: file.size,
+                type: file.fileExtension
+            }]);
+        }),
+        onCameraClosed = blackberry.events.registerEventHandler("onCameraClosed", function () {}),
+        onError = blackberry.events.registerEventHandler("onError", fail),
+        request = new blackberry.transport.RemoteFunctionCall('blackberry/media/camera/' + action);
+
+    request.addParam("onCaptured", onCaptured);
+    request.addParam("onCameraClosed", onCameraClosed);
+    request.addParam("onError", onError);
+
+    //HACK: this is a sync call due to:
+    //https://github.com/blackberry/WebWorks-TabletOS/issues/51
+    request.makeSyncCall();
+}
+
+module.exports = {
+    getSupportedAudioModes: function (args, win, fail) {
+        return {"status": cordova.callbackStatus.OK, "message": []};
+    },
+    getSupportedImageModes: function (args, win, fail) {
+        return {"status": cordova.callbackStatus.OK, "message": []};
+    },
+    getSupportedVideoModes: function (args, win, fail) {
+        return {"status": cordova.callbackStatus.OK, "message": []};
+    },
+    captureImage: function (args, win, fail) {
+        if (args[0].limit > 0) {
+            capture("takePicture", win, fail);
+        }
+        else {
+            win([]);
+        }
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+    captureVideo: function (args, win, fail) {
+        if (args[0].limit > 0) {
+            capture("takeVideo", win, fail);
+        }
+        else {
+            win([]);
+        }
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+    captureAudio: function (args, win, fail) {
+        return {"status": cordova.callbackStatus.INVALID_ACTION, "message": "captureAudio is not currently supported"};
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/device.js
+define("cordova/plugin/playbook/device", function(require, exports, module) {
+var channel = require('cordova/channel');
+
+module.exports = {
+    platform: "PlayBook",
+    version: blackberry.system.softwareVersion,
+    name: blackberry.system.model,
+    uuid: blackberry.identity.PIN,
+    cordova: "1.8.1"
+};
+
+channel.onCordovaInfoReady.fire();
+
+});
+
+// file: lib/playbook/plugin/playbook/logger.js
+define("cordova/plugin/playbook/logger", function(require, exports, module) {
+var cordova = require('cordova');
+
+module.exports = {
+    log: function (args, win, fail) {
+        console.log(args);
+        return {"status" : cordova.callbackStatus.OK,
+                "message" : 'Message logged to console: ' + args};
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/media.js
+define("cordova/plugin/playbook/media", function(require, exports, module) {
+var cordova = require('cordova'),
+    audioObjects = {};
+
+module.exports = {
+    create: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            src = args[1];
+
+        audioObjects[id] = new Audio(src);
+        return {"status" : 1, "message" : "Audio object created" };
+    },
+    startPlayingAudio: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (args.length === 1) {
+            return {"status" : 9, "message" : "Media source argument not found"};
+        }
+
+        if (audio) {
+            audio.pause();
+            audioObjects[id] = undefined;
+        }
+
+        audio = audioObjects[id] = new Audio(args[1]);
+        audio.play();
+
+        return {"status" : 1, "message" : "Audio play started" };
+    },
+    stopPlayingAudio: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (!audio) {
+            return {"status" : 2, "message" : "Audio Object has not been initialized"};
+        }
+
+        audio.pause();
+        audioObjects[id] = undefined;
+
+        return {"status" : 1, "message" : "Audio play stopped" };
+    },
+    seekToAudio: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (!audio) {
+            result = {"status" : 2, "message" : "Audio Object has not been initialized"};
+        } else if (args.length === 1) {
+            result = {"status" : 9, "message" : "Media seek time argument not found"};
+        } else {
+            try {
+                audio.currentTime = args[1];
+            } catch (e) {
+                console.log('Error seeking audio: ' + e);
+                return {"status" : 3, "message" : "Error seeking audio: " + e};
+            }
+
+            result = {"status" : 1, "message" : "Seek to audio succeeded" };
+        }
+
+        return result;
+    },
+    pausePlayingAudio: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (!audio) {
+            return {"status" : 2, "message" : "Audio Object has not been initialized"};
+        }
+
+        audio.pause();
+
+        return {"status" : 1, "message" : "Audio paused" };
+    },
+    getCurrentPositionAudio: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (!audio) {
+            return {"status" : 2, "message" : "Audio Object has not been initialized"};
+        }
+
+        return {"status" : 1, "message" : audio.currentTime };
+    },
+    getDuration: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (!audio) {
+            return {"status" : 2, "message" : "Audio Object has not been initialized"};
+        }
+
+        return {"status" : 1, "message" : audio.duration };
+    },
+    startRecordingAudio: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (args.length <= 1) {
+            result = {"status" : 9, "message" : "Media start recording, insufficient arguments"};
+        }
+
+        blackberry.media.microphone.record(args[1], win, fail);
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+    stopRecordingAudio: function (args, win, fail) {
+    },
+    release: function (args, win, fail) {
+        if (!args.length) {
+            return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
+        }
+
+        var id = args[0],
+            audio = audioObjects[id],
+            result;
+
+        if (audio) {
+            audioObjects[id] = undefined;
+            audio.src = undefined;
+            //delete audio;
+        }
+
+        result = {"status" : 1, "message" : "Media resources released"};
+
+        return result;
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/network.js
+define("cordova/plugin/playbook/network", function(require, exports, module) {
+var cordova = require('cordova'),
+    connection = require('cordova/plugin/Connection');
+
+module.exports = {
+    getConnectionInfo: function (args, win, fail) {
+        var connectionType = connection.NONE,
+            eventType = "offline",
+            callbackID,
+            request;
+
+        /**
+         * For PlayBooks, we currently only have WiFi connections, so
+         * return WiFi if there is any access at all.
+         * TODO: update if/when PlayBook gets other connection types...
+         */
+        if (blackberry.system.hasDataCoverage()) {
+            connectionType = connection.WIFI;
+            eventType = "online";
+        }
+
+        //Register an event handler for the networkChange event
+        callbackID = blackberry.events.registerEventHandler("networkChange", function (status) {
+            win(status.type);
+        });
+
+        //pass our callback id down to our network extension
+        request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getConnectionInfo");
+        request.addParam("networkStatusChangedID", callbackID);
+        request.makeSyncCall();
+
+        return { "status": cordova.callbackStatus.OK, "message": connectionType};
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/notification.js
+define("cordova/plugin/playbook/notification", function(require, exports, module) {
+var cordova = require('cordova');
+
+module.exports = {
+    alert: function (args, win, fail) {
+        if (args.length !== 3) {
+            return {"status" : 9, "message" : "Notification action - alert arguments not found"};
+        }
+
+        //Unpack and map the args
+        var msg = args[0],
+            title = args[1],
+            btnLabel = args[2];
+
+        blackberry.ui.dialog.customAskAsync.apply(this, [ msg, [ btnLabel ], win, { "title" : title } ]);
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+    confirm: function (args, win, fail) {
+        if (args.length !== 3) {
+            return {"status" : 9, "message" : "Notification action - confirm arguments not found"};
+        }
+
+        //Unpack and map the args
+        var msg = args[0],
+            title = args[1],
+            btnLabel = args[2],
+            btnLabels = btnLabel.split(",");
+
+        blackberry.ui.dialog.customAskAsync.apply(this, [msg, btnLabels, win, {"title" : title} ]);
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    }
+};
+
+});
+
+// file: lib/playbook/plugin/playbook/requestFileSystem.js
+define("cordova/plugin/playbook/requestFileSystem", function(require, exports, module) {
+var DirectoryEntry = require('cordova/plugin/DirectoryEntry'),
+FileError = require('cordova/plugin/FileError'),
+FileSystem = require('cordova/plugin/FileSystem'),
+LocalFileSystem = require('cordova/plugin/LocalFileSystem');
+
+/**
+ * Request a file system in which to store application data.
+ * @param type  local file system type
+ * @param size  indicates how much storage space, in bytes, the application expects to need
+ * @param successCallback  invoked with a FileSystem object
+ * @param errorCallback  invoked if error occurs retrieving file system
+ */
+var requestFileSystem = function(type, size, successCallback, errorCallback) {
+    var fail = function(code) {
+        if (typeof errorCallback === 'function') {
+            errorCallback(new FileError(code));
+        }
+    };
+
+    if (type < 0 || type > 3) {
+        fail(FileError.SYNTAX_ERR);
+    } else {
+        // if successful, return a FileSystem object
+        var success = function(file_system) {
+            if (file_system) {
+                if (typeof successCallback === 'function') {
+                    successCallback(file_system);
+                }
+            }
+            else {
+                // no FileSystem object returned
+                fail(FileError.NOT_FOUND_ERR);
+            }
+        };
+
+        // guessing the max file size is 2GB - 1 bytes?
+        // https://bdsc.webapps.blackberry.com/native/documentation/com.qnx.doc.neutrino.user_guide/topic/limits_filesystems.html
+
+        if(size>=2147483648){
+            fail(FileError.QUOTA_EXCEEDED_ERR);
+            return;
+        }
+
+
+        var theFileSystem;
+        try{
+            // is there a way to get space for the app that doesn't point to the appDirs folder?
+            if(type==LocalFileSystem.TEMPORARY){
+                theFileSystem = new FileSystem('temporary', new DirectoryEntry('root', blackberry.io.dir.appDirs.app.storage.path));
+            }else if(type==LocalFileSystem.PERSISTENT){
+                theFileSystem = new FileSystem('persistent', new DirectoryEntry('root', blackberry.io.dir.appDirs.app.storage.path));
+            }
+            success(theFileSystem);
+        }catch(e){
+            fail(FileError.SYNTAX_ERR);
+        }
+    }
+};
+module.exports = requestFileSystem;
+
+});
+
+// file: lib/playbook/plugin/playbook/resolveLocalFileSystemURI.js
+define("cordova/plugin/playbook/resolveLocalFileSystemURI", function(require, exports, module) {
+var DirectoryEntry = require('cordova/plugin/DirectoryEntry'),
+    FileEntry = require('cordova/plugin/FileEntry'),
+    FileError = require('cordova/plugin/FileError');
+
+/**
+ * Look up file system Entry referred to by local URI.
+ * @param {DOMString} uri  URI referring to a local file or directory
+ * @param successCallback  invoked with Entry object corresponding to URI
+ * @param errorCallback    invoked if error occurs retrieving file system entry
+ */
+module.exports = function(uri, successCallback, errorCallback) {
+    // error callback
+    var fail = function(error) {
+        if (typeof errorCallback === 'function') {
+            errorCallback(new FileError(error));
+        }
+    };
+    // if successful, return either a file or directory entry
+    var success = function(entry) {
+        var result;
+
+        if (entry) {
+            if (typeof successCallback === 'function') {
+                // create appropriate Entry object
+                result = (entry.isDirectory) ? new DirectoryEntry(entry.name, entry.fullPath) : new FileEntry(entry.name, entry.fullPath);
+                try {
+                    successCallback(result);
+                }
+                catch (e) {
+                    console.log('Error invoking callback: ' + e);
+                }
+            }
+        }
+        else {
+            // no Entry object returned
+            fail(FileError.NOT_FOUND_ERR);
+        }
+    };
+
+    // decode uri if % char found
+    if(uri.indexOf('%')>=0){
+        uri = decodeURI(uri);
+    }
+
+    // pop the parameters if any
+    if(uri.indexOf('?')>=0){
+        uri = uri.split('?')[0];
+    }
+
+    // check for leading /
+    if(uri.indexOf('/')===0){
+        fail(FileError.ENCODING_ERR);
+        return;
+    }
+
+    // Entry object is borked - unable to instantiate a new Entry object so just create one
+    var theEntry = {};
+    if(blackberry.io.dir.exists(uri)){
+        theEntry.isDirectory = true;
+        theEntry.name = uri.split('/').pop();
+        theEntry.fullPath = uri;
+
+        success(theEntry);
+    }else if(blackberry.io.file.exists(uri)){
+        theEntry.isDirectory = false;
+        theEntry.name = uri.split('/').pop();
+        theEntry.fullPath = uri;
+        success(theEntry);
+    }else{
+        fail(FileError.NOT_FOUND_ERR);
+    }
+
 };
 
 });
@@ -4938,24 +6507,6 @@ var splashscreen = {
 };
 
 module.exports = splashscreen;
-});
-
-// file: lib/webworks/plugin/webworks/manager.js
-define("cordova/plugin/webworks/manager", function(require, exports, module) {
-// Define JavaScript plugin implementations that are common across
-// WebWorks platforms (phone/tablet).
-var plugins = {},
-    cordova = require('cordova');
-
-module.exports = {
-    exec: function (win, fail, clazz, action, args) {
-        if (plugins[clazz]) {
-            return plugins[clazz].execute(action, args, win, fail);
-        }
-
-        return {"status" : cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION, "message" : "Class " + clazz + " cannot be found"};
-    }
-};
 });
 
 // file: lib/common/utils.js

@@ -1,6 +1,6 @@
-// commit ac0a3990438f4a89faa993316fb5614f61cf3be6
+// commit 575cebe92a3f91e2720ee7ccc3a8103ef8038344
 
-// File generated at :: Tue Jun 05 2012 14:11:27 GMT-0700 (PDT)
+// File generated at :: Tue Jun 12 2012 15:09:13 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -924,8 +924,12 @@ module.exports = {
 
 });
 
-// file: lib/blackberry/exec.js
+// file: lib/webworks/exec.js
 define("cordova/exec", function(require, exports, module) {
+var manager = require('cordova/plugin/manager'),
+    cordova = require('cordova'),
+    utils = require('cordova/utils');
+
 /**
  * Execute a cordova command.  It is up to the native side whether this action
  * is synchronous or asynchronous.  The native side can return:
@@ -940,13 +944,10 @@ define("cordova/exec", function(require, exports, module) {
  * @param {String} action       Action to be run in cordova
  * @param {String[]} [args]     Zero or more arguments to pass to the method
  */
-var blackberry = require('cordova/plugin/blackberry/manager'),
-    cordova = require('cordova'),
-    utils = require('cordova/utils');
 
 module.exports = function(success, fail, service, action, args) {
     try {
-        var v = blackberry.exec(success, fail, service, action, args);
+        var v = manager.exec(success, fail, service, action, args);
 
         // If status is OK, then return value back to caller
         if (v.status == cordova.callbackStatus.OK) {
@@ -957,7 +958,7 @@ module.exports = function(success, fail, service, action, args) {
                     success(v.message);
                 }
                 catch (e) {
-                    console.log("Error in success callback: "+ service + "." + action + " = "+e);
+                    console.log("Error in success callback: "+cordova.callbackId+" = "+e);
                 }
 
             }
@@ -966,7 +967,7 @@ module.exports = function(success, fail, service, action, args) {
 
         } else {
             // If error, then display error
-            console.log("Error: " + service + "." + action + " Status="+v.status+" Message="+v.message);
+            console.log("Error: Status="+v.status+" Message="+v.message);
 
             // If there is a fail callback, then call it now with returned value
             if (fail) {
@@ -974,7 +975,7 @@ module.exports = function(success, fail, service, action, args) {
                     fail(v.message);
                 }
                 catch (e) {
-                    console.log("Error in error callback: " + service + "." + action + " = "+e);
+                    console.log("Error in error callback: "+cordova.callbackId+" = "+e);
                 }
             }
             return null;
@@ -983,6 +984,7 @@ module.exports = function(success, fail, service, action, args) {
         utils.alert("Error: "+e);
     }
 };
+
 });
 
 // file: lib/blackberry/platform.js
@@ -993,7 +995,7 @@ module.exports = {
         var cordova = require('cordova'),
             exec = require('cordova/exec'),
             channel = require('cordova/channel'),
-            blackberryManager = require('cordova/plugin/blackberry/manager'),
+            manager = require('cordova/plugin/manager'),
             app = require('cordova/plugin/blackberry/app');
 
         // BB OS 5 does not define window.console.
@@ -1061,11 +1063,11 @@ module.exports = {
         // Fires off necessary code to pause/resume app
         var resume = function() {
             cordova.fireDocumentEvent('resume');
-            blackberryManager.resume();
+            manager.resume();
         };
         var pause = function() {
             cordova.fireDocumentEvent('pause');
-            blackberryManager.pause();
+            manager.pause();
         };
 
         /************************************************
@@ -1293,6 +1295,10 @@ cameraExport.getPicture = function(successCallback, errorCallback, options) {
     }
 
     exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType, mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, popoverOptions]);
+};
+
+cameraExport.cleanup = function(successCallback, errorCallback) {
+    exec(successCallback, errorCallback, "Camera", "cleanup", []);
 };
 
 module.exports = cameraExport;
@@ -2602,6 +2608,8 @@ var DirectoryEntry = require('cordova/plugin/DirectoryEntry');
 var FileSystem = function(name, root) {
     this.name = name || null;
     if (root) {
+        console.log('root.name ' + name);
+        console.log('root.root ' + root);
         this.root = new DirectoryEntry(root.name, root.fullPath);
     }
 };
@@ -4780,7 +4788,7 @@ module.exports = {
 // file: lib/blackberry/plugin/blackberry/app.js
 define("cordova/plugin/blackberry/app", function(require, exports, module) {
 var exec = require('cordova/exec');
-var manager = require('cordova/plugin/blackberry/manager');
+var manager = require('cordova/plugin/manager');
 
 module.exports = {
   /**
@@ -4829,6 +4837,7 @@ module.exports = {
       blackberry.app.exit();
   }
 };
+
 });
 
 // file: lib/blackberry/plugin/blackberry/contacts.js
@@ -4924,97 +4933,6 @@ channel.onCordovaReady.subscribeOnce(function() {
 });
 
 module.exports = me;
-});
-
-// file: lib/blackberry/plugin/blackberry/manager.js
-define("cordova/plugin/blackberry/manager", function(require, exports, module) {
-var webworks = require('cordova/plugin/webworks/manager'),
-    Cordova = require('cordova'),
-    plugins = {};
-
-function _exec(win, fail, clazz, action, args) {
-    var callbackId = clazz + Cordova.callbackId++,
-        origResult,
-        evalResult,
-        execResult;
-
-    try {
-
-        if (win || fail) {
-            Cordova.callbacks[callbackId] = {success: win, fail: fail};
-        }
-
-        // Note: Device returns string, but for some reason emulator returns object - so convert to string.
-        origResult = "" + org.apache.cordova.JavaPluginManager.exec(clazz, action, callbackId, JSON.stringify(args), true);
-
-        // If a result was returned
-        if (origResult.length > 0) {
-            eval("evalResult = " + origResult + ";");
-
-            // If status is OK, then return evalResultalue back to caller
-            if (evalResult.status === Cordova.callbackStatus.OK) {
-
-                // If there is a success callback, then call it now with returned evalResultalue
-                if (win) {
-                    // Clear callback if not expecting any more results
-                    if (!evalResult.keepCallback) {
-                        delete Cordova.callbacks[callbackId];
-                    }
-                }
-            } else if (evalResult.status === Cordova.callbackStatus.NO_RESULT) {
-
-                // Clear callback if not expecting any more results
-                if (!evalResult.keepCallback) {
-                    delete Cordova.callbacks[callbackId];
-                }
-            } else {
-                // If there is a fail callback, then call it now with returned evalResultalue
-                if (fail) {
-
-                    // Clear callback if not expecting any more results
-                    if (!evalResult.keepCallback) {
-                        delete Cordova.callbacks[callbackId];
-                    }
-                }
-            }
-            execResult = evalResult;
-        } else {
-            // Asynchronous calls return an empty string. Return a NO_RESULT
-            // status for those executions.
-            execResult = {"status" : Cordova.callbackStatus.NO_RESULT,
-                    "message" : ""};
-        }
-    } catch (e) {
-        console.log("BlackBerryPluginManager Error: " + e);
-        execResult = {"status" : Cordova.callbackStatus.ERROR,
-                      "message" : e.message};
-    }
-
-    return execResult;
-}
-
-module.exports = {
-    exec: function (win, fail, clazz, action, args) {
-        var result = webworks.exec(win, fail, clazz, action, args);
-
-        //We got a sync result or a not found from WW that we can pass on to get a native mixin
-        //For async calls there's nothing to do
-        if (result.status === Cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION  ||
-                result.status === Cordova.callbackStatus.INVALID_ACTION ||
-                result.status === Cordova.callbackStatus.OK) {
-            if (plugins[clazz]) {
-                return plugins[clazz].execute(result.message, action, args, win, fail);
-            } else {
-                result = _exec(win, fail, clazz, action, args);
-            }
-        }
-
-        return result;
-    },
-    resume: org.apache.cordova.JavaPluginManager.resume,
-    pause: org.apache.cordova.JavaPluginManager.pause,
-    destroy: org.apache.cordova.JavaPluginManager.destroy
-};
 });
 
 // file: lib/blackberry/plugin/blackberry/notification.js
@@ -5915,6 +5833,81 @@ document.addEventListener("deviceready", logger.__onDeviceReady, false);
 
 });
 
+// file: lib/blackberry/plugin/manager.js
+define("cordova/plugin/manager", function(require, exports, module) {
+var cordova = require('cordova');
+
+function _exec(win, fail, clazz, action, args) {
+    var callbackId = clazz + cordova.callbackId++,
+        origResult,
+        evalResult,
+        execResult;
+
+    try {
+        if (win || fail) {
+            cordova.callbacks[callbackId] = {success: win, fail: fail};
+        }
+
+        // Note: Device returns string, but for some reason emulator returns object - so convert to string.
+        origResult = "" + org.apache.cordova.JavaPluginManager.exec(clazz, action, callbackId, JSON.stringify(args), true);
+
+        // If a result was returned
+        if (origResult.length > 0) {
+            eval("evalResult = " + origResult + ";");
+
+            // If status is OK, then return evalResultalue back to caller
+            if (evalResult.status === cordova.callbackStatus.OK) {
+
+                // If there is a success callback, then call it now with returned evalResultalue
+                if (win) {
+                    // Clear callback if not expecting any more results
+                    if (!evalResult.keepCallback) {
+                        delete cordova.callbacks[callbackId];
+                    }
+                }
+            } else if (evalResult.status === cordova.callbackStatus.NO_RESULT) {
+
+                // Clear callback if not expecting any more results
+                if (!evalResult.keepCallback) {
+                    delete cordova.callbacks[callbackId];
+                }
+            } else {
+                // If there is a fail callback, then call it now with returned evalResultalue
+                if (fail) {
+
+                    // Clear callback if not expecting any more results
+                    if (!evalResult.keepCallback) {
+                        delete cordova.callbacks[callbackId];
+                    }
+                }
+            }
+            execResult = evalResult;
+        } else {
+            // Asynchronous calls return an empty string. Return a NO_RESULT
+            // status for those executions.
+            execResult = {"status" : cordova.callbackStatus.NO_RESULT,
+                    "message" : ""};
+        }
+    } catch (e) {
+        console.log("BlackBerryPluginManager Error: " + e);
+        execResult = {"status" : cordova.callbackStatus.ERROR,
+                      "message" : e.message};
+    }
+
+    return execResult;
+}
+
+module.exports = {
+    exec: function (win, fail, clazz, action, args) {
+        return _exec(win, fail, clazz, action, args);
+    },
+    resume: org.apache.cordova.JavaPluginManager.resume,
+    pause: org.apache.cordova.JavaPluginManager.pause,
+    destroy: org.apache.cordova.JavaPluginManager.destroy
+};
+
+});
+
 // file: lib/common/plugin/network.js
 define("cordova/plugin/network", function(require, exports, module) {
 var exec = require('cordova/exec'),
@@ -6147,24 +6140,6 @@ var splashscreen = {
 };
 
 module.exports = splashscreen;
-});
-
-// file: lib/webworks/plugin/webworks/manager.js
-define("cordova/plugin/webworks/manager", function(require, exports, module) {
-// Define JavaScript plugin implementations that are common across
-// WebWorks platforms (phone/tablet).
-var plugins = {},
-    cordova = require('cordova');
-
-module.exports = {
-    exec: function (win, fail, clazz, action, args) {
-        if (plugins[clazz]) {
-            return plugins[clazz].execute(action, args, win, fail);
-        }
-
-        return {"status" : cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION, "message" : "Class " + clazz + " cannot be found"};
-    }
-};
 });
 
 // file: lib/common/utils.js
