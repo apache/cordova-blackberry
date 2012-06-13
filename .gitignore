@@ -15,6 +15,7 @@ deliverables/
 
 build/
 dist/
+bin/node_modules
 
 # OS X
 
