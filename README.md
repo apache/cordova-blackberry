@@ -46,22 +46,11 @@ As an alternative, you can download packaged releases of Cordova from the [Phone
 Cordova BlackBerry Developer Tools
 ---
 
-The Cordova developer tooling is split between general tooling and project level tooling. 
+The Cordova developer tooling is split between general tooling and project level tooling. If you are on Windows, please run the equivalent .bat files instead of the shell scripts :)
 
-To enable the command-line tools available in the ./bin directory, make
-sure you have all of the dependencies installed. You will need
-[NodeJS](http://nodejs.org) (which should come with `npm`). To install
-the dependencies:
-
-    $ cd bin
-    $ npm install
-
-General Commands
+### General Commands
 
     ./bin/create [path appname] ............ creates a sample app with the specified application name, to the specified path
-    ./bin/bench ............................ generate a bench proj
-    ./bin/autotest ......................... test the cli tools
-    ./bin/test ............................. run mobile-spec
 
 Please note that once you `create` a Cordova BlackBerry project, you
 will need to edit the `project.properties` file that resides inside your
@@ -70,21 +59,7 @@ will need to specify things like the location of the BlackBerry Widget
 Packager(s), device and signing key passwords, simulator executables,
 and device IPs (if applicable).
 
-TODO: Project Commands
-
-These commands live in a generated Cordova BlackBerry project. NOTE: not
-available yet.
-
-    ./cordova/debug [path] ..................... install to first device
-    ./cordova/emulate .......................... start avd (emulator) named default
-    ./cordova/log .............................. starts logcat
-
-Running the Example Project (TODO)
----
-
-Start a simulator:
-
-    ./bin/emulate
+#### Running the Example Project
 
 Create the example project and build it to the first device:
 
@@ -92,19 +67,20 @@ Create the example project and build it to the first device:
     cd example
     ./cordova/debug
 
-Start streaming a log from the device
-
-    ./cordova/log
-
-Running the [mobile-spec](http://github.com/apache/incubator-cordova-mobile-spec) tests:
----
-
-    ./bin/test
-
-Creating a new Cordova BlackBerry Project
----
+#### Creating a new Cordova BlackBerry Project
 
     ./bin/create ~/Desktop/myapp MyApp
+
+### Project Commands
+
+These commands live in a generated Cordova BlackBerry project. As per
+the note above, please make sure you edit the `project.properties` file
+inside your application directory appropriately otherwise these commands
+will not work!
+
+    ./cordova/debug ............................ install to a connected device or simulator
+    ./cordova/emulate .......................... install to a simulator
+
 
 (Legacy) Creating a New Cordova Project
 -------------------------------
