@@ -9,7 +9,7 @@ Directory Structure
     framework/ ... BlackBerry WebWorks JavaScript Extension (Cordova native code)
     javascript/ .. Cordova JavaScript (Non-concatenated, non-minified)
     lib/ ......... Third party tools
-    template/ .... Project template for creating a new projects
+    bin/ ......... Scripts for project creation
 
 Introduction
 ------------
@@ -18,13 +18,13 @@ BlackBerry WebWorks is a framework for developing web-based applications for Bla
 
 The WebWorks framework allows developers to create applications using web content and resources (HTML/CSS/JavaScript) that are able to access device features through the [Blackberry WebWorks API](http://www.blackberry.com/developers/docs/widgetapi/).  In addition, the framework allows developers to create their own WebWorks JavaScript Extensions to expose additional device capabilities through JavaScript APIs.  These extensions are written using either the BlackBerry Java API for SmartPhones, or Adobe AIR for the Tablet OS.
 
-The cordova-blackberry-webworks platform allows web developers to develop applications targeting BlackBerry 5.0 and higher devices using the common [Cordova API](http://docs.phonegap.com).  When possible, Cordova makes use of the WebWorks JavaScript API; however, most Cordova features are implemented in the native Java environment as a WebWorks JavaScript Extension.
+The cordova-blackberry-webworks platform allows web developers to develop applications targeting BlackBerry 5.0 and higher devices using the common [Cordova API](http://docs.phonegap.com).  When possible, Cordova makes use of the WebWorks JavaScript API; however, most Cordova features are implemented in the native Java or AIR environment as a WebWorks JavaScript Extension.
 
 
 Getting Started
 ===============
 
-Several guides are available on the [Cordova Wiki](http://wiki.phonegap.com) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
+Several guides are available on the [Cordova Wiki](http://wiki.phonegap.com) and on the [PhoneGap Documentation site](http://docs.phonegap.com/) (Getting Started Guides - on the left side near the bottom) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
 
 [Getting Started with Cordova BlackBerry WebWorks](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks)
 
@@ -43,13 +43,75 @@ Cloning the cordova-blackberry-webworks repository always provides you with the 
 
 As an alternative, you can download packaged releases of Cordova from the [PhoneGap web site](http://phonegap.com).  If choosing this method, simply unzip the Cordova packaged code and navigate to the BlackBerry/WebWorks directory.  The steps below remain the same.
 
+Cordova BlackBerry Developer Tools
+---
 
-Creating a New Cordova Project
+The Cordova developer tooling is split between general tooling and project level tooling. 
+
+To enable the command-line tools available in the ./bin directory, make
+sure you have all of the dependencies installed. You will need
+[NodeJS](http://nodejs.org) (which should come with `npm`). To install
+the dependencies:
+
+    $ cd bin
+    $ npm install
+
+General Commands
+
+    ./bin/create [path appname] ............ creates a sample app with the specified application name, to the specified path
+    ./bin/bench ............................ generate a bench proj
+    ./bin/autotest ......................... test the cli tools
+    ./bin/test ............................. run mobile-spec
+
+Please note that once you `create` a Cordova BlackBerry project, you
+will need to edit the `project.properties` file that resides inside your
+generated application directory to set up your environment properly. You
+will need to specify things like the location of the BlackBerry Widget
+Packager(s), device and signing key passwords, simulator executables,
+and device IPs (if applicable).
+
+TODO: Project Commands
+
+These commands live in a generated Cordova BlackBerry project. NOTE: not
+available yet.
+
+    ./cordova/debug [path] ..................... install to first device
+    ./cordova/emulate .......................... start avd (emulator) named default
+    ./cordova/log .............................. starts logcat
+
+Running the Example Project (TODO)
+---
+
+Start a simulator:
+
+    ./bin/emulate
+
+Create the example project and build it to the first device:
+
+    ./bin/create
+    cd example
+    ./cordova/debug
+
+Start streaming a log from the device
+
+    ./cordova/log
+
+Running the [mobile-spec](http://github.com/apache/incubator-cordova-mobile-spec) tests:
+---
+
+    ./bin/test
+
+Creating a new Cordova BlackBerry Project
+---
+
+    ./bin/create ~/Desktop/myapp MyApp
+
+(Legacy) Creating a New Cordova Project
 -------------------------------
 
-The Cordova build script enables you to create multiple, independent Cordova projects.
+The (legacy) Cordova ant build scripts enable you to create multiple, independent Cordova projects.
 
-(Note: The Cordova build script requries Apache ANT 1.8 or higher.  See the [Getting Started guide](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks) for instructions on how to install and configure Apache ANT).
+(Note: The Cordova build script requires Apache ANT 1.8 or higher.  See the [Getting Started guide](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks) for instructions on how to install and configure Apache ANT).
 
 The build script packages the Cordova source code and resources into each project you create.  This allows you to easily distribute the project to other BlackBerry WebWorks developers.  To create a Cordova project:
 

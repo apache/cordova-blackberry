@@ -4,8 +4,6 @@
 
 # Eclipse
 
-bin/
-build/
 deliverables/
 .preprocessed/
 
@@ -23,4 +21,3 @@ dist/
 .DS_Store
 
 tags
-

@@ -27,8 +27,8 @@
     
     <!-- LOAD PROPERTIES -->
     
-    <property name="template.project.dir" location="template/project" />
-    <property name="template.dist.dir"    location="template/dist" />
+    <property name="template.project.dir" location="bin/templates/project" />
+    <property name="template.dist.dir"    location="bin/templates/dist" />
     
     <property name="build.dir"            location="build" />
     <property name="update.dir"           value="lib/cordova.${version}" />
