@@ -56,7 +56,19 @@
             <arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
         </exec>
     </target>
+
+    <!-- DEBUG-LOAD DEVICE -->
     
+    <target name="debug-device" depends="package-app">
+        <bbwp code-sign="true" debug="true" />
+        <exec executable="${javaloader}" dir="." failonerror="true">
+            <arg value="-u" />
+            <arg value="-w${properties.blackberry.sim.password}" />
+            <arg value="load" />
+            <arg file="${build.dir}/StandardInstall/${cod.name}.cod" />
+        </exec>
+    </target>
+
     <!-- LOAD SIMULATOR -->
     
     <target name="load-simulator" depends="build">
@@ -177,7 +189,18 @@
 
     <macrodef name="bbwp">
         <attribute name="code-sign" default="false" />
+        <attribute name="debug" default="false" />
         <sequential>
+            <!-- check if debug flag was passed in and set an appropriate flag for CLI exec of bbwp -->
+            <if>
+                <equals arg1="@{debug}" arg2="true" />
+                <then>
+                    <property name="debug.flag" value="/d" />
+                </then>
+                <else>
+                    <property name="debug.flag" value="" />
+                </else>
+            </if>
 
             <!-- Ensure bbwp executable exists. -->
             <property name="properties.blackberry.bbwp.bin" location="${bbwp}" /> 
@@ -189,6 +212,7 @@
                 <then>
                     <exec executable="${properties.blackberry.bbwp.bin}">
                         <arg file="${build.dir}/${cod.name}.zip" />
+                        <arg value="${debug.flag}" />
                         <arg value="/g" />
                         <arg value="${properties.blackberry.sigtool.password}" />
                         <arg value="/o" />
@@ -198,6 +222,7 @@
                 <else>
                     <exec executable="${properties.blackberry.bbwp.bin}">
                         <arg file="${build.dir}/${cod.name}.zip" />
+                        <arg value="${debug.flag}" />
                         <arg value="/o" />
                         <arg file="${build.dir}" />
                     </exec>

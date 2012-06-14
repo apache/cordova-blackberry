@@ -62,6 +62,23 @@
         </exec>
     </target>
     
+    <!-- DEBUG-LOAD DEVICE -->
+    
+    <target name="debug-device" depends="package-app">
+        <bbwp code-sign="true" debug="true" />
+
+        <exec executable="${blackberry-deploy}" dir="." failonerror="true">
+            <arg value="-installApp" />
+            <arg value="-launchApp" />
+            <arg value="-device" />
+            <arg value="${properties.playbook.device.ip}" />
+            <arg value="-password" />
+            <arg value="${properties.playbook.device.password}" />
+            <arg value="-package" />
+            <arg file="${build.dir}/${cod.name}.bar" />
+        </exec>
+    </target>
+    
     <!-- LOAD SIMULATOR -->
     
     <target name="load-simulator" depends="build">
@@ -120,13 +137,25 @@
 
     <macrodef name="bbwp">
         <attribute name="code-sign" default="false" />
+        <attribute name="debug" default="false" />
         <sequential>
+            <!-- check if debug flag was passed in and set an appropriate flag for CLI exec of bbwp -->
+            <if>
+                <equals arg1="@{debug}" arg2="true" />
+                <then>
+                    <property name="debug.flag" value="-d" />
+                </then>
+                <else>
+                    <property name="debug.flag" value="" />
+                </else>
+            </if>
             <buildnumber file="${build.num.file}" />
             <if>
                 <equals arg1="@{code-sign}" arg2="true" />
                 <then>
                     <exec executable="${bbwp}">
                         <arg file="${build.dir}/${cod.name}.zip" />
+                        <arg value="${debug.flag}" />
                         <arg value="-gcsk" />
                         <arg value="${properties.playbook.sigtool.csk.password}" />
                         <arg value="-gp12" />
@@ -140,6 +169,7 @@
                 <else>
                     <exec executable="${bbwp}">
                         <arg file="${build.dir}/${cod.name}.zip" />
+                        <arg value="${debug.flag}" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
                         <arg value="-buildId" />

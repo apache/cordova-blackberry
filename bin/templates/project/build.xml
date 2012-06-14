@@ -51,6 +51,12 @@
             <fileset dir="." includes="${subant.file}"/>
         </subant>
     </target>
+
+    <target name="debug-device">
+        <subant target="debug-device">
+            <fileset dir="." includes="${subant.file}"/>
+        </subant>
+    </target>
     
     <target name="build">
         <subant target="build">

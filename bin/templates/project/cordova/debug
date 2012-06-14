@@ -32,7 +32,7 @@ then
   read DEVICE
   if [ $DEVICE == "y" ]
   then
-    $ANT blackberry load-device
+    $ANT blackberry debug-device
   else
     $ANT blackberry load-simulator
   fi
@@ -43,7 +43,7 @@ else
     read DEVICE
     if [ $DEVICE == "y" ]
     then
-      $ANT playbook load-device
+      $ANT playbook debug-device
     else
       $ANT playbook load-simulator
     fi
