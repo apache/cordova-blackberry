@@ -59,7 +59,8 @@ public class CameraOptions {
     public String fileExtension = ".jpg";
     public int imageFilter = Bitmap.FILTER_LANCZOS;
     public boolean reformat = false;
-
+	public boolean saveToPhotoAlbum = true;
+	
     /**
      * Defines the order of args in the JSONArray
      *
@@ -68,7 +69,12 @@ public class CameraOptions {
      *   Camera.PictureSourceType.PHOTOLIBRARY // sourceType (ignored)
      *   400,                                  // targetWidth
      *   600,                                  // targetHeight
-     *   Camera.EncodingType.JPEG]             // encoding
+     *   Camera.EncodingType.JPEG              // encoding
+     *	 Camera.mediaType
+     *   Camera.allowEdit
+     *   Camera.correctOrientation
+     *	 Camera.saveToPhotoAlbum			   // save to photo album
+     *   Camera.popoverOptions]			   
      */
     private static final int ARG_QUALITY = 0;
     private static final int ARG_DESTINATION_TYPE = 1;
@@ -76,7 +82,7 @@ public class CameraOptions {
     private static final int ARG_TARGET_WIDTH = 3;
     private static final int ARG_TARGET_HEIGHT = 4;
     private static final int ARG_ENCODING = 5;
-
+	private static final int ARG_SAVETOPHOTOALBUM = 9;
 
     /**
      * Parse the JSONArray and populate the class members with the values.
@@ -147,11 +153,28 @@ public class CameraOptions {
                     || options.encoding != ENCODING_JPEG) {
                 options.reformat = true;
             }
+
+            if (!args.isNull(ARG_SAVETOPHOTOALBUM)) {
+                options.saveToPhotoAlbum = parseBoolean(args.getString(ARG_SAVETOPHOTOALBUM));
+            }
+            
         }
 
         return options;
     }
-
+	
+    /**
+     * no parseBoolean in JDK 1.3 :(
+    */
+     
+	public static boolean parseBoolean(String s) {
+		if (s.equals("true")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
     /**
      * @see java.lang.Object#toString()
      */
@@ -165,6 +188,7 @@ public class CameraOptions {
         str.append("Encoding:    " + encoding + "\n");
         str.append("Filter: " + imageFilter + "\n");
         str.append("Reformat: " + reformat);
+        str.append("Save To Photo Album: " + saveToPhotoAlbum);
         return str.toString();
     }
 }
