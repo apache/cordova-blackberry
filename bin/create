@@ -71,6 +71,7 @@ echo "Building cordova-$VERSION.jar and cordova-$VERSION.js ..."
 # copy project template
 echo "Copying assets and resources ..."
 cp -r $BUILD_PATH/dist/sample/. $PROJECT_PATH
+chmod 700 $PROJECT_PATH/cordova/*
 
 # interpolate the app name into config.xml
 echo "Updating config.xml ..."
