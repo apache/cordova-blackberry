@@ -71,7 +71,8 @@ echo "Building cordova-$VERSION.jar and cordova-$VERSION.js ..."
 # copy project template
 echo "Copying assets and resources ..."
 cp -r $BUILD_PATH/dist/sample/. $PROJECT_PATH
-chmod 700 $PROJECT_PATH/cordova/*
+# re-copy over cordova scripts because ant doesn't preserve file modes when copying
+cp -r -p $BUILD_PATH/bin/templates/project/cordova $PROJECT_PATH
 
 # interpolate the app name into config.xml
 echo "Updating config.xml ..."
