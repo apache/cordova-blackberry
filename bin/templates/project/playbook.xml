@@ -155,13 +155,13 @@
                 <then>
                     <exec executable="${bbwp}">
                         <arg file="${build.dir}/${cod.name}.zip" />
-                        <arg value="${debug.flag}" />
                         <arg value="-gcsk" />
                         <arg value="${properties.playbook.sigtool.csk.password}" />
                         <arg value="-gp12" />
                         <arg value="${properties.playbook.sigtool.p12.password}" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
+                        <arg value="${debug.flag}" />
                         <arg value="-buildId" />
                         <arg value="${build.number}" />
                     </exec>
@@ -169,9 +169,9 @@
                 <else>
                     <exec executable="${bbwp}">
                         <arg file="${build.dir}/${cod.name}.zip" />
-                        <arg value="${debug.flag}" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
+                        <arg value="${debug.flag}" />
                         <arg value="-buildId" />
                         <arg value="${build.number}" />
                     </exec>
