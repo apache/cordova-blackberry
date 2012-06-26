@@ -161,8 +161,7 @@
                         <arg value="${properties.playbook.sigtool.p12.password}" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
-                        <arg value="${debug.flag}" />
-                        <arg value="-buildId" />
+                        <arg line="${debug.flag} -buildId" />
                         <arg value="${build.number}" />
                     </exec>
                 </then>
@@ -171,8 +170,7 @@
                         <arg file="${build.dir}/${cod.name}.zip" />
                         <arg value="-o" />
                         <arg file="${build.dir}" />
-                        <arg value="${debug.flag}" />
-                        <arg value="-buildId" />
+                        <arg line="${debug.flag} -buildId" />
                         <arg value="${build.number}" />
                     </exec>
                 </else>
