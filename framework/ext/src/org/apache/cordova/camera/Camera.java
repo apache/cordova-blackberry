@@ -176,51 +176,51 @@ public class Camera extends Plugin
             // otherwise, get encoded string if base 64 string is output format.
             String imageURIorData = filePath;
             
-			// save to file:///store/home/user/ as oppsed to photo album
-			// so it doesn't show up in the camera's photo album viewer
-			if(!options.saveToPhotoAlbum){
-				FileConnection fconnIn = null;
-				FileConnection fconnOut = null;
-				InputStream in = null;
-				OutputStream out = null;
-				String newOutName = "";
-				try
-				{
-					fconnIn = (FileConnection)Connector.open(filePath);
-					if (fconnIn.exists())
-					{
-						newOutName = "file:///store/home/user/"+fconnIn.getName();
-						fconnOut = (FileConnection)Connector.open(newOutName);
-            			if (!fconnOut.exists())
-						 {
-							 fconnOut.create();  
-							 in = fconnIn.openInputStream();
-							 out = fconnOut.openOutputStream();
-							 out.write(IOUtilities.streamToBytes(in, 96*1024));
-							 fconnIn.delete();
-							 out.close();
-							 imageURIorData = newOutName;
-							 filePath = newOutName;
-							 waitForImageFile(newOutName);
-						 }
-					}
-				}
-				finally
-				{
-					if (in != null) in.close();
-					if (out != null) out.close();
-					if (fconnIn != null) fconnIn.close();
-					if (fconnOut != null) fconnOut.close();
-				}
-				
-			}
+            // save to file:///store/home/user/ as oppsed to photo album
+            // so it doesn't show up in the camera's photo album viewer
+            if(!options.saveToPhotoAlbum){
+                FileConnection fconnIn = null;
+                FileConnection fconnOut = null;
+                InputStream in = null;
+                OutputStream out = null;
+                String newOutName = "";
+                try
+                {
+                    fconnIn = (FileConnection)Connector.open(filePath);
+                    if (fconnIn.exists())
+                    {
+                        newOutName = "file:///store/home/user/"+fconnIn.getName();
+                        fconnOut = (FileConnection)Connector.open(newOutName);
+                        if (!fconnOut.exists())
+                         {
+                             fconnOut.create();  
+                             in = fconnIn.openInputStream();
+                             out = fconnOut.openOutputStream();
+                             out.write(IOUtilities.streamToBytes(in, 96*1024));
+                             fconnIn.delete();
+                             out.close();
+                             imageURIorData = newOutName;
+                             filePath = newOutName;
+                             waitForImageFile(newOutName);
+                         }
+                    }
+                }
+                finally
+                {
+                    if (in != null) in.close();
+                    if (out != null) out.close();
+                    if (fconnIn != null) fconnIn.close();
+                    if (fconnOut != null) fconnOut.close();
+                }
+                
+            }
 
             if (options.reformat) {
                 imageURIorData = reformatImage(filePath, options);
             } else if (options.destinationType == CameraOptions.DESTINATION_DATA_URL) {
                 imageURIorData = encodeImage(filePath);
             }
-			
+
             // we have to check the size to avoid memory errors in the browser
             if (imageURIorData.length() > MAX_ENCODING_SIZE)
             {

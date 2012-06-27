@@ -59,8 +59,8 @@ public class CameraOptions {
     public String fileExtension = ".jpg";
     public int imageFilter = Bitmap.FILTER_LANCZOS;
     public boolean reformat = false;
-	public boolean saveToPhotoAlbum = true;
-	
+    public boolean saveToPhotoAlbum = true;
+
     /**
      * Defines the order of args in the JSONArray
      *
@@ -82,7 +82,7 @@ public class CameraOptions {
     private static final int ARG_TARGET_WIDTH = 3;
     private static final int ARG_TARGET_HEIGHT = 4;
     private static final int ARG_ENCODING = 5;
-	private static final int ARG_SAVETOPHOTOALBUM = 9;
+    private static final int ARG_SAVETOPHOTOALBUM = 9;
 
     /**
      * Parse the JSONArray and populate the class members with the values.
@@ -162,19 +162,18 @@ public class CameraOptions {
 
         return options;
     }
-	
+
     /**
      * no parseBoolean in JDK 1.3 :(
     */
-     
-	public static boolean parseBoolean(String s) {
-		if (s.equals("true")){
-			return true;
-		}else{
-			return false;
-		}
-	}
-	
+    public static boolean parseBoolean(String s) {
+        if(s.equals("true")){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     /**
      * @see java.lang.Object#toString()
      */
