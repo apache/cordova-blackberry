@@ -1,6 +1,6 @@
 // commit 8050b81679fedb70542f4efed1d1e84608ce5cb1
 
-// File generated at :: Wed Jun 27 2012 14:19:07 GMT-0700 (PDT)
+// File generated at :: Wed Jun 27 2012 15:28:33 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -6011,11 +6011,11 @@ module.exports = {
                 size: file.size,
                 type: file.fileExtension
             }]);
-        }
+        };
 
         var onCaptureAudioFail = function(){
             fail([]);
-        }
+        };
 
         if (args[0].limit > 0 && args[0].duration){
             // a sloppy way of creating a uuid since there's no built in date function to get milliseconds since epoch
