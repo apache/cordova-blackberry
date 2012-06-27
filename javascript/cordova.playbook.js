@@ -1,6 +1,6 @@
-// commit 25033fceac7c800623f1f16881b784d19eba69cc
+// commit 36e6eff745c7d656c9fd649a3f014d362c8b3d20
 
-// File generated at :: Thu Jun 21 2012 17:15:09 GMT-0700 (PDT)
+// File generated at :: Wed Jun 27 2012 11:43:45 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -5999,7 +5999,40 @@ module.exports = {
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
     },
     captureAudio: function (args, win, fail) {
-        return {"status": cordova.callbackStatus.INVALID_ACTION, "message": "captureAudio is not currently supported"};
+    	var onCaptureAudioWin = function(filePath){
+    		// for some reason the filePath is coming back as a string between two double quotes 
+    		filePath = filePath.slice(1, filePath.length-1);
+            var file = blackberry.io.file.getFileProperties(filePath);
+
+            win([{
+                fullPath: filePath,
+                lastModifiedDate: file.dateModified,
+                name: filePath.replace(file.directory + "/", ""),
+                size: file.size,
+                type: file.fileExtension
+            }]);
+    	}
+    	
+    	var onCaptureAudioFail = function(){
+    		fail([]);
+    	}
+    	
+        if (args[0].limit > 0 && args[0].duration){
+        	// a sloppy way of creating a uuid since there's no built in date function to get milliseconds since epoch
+        	// might be better to instead check files within directory and then figure out the next file name shoud be
+        	// ie, img000 -> img001 though that would take awhile and would add a whole bunch of checks 
+        	var id = new Date();
+        	id = (id.getDay()).toString() + (id.getHours()).toString() + (id.getSeconds()).toString() + (id.getMilliseconds()).toString() + (id.getYear()).toString();
+            
+            var fileName = blackberry.io.dir.appDirs.shared.music.path+'/audio'+id+'.wav';
+            blackberry.media.microphone.record(fileName, onCaptureAudioWin, onCaptureAudioFail);
+            // multiple duration by a 1000 since it comes in as seconds
+            setTimeout(blackberry.media.microphone.stop,args[0].duration*1000);
+        }
+        else {
+            win([]);
+        }    	
+        return {"status": cordova.callbackStatus.NO_RESULT, "message": "WebWorks Is On It"};
     }
 };
 
