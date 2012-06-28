@@ -332,12 +332,19 @@ public class FileTransfer extends Plugin {
         }
 
         try {
-            // Create any directories in the path that do not already exist.
-            createSubDirs(path);
+            try {
+                // Create any directories in the path that do not already exist.
+                createSubDirs(path);
 
-            // Open connection to the target file.
-            fileConn = (FileConnection) Connector.open(target,
+                // Open connection to the target file.
+                fileConn = (FileConnection) Connector.open(target,
                     Connector.READ_WRITE);
+            } catch (IOException e) {
+                Logger.log(LOG_TAG + "Failed to open target file: " + target);
+                JSONObject error = createFileTransferError(FILE_NOT_FOUND_ERR, source,
+                        target, httpConn);
+                return new PluginResult(PluginResult.Status.IO_EXCEPTION, error);
+            }
 
             // Create the target file if it doesn't exist, otherwise truncate.
             if (!fileConn.exists()) {

@@ -84,6 +84,8 @@ public class FileUploader {
             } catch (ClassCastException e) {
                 // in case something really funky gets passed in
                 throw new IllegalArgumentException("Invalid file path");
+            } catch (IOException e) {
+                throw new FileNotFoundException("Failed to open source file: " + filePath);
             }
             if (!fconn.exists()) {
                 throw new FileNotFoundException(filePath + " not found");
