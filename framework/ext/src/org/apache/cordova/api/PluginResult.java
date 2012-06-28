@@ -88,7 +88,7 @@ public class PluginResult {
     }
 
     public String getJSONString() {
-        return "{status:" + this.status + ",message:" + this.message + ",keepCallback:" + this.keepCallback + "}";
+        return "{\"status\":" + this.status + ",\"message\":" + this.message + ",\"keepCallback\":" + this.keepCallback + "}";
     }
 
     /**
