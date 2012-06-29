@@ -83,10 +83,10 @@ var VERSION=read(ROOT+'\\VERSION').replace(/\r\n/,'').replace(/\n/,'');
 if(fso.FolderExists(ROOT+'\\framework')){
     exec('ant.bat -f '+ ROOT +'\\build.xml dist');
     // copy in the project template
-    exec('cmd /c xcopy '+ ROOT + '\\dist\\sample\\* '+PROJECT_PATH+' /S /Y');
+    exec('cmd /c xcopy '+ ROOT + '\\dist\\sample\\* '+PROJECT_PATH+' /I /S /Y');
 }else{
     // copy in the project template
-    exec('cmd /c xcopy '+ ROOT + '\\sample\\* '+PROJECT_PATH+' /S /Y');    
+    exec('cmd /c xcopy '+ ROOT + '\\sample\\* '+PROJECT_PATH+' /I /S /Y');    
 }
 
 replaceInFile(MANIFEST_PATH, /__NAME__/, APPNAME);
