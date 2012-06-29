@@ -1,6 +1,6 @@
-// commit 8050b81679fedb70542f4efed1d1e84608ce5cb1
+// commit ec1cc3e911f1e1e3de91f8e9beae7afd54aee58b
 
-// File generated at :: Wed Jun 27 2012 15:28:33 GMT-0700 (PDT)
+// File generated at :: Fri Jun 29 2012 14:43:48 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -6047,7 +6047,7 @@ module.exports = {
     version: blackberry.system.softwareVersion,
     name: blackberry.system.model,
     uuid: blackberry.identity.PIN,
-    cordova: "1.9.0rc1"
+    cordova: "1.9.0"
 };
 
 channel.onCordovaInfoReady.fire();
