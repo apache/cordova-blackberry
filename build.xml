@@ -175,6 +175,10 @@ Getting Started:
         <copy todir="${dist.www.path}">
             <fileset file="${template.project.dir}/www/plugins.xml" />
         </copy>
+
+        <!-- update config.xml to have a default name-->
+        <replace file="${dist.www.path}/config.xml" token="__NAME__" value="cordovaExample"/>
+        <replace file="${dist.project.path}/www/config.xml" token="__NAME__" value="cordovaExample"/>        
         
         <echo>
 Distribution Complete!
