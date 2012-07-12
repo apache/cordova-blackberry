@@ -1,6 +1,6 @@
-// commit ec1cc3e911f1e1e3de91f8e9beae7afd54aee58b
+// commit 32e35b75c5ea2946dffebbc6cf4d0fbc16c0839e
 
-// File generated at :: Fri Jun 29 2012 14:43:48 GMT-0700 (PDT)
+// File generated at :: Thu Jul 12 2012 13:35:26 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -713,7 +713,6 @@ channel.create('onDestroy');
 
 // Channels that must fire before "deviceready" is fired.
 channel.waitForInitialization('onCordovaReady');
-channel.waitForInitialization('onCordovaInfoReady');
 channel.waitForInitialization('onCordovaConnectionReady');
 
 module.exports = channel;
@@ -847,6 +846,9 @@ module.exports = {
         },
         Coordinates: {
             path: 'cordova/plugin/Coordinates'
+        },
+        device: {
+            path: 'cordova/plugin/device'
         },
         DirectoryEntry: {
             path: 'cordova/plugin/DirectoryEntry'
@@ -1140,9 +1142,6 @@ module.exports = {
                 }
             }
         },
-        device: {
-            path: "cordova/plugin/blackberry/device"
-        },
         File: { // exists natively on BlackBerry OS 7, override
             path: "cordova/plugin/File"
         }
@@ -1152,9 +1151,6 @@ module.exports = {
             children: {
                 contacts: {
                     path: 'cordova/plugin/blackberry/contacts'
-                },
-                device: {
-                    path: 'cordova/plugin/blackberry/device'
                 },
                 notification: {
                     path: 'cordova/plugin/blackberry/notification'
@@ -1887,7 +1883,7 @@ var utils = require('cordova/utils'),
  * {boolean} isDirectory always true (readonly)
  * {DOMString} name of the directory, excluding the path leading to it (readonly)
  * {DOMString} fullPath the absolute full path to the directory (readonly)
- * {FileSystem} filesystem on which the directory resides (readonly)
+ * TODO: implement this!!! {FileSystem} filesystem on which the directory resides (readonly)
  */
 var DirectoryEntry = function(name, fullPath) {
      DirectoryEntry.__super__.constructor.apply(this, [false, true, name, fullPath]);
@@ -2612,13 +2608,12 @@ var DirectoryEntry = require('cordova/plugin/DirectoryEntry');
 var FileSystem = function(name, root) {
     this.name = name || null;
     if (root) {
-        console.log('root.name ' + name);
-        console.log('root.root ' + root);
         this.root = new DirectoryEntry(root.name, root.fullPath);
     }
 };
 
 module.exports = FileSystem;
+
 });
 
 // file: lib/common/plugin/FileTransfer.js
@@ -4932,33 +4927,6 @@ module.exports = {
 
 });
 
-// file: lib/blackberry/plugin/blackberry/device.js
-define("cordova/plugin/blackberry/device", function(require, exports, module) {
-var me = {},
-    channel = require('cordova/channel'),
-    exec = require('cordova/exec');
-
-channel.onCordovaReady.subscribeOnce(function() {
-    exec(function (device) {
-        me.platform = device.platform;
-        me.version  = device.version;
-        me.name     = device.name;
-        me.uuid     = device.uuid;
-        me.cordova  = device.cordova;
-
-        channel.onCordovaInfoReady.fire();
-    },function (e) {
-        console.log("error initializing cordova: " + e);
-    },
-        "Device",
-        "getDeviceInfo",
-        []
-    );
-});
-
-module.exports = me;
-});
-
 // file: lib/blackberry/plugin/blackberry/notification.js
 define("cordova/plugin/blackberry/notification", function(require, exports, module) {
 var exec = require('cordova/exec');
@@ -5429,6 +5397,74 @@ var contacts = {
 };
 
 module.exports = contacts;
+
+});
+
+// file: lib/common/plugin/device.js
+define("cordova/plugin/device", function(require, exports, module) {
+var channel = require('cordova/channel'),
+    utils = require('cordova/utils'),
+    exec = require('cordova/exec');
+
+// Tell cordova channel to wait on the CordovaInfoReady event
+channel.waitForInitialization('onCordovaInfoReady');
+
+/**
+ * This represents the mobile device, and provides properties for inspecting the model, version, UUID of the
+ * phone, etc.
+ * @constructor
+ */
+function Device() {
+    this.available = false;
+    this.platform = null;
+    this.version = null;
+    this.name = null;
+    this.uuid = null;
+    this.cordova = null;
+
+    var me = this;
+
+    channel.onCordovaReady.subscribeOnce(function() {
+        me.getInfo(function(info) {
+            me.available = true;
+            me.platform = info.platform;
+            me.version = info.version;
+            me.name = info.name;
+            me.uuid = info.uuid;
+            me.cordova = info.cordova;
+            channel.onCordovaInfoReady.fire();
+        },function(e) {
+            me.available = false;
+            utils.alert("[ERROR] Error initializing Cordova: " + e);
+        });
+    });
+}
+
+/**
+ * Get device info
+ *
+ * @param {Function} successCallback The function to call when the heading data is available
+ * @param {Function} errorCallback The function to call when there is an error getting the heading data. (OPTIONAL)
+ */
+Device.prototype.getInfo = function(successCallback, errorCallback) {
+
+    // successCallback required
+    if (typeof successCallback !== "function") {
+        console.log("Device Error: successCallback is not a function");
+        return;
+    }
+
+    // errorCallback optional
+    if (errorCallback && (typeof errorCallback !== "function")) {
+        console.log("Device Error: errorCallback is not a function");
+        return;
+    }
+
+    // Get info
+    exec(successCallback, errorCallback, "Device", "getDeviceInfo", []);
+};
+
+module.exports = new Device();
 
 });
 
