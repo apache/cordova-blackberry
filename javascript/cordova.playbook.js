@@ -1,6 +1,6 @@
-// commit fc6866c92d076b9163f4c388f073c5962d115bc3
+// commit fd00bff18daf29606d88263f7586f20cf9421861
 
-// File generated at :: Thu Jul 12 2012 13:40:57 GMT-0700 (PDT)
+// File generated at :: Fri Jul 13 2012 12:40:56 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -1163,7 +1163,10 @@ cameraExport.getPicture = function(successCallback, errorCallback, options) {
         popoverOptions = options.popoverOptions;
     }
 
-    exec(successCallback, errorCallback, "Camera", "takePicture", [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType, mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, popoverOptions]);
+    var args = [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType,
+                mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, popoverOptions];
+
+    exec(successCallback, errorCallback, "Camera", "takePicture", args);
 };
 
 cameraExport.cleanup = function(successCallback, errorCallback) {
@@ -6119,7 +6122,7 @@ module.exports = {
     version: blackberry.system.softwareVersion,
     name: blackberry.system.model,
     uuid: blackberry.identity.PIN,
-    cordova: "1.9.0"
+    cordova: "2.0.0rc1"
 };
 
 channel.onCordovaInfoReady.fire();
