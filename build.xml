@@ -99,6 +99,9 @@
             <fileset dir="${template.project.dir}" />
         </copy>
         
+        <!-- change file permission for cordova scripts because ant copy doesn't preserve file permissions -->
+        <chmod dir="${template.project.dir}/cordova" perm="700" includes="*"/>
+        
         <!-- update project files to reference cordova.x.x.x.js -->
         <replaceregexp match="cordova\.js" replace="${js.basename}" byline="true">
             <fileset file="${project.path}/www/index.html" />
@@ -150,6 +153,9 @@ Getting Started:
         <copy todir="${dist.path}">
             <fileset dir="${template.dist.dir}" />
         </copy>
+        
+        <!-- change file permission for cordova scripts because ant copy doesn't preserve file permissions -->
+        <chmod dir="${dist.path}/sample/cordova" perm="700" includes="*" />
         
         <!-- copy cordova.jar -->
         <copy todir="${dist.www.path}/ext">
