@@ -1,6 +1,6 @@
-// commit fd00bff18daf29606d88263f7586f20cf9421861
+// commit 2e33015f0e73540904abc05c4f726c3c9ce6879f
 
-// File generated at :: Fri Jul 13 2012 12:40:56 GMT-0700 (PDT)
+// File generated at :: Thu Jul 19 2012 11:37:38 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -289,17 +289,6 @@ var cordova = {
             }
         }
     },
-    // TODO: remove in 2.0.
-    addPlugin: function(name, obj) {
-        console.log("[DEPRECATION NOTICE] window.addPlugin and window.plugins will be removed in version 2.0.");
-        if (!window.plugins[name]) {
-            window.plugins[name] = obj;
-        }
-        else {
-            console.log("Error: Plugin "+name+" already exists.");
-        }
-    },
-
     addConstructor: function(func) {
         channel.onCordovaReady.subscribeOnce(function() {
             try {
@@ -315,51 +304,6 @@ var cordova = {
 channel.onPause = cordova.addDocumentEventHandler('pause');
 channel.onResume = cordova.addDocumentEventHandler('resume');
 channel.onDeviceReady = cordova.addDocumentEventHandler('deviceready');
-
-// Adds deprecation warnings to functions of an object (but only logs a message once)
-function deprecateFunctions(obj, objLabel) {
-    var newObj = {};
-    var logHash = {};
-    for (var i in obj) {
-        if (obj.hasOwnProperty(i)) {
-            if (typeof obj[i] == 'function') {
-                newObj[i] = (function(prop){
-                    var oldFunk = obj[prop];
-                    var funkId = objLabel + '_' + prop;
-                    return function() {
-                        if (!logHash[funkId]) {
-                            console.log('[DEPRECATION NOTICE] The "' + objLabel + '" global will be removed in version 2.0, please use lowercase "cordova".');
-                            logHash[funkId] = true;
-                        }
-                        oldFunk.apply(obj, arguments);
-                    };
-                })(i);
-            } else {
-                newObj[i] = (function(prop) { return obj[prop]; })(i);
-            }
-        }
-    }
-    return newObj;
-}
-
-/**
- * Legacy variable for plugin support
- * TODO: remove in 2.0.
- */
-if (!window.PhoneGap) {
-    window.PhoneGap = deprecateFunctions(cordova, 'PhoneGap');
-}
-if (!window.Cordova) {
-    window.Cordova = deprecateFunctions(cordova, 'Cordova');
-}
-
-/**
- * Plugins object
- * TODO: remove in 2.0.
- */
-if (!window.plugins) {
-    window.plugins = {};
-}
 
 module.exports = cordova;
 
@@ -3401,12 +3345,12 @@ var accelerometer = {
 
         var p;
         var win = function(a) {
-            successCallback(a);
             removeListeners(p);
+            successCallback(a);
         };
         var fail = function(e) {
-            errorCallback(e);
             removeListeners(p);
+            errorCallback(e);
         };
 
         p = createCallbackPair(win, fail);
@@ -3438,8 +3382,8 @@ var accelerometer = {
         var id = utils.createUUID();
 
         var p = createCallbackPair(function(){}, function(e) {
-            errorCallback(e);
             removeListeners(p);
+            errorCallback(e);
         });
         listeners.push(p);
 
@@ -3454,7 +3398,10 @@ var accelerometer = {
 
         if (running) {
             // If we're already running then immediately invoke the success callback
-            successCallback(accel);
+            // but only if we have retreived a value, sample code does not check for null ...
+            if(accel) {
+                successCallback(accel);
+            }
         } else {
             start();
         }
@@ -6122,7 +6069,7 @@ module.exports = {
     version: blackberry.system.softwareVersion,
     name: blackberry.system.model,
     uuid: blackberry.identity.PIN,
-    cordova: "2.0.0rc1"
+    cordova: "2.0.0"
 };
 
 channel.onCordovaInfoReady.fire();

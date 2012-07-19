@@ -18,45 +18,36 @@
  *
  * Copyright (c) 2011, Research In Motion Limited.
  */
-package org.apache.cordova.device;
+package org.apache.cordova.echo;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 import org.apache.cordova.json4j.JSONArray;
 import org.apache.cordova.json4j.JSONException;
 import org.apache.cordova.json4j.JSONObject;
-
-import net.rim.device.api.system.DeviceInfo;
-
+import org.apache.cordova.util.Logger;
 /**
- * Provides device information, including:
- *
- * - Device platform version (e.g. 2.13.0.95). Not to be confused with BlackBerry OS version.
- * - Unique device identifier (UUID).
- * - Cordova software version.
+ * A simple plugin to demonstrate how to build a plugin for Blackberry
+ * Basically echos back the msg that a user calls to this plugin 
  */
-public final class Device extends Plugin {
+public final class Echo extends Plugin {
 
-	public static final String FIELD_PLATFORM 	= "platform";
-	public static final String FIELD_UUID     	= "uuid";
-	public static final String FIELD_CORDOVA	= "cordova";
-	public static final String FIELD_NAME 		= "name";
-	public static final String FIELD_VERSION 	= "version";
-
-	public static final String ACTION_GET_DEVICE_INFO = "getDeviceInfo";
+    public static final String FIELD_VALUE 	= "value";
+	public static final String DO_ECHO = "doEcho";
 
 	public PluginResult execute(String action, JSONArray args, String callbackId) {
-		PluginResult result = new PluginResult(PluginResult.Status.INVALID_ACTION, "Device: Invalid action:" + action);
-
-		if(action.equals(ACTION_GET_DEVICE_INFO)){
+		PluginResult result = new PluginResult(PluginResult.Status.INVALID_ACTION, "Echo: Invalid action:" + action);
+		if(action.equals(DO_ECHO)){
 			try {
-				JSONObject device = new JSONObject();
-				device.put( FIELD_PLATFORM, new String(DeviceInfo.getPlatformVersion() ) );
-				device.put( FIELD_UUID, new Integer( DeviceInfo.getDeviceId()) );
-				device.put( FIELD_CORDOVA, "2.0.0" );
-				device.put( FIELD_NAME, new String(DeviceInfo.getDeviceName()) );
-				device.put( FIELD_VERSION, new String(DeviceInfo.getSoftwareVersion()) );
-				result = new PluginResult(PluginResult.Status.OK, device);
+				JSONObject echoObj = new JSONObject();
+				String theMsg = args.getString(0);
+				if(theMsg.length()>0){   
+				    echoObj.put(FIELD_VALUE, theMsg);
+				    result = new PluginResult(PluginResult.Status.OK, echoObj);
+				}else{
+				    echoObj.put(FIELD_VALUE, "Nothing to echo.");
+				    result = new PluginResult(PluginResult.Status.ERROR, echoObj);
+				}
 			} catch (JSONException e) {
 				result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
 			}
