@@ -1,6 +1,6 @@
-// commit 2e33015f0e73540904abc05c4f726c3c9ce6879f
+// commit 7dd17b00544742d14ecdeff2148a66480680f12b
 
-// File generated at :: Thu Jul 19 2012 11:37:38 GMT-0700 (PDT)
+// File generated at :: Tue Jul 24 2012 13:05:33 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -943,9 +943,6 @@ module.exports = {
     id: "playbook",
     initialize:function() {},
     objects: {
-        device: {
-            path: "cordova/plugin/playbook/device"
-        },
         DirectoryReader:{
             path: 'cordova/plugin/playbook/DirectoryReader'
         },
@@ -966,13 +963,6 @@ module.exports = {
         }
     },
     merges: {
-        navigator: {
-            children: {
-                device: {
-                    path: "cordova/plugin/playbook/device"
-                }
-            }
-        },
         DirectoryEntry: {
             path: 'cordova/plugin/playbook/DirectoryEntry'
         },
@@ -4432,6 +4422,7 @@ document.addEventListener("deviceready", logger.__onDeviceReady, false);
 define("cordova/plugin/manager", function(require, exports, module) {
 var cordova = require('cordova'),
     plugins = {
+        'Device' : require('cordova/plugin/playbook/device'),
         'Battery' : require('cordova/plugin/playbook/battery'),
         'Camera' : require('cordova/plugin/playbook/camera'),
         'Logger' : require('cordova/plugin/playbook/logger'),
@@ -6059,21 +6050,26 @@ module.exports = {
 
 // file: lib/playbook/plugin/playbook/device.js
 define("cordova/plugin/playbook/device", function(require, exports, module) {
-var channel = require('cordova/channel');
+var channel = require('cordova/channel'),
+    cordova = require('cordova');
 
 // Tell cordova channel to wait on the CordovaInfoReady event
 channel.waitForInitialization('onCordovaInfoReady');
 
 module.exports = {
-    platform: "PlayBook",
-    version: blackberry.system.softwareVersion,
-    name: blackberry.system.model,
-    uuid: blackberry.identity.PIN,
-    cordova: "2.0.0"
+    getDeviceInfo : function(args, win, fail){
+        win({
+            platform: "PlayBook",
+            version: blackberry.system.softwareVersion,
+            name: blackberry.system.model,
+            uuid: blackberry.identity.PIN,
+            cordova: "2.0.0"
+        });
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
+    }
+
 };
-
-channel.onCordovaInfoReady.fire();
-
 });
 
 // file: lib/playbook/plugin/playbook/logger.js
