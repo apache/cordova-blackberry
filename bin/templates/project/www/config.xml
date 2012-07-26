@@ -29,9 +29,9 @@
   <name>__NAME__</name>
 
   <description>
-      A sample application written with Cordova.
+       A sample Apache Cordova application that responds to the deviceready event.
   </description>
-
+    
   <license href="http://opensource.org/licenses/alphabetical">
   </license>
 
@@ -60,11 +60,11 @@
   <!-- Expose access to all URIs, including the file and http protocols -->
   <access subdomains="true" uri="*" />
 
-  <icon rim:hover="false" src="resources/icon.png" />
-  <icon rim:hover="true" src="resources/icon.png" />
+  <icon rim:hover="false" src="res/icon/cordova_bb_80.png" />
+  <icon rim:hover="true" src="res/icon/cordova_bb_80.png" />
 
   <rim:loadingScreen backgroundColor="#CFCFCF"
-                     foregroundImage="resources/loading_foreground.png"
+                     foregroundImage="res/screen/blackberry_transparent_300.png"
 		     onFirstLaunch="true">
     <rim:transitionEffect type="fadeOut" />
   </rim:loadingScreen>
