@@ -26,10 +26,10 @@ import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.EventLogger;
 
 /**
- * Logger provides a mechanism to log the the Blackberry Event Log.  It uses
- * the Blackberry EventLogger class.
+ * Logger provides a mechanism to log the the BlackBerry Event Log.  It uses
+ * the BlackBerry EventLogger class.
  *
- * The Event Log can be viewed on Blackberry simulators using Tools > Show Event
+ * The Event Log can be viewed on BlackBerry simulators using Tools > Show Event
  * Log, or on physical devices by pressing the <code>Alt</code> key, followed by
  * the <code>LGLG</code> key combination.
  *

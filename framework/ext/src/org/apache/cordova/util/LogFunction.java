@@ -22,7 +22,7 @@ import net.rim.device.api.script.ScriptableFunction;
 
 /**
  * LogFunction represents a function that can be invoked from the script
- * environment of the widget framework.  Messages are logged to the Blackberry
+ * environment of the widget framework.  Messages are logged to the BlackBerry
  * Event Log.  From JavaScript, invoke
  *
  * <code>cordova.Logger.log(msg);</code>

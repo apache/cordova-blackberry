@@ -29,7 +29,7 @@ import net.rim.device.api.script.ScriptableFunction;
  * Log provides a function, <code>log(msg)</code>, that logs messages to the
  * BlackBerry Event Log as well as to System.out.
  *
- * To use of the Blackberry Event Log from JavaScript, you must first
+ * To use of the BlackBerry Event Log from JavaScript, you must first
  * invoke the <code>enable()</code> method:
  *
  * <code>cordova.Logger.enable();</code>
