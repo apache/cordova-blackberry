@@ -31,7 +31,7 @@ then
 fi
 
 BUILD_PATH=$( cd "$( dirname "$0" )/.." && pwd )
-VERSION=$(cat $BUILD_PATH/VERSION)
+VERSION=$(cat "$BUILD_PATH/VERSION")
 
 PROJECT_PATH=${1:-"./example"}
 APPNAME=${2:-"cordovaExample"}
