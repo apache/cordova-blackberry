@@ -1,6 +1,6 @@
-// commit 7dd17b00544742d14ecdeff2148a66480680f12b
+// commit 03f21d410bfa7f26c0cbd8ebb5682fc88cf59fca
 
-// File generated at :: Tue Jul 24 2012 13:05:33 GMT-0700 (PDT)
+// File generated at :: Wed Aug 15 2012 15:31:57 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -2452,10 +2452,12 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
     var mimeType = null;
     var params = null;
     var chunkedMode = true;
+    var headers = null;
     if (options) {
         fileKey = options.fileKey;
         fileName = options.fileName;
         mimeType = options.mimeType;
+        headers = options.headers;
         if (options.chunkedMode !== null || typeof options.chunkedMode != "undefined") {
             chunkedMode = options.chunkedMode;
         }
@@ -2472,7 +2474,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
         errorCallback(error);
     };
 
-    exec(successCallback, fail, 'FileTransfer', 'upload', [filePath, server, fileKey, fileName, mimeType, params, trustAllHosts, chunkedMode]);
+    exec(successCallback, fail, 'FileTransfer', 'upload', [filePath, server, fileKey, fileName, mimeType, params, trustAllHosts, chunkedMode, headers]);
 };
 
 /**
@@ -2542,15 +2544,19 @@ define("cordova/plugin/FileUploadOptions", function(require, exports, module) {
  * @param fileName {String}  Filename to be used by the server. Defaults to image.jpg.
  * @param mimeType {String}  Mimetype of the uploaded file. Defaults to image/jpeg.
  * @param params {Object}    Object with key: value params to send to the server.
+ * @param headers {Object}   Keys are header names, values are header values. Multiple
+ *                           headers of the same name are not supported.
  */
-var FileUploadOptions = function(fileKey, fileName, mimeType, params) {
+var FileUploadOptions = function(fileKey, fileName, mimeType, params, headers) {
     this.fileKey = fileKey || null;
     this.fileName = fileName || null;
     this.mimeType = mimeType || null;
     this.params = params || null;
+    this.headers = headers || null;
 };
 
 module.exports = FileUploadOptions;
+
 });
 
 // file: lib/common/plugin/FileUploadResult.js
@@ -2991,14 +2997,14 @@ Media.prototype.getCurrentPosition = function(success, fail) {
  * Start recording audio file.
  */
 Media.prototype.startRecord = function() {
-    exec(this.successCallback, this.errorCallback, "Media", "startRecordingAudio", [this.id, this.src]);
+    exec(null, this.errorCallback, "Media", "startRecordingAudio", [this.id, this.src]);
 };
 
 /**
  * Stop recording audio file.
  */
 Media.prototype.stopRecord = function() {
-    exec(this.successCallback, this.errorCallback, "Media", "stopRecordingAudio", [this.id]);
+    exec(null, this.errorCallback, "Media", "stopRecordingAudio", [this.id]);
 };
 
 /**
@@ -3027,13 +3033,13 @@ Media.onStatus = function(id, msg, value) {
     var media = mediaObjects[id];
     // If state update
     if (msg === Media.MEDIA_STATE) {
+        if (media.statusCallback) {
+            media.statusCallback(value);
+        }
         if (value === Media.MEDIA_STOPPED) {
             if (media.successCallback) {
                 media.successCallback();
             }
-        }
-        if (media.statusCallback) {
-            media.statusCallback(value);
         }
     }
     else if (msg === Media.MEDIA_DURATION) {
@@ -4430,7 +4436,8 @@ var cordova = require('cordova'),
         'Capture' : require('cordova/plugin/playbook/capture'),
         'Accelerometer' : require('cordova/plugin/playbook/accelerometer'),
         'NetworkStatus' : require('cordova/plugin/playbook/network'),
-        'Notification' : require('cordova/plugin/playbook/notification')
+        'Notification' : require('cordova/plugin/playbook/notification'),
+        'FileTransfer' : require('cordova/plugin/playbook/FileTransfer')
     };
 
 module.exports = {
@@ -5605,6 +5612,151 @@ module.exports = FileReader;
 
 });
 
+// file: lib/playbook/plugin/playbook/FileTransfer.js
+define("cordova/plugin/playbook/FileTransfer", function(require, exports, module) {
+var cordova = require('cordova'),
+resolveLocalFileSystemURI = require('cordova/plugin/playbook/resolveLocalFileSystemURI'),
+FileTransferError = require('cordova/plugin/FileTransferError'),
+FileUploadResult = require('cordova/plugin/FileUploadResult'),
+FileEntry = require('cordova/plugin/FileEntry');
+
+var validURLProtocol = new RegExp('^(https?|ftp):\/\/');
+
+function getParentPath(filePath) {
+    var pos = filePath.lastIndexOf('/');
+    return filePath.substring(0, pos + 1);
+}
+
+function getFileName(filePath) {
+    var pos = filePath.lastIndexOf('/');
+    return filePath.substring(pos + 1);
+}
+
+module.exports = {
+    upload: function (args, win, fail) {
+        var filePath = args[0],
+            server = args[1],
+            fileKey = args[2],
+            fileName = args[3],
+            mimeType = args[4],
+            params = args[5],
+            trustAllHosts = args[6],
+            chunkedMode = args[7],
+            headers = args[8];
+
+        if(!validURLProtocol.exec(server)){
+            return { "status" : cordova.callbackStatus.ERROR, "message" : new FileTransferError(FileTransferError.INVALID_URL_ERR) };
+        }
+
+        resolveLocalFileSystemURI(filePath, fileWin, fail);
+
+        function fileWin(entryObject){
+            blackberry.io.file.readFile(filePath, readWin, false);
+        }
+
+        function readWin(filePath, blobFile){
+            var fd = new FormData();
+
+            fd.append(fileKey, blobFile, fileName);
+            for (var prop in params) {
+                if(params.hasOwnProperty(prop)) {
+                    fd.append(prop, params[prop]);
+                }
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", server);
+            xhr.onload = function(evt) {
+                if (xhr.status == 200) {
+                    var result = new FileUploadResult();
+                    result.bytesSent = xhr.response.length;
+                    result.responseCode = xhr.status;
+                    result.response = xhr.response;
+                    win(result);
+                } else if (xhr.status == 404) {
+                    fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, null, null, xhr.status));
+                } else if (xhr.status == 403) {
+                    fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, null, null, xhr.status));
+                } else {
+                    fail(new FileTransferError(FileTransferError.CONNECTION_ERR, null, null, xhr.status));
+                }
+            };
+            xhr.ontimeout = function(evt) {
+                fail(new FileTransferError(FileTransferError.CONNECTION_ERR, null, null, xhr.status));
+            };
+
+            if(headers){
+                for(var i in headers){
+                    xhr.setRequestHeader(i, headers[i]);
+                }
+            }
+            xhr.send(fd);
+        }
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    },
+
+    download: function(args, win, fail){
+        var url = args[0],
+            filePath = args[1];
+
+        if(!validURLProtocol.exec(url)){
+            return { "status" : cordova.callbackStatus.ERROR, "message" : new FileTransferError(FileTransferError.INVALID_URL_ERR) };
+        }
+
+        var xhr = new XMLHttpRequest();
+
+        function writeFile(fileEntry) {
+            fileEntry.createWriter(function(writer) {
+                writer.onwriteend = function(evt) {
+                    if (!evt.target.error) {
+                        win(new FileEntry(fileEntry.name, fileEntry.toURL()));
+                    } else {
+                        fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
+                    }
+                };
+
+                writer.onerror = function(evt) {
+                    fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
+                };
+
+                var blob = blackberry.utils.stringToBlob(xhr.response);
+                writer.write(blob);
+
+            },
+            function(error) {
+                fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
+            });
+        }
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == xhr.DONE) {
+                if (xhr.status == 200 && xhr.response) {
+                    resolveLocalFileSystemURI(getParentPath(filePath), function(dir) {
+                        dir.getFile(getFileName(filePath), {create: true}, writeFile, function(error) {
+                            fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
+                        });
+                    }, function(error) {
+                        fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
+                    });
+                } else if (xhr.status == 404) {
+                    fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, null, null, xhr.status));
+                } else {
+                    fail(new FileTransferError(FileTransferError.CONNECTION_ERR, null, null, xhr.status));
+                }
+            }
+        };
+
+        xhr.open("GET", url, true);
+        xhr.responseType = "arraybuffer";
+        xhr.send();
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+    }
+};
+
+});
+
 // file: lib/playbook/plugin/playbook/FileWriter.js
 define("cordova/plugin/playbook/FileWriter", function(require, exports, module) {
 var FileError = require('cordova/plugin/FileError'),
@@ -5692,10 +5844,6 @@ FileWriter.prototype.write = function(text) {
         me.onwritestart(new ProgressEvent("writestart", {"target":me}));
     }
 
-    if (typeof me.onwrite === "function") {
-        me.onwrite(new ProgressEvent("write", {"target":me}));
-    }
-
     var textBlob = blackberry.utils.stringToBlob(text);
 
     if(blackberry.io.file.exists(this.fileName)){
@@ -5726,6 +5874,10 @@ FileWriter.prototype.write = function(text) {
 
             me.position = newText.length;
             me.length = me.position;
+
+            if (typeof me.onwrite === "function") {
+                me.onwrite(new ProgressEvent("write", {"target":me}));
+            }
         };
 
         // setting asynch to off
@@ -5802,10 +5954,6 @@ FileWriter.prototype.truncate = function(size) {
         me.onwritestart(new ProgressEvent("writestart", {"target":this}));
     }
 
-    if (typeof me.onwrite === "function") {
-        me.onwrite(new ProgressEvent("write", {"target":me}));
-    }
-
     if(blackberry.io.file.exists(this.fileName)){
 
         var oldText = '';
@@ -5836,6 +5984,10 @@ FileWriter.prototype.truncate = function(size) {
 
             me.position = newText.length;
             me.length = me.position;
+
+            if (typeof me.onwrite === "function") {
+                 me.onwrite(new ProgressEvent("write", {"target":me}));
+            }
         };
 
         // setting asynch to off - worry about making this all callbacks later
@@ -6434,8 +6586,14 @@ module.exports = function(uri, successCallback, errorCallback) {
         else {
             // no Entry object returned
             fail(FileError.NOT_FOUND_ERR);
+            return;
         }
     };
+
+    if(!uri || uri === ""){
+        fail(FileError.NOT_FOUND_ERR);
+        return;
+    }
 
     // decode uri if % char found
     if(uri.indexOf('%')>=0){
@@ -6466,8 +6624,10 @@ module.exports = function(uri, successCallback, errorCallback) {
         theEntry.name = uri.split('/').pop();
         theEntry.fullPath = uri;
         success(theEntry);
+        return;
     }else{
         fail(FileError.NOT_FOUND_ERR);
+        return;
     }
 
 };
