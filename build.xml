@@ -45,6 +45,10 @@
     <property name="playbook.js.path"   value="javascript/playbook" />
     <property name="playbook.ext.src"   location="framework/ext-air" />
     <property name="playbook.ext.path"  value="ext-air" />
+
+    <property name="qnx.js.path"   value="javascript/qnx" />
+    <property name="qnx.ext.src"   location="framework/ext-qnx" />
+    <property name="qnx.ext.path"  value="ext-qnx" />
     
     <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
@@ -62,6 +66,9 @@
         <mkdir dir="${build.dir}/${playbook.js.path}" />
         <copy file="${js.src}/cordova.playbook.js" tofile="${build.dir}/${playbook.js.path}/${js.basename}" />
 
+        <!-- QNX Javascript -->
+        <mkdir dir="${build.dir}/${qnx.js.path}" />
+        <copy file="${js.src}/cordova.qnx.js" tofile="${build.dir}/${qnx.js.path}/${js.basename}" />
     </target>
 
     <!-- BUILD BLACKBERRY EXTENSION -->
@@ -85,9 +92,20 @@
             <fileset dir="${playbook.ext.src}" />
         </copy>
     </target>
+
+    <!-- BUILD QNX EXTENSION -->
+    
+    <target name="build-qnx-extension">
+
+        <!-- Copy Ext -->
+        <mkdir dir="${build.dir}/${qnx.ext.path}" />
+        <copy todir="${build.dir}/${qnx.ext.path}">
+            <fileset dir="${qnx.ext.src}" />
+        </copy>
+    </target>
     
     <!-- CREATE A PROJECT -->
-    <target name="create" depends="clean, build-javascript, build-bb-extension, build-pb-extension">
+    <target name="create" depends="clean, build-javascript, build-bb-extension, build-pb-extension, build-qnx-extension">
         <fail unless="project.path" message="You must give a project PATH. Use the argument -Dproject.path=&#34;C:\dev\my_project&#34;" />
         
         <available file="${project.path}" property="project.exists" />
@@ -121,6 +139,11 @@
         <!-- copy ext-air/ -->
         <copy todir="${project.path}/www/ext-air">
             <fileset dir="${build.dir}/${playbook.ext.path}" />
+        </copy>
+
+        <!-- copy ext-qnx/ -->
+        <copy todir="${project.path}/www/ext-qnx">
+            <fileset dir="${build.dir}/${qnx.ext.path}" />
         </copy>
         
         <!-- save release -->
@@ -165,6 +188,11 @@ Getting Started:
         <!-- copy ext-air/ -->
         <copy todir="${dist.www.path}/ext-air">
             <fileset dir="${build.dir}/${playbook.ext.path}" />
+        </copy>
+
+        <!-- copy ext-qnx/ -->
+        <copy todir="${dist.www.path}/ext-qnx">
+            <fileset dir="${build.dir}/${qnx.ext.path}" />
         </copy>
         
         <!-- copy cordova.js -->
@@ -227,7 +255,7 @@ Remember to:
     
     <!-- UPDATE A PROJECT -->
     
-    <target name="update" depends="clean, build-javascript, build-bb-extension, build-pb-extension">
+    <target name="update" depends="clean, build-javascript, build-bb-extension, build-pb-extension, build-qnx-extension">
         <fail unless="project.path" message="You must give a project PATH. Use the argument -Dproject.path=&#34;C:\dev\my_project&#34;" />
         
         <available file="${project.path}" property="project.exists" />

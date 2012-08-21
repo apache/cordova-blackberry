@@ -24,9 +24,11 @@
 
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:rim="http://www.blackberry.com/ns/widgets"
-	version="1.0.0.0">
+	version="1.0.0.0" id="__NAME__">
 
   <name>__NAME__</name>
+
+  <author>Your Name Here</author>
 
   <description>
        A sample Apache Cordova application that responds to the deviceready event.
