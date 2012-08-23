@@ -112,8 +112,9 @@
         
         <!-- Overwrite the cordova js with the qnx specific cordova js -->
         <copy todir="${widget.dir}" overwrite="true">
-            <fileset dir="www/playbook">
+            <fileset dir="www/qnx">
                 <include name="*.js" />
+                <include name="config.xml" />
             </fileset>
         </copy>
         
