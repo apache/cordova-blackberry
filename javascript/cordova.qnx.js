@@ -1,6 +1,6 @@
-// commit b58d6387cacaae999dc83778f794cf5900ae8dfe
+// commit 69d652e9dcaaaf4bdaa55ec37329636dd5b20fbe
 
-// File generated at :: Thu Aug 23 2012 17:49:07 GMT-0700 (PDT)
+// File generated at :: Fri Aug 24 2012 16:02:13 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -418,7 +418,8 @@ module.exports = {
 
 // file: lib/common/channel.js
 define("cordova/channel", function(require, exports, module) {
-var utils = require('cordova/utils');
+var utils = require('cordova/utils'),
+    nextGuid = 1;
 
 /**
  * Custom pub-sub "channel" that can have functions subscribed to it
@@ -470,7 +471,6 @@ var Channel = function(type, opts) {
     this.type = type;
     this.handlers = {};
     this.numHandlers = 0;
-    this.guid = 1;
     this.fired = false;
     this.enabled = true;
     this.events = {
@@ -563,19 +563,19 @@ Channel.prototype.subscribe = function(f, c, g) {
 
     g = g || func.observer_guid || f.observer_guid;
     if (!g) {
-        // first time we've seen this subscriber
-        g = this.guid++;
-    }
-    else {
-        // subscriber already handled; dont set it twice
-        return g;
+        // first time any channel has seen this subscriber
+        g = nextGuid++;
     }
     func.observer_guid = g;
     f.observer_guid = g;
-    this.handlers[g] = func;
-    this.numHandlers++;
-    if (this.events.onSubscribe) this.events.onSubscribe.call(this);
-    if (this.fired) func.call(this);
+
+    // Don't add the same handler more than once.
+    if (!this.handlers[g]) {
+        this.handlers[g] = func;
+        this.numHandlers++;
+        if (this.events.onSubscribe) this.events.onSubscribe.call(this);
+        if (this.fired) func.apply(this, this.fireArgs);
+    }
     return g;
 };
 
@@ -589,15 +589,14 @@ Channel.prototype.subscribeOnce = function(f, c) {
 
     var g = null;
     var _this = this;
-    var m = function() {
-        f.apply(c || null, arguments);
-        _this.unsubscribe(g);
-    };
     if (this.fired) {
-        if (typeof c == "object") { f = utils.close(c, f); }
-        f.apply(this, this.fireArgs);
+        f.apply(c || null, this.fireArgs);
     } else {
-        g = this.subscribe(m);
+        g = this.subscribe(function() {
+            _this.unsubscribe(g);
+            f.apply(c || null, arguments);
+        });
+        f.observer_guid = g;
     }
     return g;
 };
@@ -613,7 +612,6 @@ Channel.prototype.unsubscribe = function(g) {
     var handler = this.handlers[g];
     if (handler) {
         if (handler.observer_guid) handler.observer_guid=null;
-        this.handlers[g] = null;
         delete this.handlers[g];
         this.numHandlers--;
         if (this.events.onUnsubscribe) this.events.onUnsubscribe.call(this);
@@ -627,14 +625,17 @@ Channel.prototype.fire = function(e) {
     if (this.enabled) {
         var fail = false;
         this.fired = true;
-        for (var item in this.handlers) {
-            var handler = this.handlers[item];
-            if (typeof handler == 'function') {
-                var rv = (handler.apply(this, arguments)===false);
-                fail = fail || rv;
-            }
-        }
         this.fireArgs = arguments;
+        // Copy the values first so that it is safe to modify it from within
+        // callbacks.
+        var toCall = [];
+        for (var item in this.handlers) {
+            toCall.push(this.handlers[item]);
+        }
+        for (var i = 0; i < toCall.length; ++i) {
+            var rv = (toCall[i].apply(this, arguments)===false);
+            fail = fail || rv;
+        }
         return !fail;
     }
     return true;
@@ -898,7 +899,7 @@ var manager = require('cordova/plugin/manager'),
  * Execute a cordova command.  It is up to the native side whether this action
  * is synchronous or asynchronous.  The native side can return:
  *      Synchronous: PluginResult object as a JSON string
- *      Asynchrounous: Empty string ""
+ *      Asynchronous: Empty string ""
  * If async, the native side will cordova.callbackSuccess or cordova.callbackError,
  * depending upon the result of the action.
  *
@@ -2735,7 +2736,7 @@ FileWriter.prototype.seek = function(offset) {
     if (offset < 0) {
         this.position = Math.max(offset + this.length, 0);
     }
-    // Offset is bigger then file size so set position
+    // Offset is bigger than file size so set position
     // to the end of the file.
     else if (offset > this.length) {
         this.position = this.length;
@@ -3362,7 +3363,7 @@ var accelerometer = {
 
         if (running) {
             // If we're already running then immediately invoke the success callback
-            // but only if we have retreived a value, sample code does not check for null ...
+            // but only if we have retrieved a value, sample code does not check for null ...
             if(accel) {
                 successCallback(accel);
             }
@@ -3880,7 +3881,7 @@ var contacts = {
      * This function creates a new contact, but it does not persist the contact
      * to device storage. To persist the contact to device storage, invoke
      * contact.save().
-     * @param properties an object who's properties will be examined to create a new Contact
+     * @param properties an object whose properties will be examined to create a new Contact
      * @returns new Contact object
      */
     create:function(properties) {
@@ -4094,7 +4095,7 @@ var geolocation = {
         } else if (options.timeout === 0) {
             fail({
                 code:PositionError.TIMEOUT,
-                message:"timeout value in PositionOptions set to 0 and no cached Position object available, or cached Position object's age exceed's provided PositionOptions' maximumAge parameter."
+                message:"timeout value in PositionOptions set to 0 and no cached Position object available, or cached Position object's age exceeds provided PositionOptions' maximumAge parameter."
             });
         // Otherwise we have to call into native to retrieve a position.
         } else {
@@ -4258,7 +4259,7 @@ CurrentLevel = LevelsMap.WARN;
  *
  * The value used determines which messages get printed.  The logging
  * values above are in order, and only messages logged at the logging
- * level or above will actually be displayed to the user.  Eg, the
+ * level or above will actually be displayed to the user.  E.g., the
  * default level is WARN, so only messages logged with LOG, ERROR, or
  * WARN will be displayed; INFO and DEBUG messages will be ignored.
  */
@@ -4584,7 +4585,7 @@ module.exports = {
             version: blackberry.system.softwareVersion,
             name: "Dev Alpha",
             uuid: blackberry.identity.uuid,
-            cordova: "2.0.0"
+            cordova: "2.1.0rc1"
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
