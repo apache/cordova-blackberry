@@ -1,6 +1,6 @@
-// commit 69d652e9dcaaaf4bdaa55ec37329636dd5b20fbe
+// commit 106f57ea9918c15ea8f9146ec2ac7a56eec32bf1
 
-// File generated at :: Fri Aug 24 2012 16:02:13 GMT-0700 (PDT)
+// File generated at :: Mon Aug 27 2012 15:50:35 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -4446,10 +4446,8 @@ module.exports = FileReader;
 // file: lib/webworks/air/plugin/air/FileTransfer.js
 define("cordova/plugin/air/FileTransfer", function(require, exports, module) {
 var cordova = require('cordova'),
-resolveLocalFileSystemURI = require('cordova/plugin/air/resolveLocalFileSystemURI'),
 FileTransferError = require('cordova/plugin/FileTransferError'),
-FileUploadResult = require('cordova/plugin/FileUploadResult'),
-FileEntry = require('cordova/plugin/FileEntry');
+FileUploadResult = require('cordova/plugin/FileUploadResult');
 
 var validURLProtocol = new RegExp('^(https?|ftp):\/\/');
 
@@ -4479,7 +4477,7 @@ module.exports = {
             return { "status" : cordova.callbackStatus.ERROR, "message" : new FileTransferError(FileTransferError.INVALID_URL_ERR) };
         }
 
-        resolveLocalFileSystemURI(filePath, fileWin, fail);
+        window.resolveLocalFileSystemURI(filePath, fileWin, fail);
 
         function fileWin(entryObject){
             blackberry.io.file.readFile(filePath, readWin, false);
@@ -4541,7 +4539,7 @@ module.exports = {
             fileEntry.createWriter(function(writer) {
                 writer.onwriteend = function(evt) {
                     if (!evt.target.error) {
-                        win(new FileEntry(fileEntry.name, fileEntry.toURL()));
+                        win(new window.FileEntry(fileEntry.name, fileEntry.toURL()));
                     } else {
                         fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
                     }
@@ -4563,7 +4561,7 @@ module.exports = {
         xhr.onreadystatechange = function () {
             if (xhr.readyState == xhr.DONE) {
                 if (xhr.status == 200 && xhr.response) {
-                    resolveLocalFileSystemURI(getParentPath(filePath), function(dir) {
+                    window.resolveLocalFileSystemURI(getParentPath(filePath), function(dir) {
                         dir.getFile(getFileName(filePath), {create: true}, writeFile, function(error) {
                             fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR));
                         });
@@ -6248,7 +6246,8 @@ var cordova = require('cordova'),
         'Capture' : require('cordova/plugin/air/capture'),
         'Accelerometer' : require('cordova/plugin/webworks/accelerometer'),
         'NetworkStatus' : require('cordova/plugin/air/network'),
-        'Notification' : require('cordova/plugin/webworks/notification')
+        'Notification' : require('cordova/plugin/webworks/notification'),
+        'FileTransfer' : require('cordova/plugin/air/FileTransfer')
     };
 
 module.exports = {
