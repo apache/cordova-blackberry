@@ -176,7 +176,3 @@ __A:__ Cordova uses a JavaScript Extension to invoke the native camera applicati
 __Q: None of the Cordova APIs are working, why is that?__
 
 __A:__ You probably need to update your plugins.xml file in the root of your application.
-
-__Q: I am getting an error building for BlackBerry 10
-
-__A:__ The current SDK for BlackBerry 10 has a bug that will get in the way when developing for cross platform BlackBerry Apps. [Issue 177] (https://github.com/blackberry/BB10-Webworks-Packager/issues/177) 
