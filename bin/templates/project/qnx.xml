@@ -114,13 +114,20 @@
         <copy todir="${widget.dir}" overwrite="true">
             <fileset dir="www/qnx">
                 <include name="*.js" />
-                <include name="config.xml" />
             </fileset>
         </copy>
         
         <!-- Update WebWorks Packager with the QNX APIs -->
-        <copy todir="${properties.qnx.bbwp.dir}\ext" overwrite="true">
-            <fileset dir="www/ext-qnx" excludes="README.md" />
+        <copy todir="${properties.qnx.bbwp.dir}\Framework\ext" overwrite="true">
+            <fileset dir="www/ext-qnx" excludes="readme.md" />
+        </copy>
+
+        <!-- copy over the webworks.js file -->
+        <copy todir="www/js" overwrite="true">
+            <fileset dir="${properties.qnx.bbwp.dir}\Framework\clientFiles">
+                <include name="webworks*.js" />
+            </fileset>
+            <globmapper from="webworks*.js" to="webworks.js" />
         </copy>
         
         <!-- Package the WebWorks app by zipping the widget dir. -->
