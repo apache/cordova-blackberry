@@ -23,7 +23,7 @@ The cordova-blackberry-webworks platform allows web developers to develop applic
 Getting Started
 ===============
 
-Several guides are available on the [Cordova Wiki](http://wiki.phonegap.com) and on the [Cordova Documentation site](http://docs.cordova.io/) (Getting Started Guides - on the left side near the bottom) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
+Several guides are available on the [Cordova Documentation site](http://docs.cordova.io/) (Getting Started Guides - on the left side near the bottom) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
 
 [Getting Started with Cordova BlackBerry WebWorks](http://docs.cordova.io/guide_getting-started_blackberry_index.md.html)
 
@@ -39,8 +39,6 @@ Cloning the cordova-blackberry-webworks repository always provides you with the 
 
     $ cd C:\some\path\
     $ git clone git://git-wip-us.apache.org/repos/asf/incubator-cordova-blackberry-webworks.git
-
-As an alternative, you can download packaged releases of Cordova from the [PhoneGap web site](http://phonegap.com).  If choosing this method, simply unzip the Cordova packaged code and navigate to the BlackBerry/WebWorks directory.  The steps below remain the same.
 
 Cordova BlackBerry Developer Tools
 ---
@@ -169,7 +167,7 @@ __Q: My simulator screen is not refreshing and I see blocks on a clicked positio
 
 __A:__ Windows 7 and the simulator's graphics acceleration do not mix. On the simulator, set View -> Graphics Acceleration to Off.
 
-__Q: When I use the Cordova [Camera.getPicture API](http://docs.cordova.io/phonegap_camera_camera.md.html#camera.getPicture) on my device, the camera never returns to my application.  Why does this happen?__
+__Q: When I use the Cordova [Camera.getPicture API](http://docs.cordova.io/cordova_camera_camera.md.html#camera.getPicture) on my device, the camera never returns to my application.  Why does this happen?__
 
 __A:__ Cordova uses a JavaScript Extension to invoke the native camera application so the user can take a picture.  When the picture is taken, Cordova will close the native camera application by emulating a key injection (pressing the back/escape button).  On a physical device, users will have to set permissions to allow the application to simulate key injections.  Setting application permissions is device-specific.  On a Storm2 (9550), for example, select the BlackBerry button from the Home screen to get to All Applications screen, then Options > Applications > Your Application.  Then select Edit Default Permissions > Interactions > Input Simulation and set it to 'Allow'.  Save your changes.
 
