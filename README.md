@@ -17,19 +17,19 @@ BlackBerry WebWorks is a framework for developing web-based applications for Bla
 
 The WebWorks framework allows developers to create applications using web content and resources (HTML/CSS/JavaScript) that are able to access device features through the [BlackBerry WebWorks API](http://www.blackberry.com/developers/docs/widgetapi/).  In addition, the framework allows developers to create their own WebWorks JavaScript Extensions to expose additional device capabilities through JavaScript APIs.  These extensions are written using either the BlackBerry Java API for SmartPhones, or Adobe AIR for the Tablet OS.
 
-The cordova-blackberry-webworks platform allows web developers to develop applications targeting BlackBerry 5.0 and higher devices using the common [Cordova API](http://docs.phonegap.com).  When possible, Cordova makes use of the WebWorks JavaScript API; however, most Cordova features are implemented in the native Java or AIR environment as a WebWorks JavaScript Extension.
+The cordova-blackberry-webworks platform allows web developers to develop applications targeting BlackBerry 5.0 and higher devices using the common [Cordova API](http://docs.cordova.io).  When possible, Cordova makes use of the WebWorks JavaScript API; however, most Cordova features are implemented in the native Java or AIR environment as a WebWorks JavaScript Extension.
 
 
 Getting Started
 ===============
 
-Several guides are available on the [Cordova Wiki](http://wiki.phonegap.com) and on the [PhoneGap Documentation site](http://docs.phonegap.com/) (Getting Started Guides - on the left side near the bottom) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
+Several guides are available on the [Cordova Wiki](http://wiki.phonegap.com) and on the [Cordova Documentation site](http://docs.cordova.io/) (Getting Started Guides - on the left side near the bottom) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
 
-[Getting Started with Cordova BlackBerry WebWorks](http://docs.phonegap.com/en/2.0.0/guide_getting-started_blackberry_index.md.html#Getting%20Started%20with%20Blackberry)
+[Getting Started with Cordova BlackBerry WebWorks](http://docs.cordova.io/guide_getting-started_blackberry_index.md.html)
 
 This guide is for advanced developers who wish to develop their own cordova-blackberry-webworks plugin.
 
-[How To Create a Cordova Plugin for Cordova BlackBerry WebWorks](http://docs.phonegap.com/en/2.0.0/guide_plugin-development_blackberry_index.md.html#Developing%20a%20Plugin%20on%20BlackBerry)
+[How To Create a Cordova Plugin for Cordova BlackBerry WebWorks](http://docs.cordova.io/guide_plugin-development_blackberry_index.md.html)
 
 
 Installing the cordova-blackberry-webworks Framework
@@ -86,7 +86,7 @@ will not work!
 
 The (legacy) Cordova ant build scripts enable you to create multiple, independent Cordova projects.
 
-(Note: The Cordova build script requires Apache ANT 1.8 or higher.  See the [Getting Started guide](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks) for instructions on how to install and configure Apache ANT).
+(Note: The Cordova build script requires Apache ANT 1.8 or higher.
 
 The build script packages the Cordova source code and resources into each project you create.  This allows you to easily distribute the project to other BlackBerry WebWorks developers.  To create a Cordova project:
 
@@ -138,7 +138,7 @@ As you develop your application, there may be updates made to the Cordova source
 Customizing Cordova
 --------------------
 
-By default, Cordova gives access to all the core Cordova APIs as detailed at docs.phonegap.com.
+By default, Cordova gives access to all the core Cordova APIs as detailed at docs.cordova.io.
 If you want to remove some of those APIs you can do so by editing the plugins.xml document in your 
 application root. You need to edit the plugins.xml file to add third-party plugins to your application 
 as well.
@@ -169,7 +169,7 @@ __Q: My simulator screen is not refreshing and I see blocks on a clicked positio
 
 __A:__ Windows 7 and the simulator's graphics acceleration do not mix. On the simulator, set View -> Graphics Acceleration to Off.
 
-__Q: When I use the Cordova [Camera.getPicture API](http://docs.phonegap.com/phonegap_camera_camera.md.html#camera.getPicture) on my device, the camera never returns to my application.  Why does this happen?__
+__Q: When I use the Cordova [Camera.getPicture API](http://docs.cordova.io/phonegap_camera_camera.md.html#camera.getPicture) on my device, the camera never returns to my application.  Why does this happen?__
 
 __A:__ Cordova uses a JavaScript Extension to invoke the native camera application so the user can take a picture.  When the picture is taken, Cordova will close the native camera application by emulating a key injection (pressing the back/escape button).  On a physical device, users will have to set permissions to allow the application to simulate key injections.  Setting application permissions is device-specific.  On a Storm2 (9550), for example, select the BlackBerry button from the Home screen to get to All Applications screen, then Options > Applications > Your Application.  Then select Edit Default Permissions > Interactions > Input Simulation and set it to 'Allow'.  Save your changes.
 
