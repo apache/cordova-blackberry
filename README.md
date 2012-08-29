@@ -25,11 +25,11 @@ Getting Started
 
 Several guides are available on the [Cordova Wiki](http://wiki.phonegap.com) and on the [PhoneGap Documentation site](http://docs.phonegap.com/) (Getting Started Guides - on the left side near the bottom) to help you get started developing for the cordova-blackberry-webworks platform.  This guide will help you install and configure the BlackBerry WebWorks development environment, and the cordova-blackberry-webworks platform.  It will also step you through the process of creating a Cordova project.
 
-[Getting Started with Cordova BlackBerry WebWorks](http://wiki.phonegap.com/w/page/31930982/Getting-Started-with-PhoneGap-BlackBerry-WebWorks)
+[Getting Started with Cordova BlackBerry WebWorks](http://docs.phonegap.com/en/2.0.0/guide_getting-started_blackberry_index.md.html#Getting%20Started%20with%20Blackberry)
 
 This guide is for advanced developers who wish to develop their own cordova-blackberry-webworks plugin.
 
-[How To Create a Cordova Plugin for Cordova BlackBerry WebWorks](http://wiki.phonegap.com/w/page/35799737/How-To-Create-a-PhoneGap-Plugin-for-BlackBerry-WebWorks)
+[How To Create a Cordova Plugin for Cordova BlackBerry WebWorks](http://docs.phonegap.com/en/2.0.0/guide_plugin-development_blackberry_index.md.html#Developing%20a%20Plugin%20on%20BlackBerry)
 
 
 Installing the cordova-blackberry-webworks Framework
