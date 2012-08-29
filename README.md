@@ -1,7 +1,7 @@
 Cordova BlackBerry WebWorks
 ============================
 
-[Cordova framework](http://incubator.apache.org/callback/) for __BlackBerry Tablet OS and Smartphones__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
+[Cordova framework](http://incubator.apache.org/cordova/) for __BlackBerry Tablet OS and Smartphones__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
 
 Directory Structure
 -------------------
