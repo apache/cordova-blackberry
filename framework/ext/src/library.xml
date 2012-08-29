@@ -23,5 +23,6 @@
 	</extension>
 	<features>
 		<feature id="org.apache.cordova" version="1.0.0">Cordova JavaScript Extension</feature>
+		<feature id="blackberry.connection" version="1.0.0">Stub in for backwards bb10 support</feature>
 	</features>
 </library>
