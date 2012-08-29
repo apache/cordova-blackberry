@@ -63,11 +63,11 @@
   <!-- Expose access to all URIs, including the file and http protocols -->
   <access subdomains="true" uri="*" />
 
-  <icon rim:hover="false" src="res/icon/cordova_bb_80.png" />
-  <icon rim:hover="true" src="res/icon/cordova_bb_80.png" />
+  <icon rim:hover="false" src="res/icon/blackberry/icon-80.png" />
+  <icon rim:hover="true" src="res/icon/blackberry/icon-80.png" />
 
   <rim:loadingScreen backgroundColor="#CFCFCF"
-                     foregroundImage="res/screen/blackberry_transparent_300.png"
+                     foregroundImage="res/screen/blackberry/screen-225.png"
 		     onFirstLaunch="true">
     <rim:transitionEffect type="fadeOut" />
   </rim:loadingScreen>
