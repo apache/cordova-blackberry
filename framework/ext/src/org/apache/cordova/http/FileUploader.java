@@ -232,7 +232,6 @@ public class FileUploader {
      */
     protected String getBoundaryMessage(String fileKey, String fileName, String mimeType) {
         return (new StringBuffer())
-            .append(LINE_END)
             .append(TD).append(BOUNDARY).append(LINE_END)
             .append("Content-Disposition: form-data; name=\"").append(fileKey)
             .append("\"; filename=\"").append(fileName).append("\"").append(LINE_END)
