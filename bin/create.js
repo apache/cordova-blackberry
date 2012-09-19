@@ -44,8 +44,8 @@ function replaceInFile(filename, regexp, replacement) {
 }
 function downloadAntContrib(){
     if (!fso.FileExists(ROOT + '\\bin\\templates\\project\\lib\\ant-contrib\\ant-contrib-1.0b3.jar')) {
-      // We need the .jar
-      var url = 'http://sourceforge.net/projects/ant-contrib/files/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip';
+      // We need the .jar - url is pretty ugly, but unsure how to get around the re-direct on the download page other than using the direct download link
+      var url = 'http://downloads.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fant-contrib%2Ffiles%2Fant-contrib%2F1.0b3%2F&ts=1348092193&use_mirror=voxel';
       var libsPath = ROOT + '\\bin\\templates\\project\\lib';
       var savePath = libsPath + '\\ant-contrib-1.0b3-bin.zip';
       if (!fso.FileExists(savePath)) {
