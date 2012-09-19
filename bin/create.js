@@ -42,6 +42,45 @@ function write(filename, contents) {
 function replaceInFile(filename, regexp, replacement) {
     write(filename, read(filename).replace(regexp, replacement));
 }
+function downloadAntContrib(){
+    if (!fso.FileExists(ROOT + '\\bin\\templates\\project\\lib\\ant-contrib\\ant-contrib-1.0b3.jar)) {
+      // We need the .jar
+      var url = 'http://sourceforge.net/projects/ant-contrib/files/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip';
+      var libsPath = ROOT + '\\bin\\templates\\project\\lib';
+      var savePath = libsPath + '\\ant-contrib-1.0b3-bin.zip';
+      if (!fso.FileExists(savePath)) {
+        if(!fso.FolderExists(libsPath)) {
+            fso.CreateFolder(libsPath);
+        }
+        // We need the zip to get the jar
+        var xhr = WScript.CreateObject('MSXML2.XMLHTTP');
+        xhr.open('GET', url, false);
+        xhr.send();
+        if (xhr.status == 200) {
+          var stream = WScript.CreateObject('ADODB.Stream');
+          stream.Open();
+          stream.Type = 1;
+          stream.Write(xhr.ResponseBody);
+          stream.Position = 0;
+          stream.SaveToFile(savePath);
+          stream.Close();
+        } else {
+          WScript.Echo('Could not retrieve the antcontrib. Please download it yourself and put into the bin/templates/project/lib directory. This process may fail now. Sorry.');
+        }
+      }
+      var app = WScript.CreateObject('Shell.Application');
+      var source = app.NameSpace(savePath).Items();
+      var target = app.NameSpace(libsPath);
+      target.CopyHere(source, 256);
+      
+      // Move the jar into libs
+      //fso.MoveFile(ROOT + '\\framework\\libs\\commons-codec-1.7\\commons-codec-1.7.jar', ROOT + '\\framework\\libs\\commons-codec-1.7.jar');
+      
+      // Clean up
+      //fso.DeleteFile(ROOT + '\\framework\\libs\\commons-codec-1.7-bin.zip');
+      //fso.DeleteFolder(ROOT + '\\framework\\libs\\commons-codec-1.7', true);
+    }
+}
 function exec(s, output) {
     var o=shell.Exec(s);
     while (o.Status == 0) {
@@ -81,6 +120,7 @@ var MANIFEST_PATH=PROJECT_PATH+'\\www\\config.xml';
 var VERSION=read(ROOT+'\\VERSION').replace(/\r\n/,'').replace(/\n/,'');
 
 if(fso.FolderExists(ROOT+'\\framework')){
+    downloadAntContrib();
     exec('ant.bat -f '+ ROOT +'\\build.xml dist');
     // copy in the project template
     exec('cmd /c xcopy '+ ROOT + '\\dist\\sample\\* '+PROJECT_PATH+' /I /S /Y');
