@@ -44,8 +44,8 @@ function replaceInFile(filename, regexp, replacement) {
 }
 function downloadAntContrib(){
     if (!fso.FileExists(ROOT + '\\bin\\templates\\project\\lib\\ant-contrib\\ant-contrib-1.0b3.jar')) {
-      // We need the .jar - url is pretty ugly, but unsure how to get around the re-direct on the download page other than using the direct download link
-      var url = 'http://downloads.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fant-contrib%2Ffiles%2Fant-contrib%2F1.0b3%2F&ts=1348092193&use_mirror=voxel';
+      // We need the .jar
+      var url = 'http://softlayer.dl.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip';
       var libsPath = ROOT + '\\bin\\templates\\project\\lib';
       var savePath = libsPath + '\\ant-contrib-1.0b3-bin.zip';
       if (!fso.FileExists(savePath)) {
@@ -72,13 +72,11 @@ function downloadAntContrib(){
       var source = app.NameSpace(savePath).Items();
       var target = app.NameSpace(libsPath);
       target.CopyHere(source, 256);
-      
-      // Move the jar into libs
-      //fso.MoveFile(ROOT + '\\framework\\libs\\commons-codec-1.7\\commons-codec-1.7.jar', ROOT + '\\framework\\libs\\commons-codec-1.7.jar');
-      
+         
       // Clean up
-      //fso.DeleteFile(ROOT + '\\framework\\libs\\commons-codec-1.7-bin.zip');
-      //fso.DeleteFolder(ROOT + '\\framework\\libs\\commons-codec-1.7', true);
+      fso.DeleteFile(libsPath + '\\ant-contrib-1.0b3-bin.zip');
+      fso.DeleteFolder(libsPath + '\\ant-contrib\\docs', true);
+      fso.DeleteFolder(libsPath + '\\ant-contrib\\lib', true);
     }
 }
 function exec(s, output) {
@@ -128,7 +126,5 @@ if(fso.FolderExists(ROOT+'\\framework')){
     // copy in the project template
     exec('cmd /c xcopy '+ ROOT + '\\sample\\* '+PROJECT_PATH+' /I /S /Y');    
 }
-
 replaceInFile(MANIFEST_PATH, /__NAME__/, APPNAME);
-
 cleanup();

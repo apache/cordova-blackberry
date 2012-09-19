@@ -1,3 +1,4 @@
+@ECHO OFF
 goto comment
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
@@ -17,7 +18,6 @@ goto comment
        under the License.
 :comment
 
-@ECHO OFF
 IF NOT DEFINED JAVA_HOME GOTO MISSING
 FOR %%X in (ant.bat) do (
     SET FOUND=%%~$PATH:X
