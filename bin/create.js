@@ -43,7 +43,7 @@ function replaceInFile(filename, regexp, replacement) {
     write(filename, read(filename).replace(regexp, replacement));
 }
 function downloadAntContrib(){
-    if (!fso.FileExists(ROOT + '\\bin\\templates\\project\\lib\\ant-contrib\\ant-contrib-1.0b3.jar)) {
+    if (!fso.FileExists(ROOT + '\\bin\\templates\\project\\lib\\ant-contrib\\ant-contrib-1.0b3.jar')) {
       // We need the .jar
       var url = 'http://sourceforge.net/projects/ant-contrib/files/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip';
       var libsPath = ROOT + '\\bin\\templates\\project\\lib';
