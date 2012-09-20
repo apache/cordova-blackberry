@@ -45,9 +45,9 @@ function replaceInFile(filename, regexp, replacement) {
 function downloadAntContrib(){
     if (!fso.FileExists(ROOT + '\\bin\\templates\\project\\lib\\ant-contrib\\ant-contrib-1.0b3.jar')) {
       // We need the .jar
-      var url = 'http://softlayer.dl.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip';
-      var libsPath = ROOT + '\\bin\\templates\\project\\lib';
-      var savePath = libsPath + '\\ant-contrib-1.0b3-bin.zip';
+      var url = 'http://central.maven.org/maven2/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3.jar';
+      var libsPath = ROOT + '\\bin\\templates\\project\\lib\\ant-contrib';
+      var savePath = libsPath + '\\ant-contrib-1.0b3.jar';
       if (!fso.FileExists(savePath)) {
         if(!fso.FolderExists(libsPath)) {
             fso.CreateFolder(libsPath);
@@ -72,11 +72,6 @@ function downloadAntContrib(){
       var source = app.NameSpace(savePath).Items();
       var target = app.NameSpace(libsPath);
       target.CopyHere(source, 256);
-         
-      // Clean up
-      fso.DeleteFile(libsPath + '\\ant-contrib-1.0b3-bin.zip');
-      fso.DeleteFolder(libsPath + '\\ant-contrib\\docs', true);
-      fso.DeleteFolder(libsPath + '\\ant-contrib\\lib', true);
     }
 }
 function exec(s, output) {

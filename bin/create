@@ -70,12 +70,9 @@ then
     if [ ! -e "$BUILD_PATH"/bin/templates/project/lib/ant-contrib/ant-contrib-1.0b3.jar ]; then
         echo "Downloading ant-contrib"
         # Use curl to get the jar
-        curl -OL http://sourceforge.net/projects/ant-contrib/files/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip &> /dev/null
-        unzip ant-contrib-1.0b3-bin.zip &> /dev/null
+        curl -OL http://central.maven.org/maven2/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3.jar &> /dev/null
         mkdir -p "$BUILD_PATH"/bin/templates/project/lib/ant-contrib
-        cp ant-contrib/ant-contrib-1.0b3.jar "$BUILD_PATH"/bin/templates/project/lib/ant-contrib
-        # cleanup yo
-        rm ant-contrib-1.0b3-bin.zip && rm -rf ant-contrib
+        mv ant-contrib-1.0b3.jar "$BUILD_PATH"/bin/templates/project/lib/ant-contrib
     fi
     
 	echo "Building cordova-$VERSION.jar and cordova-$VERSION.js ..."
