@@ -16,6 +16,8 @@ deliverables/
 build/
 dist/
 bin/node_modules
+bin/templates/project/lib
+example/
 
 # OS X
 

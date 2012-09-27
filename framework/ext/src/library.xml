@@ -24,5 +24,12 @@
 	<features>
 		<feature id="org.apache.cordova" version="1.0.0">Cordova JavaScript Extension</feature>
 		<feature id="blackberry.connection" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.io" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.invoked" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.invoke.card" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.ui.contextmenu" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.io.filetransfer" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.pim.contacts" version="1.0.0">Stub in for backwards bb10 support</feature>
+		<feature id="blackberry.bbm.platform" version="1.0.0">Stub in for backwards bb10 support</feature>
 	</features>
 </library>
