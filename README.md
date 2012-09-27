@@ -56,6 +56,11 @@ will need to specify things like the location of the BlackBerry Widget
 Packager(s), device and signing key passwords, simulator executables,
 and device IPs (if applicable).
 
+The ./bin/create command is also required to be called in order to automatically download 
+the bin/template/project/lib/ant-contrib.jar file. Please be aware that without running
+this command first, your project will not have this important file! Once that ant-contrib.jar
+file is downloaded, there is no need to update that file or download again.
+
 #### Running the Example Project
 
 Create the example project and build it to the first device:
@@ -84,7 +89,9 @@ will not work!
 
 The (legacy) Cordova ant build scripts enable you to create multiple, independent Cordova projects.
 
-(Note: The Cordova build script requires Apache ANT 1.8 or higher.
+(Note: The Cordova build script requires Apache ANT 1.8 or higher. Also, these scripts won't work without
+the bin/template/project/lib/ant-contrib.jar file so please run the ./bin/create command to automatically
+download that file or manually download it and place it in the bin/template/lib/ directory.
 
 The build script packages the Cordova source code and resources into each project you create.  This allows you to easily distribute the project to other BlackBerry WebWorks developers.  To create a Cordova project:
 
