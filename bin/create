@@ -16,7 +16,7 @@
 #       specific language governing permissions and limitations
 #       under the License.
 #
-# create a cordova/android project
+# create a cordova/blackberry project
 # 
 # USAGE
 #   ./create [path appname]

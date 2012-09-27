@@ -18,7 +18,7 @@
 */
 
 /*
- * create a cordova/android project
+ * create a cordova/blackberry project
  *
  * USAGE
  *  ./create [path package activity]
