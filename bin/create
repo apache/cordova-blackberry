@@ -47,7 +47,6 @@ fi
 function on_exit {
     echo "Cleaning up ..."
     [ -d "$BUILD_PATH/build" ] && rm -rf "$BUILD_PATH/build"
-    [ -d "$BUILD_PATH/dist" ] && rm -rf "$BUILD_PATH/dist"
     echo "Remember to update the project.properties file inside your application directory!"
 }
 
