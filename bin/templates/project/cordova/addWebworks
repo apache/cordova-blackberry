@@ -28,7 +28,7 @@ fi
 
 if [ ! -e "www/js/webworks.js" ]
 then
-    echo 'www/js/webworks.js file not found - need to build project'
+    echo 'www/js/webworks.js file not found - need to build project...'
     $ANT qnx build
 fi
 
@@ -39,9 +39,6 @@ do
     sed -i "" '/<head>/ a\
     <script type="text/javascript" src="'$jspath'js/webworks.js"></script>' $fullpath    
 done
-
-#find . -name \*.html\* -print0 | xargs -0 -I file sed -i "" '/<head>/ a\
-#<script type="text/javascript" src="/www/js/webworks.js">' file
 
 echo 'added webworks reference to these files: '
 find www -name \*.html\* | xargs -0 echo
