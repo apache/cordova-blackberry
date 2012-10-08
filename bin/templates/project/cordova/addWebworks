@@ -26,19 +26,32 @@ then
   exit 0
 fi
 
-if [ ! -e "www/js/webworks.js" ]
-then
-    echo 'www/js/webworks.js file not found - need to build project...'
-    $ANT qnx build
-fi
+# cleanup after exit and/or on error
+function on_exit {
+    echo "\nDone!"
+    echo "Remember to build your qnx project to get the webworks.js file in your js directory!\n"
+}
+
+function on_error {
+    echo "An error occured."
+}
+
+# we do not want the script to silently fail
+trap on_error ERR
+trap on_exit EXIT
+
+echo "Finding files to add webworks to... \n"
 
 find www -name \*.html\* | while read fullpath
 do
-    # i hate regex
-    jspath=$( dirname "$fullpath" ) ; jspath=${jspath#./www} ; jspath=${jspath//\/[a-zA-Z0-9]/../} ; jspath=${jspath//[a-zA-Z0-9]/}
-    sed -i "" '/<head>/ a\
-    <script type="text/javascript" src="'$jspath'js/webworks.js"></script>' $fullpath    
+    if grep "webworks.js" $fullpath > /dev/null
+    then
+        echo "SKIPPING: "$fullpath
+    else
+        # i hate regex
+        jspath=$( dirname "$fullpath" ) ; jspath=${jspath#./www} ; jspath=${jspath//\/[a-zA-Z0-9]/../} ; jspath=${jspath//[a-zA-Z0-9]/}
+        sed -i "" '/<head>/ a\
+        <script type="text/javascript" src="'$jspath'js/webworks.js"></script>' $fullpath  
+        echo "ADDING: "$fullpath
+    fi
 done
-
-echo 'added webworks reference to these files: '
-find www -name \*.html\* | xargs -0 echo
