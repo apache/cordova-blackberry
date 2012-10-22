@@ -106,15 +106,7 @@
             <fileset dir="www" >
                 <exclude name="ext/**"/>
                 <exclude name="ext-air/**"/>
-                <exclude name="playbook/**"/>
                 <exclude name="res/resourceBundles/**"/>
-            </fileset>
-        </copy>
-        
-        <!-- Overwrite the cordova js with the playbook specific cordova js -->
-        <copy todir="${widget.dir}" overwrite="true">
-            <fileset dir="www/playbook">
-                <include name="*.js" />
             </fileset>
         </copy>
         

@@ -61,14 +61,6 @@
         <!-- BB Javascript -->
         <mkdir dir="${build.dir}/${js.path}" />
         <copy file="${js.src}/cordova.blackberry.js" tofile="${build.dir}/${js.file}" />
-
-        <!-- PB Javascript -->
-        <mkdir dir="${build.dir}/${playbook.js.path}" />
-        <copy file="${js.src}/cordova.playbook.js" tofile="${build.dir}/${playbook.js.path}/${js.basename}" />
-
-        <!-- QNX Javascript -->
-        <mkdir dir="${build.dir}/${qnx.js.path}" />
-        <copy file="${js.src}/cordova.qnx.js" tofile="${build.dir}/${qnx.js.path}/${js.basename}" />
     </target>
 
     <!-- BUILD BLACKBERRY EXTENSION -->

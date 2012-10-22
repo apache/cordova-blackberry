@@ -175,8 +175,6 @@
             <fileset dir="www" >
                 <exclude name="ext-air/**"/>
                 <exclude name="ext-qnx/**"/>
-                <exclude name="playbook/**"/>
-                <exclude name="qnx/**"/>
                 <exclude name="res/resourceBundles/**" unless="${globalization}"/>
             </fileset>
         </copy>
