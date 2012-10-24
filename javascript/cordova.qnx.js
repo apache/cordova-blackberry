@@ -1,6 +1,6 @@
-// commit 337b1f443491f3fdb816dc32f70e5378e0e1967c
+// commit 884cb0e8f4809b6182b41101c092eee1139f82da
 
-// File generated at :: Mon Oct 15 2012 13:42:48 GMT-0700 (PDT)
+// File generated at :: Wed Oct 24 2012 13:17:54 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -695,7 +695,6 @@ module.exports = {
         return ( CommandProxyMap[service] ? CommandProxyMap[service][action] : null );
     }
 };
-
 });
 
 // file: lib/common/common.js
@@ -5528,7 +5527,7 @@ module.exports = {
             version: blackberry.system.softwareVersion,
             name: "Dev Alpha",
             uuid: blackberry.identity.uuid,
-            cordova: "2.2.0rc1"
+            cordova: "2.2.0rc2"
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
@@ -6071,8 +6070,8 @@ utils.extend = (function() {
  * Alerts a message in any available way: alert or console.log.
  */
 utils.alert = function(msg) {
-    if (alert) {
-        alert(msg);
+    if (window.alert) {
+        window.alert(msg);
     } else if (console && console.log) {
         console.log(msg);
     }
