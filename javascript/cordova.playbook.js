@@ -1,6 +1,6 @@
-// commit 884cb0e8f4809b6182b41101c092eee1139f82da
+// commit 02b91c5313ff37d74a58f71775170afd360f4a1f
 
-// File generated at :: Wed Oct 24 2012 13:17:54 GMT-0700 (PDT)
+// File generated at :: Wed Oct 31 2012 14:46:38 GMT-0700 (PDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -2631,7 +2631,7 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
         errorCallback(error);
     };
 
-    exec(win, errorCallback, 'FileTransfer', 'download', [source, target, trustAllHosts, this._id]);
+    exec(win, fail, 'FileTransfer', 'download', [source, target, trustAllHosts, this._id]);
 };
 
 /**
@@ -5222,7 +5222,7 @@ module.exports = {
             version: blackberry.system.softwareVersion,
             name: blackberry.system.model,
             uuid: blackberry.identity.PIN,
-            cordova: "2.2.0rc2"
+            cordova: "2.2.0"
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
