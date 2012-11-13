@@ -97,6 +97,23 @@
         </exec>
     </target>
     
+    <target name="debug-simulator" depends="package-app">
+
+        <bbwp code-sign="false" debug="true" />
+        <echo>This tool will not open the simulator for you </echo>
+
+        <exec executable="${blackberry-deploy}" dir="." failonerror="true">
+            <arg value="-installApp" />
+            <arg value="-launchApp" />
+            <arg value="-device" />
+            <arg value="${properties.qnx.sim.ip}" />
+            <arg value="-password" />
+            <arg value="${properties.qnx.sim.password}" />
+            <arg value="-package" />
+            <arg file="${build.dir}/simulator/${cod.name}.bar" />
+        </exec>
+    </target>
+
     <!-- PACKAGE-APP -->
     
     <target name="package-app" depends="generate-cod-name, clean">

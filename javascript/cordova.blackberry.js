@@ -1,6 +1,6 @@
-// commit 0919268c22c87e3b2640999d963ae074a33d445e
+// commit 759bd701e4557921913da13555fdd4661dd98cf6
 
-// File generated at :: Fri Nov 02 2012 09:45:24 GMT-0400 (EDT)
+// File generated at :: Mon Nov 12 2012 20:30:55 GMT-0500 (EST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -329,14 +329,24 @@ function each(objects, func, context) {
     }
 }
 
+function clobber(obj, key, value) {
+    obj[key] = value;
+    // Getters can only be overridden by getters.
+    if (obj[key] !== value) {
+        utils.defineGetter(obj, key, function() {
+            return value;
+        });
+    }
+}
+
 function assignOrWrapInDeprecateGetter(obj, key, value, message) {
     if (message) {
         utils.defineGetter(obj, key, function() {
-            window.console && console.log(message);
+            console.log(message);
             return value;
         });
     } else {
-        obj[key] = value;
+        clobber(obj, key, value);
     }
 }
 
@@ -395,8 +405,11 @@ function recursiveMerge(target, src) {
                 // If the target object is a constructor override off prototype.
                 target.prototype[prop] = src[prop];
             } else {
-                target[prop] = typeof src[prop] === 'object' ? recursiveMerge(
-                        target[prop], src[prop]) : src[prop];
+                if (typeof src[prop] === 'object') {
+                    target[prop] = recursiveMerge(target[prop], src[prop]);
+                } else {
+                    clobber(target, prop, src[prop]);
+                }
             }
         }
     }
@@ -737,9 +750,6 @@ module.exports = {
                 compass:{
                     path: 'cordova/plugin/compass'
                 },
-                connection: {
-                    path: 'cordova/plugin/network'
-                },
                 contacts: {
                     path: 'cordova/plugin/contacts'
                 },
@@ -907,6 +917,15 @@ module.exports = {
         resolveLocalFileSystemURI:{
             path: 'cordova/plugin/resolveLocalFileSystemURI'
         }
+    },
+    clobbers: {
+        navigator: {
+            children: {
+                connection: {
+                    path: 'cordova/plugin/network'
+                }
+            },
+        }
     }
 };
 
@@ -950,7 +969,6 @@ module.exports = function(success, fail, service, action, args) {
                 catch (e) {
                     console.log("Error in success callback: "+cordova.callbackId+" = "+e);
                 }
-
             }
             return v.message;
         } else if (v.status == cordova.callbackStatus.NO_RESULT) {
@@ -983,15 +1001,17 @@ define("cordova/platform", function(require, exports, module) {
 module.exports = {
     id: "blackberry",
     runtime: function () {
-        var version = blackberry.system.softwareVersion;
-        window.wtf = version;
-        if (version.match(/^10/)) {
+        if (navigator.userAgent.indexOf("BB10") > -1) {
             return 'qnx';
         }
-        else if (version.match(/^BlackBerry/)) {
+        else if (navigator.userAgent.indexOf("PlayBook") > -1) {
             return 'air';
         }
+        else if (navigator.userAgent.indexOf("BlackBerry") > -1) {
+            return 'java';
+        }
         else {
+            console.log("Unknown user agent?!?!? defaulting to java");
             return 'java';
         }
     },
@@ -7940,7 +7960,7 @@ module.exports = {
 // file: lib/blackberry/plugin/java/app.js
 define("cordova/plugin/java/app", function(require, exports, module) {
 
-var exec = require('cordova/exec');
+var exec = require('cordova/exec'),
     platform = require('cordova/platform'),
     manager = require('cordova/plugin/' + platform.runtime() + '/manager');
 
@@ -8612,49 +8632,9 @@ if (typeof navigator != 'undefined') {
     });
 }
 
-var NetworkConnection = function () {
-    this.type = null;
-    this._firstRun = true;
-    this._timer = null;
-    this.timeout = 500;
-
-    var me = this;
-
-    channel.onCordovaReady.subscribe(function() {
-        me.getInfo(function (info) {
-            me.type = info;
-            if (info === "none") {
-                // set a timer if still offline at the end of timer send the offline event
-                me._timer = setTimeout(function(){
-                    cordova.fireDocumentEvent("offline");
-                    me._timer = null;
-                    }, me.timeout);
-            } else {
-                // If there is a current offline event pending clear it
-                if (me._timer !== null) {
-                    clearTimeout(me._timer);
-                    me._timer = null;
-                }
-                cordova.fireDocumentEvent("online");
-            }
-
-            // should only fire this once
-            if (me._firstRun) {
-                me._firstRun = false;
-                channel.onCordovaConnectionReady.fire();
-            }
-        },
-        function (e) {
-            // If we can't get the network info we should still tell Cordova
-            // to fire the deviceready event.
-            if (me._firstRun) {
-                me._firstRun = false;
-                channel.onCordovaConnectionReady.fire();
-            }
-            console.log("Error initializing Network Connection: " + e);
-        });
-    });
-};
+function NetworkConnection() {
+    this.type = 'unknown';
+}
 
 /**
  * Get connection info
@@ -8662,12 +8642,48 @@ var NetworkConnection = function () {
  * @param {Function} successCallback The function to call when the Connection data is available
  * @param {Function} errorCallback The function to call when there is an error getting the Connection data. (OPTIONAL)
  */
-NetworkConnection.prototype.getInfo = function (successCallback, errorCallback) {
-    // Get info
+NetworkConnection.prototype.getInfo = function(successCallback, errorCallback) {
     exec(successCallback, errorCallback, "NetworkStatus", "getConnectionInfo", []);
 };
 
-module.exports = new NetworkConnection();
+var me = new NetworkConnection();
+var timerId = null;
+var timeout = 500;
+
+channel.onCordovaReady.subscribe(function() {
+    me.getInfo(function(info) {
+        me.type = info;
+        if (info === "none") {
+            // set a timer if still offline at the end of timer send the offline event
+            timerId = setTimeout(function(){
+                cordova.fireDocumentEvent("offline");
+                timerId = null;
+            }, timeout);
+        } else {
+            // If there is a current offline event pending clear it
+            if (timerId !== null) {
+                clearTimeout(timerId);
+                timerId = null;
+            }
+            cordova.fireDocumentEvent("online");
+        }
+
+        // should only fire this once
+        if (channel.onCordovaConnectionReady.state !== 2) {
+            channel.onCordovaConnectionReady.fire();
+        }
+    },
+    function (e) {
+        // If we can't get the network info we should still tell Cordova
+        // to fire the deviceready event.
+        if (channel.onCordovaConnectionReady.state !== 2) {
+            channel.onCordovaConnectionReady.fire();
+        }
+        console.log("Error initializing Network Connection: " + e);
+    });
+});
+
+module.exports = me;
 
 });
 
@@ -8743,15 +8759,16 @@ module.exports = {
     start: function (args, win, fail) {
         interval = window.setInterval(function () {
             win({
-                level: 0,
-                isPlugged: false
+                level: navigator.webkitBattery.level * 100,
+                isPlugged: navigator.webkitBattery.charging
             });
         }, 500);
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
     },
 
     stop: function (args, win, fail) {
-        window.stopInterval(interval);
+        window.clearInterval(interval);
+        return { "status" : cordova.callbackStatus.OK, "message" : "stopped" };
     }
 };
 
@@ -8785,7 +8802,7 @@ function capture(action, win, fail) {
     blackberry.invoke.card.invokeCamera(action, function (path) {
         var sb = blackberry.io.sandbox;
         blackberry.io.sandbox = false;
-        webkitRequestFileSystem(PERSISTENT, 1024, function (fs) {
+        window.webkitRequestFileSystem(window.PERSISTENT, 1024, function (fs) {
             fs.root.getFile(path, {}, function (fe) {
                 fe.file(function (file) {
                     file.fullPath = fe.fullPath;
@@ -9112,8 +9129,7 @@ module.exports = {
 // file: lib/blackberry/plugin/qnx/network.js
 define("cordova/plugin/qnx/network", function(require, exports, module) {
 
-var cordova = require('cordova'),
-    connection = require('cordova/plugin/Connection');
+var cordova = require('cordova');
 
 module.exports = {
     getConnectionInfo: function (args, win, fail) {
@@ -9323,7 +9339,7 @@ module.exports = {
     },
     stop: function (args, win, fail) {
         window.removeEventListener("devicemotion", callback);
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+        return { "status" : cordova.callbackStatus.OK, "message" : "removed" };
     }
 };
 
@@ -9426,7 +9442,6 @@ module.exports = {
 
             result = {"status" : 1, "message" : "Seek to audio succeeded" };
         }
-
         return result;
     },
     pausePlayingAudio: function (args, win, fail) {
@@ -9568,6 +9583,30 @@ utils.defineGetter = function(obj, key, func) {
     } else {
         obj.__defineGetter__(key, func);
     }
+};
+
+utils.arrayIndexOf = function(a, item) {
+    if (a.indexOf) {
+        return a.indexOf(item);
+    }
+    var len = a.length;
+    for (var i = 0; i < len; ++i) {
+        if (a[i] == item) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+/**
+ * Returns whether the item was found in the array.
+ */
+utils.arrayRemove = function(a, item) {
+    var index = utils.arrayIndexOf(a, item);
+    if (index != -1) {
+        a.splice(index, 1);
+    }
+    return index != -1;
 };
 
 /**
@@ -9765,10 +9804,10 @@ window.cordova = require('cordova');
 (function (context) {
     // Replace navigator before any modules are required(), to ensure it happens as soon as possible.
     // We replace it so that properties that can't be clobbered can instead be overridden.
-    if (typeof navigator != 'undefined') {
-        var CordovaNavigator = function () {};
-        CordovaNavigator.prototype = navigator;
-        navigator = new CordovaNavigator();
+    if (context.navigator) {
+        function CordovaNavigator() {}
+        CordovaNavigator.prototype = context.navigator;
+        context.navigator = new CordovaNavigator();
     }
 
     var channel = require("cordova/channel"),
@@ -9783,15 +9822,27 @@ window.cordova = require('cordova');
                         platform = require('cordova/platform');
 
                     // Drop the common globals into the window object, but be nice and don't overwrite anything.
-                    builder.build(base.objects).intoButDoNotClobber(window);
+                    builder.build(base.objects).intoButDoNotClobber(context);
+
+                    if (base.merges) {
+                        builder.build(base.merges).intoAndMerge(context);
+                    }
+
+                    if (base.clobbers) {
+                        builder.build(base.clobbers).intoAndClobber(context);
+                    }
 
                     // Drop the platform-specific globals into the window object
                     // and clobber any existing object.
-                    builder.build(platform.objects).intoAndClobber(window);
+                    if (platform.object) {
+                        builder.build(platform.objects).intoAndClobber(context);
+                    }
 
                     // Merge the platform-specific overrides/enhancements into
                     // the window object.
-                    builder.build(platform.merges).intoAndMerge(window);
+                    if (platform.merges) {
+                        builder.build(platform.merges).intoAndMerge(context);
+                    }
 
                     // Call the platform-specific initialization
                     platform.initialize();
@@ -9823,20 +9874,21 @@ window.cordova = require('cordova');
 
 // file: lib/scripts/bootstrap-blackberry.js
 
-switch(require('cordova/platform').runtime()) {
-case 'qnx':
-    console.log('booting!');
-    document.addEventListener("webworksready", function () {
+document.addEventListener("DOMContentLoaded", function () {
+    switch(require('cordova/platform').runtime()) {
+    case 'qnx':
+        document.addEventListener("webworksready", function () {
+            require('cordova/channel').onNativeReady.fire();
+        });
+        break;
+    case 'air':
         require('cordova/channel').onNativeReady.fire();
-    });
-    break;
-case 'air':
-    require('cordova/channel').onNativeReady.fire();
-    break;
-case 'java':
-    //nothing to do for java
-    break;
-}
+        break;
+    case 'java':
+        //nothing to do for java
+        break;
+    }
+});
 
 
 })();
