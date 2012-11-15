@@ -1,6 +1,6 @@
-// commit 759bd701e4557921913da13555fdd4661dd98cf6
+// commit c0f68da4de34d47e27c35572727307a71db21ac3
 
-// File generated at :: Mon Nov 12 2012 20:30:55 GMT-0500 (EST)
+// File generated at :: Thu Nov 15 2012 14:00:24 GMT-0500 (EST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -5228,17 +5228,23 @@ channel.waitForInitialization('onCordovaInfoReady');
 
 module.exports = {
     getDeviceInfo : function(args, win, fail){
-        win({
-            platform: "PlayBook",
-            version: blackberry.system.softwareVersion,
-            name: blackberry.system.model,
-            uuid: blackberry.identity.PIN,
-            cordova: "2.2.0"
-        });
+        //Register an event handler for the networkChange event
+        var callback = blackberry.events.registerEventHandler("deviceInfo", function (info) {
+                win({
+                    platform: "BlackBerry",
+                    version: info.version,
+                    name: "PlayBook",
+                    uuid: info.uuid,
+                    cordova: "2.2.0"
+                });
+            }),
+            request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getDeviceInfo");
 
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
+        request.addParam("id", callback);
+        request.makeSyncCall();
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "" };
     }
-
 };
 
 });
@@ -9011,7 +9017,7 @@ channel.waitForInitialization('onCordovaInfoReady');
 module.exports = {
     getDeviceInfo : function(args, win, fail){
         win({
-            platform: "BB10",
+            platform: "BlackBerry",
             version: blackberry.system.softwareVersion,
             name: "Dev Alpha",
             uuid: blackberry.identity.uuid,
@@ -9496,12 +9502,8 @@ module.exports = {
             return {"status" : 9, "message" : "Media Object id was not sent in arguments"};
         }
 
-        var id = args[0],
-            audio = audioObjects[id],
-            result;
-
         if (args.length <= 1) {
-            result = {"status" : 9, "message" : "Media start recording, insufficient arguments"};
+            return {"status" : 9, "message" : "Media start recording, insufficient arguments"};
         }
 
         blackberry.media.microphone.record(args[1], win, fail);
