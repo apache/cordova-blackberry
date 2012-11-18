@@ -45,6 +45,10 @@
         <equals arg1="${isMacOSX}" arg2="true" />
     </condition>
 
+    <condition property="blackberry-debugtokenrequest" value="${properties.qnx.bbwp.dir}/dependencies/tools/bin/blackberry-debugtokenrequest" else="${properties.qnx.bbwp.dir}/dependencies/tools/bin/blackberry-debugtokenrequest.bat">
+        <equals arg1="${isMacOSX}" arg2="true" />
+    </condition>
+
     <!-- LOAD DEVICE -->
     
     <target name="load-device" depends="package-app">
@@ -65,7 +69,20 @@
     <!-- DEBUG-LOAD DEVICE -->
     
     <target name="debug-device" depends="package-app">
-        <bbwp code-sign="true" debug="true" />
+        <if>
+            <equals arg1="${properties.qnx.device.pin}" arg2="" />
+            <then>
+                <echo>
+                    If you fill in the qnx.device.pin value you can use debug tokens!
+                    This means you won't have to worry about having a unique version in config.xml every time.
+                </echo>
+                <bbwp code-sign="true" debug="true" />
+            </then>
+            <else>
+                <generate-debug-token />
+                <bbwp code-sign="false" debug="true" />
+            </else>
+        </if>
 
         <exec executable="${blackberry-deploy}" dir="." failonerror="true">
             <arg value="-installApp" />
@@ -193,6 +210,30 @@
         </sequential>
     </macrodef>
 
+    <!-- install debug token" -->
+    <macrodef name="generate-debug-token">
+        <sequential>
+            <exec executable="${blackberry-debugtokenrequest}" dir="." failonerror="true">
+                <arg value="-storepass" />
+                <arg value="${properties.qnx.sigtool.password}" />
+                <arg value="-deviceID" />
+                <arg value="0x${properties.qnx.device.pin}" />
+                <arg file="${properties.qnx.bbwp.dir}/debugtoken.bar" />
+            </exec>
+
+            <exec executable="${blackberry-deploy}" dir="." failonerror="true">
+                <arg value="-installApp" />
+                <arg value="-device" />
+                <arg value="${properties.qnx.device.ip}" />
+                <arg value="-password" />
+                <arg value="${properties.qnx.device.password}" />
+                <arg value="-package" />
+                <arg file="${properties.qnx.bbwp.dir}/debugtoken.bar" />
+            </exec>
+        </sequential>
+    </macrodef>
+
+
     <!-- CLEAN -->
     
     <target name="clean">
@@ -241,6 +282,7 @@
                        defaultValue="${config.xml.widget.name}" />
         <echo message="Generated name: ${cod.name}.bar" />
     </target>
+
 
     <!-- HELP -->
 
