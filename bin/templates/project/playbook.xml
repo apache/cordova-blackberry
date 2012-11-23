@@ -228,7 +228,7 @@
             <replaceregexp 
                 file="${properties.playbook.bbwp.dir}/bin/bbwp.properties" 
                 match='&lt;debug_token&gt;.*&lt;\/debug_token&gt;'
-                replace='&lt;debug_token&gt;${properties.playbook.bbwp.dir}/bin/debugtoken.bar&lt;/debug_token&gt;'
+                replace='&lt;debug_token&gt;${properties.playbook.bbwp.dir}/debugtoken.bar&lt;/debug_token&gt;'
                 byline='true'/>
         </sequential>
     </macrodef>
