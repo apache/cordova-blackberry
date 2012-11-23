@@ -45,6 +45,10 @@
         <equals arg1="${isMacOSX}" arg2="true" />
     </condition>
 
+    <condition property="blackberry-debugtokenrequest" value="${properties.playbook.bbwp.dir}/blackberry-tablet-sdk/bin/blackberry-debugtokenrequest" else="${properties.playbook.bbwp.dir}/blackberry-tablet-sdk/bin/blackberry-debugtokenrequest.bat">
+        <equals arg1="${isMacOSX}" arg2="true" />
+    </condition>
+
     <!-- LOAD DEVICE -->
     
     <target name="load-device" depends="package-app">
@@ -65,7 +69,20 @@
     <!-- DEBUG-LOAD DEVICE -->
     
     <target name="debug-device" depends="package-app">
-        <bbwp code-sign="true" debug="true" />
+        <if>
+            <equals arg1="${properties.playbook.device.pin}" arg2="" />
+            <then>
+                <echo>
+                    If you fill in the playbook.device.pin value you can use debug tokens!
+                    This means you won't have to worry about having a unique version in config.xml every time.
+                </echo>
+                <bbwp code-sign="true" debug="true" />
+            </then>
+            <else>
+                <generate-debug-token />
+                <bbwp code-sign="false" debug="true" />
+            </else>
+        </if>
 
         <exec executable="${blackberry-deploy}" dir="." failonerror="true">
             <arg value="-installApp" />
@@ -183,6 +200,36 @@
                     </exec>
                 </else>
             </if>
+        </sequential>
+    </macrodef>
+
+    <!-- install debug token" -->
+    <macrodef name="generate-debug-token">
+        <sequential>
+            <exec executable="${blackberry-debugtokenrequest}" dir="." failonerror="true">
+                <arg value="-storepass" />
+                <arg value="${properties.playbook.sigtool.csk.password}" />
+                <arg value="-deviceID" />
+                <arg value="0x${properties.playbook.device.pin}" />
+                <arg file="${properties.playbook.bbwp.dir}/debugtoken.bar" />
+            </exec>
+
+            <exec executable="${blackberry-deploy}" dir="." failonerror="true">
+                <arg value="-installApp" />
+                <arg value="-launchApp" />
+                <arg value="-device" />
+                <arg value="${properties.playbook.device.ip}" />
+                <arg value="-password" />
+                <arg value="${properties.playbook.device.password}" />
+                <arg value="-package" />
+                <arg file="${properties.playbook.bbwp.dir}/debugtoken.bar" />
+            </exec>
+
+            <replaceregexp 
+                file="${properties.playbook.bbwp.dir}/bin/bbwp.properties" 
+                match='&lt;debug_token&gt;.*&lt;\/debug_token&gt;'
+                replace='&lt;debug_token&gt;${properties.playbook.bbwp.dir}/bin/debugtoken.bar&lt;/debug_token&gt;'
+                byline='true'/>
         </sequential>
     </macrodef>
 
