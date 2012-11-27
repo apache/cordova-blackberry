@@ -53,7 +53,7 @@ public final class Device extends Plugin {
 				JSONObject device = new JSONObject();
 				device.put( FIELD_PLATFORM, "BlackBerry");
 				device.put( FIELD_UUID, new Integer( DeviceInfo.getDeviceId()) );
-				device.put( FIELD_CORDOVA, "2.2.0" );
+				device.put( FIELD_CORDOVA, "2.3.0rc1" );
 				device.put( FIELD_NAME, new String(DeviceInfo.getDeviceName()) );
 				device.put( FIELD_VERSION, new String(DeviceInfo.getSoftwareVersion()) );
 				result = new PluginResult(PluginResult.Status.OK, device);
