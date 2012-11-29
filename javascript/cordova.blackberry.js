@@ -1,6 +1,6 @@
-// commit 54335c8f70223b053f4c039185d13cb95801d043
+// commit 0be534420a6855a83ff3b0e7559932b25cee33e1
 
-// File generated at :: Mon Nov 26 2012 13:41:09 GMT-0800 (PST)
+// File generated at :: Wed Nov 28 2012 17:49:07 GMT-0800 (PST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -3091,18 +3091,55 @@ module.exports = GlobalizationError;
 define("cordova/plugin/InAppBrowser", function(require, exports, module) {
 
 var exec = require('cordova/exec');
+       
+function InAppBrowser()
+{
+   var _channel = require('cordova/channel');
+   this.channels = {
+        'loadstart': _channel.create('loadstart'),
+        'loadstop' : _channel.create('loadstop'),
+        'exit' : _channel.create('exit')
+   };
+}
 
-var InAppBrowser = {
-    open : function(strUrl, strWindowName, strWindowFeatures) {
-        exec(null, null, "InAppBrowser", "open", [strUrl, strWindowName, strWindowFeatures]);
-        return InAppBrowser;
-    },
-    close : function() {
-        exec(null, null, "InAppBrowser", "close", []);
+InAppBrowser.prototype._eventHandler = function(event)
+{
+    if (event.type in this.channels) {
+        this.channels[event.type].fire(event);
     }
-};
+}
+       
+InAppBrowser.open = function(strUrl, strWindowName, strWindowFeatures)
+{
+    var iab = new InAppBrowser();
+    var cb = function(eventname) {
+       iab._eventHandler(eventname);
+    }
+    exec(cb, null, "InAppBrowser", "open", [strUrl, strWindowName, strWindowFeatures]);
+    return iab;
+}
+
+InAppBrowser.prototype.close = function(eventname, f)
+{
+    exec(null, null, "InAppBrowser", "close", []);
+}
+
+InAppBrowser.prototype.addEventListener = function(eventname, f)
+{
+	if (eventname in this.channels) {
+	    this.channels[eventname].subscribe(f);
+	}
+}
+
+InAppBrowser.prototype.removeEventListener = function(eventname, f)
+{
+	if (eventname in this.channels) {
+	    this.channels[eventname].unsubscribe(f);
+	}
+}
 
 module.exports = InAppBrowser.open;
+
 
 });
 
@@ -5407,7 +5444,7 @@ define("cordova/plugin/air/platform", function(require, exports, module) {
 module.exports = {
     id: "playbook",
     initialize:function() {},
-    objects: {
+    clobbers: {
         DirectoryReader:{
             path: 'cordova/plugin/air/DirectoryReader'
         },
@@ -8961,7 +8998,7 @@ module.exports = {
     },
     stop: function (args, win, fail) {
         window.removeEventListener("deviceorientation", callback);
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
+        return { "status" : cordova.callbackStatus.OK, "message" : "removed" };
     }
 };
 
