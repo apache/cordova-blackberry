@@ -1,7 +1,7 @@
 Cordova BlackBerry WebWorks
 ============================
 
-[Cordova framework](http://incubator.apache.org/cordova/) for __BlackBerry Tablet OS and Smartphones__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
+[Cordova framework](http://incubator.apache.org/cordova/) for __BlackBerry Tablet OS, Smartphones and BlackBerry 10 devices__. The framework is implemented using the [BlackBerry WebWorks SDK](http://us.blackberry.com/developers/tablet/webworks.jsp).
 
 Directory Structure
 -------------------
@@ -116,7 +116,7 @@ The Cordova build scripts automate common tasks, such as compiling your project,
     $ ant help
 
 Every command is in the form `ant TARGET COMMAND [options]`, where
-target is either `blackberry` or `playbook`.
+target is either `blackberry`, `playbook` or `qnx`.
 
 To build your project into a deployable application (.cod/.jad) file:
 
