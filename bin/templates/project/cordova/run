@@ -20,7 +20,7 @@ ANT=$(which ant)
 
 if [ -z "$1" ]
 then
-  echo 'usage: debug <platform>'
+  echo 'usage: run <platform>'
   echo 'where <platform> can be one of "blackberry", "playbook" or "qnx"'
   echo 'NOTE: please customize the project.properties file first before using this command!'
   exit 0
