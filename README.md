@@ -80,8 +80,8 @@ the note above, please make sure you edit the `project.properties` file
 inside your application directory appropriately otherwise these commands
 will not work!
 
-    ./cordova/debug ............................ install to a connected device or simulator
-    ./cordova/emulate .......................... install to a simulator
+    ./cordova/run ............................ install to a connected device or simulator
+    ./cordova/build .......................... build project, but do not deploy to simulator or device
 
 
 (Legacy) Creating a New Cordova Project
