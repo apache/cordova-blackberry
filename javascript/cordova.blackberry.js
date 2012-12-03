@@ -1,6 +1,6 @@
-// commit 0be534420a6855a83ff3b0e7559932b25cee33e1
+// commit 46c89d142aadce4cf8139fc41f746e1ba8ef9b26
 
-// File generated at :: Wed Nov 28 2012 17:49:07 GMT-0800 (PST)
+// File generated at :: Mon Dec 03 2012 13:19:55 GMT-0800 (PST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -5341,7 +5341,8 @@ module.exports = {
                 win({
                     platform: "BlackBerry",
                     version: info.version,
-                    name: "PlayBook",
+                    model: "PlayBook",
+                    name: "PlayBook", // deprecated: please use device.model
                     uuid: info.uuid,
                     cordova: "2.3.0rc1"
                 });
@@ -8931,7 +8932,8 @@ module.exports = {
         win({
             platform: "BlackBerry",
             version: blackberry.system.softwareVersion,
-            name: "Dev Alpha",
+            model: "Dev Alpha",
+            name: "Dev Alpha", // deprecated: please use device.model
             uuid: blackberry.identity.uuid,
             cordova: "2.3.0rc1"
         });
