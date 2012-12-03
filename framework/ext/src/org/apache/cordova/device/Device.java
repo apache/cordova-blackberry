@@ -40,6 +40,7 @@ public final class Device extends Plugin {
 	public static final String FIELD_PLATFORM 	= "platform";
 	public static final String FIELD_UUID     	= "uuid";
 	public static final String FIELD_CORDOVA	= "cordova";
+	public static final String FIELD_MODEL 		= "model";
 	public static final String FIELD_NAME 		= "name";
 	public static final String FIELD_VERSION 	= "version";
 
@@ -54,6 +55,7 @@ public final class Device extends Plugin {
 				device.put( FIELD_PLATFORM, "BlackBerry");
 				device.put( FIELD_UUID, new Integer( DeviceInfo.getDeviceId()) );
 				device.put( FIELD_CORDOVA, "2.3.0rc1" );
+				device.put( FIELD_MODEL, new String(DeviceInfo.getDeviceName()) );
 				device.put( FIELD_NAME, new String(DeviceInfo.getDeviceName()) );
 				device.put( FIELD_VERSION, new String(DeviceInfo.getSoftwareVersion()) );
 				result = new PluginResult(PluginResult.Status.OK, device);
