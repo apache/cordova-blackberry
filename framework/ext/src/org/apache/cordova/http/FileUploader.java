@@ -67,7 +67,7 @@ public class FileUploader {
      * @return FileUploadResult containing result of upload request
      */
     public FileUploadResult upload(String filePath, String server, String fileKey,
-            String fileName, String mimeType, JSONObject params)
+            String fileName, String mimeType, JSONObject params, JSONObject headers)
     throws FileNotFoundException, IllegalArgumentException, IOException {
 
         Logger.log(this.getClass().getName() + ": uploading " + filePath + " to " + server);
@@ -141,6 +141,15 @@ public class FileUploader {
                     HttpProtocolConstants.HEADER_CONTENT_LENGTH,
                     Long.toString(contentLength));
 
+            if(headers != null){
+                for(Enumeration e = headers.keys(); e.hasMoreElements();){
+                    String key = e.nextElement().toString();
+                    String value = headers.optString(key);
+                    Logger.log(this.getClass().getName() + ": key=" + key + " value=" + value);
+                    httpConn.setRequestProperty(key, value);
+                }    
+            }
+            
             // set cookie
             String cookie = HttpUtils.getCookie(server);
             if (cookie != null) {

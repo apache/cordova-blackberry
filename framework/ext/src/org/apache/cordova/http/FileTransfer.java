@@ -113,14 +113,18 @@ public class FileTransfer extends Plugin {
                 String fileName = getArgument(args, 3, "image.jpg");
                 String mimeType = getArgument(args, 4, null);
                 JSONObject params = null;
-
+                JSONObject headers = null;
+                
                 if (args.length() > 5 && !args.isNull(5)) {
                     params = args.getJSONObject(5);
                 }
 
+                if(args.length() > 8 && !args.isNull(8)){
+                    headers = args.getJSONObject(8);
+                }
                 uploader = new FileUploader();
                 FileUploadResult r = uploader.upload(source, target, fileKey,
-                        fileName, mimeType, params);
+                        fileName, mimeType, params, headers);
 
                 int status = r.getResponseCode();
                 if (status < 200 || status > 399) {
