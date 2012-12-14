@@ -1,6 +1,6 @@
-// commit 46c89d142aadce4cf8139fc41f746e1ba8ef9b26
+// commit d8204cc0f8f1f2e72d95b4c811caa0635bb05a84
 
-// File generated at :: Mon Dec 03 2012 13:19:55 GMT-0800 (PST)
+// File generated at :: Thu Dec 13 2012 21:36:45 GMT-0500 (EST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -3091,7 +3091,7 @@ module.exports = GlobalizationError;
 define("cordova/plugin/InAppBrowser", function(require, exports, module) {
 
 var exec = require('cordova/exec');
-       
+
 function InAppBrowser()
 {
    var _channel = require('cordova/channel');
@@ -3108,7 +3108,7 @@ InAppBrowser.prototype._eventHandler = function(event)
         this.channels[event.type].fire(event);
     }
 }
-       
+
 InAppBrowser.open = function(strUrl, strWindowName, strWindowFeatures)
 {
     var iab = new InAppBrowser();
@@ -3126,16 +3126,16 @@ InAppBrowser.prototype.close = function(eventname, f)
 
 InAppBrowser.prototype.addEventListener = function(eventname, f)
 {
-	if (eventname in this.channels) {
-	    this.channels[eventname].subscribe(f);
-	}
+    if (eventname in this.channels) {
+        this.channels[eventname].subscribe(f);
+    }
 }
 
 InAppBrowser.prototype.removeEventListener = function(eventname, f)
 {
-	if (eventname in this.channels) {
-	    this.channels[eventname].unsubscribe(f);
-	}
+    if (eventname in this.channels) {
+        this.channels[eventname].unsubscribe(f);
+    }
 }
 
 module.exports = InAppBrowser.open;
@@ -5344,7 +5344,7 @@ module.exports = {
                     model: "PlayBook",
                     name: "PlayBook", // deprecated: please use device.model
                     uuid: info.uuid,
-                    cordova: "2.3.0rc1"
+                    cordova: "2.3.0rc2"
                 });
             }),
             request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getDeviceInfo");
@@ -8935,7 +8935,7 @@ module.exports = {
             model: "Dev Alpha",
             name: "Dev Alpha", // deprecated: please use device.model
             uuid: blackberry.identity.uuid,
-            cordova: "2.3.0rc1"
+            cordova: "2.3.0rc2"
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
@@ -9777,9 +9777,17 @@ window.cordova = require('cordova');
 document.addEventListener("DOMContentLoaded", function () {
     switch(require('cordova/platform').runtime()) {
     case 'qnx':
-        document.addEventListener("webworksready", function () {
-            require('cordova/channel').onNativeReady.fire();
-        });
+        var wwjs = document.createElement("script");
+        wwjs.src = "local:///chrome/webworks.js";
+        wwjs.onload = function () {
+            document.addEventListener("webworksready", function () {
+                require('cordova/channel').onNativeReady.fire();
+            });
+        };
+        wwjs.onerror = function () {
+            alert('there was a problem loading webworks.js');
+        };
+        document.head.appendChild(wwjs);
         break;
     case 'air':
         require('cordova/channel').onNativeReady.fire();
