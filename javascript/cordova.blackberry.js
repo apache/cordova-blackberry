@@ -1,6 +1,6 @@
-// commit 24d65ab645742e8360c3dd16d7a36411cc3383e0
+// commit d240deab4eaf707dab2e32d15fbdca00a0c9c4e9
 
-// File generated at :: Thu Jan 03 2013 11:11:25 GMT-0800 (PST)
+// File generated at :: Wed Jan 09 2013 12:05:41 GMT-0500 (EST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -2198,7 +2198,45 @@ var File = function(name, fullPath, type, lastModifiedDate, size){
     this.type = type || null;
     this.lastModifiedDate = lastModifiedDate || null;
     this.size = size || 0;
+
+    // These store the absolute start and end for slicing the file.
+    this.start = 0;
+    this.end = this.size;
 };
+
+/**
+ * Returns a "slice" of the file. Since Cordova Files don't contain the actual
+ * content, this really returns a File with adjusted start and end.
+ * Slices of slices are supported.
+ * start {Number} The index at which to start the slice (inclusive).
+ * end {Number} The index at which to end the slice (exclusive).
+ */
+File.prototype.slice = function(start, end) {
+    var size = this.end - this.start;
+    var newStart = 0;
+    var newEnd = size;
+    if (arguments.length) {
+        if (start < 0) {
+            newStart = Math.max(size + start, 0);
+        } else {
+            newStart = Math.min(size, start);
+        }
+    }
+
+    if (arguments.length >= 2) {
+        if (end < 0) {
+            newEnd = Math.max(size + end, 0);
+        } else {
+            newEnd = Math.min(end, size);
+        }
+    }
+
+    var newFile = new File(this.name, this.fullPath, this.type, this.lastModifiedData, this.size);
+    newFile.start = this.start + newStart;
+    newFile.end = this.start + newEnd;
+    return newFile;
+};
+
 
 module.exports = File;
 
@@ -2399,6 +2437,15 @@ FileReader.prototype.readAsText = function(file, encoding) {
 
     var me = this;
 
+    var execArgs = [this.fileName, enc];
+
+    // Maybe add slice parameters.
+    if (file.end < file.size) {
+        execArgs.push(file.start, file.end);
+    } else if (file.start > 0) {
+        execArgs.push(file.start);
+    }
+
     // Read file
     exec(
         // Success callback
@@ -2449,7 +2496,7 @@ FileReader.prototype.readAsText = function(file, encoding) {
             if (typeof me.onloadend === "function") {
                 me.onloadend(new ProgressEvent("loadend", {target:me}));
             }
-        }, "File", "readAsText", [this.fileName, enc]);
+        }, "File", "readAsText", execArgs);
 };
 
 
@@ -2482,6 +2529,15 @@ FileReader.prototype.readAsDataURL = function(file) {
     }
 
     var me = this;
+
+    var execArgs = [this.fileName];
+
+    // Maybe add slice parameters.
+    if (file.end < file.size) {
+        execArgs.push(file.start, file.end);
+    } else if (file.start > 0) {
+        execArgs.push(file.start);
+    }
 
     // Read file
     exec(
@@ -2532,7 +2588,7 @@ FileReader.prototype.readAsDataURL = function(file) {
             if (typeof me.onloadend === "function") {
                 me.onloadend(new ProgressEvent("loadend", {target:me}));
             }
-        }, "File", "readAsDataURL", [this.fileName]);
+        }, "File", "readAsDataURL", execArgs);
 };
 
 /**
@@ -3091,55 +3147,48 @@ module.exports = GlobalizationError;
 define("cordova/plugin/InAppBrowser", function(require, exports, module) {
 
 var exec = require('cordova/exec');
+var channel = require('cordova/channel');
 
-function InAppBrowser()
-{
-   var _channel = require('cordova/channel');
+function InAppBrowser() {
    this.channels = {
-        'loadstart': _channel.create('loadstart'),
-        'loadstop' : _channel.create('loadstop'),
-        'exit' : _channel.create('exit')
+        'loadstart': channel.create('loadstart'),
+        'loadstop' : channel.create('loadstop'),
+        'exit' : channel.create('exit')
    };
 }
 
-InAppBrowser.prototype._eventHandler = function(event)
-{
-    if (event.type in this.channels) {
-        this.channels[event.type].fire(event);
+InAppBrowser.prototype = {
+    _eventHandler: function (event) {
+        if (event.type in this.channels) {
+            this.channels[event.type].fire(event);
+        }
+    },
+    close: function (eventname) {
+        exec(null, null, "InAppBrowser", "close", []);
+    },
+    addEventListener: function (eventname,f) {
+        if (eventname in this.channels) {
+            this.channels[eventname].subscribe(f);
+        }
+    },
+    removeEventListener: function(eventname, f) {
+        if (eventname in this.channels) {
+            this.channels[eventname].unsubscribe(f);
+        }
     }
-}
+};
 
-InAppBrowser.open = function(strUrl, strWindowName, strWindowFeatures)
-{
+module.exports = function(strUrl, strWindowName, strWindowFeatures) {
     var iab = new InAppBrowser();
     var cb = function(eventname) {
        iab._eventHandler(eventname);
-    }
+    };
     exec(cb, null, "InAppBrowser", "open", [strUrl, strWindowName, strWindowFeatures]);
     return iab;
-}
+};
 
-InAppBrowser.prototype.close = function(eventname, f)
-{
-    exec(null, null, "InAppBrowser", "close", []);
-}
-
-InAppBrowser.prototype.addEventListener = function(eventname, f)
-{
-    if (eventname in this.channels) {
-        this.channels[eventname].subscribe(f);
-    }
-}
-
-InAppBrowser.prototype.removeEventListener = function(eventname, f)
-{
-    if (eventname in this.channels) {
-        this.channels[eventname].unsubscribe(f);
-    }
-}
-
-module.exports = InAppBrowser.open;
-
+//Export the original open so it can be used if needed
+module.exports._orig = window.open;
 
 });
 
@@ -8668,6 +8717,68 @@ module.exports = {
 
 });
 
+// file: lib/blackberry/plugin/qnx/InAppBrowser.js
+define("cordova/plugin/qnx/InAppBrowser", function(require, exports, module) {
+
+var cordova = require('cordova'),
+    core = require('cordova/plugin/InAppBrowser');
+
+var navigate = {
+    "_blank": function (url, whitelisted) {
+        core._orig.apply(null, [url, "_blank"]);
+    },
+
+    "_self": function (url, whitelisted) {
+        if (whitelisted) {
+            window.location.href = url;
+        }
+        else {
+            core._orig.apply(null, [url, "_blank"]);
+        }
+    },
+
+    "_system": function (url, whitelisted) {
+        blackberry.invoke.invoke({
+            target: "sys.browser",
+            uri: url
+        }, function () {}, function () {});
+    }
+};
+
+
+module.exports = {
+    open: function (args, win, fail) {
+        var url = args[0],
+            target = args[1] || '_self',
+            a = document.createElement('a');
+
+        //Make all URLs absolute
+        a.href = url;
+        url = a.href;
+
+        switch (target) {
+            case '_self':
+            case '_system':
+            case '_blank':
+                break;
+            default:
+                target = '_blank';
+                break;
+        }
+
+        webworks.exec(function (whitelisted) {
+            navigate[target](url, whitelisted);
+        }, fail, "org.apache.cordova", "isWhitelisted", [url], true);
+
+        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "" };
+    },
+    close: function (args, win, fail) {
+        return { "status" : cordova.callbackStatus.OK, "message" : "" };
+    }
+};
+
+});
+
 // file: lib/blackberry/plugin/qnx/battery.js
 define("cordova/plugin/qnx/battery", function(require, exports, module) {
 
@@ -9430,6 +9541,7 @@ var cordova = require('cordova'),
         'Notification' : require('cordova/plugin/webworks/notification'),
         'Media': require('cordova/plugin/webworks/media'),
         'File' : require('cordova/plugin/qnx/file'),
+        'InAppBrowser' : require('cordova/plugin/qnx/InAppBrowser'),
         'FileTransfer': require('cordova/plugin/qnx/fileTransfer')
     };
 
@@ -9495,6 +9607,11 @@ module.exports = {
                 cordova.fireDocumentEvent("offline");
             });
         });
+    },
+    clobbers: {
+        open: {
+            path: "cordova/plugin/InAppBrowser"
+        }
     },
     merges: {
         navigator: {
@@ -10106,7 +10223,7 @@ window.cordova = require('cordova');
     // Replace navigator before any modules are required(), to ensure it happens as soon as possible.
     // We replace it so that properties that can't be clobbered can instead be overridden.
     if (context.navigator) {
-        function CordovaNavigator() {}
+        var CordovaNavigator = function() {};
         CordovaNavigator.prototype = context.navigator;
         context.navigator = new CordovaNavigator();
     }
