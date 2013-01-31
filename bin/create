@@ -19,13 +19,13 @@
 # create a cordova/blackberry project
 # 
 # USAGE
-#   ./create [path appname]
+#   ./create [path package activity]
 #
 set -e
 
 if [ -n "$1" ] && [ "$1" == "-h" ]
 then
-    echo 'usage: create path appname'
+    echo 'usage: create package activity'
     echo 'After you have created your application, make sure to customize the project.properties file inside your app directory with your environment specifics!'
     exit 0
 fi
@@ -34,7 +34,8 @@ BUILD_PATH="$( cd "$( dirname "$0" )/.." && pwd )"
 VERSION=$(cat "$BUILD_PATH/VERSION")
 
 PROJECT_PATH="${1:-"./example"}"
-APPNAME=${2:-"cordovaExample"}
+PACKAGE=${2:-"org.apache.cordova.example"}
+ACTIVITY=${2:-"cordovaExample"}
 
 # clobber any existing example
 if [ -d "$PROJECT_PATH" ]
@@ -86,6 +87,7 @@ else
 	cp -r "$BUILD_PATH/sample/." "$PROJECT_PATH"
 fi
 
-# interpolate the app name into config.xml
+# interpolate the activity and package into config.xml
 echo "Updating config.xml ..."
-sed -i '' -e "s/__NAME__/${APPNAME}/g" "$MANIFEST_PATH"
+sed -i '' -e "s/__ACTIVITY__/${ACTIVITY}/g" "$MANIFEST_PATH"
+sed -i '' -e "s/__PACKAGE__/${PACKAGE}/g" "$MANIFEST_PATH"

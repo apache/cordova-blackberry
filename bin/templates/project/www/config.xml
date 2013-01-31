@@ -24,9 +24,9 @@
 
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:rim="http://www.blackberry.com/ns/widgets"
-	version="1.0.0.0" id="__NAME__">
+	version="1.0.0.0" id="__PACKAGE__">
 
-  <name>__NAME__</name>
+  <name>__ACTIVITY__</name>
 
   <author>Your Name Here</author>
 
