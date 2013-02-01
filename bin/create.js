@@ -21,7 +21,7 @@
  * create a cordova/blackberry project
  *
  * USAGE
- *  ./create [path package activity]
+ *  ./create [path package appname]
  */
 
 var fso = WScript.CreateObject('Scripting.FileSystemObject');

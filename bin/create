@@ -19,13 +19,13 @@
 # create a cordova/blackberry project
 # 
 # USAGE
-#   ./create [path package activity]
+#   ./create [path package appname]
 #
 set -e
 
 if [ -n "$1" ] && [ "$1" == "-h" ]
 then
-    echo 'usage: create package activity'
+    echo 'usage: create path package appname'
     echo 'After you have created your application, make sure to customize the project.properties file inside your app directory with your environment specifics!'
     exit 0
 fi
