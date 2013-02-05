@@ -116,14 +116,14 @@ var VERSION=read(ROOT+'\\VERSION').replace(/\r\n/,'').replace(/\n/,'');
 
 if(fso.FolderExists(ROOT+'\\framework')){
     downloadAntContrib();
-    exec('ant.bat -f '+ ROOT +'\\build.xml dist');
-    // copy in the project template
-    exec('cmd /c xcopy '+ ROOT + '\\dist\\sample\\* '+PROJECT_PATH+' /I /S /Y');
+    exec('ant.bat -f '+ ROOT +'\\build.xml create -Dproject.path="' + PROJECT_PATH + '"');
+    replaceInFile(MANIFEST_PATH, /__PACKAGE__/, PACKAGE);
+    replaceInFile(MANIFEST_PATH, /__ACTIVITY__/, NAME);
 }else{
     // copy in the project template
     exec('cmd /c xcopy '+ ROOT + '\\sample\\* '+PROJECT_PATH+' /I /S /Y');    
+    replaceInFile(MANIFEST_PATH, /org.apache.cordova.example/, PACKAGE);
+    replaceInFile(MANIFEST_PATH, /cordovaExample/, NAME);
 }
 
-replaceInFile(MANIFEST_PATH, /__PACKAGE__/, PACKAGE);
-replaceInFile(MANIFEST_PATH, /__ACTIVITY__/, NAME);
 cleanup();
