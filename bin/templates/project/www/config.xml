@@ -26,7 +26,7 @@
         xmlns:rim="http://www.blackberry.com/ns/widgets"
 	version="1.0.0.0" id="__PACKAGE__">
 
-  <name>__ACTIVITY__</name>
+  <name>__NAME__</name>
 
   <author>Your Name Here</author>
 

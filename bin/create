@@ -35,7 +35,7 @@ VERSION=$(cat "$BUILD_PATH/VERSION")
 
 PROJECT_PATH="${1:-"./example"}"
 PACKAGE=${2:-"org.apache.cordova.example"}
-ACTIVITY=${2:-"cordovaExample"}
+NAME=${2:-"cordovaExample"}
 
 # clobber any existing example
 if [ -d "$PROJECT_PATH" ]
@@ -89,5 +89,5 @@ fi
 
 # interpolate the activity and package into config.xml
 echo "Updating config.xml ..."
-sed -i '' -e "s/__ACTIVITY__/${ACTIVITY}/g" "$MANIFEST_PATH"
+sed -i '' -e "s/__NAME__/${NAME}/g" "$MANIFEST_PATH"
 sed -i '' -e "s/__PACKAGE__/${PACKAGE}/g" "$MANIFEST_PATH"

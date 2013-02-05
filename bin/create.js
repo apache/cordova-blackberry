@@ -94,7 +94,7 @@ function cleanup() {
 
 var args = WScript.Arguments, PROJECT_PATH="example", 
     PACKAGE="org.apache.cordova.example",
-    ACTIVITY="cordovaExample",
+    NAME="cordovaExample",
     shell=WScript.CreateObject("WScript.Shell");
     
 // working dir
@@ -103,7 +103,7 @@ var ROOT = WScript.ScriptFullName.split('\\bin\\create.js').join('');
 if (args.Count() == 3) {
     PROJECT_PATH=args(0);
     PACKAGE=args(1);
-    ACTIVITY=args(2);
+    NAME=args(2);
 }
 
 if(fso.FolderExists(PROJECT_PATH)) {
@@ -125,5 +125,5 @@ if(fso.FolderExists(ROOT+'\\framework')){
 }
 
 replaceInFile(MANIFEST_PATH, /__PACKAGE__/, PACKAGE);
-replaceInFile(MANIFEST_PATH, /__ACTIVITY__/, ACTIVITY);
+replaceInFile(MANIFEST_PATH, /__ACTIVITY__/, NAME);
 cleanup();
