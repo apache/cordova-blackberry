@@ -1,8 +1,8 @@
 // Platform: blackberry
 
-// commit d1b4a2002c48cd40aee55fc2ea6335fa5255b905
+// commit ac725f6ae0bd655789771e2a40b8d60cb4c8c221
 
-// File generated at :: Fri Feb 01 2013 13:44:28 GMT-0800 (PST)
+// File generated at :: Mon Feb 04 2013 21:56:38 GMT-0800 (PST)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -5348,7 +5348,7 @@ module.exports = {
                     model: "PlayBook",
                     name: "PlayBook", // deprecated: please use device.model
                     uuid: info.uuid,
-                    cordova: "2.4.0rc2"
+                    cordova: "2.4.0"
                 });
             }),
             request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getDeviceInfo");
@@ -9041,7 +9041,7 @@ module.exports = {
             model: "Dev Alpha",
             name: "Dev Alpha", // deprecated: please use device.model
             uuid: blackberry.identity.uuid,
-            cordova: "2.4.0rc2"
+            cordova: "2.4.0"
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
