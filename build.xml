@@ -110,7 +110,7 @@
         </copy>
         
         <!-- change file permission for cordova scripts because ant copy doesn't preserve file permissions -->
-        <chmod dir="${template.project.dir}/cordova" perm="700" includes="*"/>
+        <chmod dir="${project.path}/cordova" perm="700" includes="*"/>
         
         <!-- update project files to reference cordova.x.x.x.js -->
         <replaceregexp match="cordova\.js" replace="${js.basename}" byline="true">
