@@ -1,0 +1,6 @@
+#cd into project dir
+cd $( dirname "$0")/../
+
+#package app
+node ./cordova/lib/build "$@"
+

@@ -1,0 +1,140 @@
+#!/usr/bin/env node
+
+/*
+ *  Copyright 2012 Research In Motion Limited.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var childProcess = require("child_process"),
+    fs = require("fs"),
+    path = require("path"),
+    util = require("util"),
+    wrench = require("wrench"),
+    conf = require("./conf"),
+    localize = require("./localize"),
+    pkgrUtils = require("./packager-utils"),
+    properties = require('../../project.json'),
+    program = require('commander'),
+    target,
+    ip,
+    password,
+    workingdir,
+    barPath;
+
+function generateOptions() {
+    var options = [];
+
+    workingdir = path.normalize(__dirname + "/.."),
+    barPath = path.normalize(__dirname + "/../../build/" + properties.targets[target].type + "/" + properties.barName + ".bar");
+
+    options.push("-device");
+    options.push(ip);
+
+    if (password) {
+        options.push("-password");
+        options.push(password);
+    }
+
+    options.push("-package");
+    options.push(barPath);
+
+    if (program.uninstall) {
+        options.push("-uninstallApp");
+        execNativeDeploy(options, null);
+        options.pop();
+    }
+
+    options.push("-installApp");
+
+    if (program.launch) {
+        options.push("-launchApp");
+    }
+
+    return options;
+}
+
+function execNativeDeploy(options, callback) {
+    var script = "/bin/blackberry-deploy",
+        nativeDeploy;
+
+    if (pkgrUtils.isWindows()) {
+        script += ".bat";
+    }
+
+    if (fs.existsSync(conf.DEPENDENCIES_TOOLS)) {
+        nativeDeploy = childProcess.spawn(path.normalize(conf.DEPENDENCIES_TOOLS + script), options, {
+            "cwd": workingdir,
+            "env": process.env
+        });
+
+        nativeDeploy.stdout.on("data", pkgrUtils.handleProcessOutput);
+
+        nativeDeploy.stderr.on("data", pkgrUtils.handleProcessOutput);
+
+        nativeDeploy.on("exit", function (code) {
+            if (callback && typeof callback === "function") {
+                callback(code);
+            }
+        });
+    } else {
+        throw localize.translate("EXCEPTION_MISSING_TOOLS");
+    }
+}
+
+function checkTarget() {
+    if (!properties.targets[target]){
+        console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> <type> [-p <password>] [--pin <devicepin>]\n");
+        return false;
+    }
+    if (properties.targets[target].ip){
+       ip = properties.targets[target].ip; 
+    } else {
+        console.log("IP is not defined in target \""+target+"\"\n");
+        return false;
+    }
+    if (properties.targets[target].password){
+       password = properties.targets[target].password;
+    } 
+    return true;
+    
+}
+
+function exec(callback) {
+    program
+        .usage('<target> [--no-launch] [--no-uninstall]')
+        .option('--no-uninstall', 'does not uninstall app from device')
+        .option('--no-launch', 'do not launch the app on device')
+        .parse(process.argv);
+
+     target = program.args[0] ? program.args[0] : properties.defaultTarget
+
+     if(target == "all"){
+        for (var key in properties.targets) {
+            if (properties.targets.hasOwnProperty(key)) {
+                target = key;
+                if(checkTarget()) {
+                    var options = generateOptions();
+                    execNativeDeploy(options, callback);
+                }
+            }
+        }
+    } else {
+        if (checkTarget()) {
+            var options = generateOptions();
+            execNativeDeploy(options, callback);
+        }
+    }
+}
+
+exec(null);
