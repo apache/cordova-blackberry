@@ -79,6 +79,35 @@ public class FileUtils {
     }
 
     /**
+     * Determines the size of a file on the file system
+     *
+     * @return the size of the file as the number of bytes contained in the file
+     */
+/*
+    public static long fileSize(String filePath) {
+        long size = 0;
+        try {
+            if (true){
+                fconn = (FileConnection)Connector.open(filePath, Connector.READ);
+                if (!fconn.exists()) {
+                    throw new FileNotFoundException(filePath + " not found");
+                }
+                size = fconn.fileSize();
+            }
+        }
+        finally {
+            try {
+                if (fconn != null) fconn.close();
+            }
+            catch (IOException ignored) {
+            }
+        }
+        return size;
+    }
+*/
+
+
+    /**
      * Utility function to open a DataInputStream from a file path.
      *
      * A file can be referenced with the following protocols:

@@ -21,6 +21,7 @@ package org.apache.cordova.file;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.NumberFormatException;
 import java.util.Enumeration;
 
 import javax.microedition.io.Connector;
@@ -74,6 +75,7 @@ public class FileManager extends Plugin {
     protected static String ACTION_READ_AS_TEXT = "readAsText";
     protected static String ACTION_READ_AS_DATA_URL = "readAsDataURL";
     protected static String ACTION_WRITE = "write";
+    protected static String ACTION_SLICE = "slice";
     protected static String ACTION_TRUNCATE = "truncate";
     protected static String ACTION_REQUEST_FILE_SYSTEM = "requestFileSystem";
     protected static String ACTION_RESOLVE_FILE_SYSTEM_URI = "resolveLocalFileSystemURI";
@@ -97,10 +99,17 @@ public class FileManager extends Plugin {
      */
     public PluginResult execute(String action, JSONArray args, String callbackId) {
 
+        Logger.log("ACTION CALLED: " + action);
+
         // perform specified action
         if (ACTION_READ_AS_TEXT.equals(action)) {
-            // get file path
             String filePath = null;
+            int start=-1;
+            int end=-1;
+
+            Logger.log("The size of args is: "+args.length());
+
+            // get file path
             try {
                 filePath = args.getString(0);
             }
@@ -110,7 +119,27 @@ public class FileManager extends Plugin {
                 return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
-            return readAsText(filePath, args.optString(1));
+
+            // get start index
+
+            Logger.log("WHAT IS IT?: " + args);
+
+            if (args.length() == 4) {
+                try {
+                    start = Integer.parseInt(args.getString(2));
+                    end   = Integer.parseInt(args.getString(3));
+                    Logger.log("VALUES FOR START: " + start + " AND END: " + end);
+                }
+                catch (JSONException e) {
+                    Logger.log(this.getClass().getName()
+                            + ": Invalid or missing 'start' or 'end' indices: " + e);
+                }
+                catch (NumberFormatException e) {
+                    Logger.log(e.getMessage());
+                }
+            }
+            
+            return readAsText(filePath, args.optString(1), start, end);
         }
         else if (ACTION_READ_AS_DATA_URL.equals(action)) {
             // get file path
@@ -165,6 +194,51 @@ public class FileManager extends Plugin {
             }
             return writeFile(filePath, data, position);
         }
+
+        else if (ACTION_SLICE.equals(action)) {
+
+            Logger.log("WE HAVE CALLED SLICE");
+
+            // file path
+            String filePath = null;
+            try {
+                filePath = args.getString(0);
+            }
+            catch (JSONException e) {
+                Logger.log(this.getClass().getName()
+                        + ": Invalid or missing path: " + e);
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                                        SYNTAX_ERR);
+            }
+
+            // start index
+            int start = 0;
+            try {
+                start = args.getInt(1);
+            }
+            catch (JSONException e) {
+                Logger.log(this.getClass().getName()
+                        + ": Invalid or missing start parameter: " + e);
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                                        SYNTAX_ERR);
+            }
+
+            // end index
+            int end = 0;
+            try {
+                end = args.getInt(2);
+            }
+            catch (JSONException e) {
+                Logger.log(this.getClass().getName()
+                        + ": Invalid or missing end parameter: " + e);
+                return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
+                                        SYNTAX_ERR);
+            }
+
+            return sliceFile(filePath, start, end);
+
+        }
+
         else if (ACTION_TRUNCATE.equals(action)) {
             // file path
             String filePath = null;
@@ -301,16 +375,24 @@ public class FileManager extends Plugin {
      * @return PluginResult containing encoded file contents or error code if
      *         unable to read or encode file
      */
-    protected static PluginResult readAsText(String filePath, String encoding) {
+    protected static PluginResult readAsText(String filePath, String encoding, int start, int end) {
         PluginResult result = null;
         String logMsg = ": encoding file contents using " + encoding;
-
+        Logger.log("HEY! start is: " + start + " and end is: " + end );
         // read the file
         try {
             // return encoded file contents
             byte[] blob = FileUtils.readFile(filePath, Connector.READ);
+            if (start!=-1 && end!=-1) {
+                
+                byte[] slice = new byte[end-start];
+                System.arraycopy(blob, start, slice, 0, end-start); 
+                result = new PluginResult(PluginResult.Status.OK,
+                         new String(slice, encoding));
+            } else {               
             result = new PluginResult(PluginResult.Status.OK,
-                    new String(blob, encoding));
+                     new String(blob, encoding));
+            }
         }
         catch (FileNotFoundException e) {
             logMsg = e.toString();
@@ -415,6 +497,107 @@ public class FileManager extends Plugin {
                     NOT_FOUND_ERR);
         }
 
+        return result;
+    }
+
+    /**
+     * Returns file data as specified by start and end
+     *
+     * @param filePath
+     *              Full path of the file to slice
+     * @param start
+     *              index of first byte to read, inclusive. Negative values are measured from the end of the file.
+     * @param end 
+     *              index of the byte after the last one to read. Negative values are measured from the end of the file.
+     * @return byte array containing the byte's between start and end
+     */
+    protected static PluginResult sliceFile(String filePath, int start, int end) {
+        PluginResult result = null;
+        String logMsg = "";
+        byte[] blob = null;
+
+        Logger.log("reached file slice function");
+
+        // read the file
+        try {
+            blob = FileUtils.readFile(filePath, Connector.READ);
+        }
+        catch (FileNotFoundException e) {
+            logMsg = e.toString();
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
+                    NOT_FOUND_ERR);
+        }
+        catch (UnsupportedEncodingException e) {
+            logMsg = e.toString();
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
+                    ENCODING_ERR);
+        }
+        catch (IOException e) {
+            logMsg = e.toString();
+            result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
+                    NOT_READABLE_ERR);
+        }
+        finally {
+            Logger.log(FileManager.class.getName() + ": " + logMsg);
+        }
+
+        Logger.log("looking good so far");
+
+        byte[] slice;
+        boolean error = false;
+        // adjust to reference from end of file if negative
+        if (start < 0) {
+            start = blob.length - start;
+        }
+        if (end < 0) {
+            start = blob.length - end;
+        }
+        // sanity check start
+        if (start < 0 || start >= blob.length) {
+            result = new PluginResult(PluginResult.Status.ERROR, "start parameter greater than file size");
+            error = true;
+        }
+        // sanity check end
+        if (end < 0 || end >= blob.length || end <= start) {
+            result = new PluginResult(PluginResult.Status.ERROR, "end parameter greater than file size or smaller than start parameter");
+            error = true;
+        }
+
+        if (!error) {
+            slice = new byte[end-start];
+            System.arraycopy(blob, start, slice, 0, end-start);
+            String pathformat = FileUtils.getApplicationTempDirPath()+"/"+"cdvslice";
+            int i = 0;
+            String slicepath = pathformat + i;
+            while (FileUtils.exists(slicepath)) {
+                i++;
+                slicepath = pathformat + i;
+           }
+        try {
+            blob = FileUtils.readFile(filePath, Connector.READ);
+
+            FileUtils.writeFile(slicepath, slice, 0);
+            File slicefile = FileUtils.getFileProperties(slicepath);
+            result = new PluginResult(PluginResult.Status.OK, slicefile.toJSONObject());
+            Logger.log("WE NEED A SENTINEL " + slicefile.getName());
+
+            Logger.log("WE NEED A SENTINEL");
+            Logger.log("WE NEED A SENTINEL");
+            Logger.log("WE NEED A SENTINEL");
+            Logger.log("WE NEED A SENTINEL");
+
+            }
+            catch (FileNotFoundException e) {
+                logMsg = e.toString();
+                result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
+                                          NOT_FOUND_ERR);
+            }
+ 	        catch (IOException e) {
+           	    logMsg = e.toString();
+           	    result = new PluginResult(PluginResult.Status.IO_EXCEPTION,
+                                          NOT_READABLE_ERR);
+          }
+        }
         return result;
     }
 
