@@ -1,21 +1,21 @@
 /*
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 /*
  * create a cordova/blackberry project
@@ -32,8 +32,8 @@ var build,
     utils = require('./lib/utils'),
     version = getVersion(),
     project_path = process.argv[2],
-    project_package = process.argv[3],
-    app_name = process.argv[4],
+    app_id = process.argv[3],
+    bar_name = process.argv[4],
     template_project_dir = "/templates/project",
     modules_project_dir = "/../node_modules",
     framework_project_dir = "/../framework",
@@ -52,11 +52,32 @@ var build,
 
     function validate() {
         if (!project_path) {
-            throw "You must give a project PATH.";
+            throw "You must give a project PATH";
         }
         if (fs.existsSync(project_path)) {
-            throw "The project path must be an empty directory.";
+            throw "The project path must be an empty directory";
         }
+        if (!validPackageName(app_id)) {
+            throw "App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters";
+        }
+        if (!validBarName(bar_name)) {
+            throw "BAR filename can only contain alpha-numeric, '.', and '_' characters";
+        }
+    }
+
+    function validPackageName(packageName) {
+        var domainRegex = /^[a-zA-Z]([a-zA-Z0-9])*(\.[a-zA-Z]([a-zA-Z0-9])*)*$/;
+        if (typeof packageName !== "undefined") {
+            if ((packageName.length > 50) || !domainRegex.test(packageName)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function validBarName(barName) {
+        var barNameRegex = /^[a-zA-Z0-9._-]+$/;
+        return (typeof barName === "undefined") || barNameRegex.test(barName);
     }
 
     function clean() {
@@ -96,6 +117,22 @@ var build,
         wrench.copyDirSyncRecursive(build_dir, project_path + "/" + update_dir);
     }
 
+    function updateProject() {
+        var projectJson = require(project_path + "/project.json");
+            configXMLPath = project_path + "/www/config.xml",
+            xmlString = "";
+
+        if (typeof app_id !== "undefined") {
+            xmlString = fs.readFileSync(configXMLPath, "utf-8");
+            fs.writeFileSync(configXMLPath, xmlString.replace("default.app.id", app_id), "utf-8");
+        }
+
+        if (typeof bar_name !== "undefined") {
+            projectJson.barName = bar_name;
+            fs.writeFileSync(project_path + "/project.json", JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
+        }
+    }
+
     function done(error) {
         if (error) {
             console.log("Project creation failed!\n" + "Error: " + error);
@@ -107,12 +144,17 @@ var build,
         }
     }
 
-    build = jWorkflow.order(validate)
-                     .andThen(clean)
-                     .andThen(copyJavascript)
-                     .andThen(copyFilesToProject);
+    try {
+        build = jWorkflow.order(validate)
+                         .andThen(clean)
+                         .andThen(copyJavascript)
+                         .andThen(copyFilesToProject)
+                         .andThen(updateProject);
 
-    build.start(function (error) {
-        done(error);
-    });
+        build.start(function (error) {
+            done(error);
+        });
+    } catch (ex) {
+        console.log(ex);
+    }
 
