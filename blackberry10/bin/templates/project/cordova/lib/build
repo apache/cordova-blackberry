@@ -18,7 +18,11 @@
 
 var path = require("path"),
     command = require("commander"),
+    jWorkflow = require("jWorkflow"),
+    localize = require("./localize"),
+    logger = require("./logger"),
     projectProperties = require("../../project.json"),
+    debugTokenHelper = require("./debugtoken-helper"),
     bbwpArgv = [
         process.argv[0],
         process.argv[1],
@@ -26,7 +30,12 @@ var path = require("path"),
         "-o",
         "./build"
     ],
-    built = false;
+    built = false,
+    debugtoken = false;
+
+function getTarget() {
+    return typeof command.args[0] === "string" ? command.args[0] : undefined;
+}
 
 function copyArgIfExists(arg) {
     if (command[arg]) {
@@ -35,14 +44,48 @@ function copyArgIfExists(arg) {
     }
 }
 
-function doDebugBuild(target) {
+function createDebugtoken(previous, baton) {
+    baton.take();
+    logger.info(localize.translate("PROGRESS_WILL_CREATE_DEBUG_TOKEN"));
+    debugTokenHelper.createToken(projectProperties, getTarget(), function (code) {
+        if (code === 0) {
+            debugtoken = true;
+        }
+
+        baton.pass();
+    });
+}
+
+function deployDebugToken(previous, baton) {
+    baton.take();
+
+    // If in debug build and debug token was created, deploy the debug token and wait until the deployment is finished
+    if (debugtoken) {
+        logger.info(localize.translate("PROGRESS_WILL_DEPLOY_DEBUG_TOKEN"));
+        debugTokenHelper.deployToken(projectProperties, getTarget(), function () {
+            baton.pass();
+        });
+    } else {
+        baton.pass();
+    }
+}
+
+function doDebugBuild() {
+    built = true;
+
     //build in debug mode by default
     bbwpArgv.push("-d");
 
-    build();
+    // In debug build, it needs to create debug token first
+    jWorkflow.order(createDebugtoken)
+             .andThen(deployDebugToken)
+             .andThen(build)
+             .start();
 }
 
 function doReleaseBuild() {
+    built = true;
+
     //Note: Packager refers to signing password as "password" not "keystorepass"
     if (command["keystorepass"]) {
         bbwpArgv.push("--password");
@@ -72,12 +115,10 @@ function build() {
 
     //Package app. If successfull call run
     require("./packager").start(run);
-
-    built = true;
 }
 
 function run() {
-    var target = typeof command.args[0] === "string" ? command.args[0] : undefined;
+    var target = getTarget();
 
     //Overrite process.argv, before calling run
     process.argv = [
