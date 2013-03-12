@@ -20,7 +20,7 @@ var Whitelist = require("../policy/whitelist").Whitelist,
 module.exports = {
 
     exec: function (request, succ, fail, args, env) {
-        var extPath = "ext/" + request.params.ext + "/index",
+        var extPath = "plugin/" + request.params.ext + "/index",
             requestObj = {
                 extension: null,
                 method: null,
@@ -57,11 +57,7 @@ module.exports = {
                     }
                 },
                 exec: function () {
-                    if (whitelist.isFeatureAllowed(request.origin, request.params.ext)) {
-                        this.method(succ, fail, args, env);
-                    } else {
-                        throw {code: 403, msg: "Feature " + request.params.ext + " denied access by whitelist for origin " + request.origin};
-                    }
+                    this.method(succ, fail, args, env);
                 }
             };
 

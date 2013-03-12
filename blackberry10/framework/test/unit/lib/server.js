@@ -16,10 +16,9 @@
 var ROOT = "../../../";
 
 describe("server", function () {
+
     var server = require(ROOT + "lib/server"),
         plugin = require(ROOT + "lib/plugins/default"),
-        extensionPlugin = require(ROOT + "lib/plugins/extensions"),
-        Whitelist = require(ROOT + "lib/policy/whitelist").Whitelist,
         applicationAPIServer,
         utils,
         DEFAULT_SERVICE = "default",
@@ -33,8 +32,8 @@ describe("server", function () {
         delete require.cache[require.resolve(ROOT + "lib/utils")];
         utils = require("../../../lib/utils");
         spyOn(utils, "loadModule").andCallFake(function (module) {
-            if (module.indexOf("ext/") >= 0) {
-                // on device, "ext/blackberry.app/index.js" would exist
+            if (module.indexOf("plugin/") >= 0) {
+                // on device, "plugin/blackberry.app/index.js" would exist
                 return applicationAPIServer;
             } else {
                 return require("../../../lib/" + module);
@@ -57,7 +56,7 @@ describe("server", function () {
             res = {
                 send: jasmine.createSpy()
             };
-            GLOBAL.frameworkModules = ['ext/blackberry.app/index.js', 'lib/plugins/extensions.js', 'lib/plugins/default.js'];
+            GLOBAL.frameworkModules = ['plugin/blackberry.app/index.js', 'lib/plugins/default.js'];
         });
 
         afterEach(function () {
@@ -111,15 +110,15 @@ describe("server", function () {
         it("calls the action method on the plugin", function () {
             var webview = "BLAHBLAHBLAH";
 
-            spyOn(extensionPlugin, "get");
+            spyOn(plugin, "exec");
 
-            req.params.service = "extensions";
-            req.params.action = "get";
+            req.params.service = "default";
+            req.params.action = "exec";
 
             expect(function () {
                 return server.handle(req, res, webview, config);
             }).not.toThrow();
-            expect(extensionPlugin.get).toHaveBeenCalledWith(
+            expect(plugin.exec).toHaveBeenCalledWith(
                 req,
                 jasmine.any(Function),
                 jasmine.any(Function),
@@ -135,16 +134,16 @@ describe("server", function () {
         it("parses url encoded args", function () {
             var webview = "BLAHBLAHBLAH";
 
-            spyOn(extensionPlugin, "get");
+            spyOn(plugin, "exec");
 
             expect(function () {
-                req.params.service = "extensions";
-                req.params.action = "get";
+                req.params.service = "default";
+                req.params.action = "exec";
                 req.params.args = "a=1&b=2&c=3";
 
                 return server.handle(req, res, webview);
             }).not.toThrow();
-            expect(extensionPlugin.get).toHaveBeenCalledWith(
+            expect(plugin.exec).toHaveBeenCalledWith(
                 jasmine.any(Object),
                 jasmine.any(Function),
                 jasmine.any(Function),
@@ -160,16 +159,16 @@ describe("server", function () {
         it("parses url encoded args", function () {
             var webview = "BLAHBLAHBLAH";
 
-            spyOn(extensionPlugin, "get");
+            spyOn(plugin, "exec");
 
             expect(function () {
-                req.params.service = "extensions";
-                req.params.action = "get";
+                req.params.service = "default";
+                req.params.action = "exec";
                 req.body = JSON.stringify({a: '1', b: '2', c: '3'});
 
                 return server.handle(req, res, webview);
             }).not.toThrow();
-            expect(extensionPlugin.get).toHaveBeenCalledWith(
+            expect(plugin.exec).toHaveBeenCalledWith(
                 jasmine.any(Object),
                 jasmine.any(Function),
                 jasmine.any(Function),
@@ -236,34 +235,15 @@ describe("server", function () {
             res = {
                 send: jasmine.createSpy()
             };
-            GLOBAL.frameworkModules = ['ext/blackberry.app/index.js', 'lib/plugins/extensions.js', 'lib/plugins/default.js'];
+            GLOBAL.frameworkModules = ['plugin/blackberry.app/index.js', 'lib/plugins/default.js'];
         });
 
         afterEach(function () {
             delete GLOBAL.frameworkModules;
         });
 
-        it("checks if the feature is white listed", function () {
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
-            server.handle(req, res);
-            expect(Whitelist.prototype.isFeatureAllowed).toHaveBeenCalled();
-        });
-
-        it("returns 403 if the feature is not white listed", function () {
-            var errMsg = "Feature " + req.params.ext + " denied access by whitelist for origin " + req.origin;
-
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(false);
-            spyOn(console, "warn");
-
-            server.handle(req, res);
-
-            expect(res.send).toHaveBeenCalledWith(403, encodeURIComponent(JSON.stringify({code: -1, data: null, msg: errMsg})));
-            expect(console.warn).toHaveBeenCalledWith(errMsg);
-        });
-
         it("calls the action method on the feature", function () {
             var webview = {};
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
             spyOn(applicationAPIServer, "getReadOnlyFields");
             server.handle(req, res, webview, config);
             expect(applicationAPIServer.getReadOnlyFields).toHaveBeenCalledWith(
@@ -282,7 +262,6 @@ describe("server", function () {
         it("returns the result and code 1 when success callback called", function () {
             var expectedResult = {"getReadOnlyFields": "Yogi bear"};
 
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
             spyOn(applicationAPIServer, "getReadOnlyFields").andCallFake(function (success, fail) {
                 success(expectedResult);
             });
@@ -298,7 +277,6 @@ describe("server", function () {
         it("returns the result and code -1 when fail callback called", function () {
             var expectedResult = "omg";
 
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
             spyOn(applicationAPIServer, "getReadOnlyFields").andCallFake(function (success, fail) {
                 fail(-1, expectedResult);
             });

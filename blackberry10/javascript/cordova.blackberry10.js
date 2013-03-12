@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit 7c4c203b1d3f5cf79d68708d21200614fcc98a90
+// commit 5d05de4ce3bde852020f933f2e61a64da62f66a8
 
-// File generated at :: Wed Feb 20 2013 09:24:00 GMT-0500 (EST)
+// File generated at :: Thu Mar 14 2013 16:49:59 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -27,240 +27,66 @@
 
 // file: lib/scripts/require.js
 
-var define,
-    require;
+var require,
+    define;
 
 (function () {
-    var unpreparedModules = {},
-        readyModules = {},
-        ACCEPTABLE_EXTENSIONS = [".js", ".json"],
-        DEFAULT_EXTENSION = ".js";
+    var modules = {};
+    // Stack of moduleIds currently being built.
+    var requireStack = [];
+    // Map of module ID -> index into requireStack of modules currently being built.
+    var inProgressModules = {};
 
-    function hasValidExtension(moduleName) {
-        return ACCEPTABLE_EXTENSIONS.some(function (element, index, array) {
-            return moduleName.match("\\" + element + "$");
-        });
-    }
-
-
-    function normalizeName(originalName, baseName) {
-        var nameParts,
-            name = originalName.slice(0);
-        //remove ^local:// (if it exists) and .js$
-        //This will not work for local:// without a trailing js
-        name = name.replace(/(?:^local:\/\/)/, "");
-        if (name.charAt(0) === '.' && baseName) {
-            //Split the baseName and remove the final part (the module name)
-            nameParts = baseName.split('/');
-            nameParts.pop();
-            nameParts = nameParts.concat(name.split('/'));
-            
-            name = nameParts.reduce(function (previous, current,  index, array) {
-                var returnValue,
-                    slashIndex;
-
-                //If previous is a dot, ignore it
-                //If previous is ever just .. we're screwed anyway
-                if (previous !== '.') {
-                    returnValue = previous;
-                }
-                
-                //If we have a .. then remove a chunk of previous
-                if (current === "..") {
-                    slashIndex = previous.lastIndexOf('/');
-                    //If there's no slash we're either screwed or we remove the final token
-                    if (slashIndex !== -1) {
-                        returnValue = previous.slice(0, previous.lastIndexOf('/'));
-                    } else {
-                        returnValue = "";
-                    }
-                } else if (current !== '.') {
-                    //Otherwise simply append anything not a .
-                    //Only append a slash if we're not empty
-                    if (returnValue.length) {
-                        returnValue += "/";
-                    }
-                    returnValue += current;
-                }
-
-                return returnValue;
-            });
-
-        }
-        
-        //If there is no acceptable extension tack on a .js
-        if (!hasValidExtension(name)) {
-            name = name + DEFAULT_EXTENSION;
-        }
-
-        return name;
-    }
-
-    function buildModule(name, dependencies, factory) {
-        var module = {exports: {}},
-            localRequire = function (moduleName) {
-                return require(moduleName, name);
-            },
-            args = [];
-        localRequire.toUrl = function (moduleName, baseName) {
-            return require.toUrl(moduleName, baseName || name);
-        };
-        dependencies.forEach(function (dependency) {
-            if (dependency === 'require') {
-                args.push(localRequire);
-            } else if (dependency === 'exports') {
-                args.push(module.exports);
-            } else if (dependency === 'module') {
-                args.push(module);
-            } else {
-                //This is because jshint cannot handle out of order functions
-                /*global loadModule:false */
-                args.push(loadModule(dependency));
-                /*global loadModule:true */
-            }
-        });
-
-        //No need to process dependencies, webworks only has require, exports, module
-        factory.apply(this, args);
-
-        //For full AMD we would need logic to also check the return value
+    function build(module) {
+        var factory = module.factory;
+        module.exports = {};
+        delete module.factory;
+        factory(require, module.exports, module);
         return module.exports;
-
     }
 
-    function getDefineString(moduleName, body) {
-        var evalString = 'define("' + moduleName + '", function (require, exports, module) {',
-            isJson = /\.json$/.test(moduleName);
-
-        evalString += isJson ? ' module.exports = ' : '';
-        evalString += body.replace(/^\s+|\s+$/g, '');
-        evalString += isJson ? ' ;' : '';
-        evalString += '});';
-
-        return evalString;
-    }
-
-    function loadModule(name, baseName) {
-        var normalizedName = normalizeName(name, baseName),
-            url,
-            xhr,
-            loadResult;
-        //Always check undefined first, this allows the user to redefine modules
-        //(Not used in WebWorks, although it is used in our unit tests)
-        if (unpreparedModules[normalizedName]) {
-            readyModules[normalizedName] = buildModule(normalizedName, unpreparedModules[normalizedName].dependencies, unpreparedModules[normalizedName].factory);
-            delete unpreparedModules[normalizedName];
+    require = function (id) {
+        if (!modules[id]) {
+            throw "module " + id + " not found";
+        } else if (id in inProgressModules) {
+            var cycle = requireStack.slice(inProgressModules[id]).join('->') + '->' + id;
+            throw "Cycle in require graph: " + cycle;
         }
-
-        //If the module does not exist, load the module from external source
-        //Webworks currently only loads APIs from across bridge
-        if (!readyModules[normalizedName]) {
-            //If the module to be loaded ends in .js then we will define it
-            //Also if baseName exists than we have a local require situation
-            if (hasValidExtension(name) || baseName) {
-                xhr = new XMLHttpRequest();
-                url = name;
-                //If the module to be loaded starts with local:// go over the bridge
-                //Else If the module to be loaded is a relative load it may not have .js extension which is needed
-                if (/^local:\/\//.test(name)) {
-                    url = "http://localhost:8472/extensions/load/" + normalizedName.replace(/(?:^ext\/)(.+)(?:\/client.js$)/, "$1");
-
-                    xhr.open("GET", url, false);
-                    xhr.send(null);
-                    try {
-                        loadResult = JSON.parse(xhr.responseText);
-
-                        loadResult.dependencies.forEach(function (dep) {
-                            /*jshint evil:true */
-                            eval(getDefineString(dep.moduleName, dep.body));
-                            /*jshint evil:false */
-                        });
-
-                        //Trimming responseText to remove EOF chars
-                        /*jshint evil:true */
-                        eval(getDefineString(normalizedName, loadResult.client));
-                        /*jshint evil:false */
-                    } catch (err1) {
-                        err1.message += ' in ' + url;
-                        throw err1;
-                    }
-                } else {
-                    if (baseName) {
-                        url = normalizedName;
-                    }
-
-                    xhr.open("GET", url, false);
-                    xhr.send(null);
-                    try {
-                        //Trimming responseText to remove EOF chars
-                        /*jshint evil:true */
-                        eval(getDefineString(normalizedName, xhr.responseText));
-                        /*jshint evil:false */
-                    } catch (err) {
-                        err.message += ' in ' + url;
-                        throw err;
-                    }
-                }
-
-                if (unpreparedModules[normalizedName]) {
-                    readyModules[normalizedName] = buildModule(normalizedName, unpreparedModules[normalizedName].dependencies, unpreparedModules[normalizedName].factory);
-                    delete unpreparedModules[normalizedName];
-                }
-            } else {
-                throw "module " + name + " cannot be found";
+        if (modules[id].factory) {
+            try {
+                inProgressModules[id] = requireStack.length;
+                requireStack.push(id);
+                return build(modules[id]);
+            } finally {
+                delete inProgressModules[id];
+                requireStack.pop();
             }
-
         }
-
-        return readyModules[normalizedName];
-
-    }
-
-    //Use the AMD signature incase we ever want to change.
-    //For now we will only be using (name, baseName)
-    require = function (dependencies, callback) {
-        if (typeof dependencies === "string") {
-            //dependencies is the module name and callback is the relName
-            //relName is not part of the AMDJS spec, but we use it from localRequire
-            return loadModule(dependencies, callback);
-        } else if (Array.isArray(dependencies) && typeof callback === 'function') {
-            //Call it Asynchronously
-            setTimeout(function () {
-                buildModule(undefined, dependencies, callback);
-            }, 0);
-        }
-    }; 
-
-    require.toUrl = function (originalName, baseName) {
-        return normalizeName(originalName, baseName);
+        return modules[id].exports;
     };
 
-    //Use the AMD signature incase we ever want to change.
-    //For now webworks will only be using (name, factory) signature.
-    define = function (name, dependencies, factory) {
-        if (typeof name === "string" && typeof dependencies === 'function') {
-            factory = dependencies;
-            dependencies = ['require', 'exports', 'module'];
+    define = function (id, factory) {
+        if (modules[id]) {
+            throw "module " + id + " already defined";
         }
 
-        //According to the AMDJS spec we should parse out the require statments 
-        //from factory.toString and add those to the list of dependencies
-
-        //Normalize the name. Remove local:// and .js
-        name = normalizeName(name);
-        unpreparedModules[name] = {
-            dependencies: dependencies,
+        modules[id] = {
+            id: id,
             factory: factory
-        }; 
+        };
     };
-}());
 
-//Export for use in node for unit tests
-if (typeof module === "object" && typeof require === "function") {
-    module.exports = {
-        require: require,
-        define: define
+    define.remove = function (id) {
+        delete modules[id];
     };
+
+    define.moduleMap = modules;
+})();
+
+//Export for use in node
+if (typeof module === "object" && typeof require === "function") {
+    module.exports.require = require;
+    module.exports.define = define;
 }
 
 // file: lib/cordova.js
@@ -4097,65 +3923,6 @@ module.exports = {
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/builder.js
-define("cordova/plugin/blackberry10/builder", function(require, exports, module) {
-
-var utils = require("cordova/plugin/blackberry10/utils");
-
-function buildNamespace(currentNamespace, namespaceParts, featureProperties) {
-    var featureId,
-        nextPart;
-
-    if (namespaceParts.length === 1) {
-        //base case, feature properties go here
-        featureId = namespaceParts[0];
-        if (currentNamespace[featureId] === undefined) {
-            currentNamespace[featureId] = {};
-        }
-
-        currentNamespace = utils.mixin(featureProperties, currentNamespace[featureId]);
-        return currentNamespace;
-    }
-    else {
-        nextPart = namespaceParts.shift();
-        if (currentNamespace[nextPart] === undefined) {
-            currentNamespace[nextPart] = {};
-        }
-
-        return buildNamespace(currentNamespace[nextPart], namespaceParts, featureProperties);
-    }
-}
-
-function include(parent, featureIdList) {
-    var featureId,
-        featureProperties,
-        localUrl,
-        i;
-
-    for (i = 0; i < featureIdList.length; i++) {
-        featureId = featureIdList[i];
-
-        localUrl = "local://ext/" + featureId + "/client.js";
-        featureProperties = utils.loadModule(localUrl);
-
-        buildNamespace(parent, featureId.split("."), featureProperties);
-    }
-}
-
-var _self = {
-    build: function (featureIdList) {
-        return {
-            into: function (target) {
-                include(target, featureIdList);
-            }
-        };
-    }
-};
-
-module.exports = _self;
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/camera.js
 define("cordova/plugin/blackberry10/camera", function(require, exports, module) {
 
@@ -5347,6 +5114,60 @@ module.exports = {
         }
     }
 };
+
+});
+
+// file: lib/blackberry10/plugin/blackberry10/pluginUtils.js
+define("cordova/plugin/blackberry10/pluginUtils", function(require, exports, module) {
+
+module.exports = {
+
+    loadClientJs: function (plugins, callback) {
+        var plugin,
+            script,
+            i,
+            count = 0;
+        for (plugin in plugins) {
+            if (plugins.hasOwnProperty(plugin) && plugins[plugin].modules) {
+                for (i = 0; i < plugins[plugin].modules.length; i++) {
+                    script = document.createElement('script');
+                    script.src = 'plugins/' + plugin + '/' + plugins[plugin].modules[i];
+                    script.onload = function () {
+                        if (--count === 0 && typeof callback === 'function') {
+                            callback();
+                        }
+                    };
+                    count++;
+                    document.head.appendChild(script);
+                }
+            }
+        }
+    },
+
+    getPlugins: function (success, error) {
+        var request,
+            response;
+        request = new XMLHttpRequest();
+        request.open('GET', 'plugins/plugins.json', true);
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    try {
+                        response = JSON.parse(decodeURIComponent(request.responseText));
+                        success(response);
+                    }
+                    catch (e) {
+                        error(e);
+                    }
+                }
+                else {
+                    error(request.status);
+                }
+            }
+        };
+        request.send(null);
+    }
+}
 
 });
 
@@ -7766,17 +7587,19 @@ window.cordova = require('cordova');
 // file: lib/scripts/bootstrap-blackberry10.js
 
 (function () {
-    var _d = document.addEventListener,
-        _webworksReady = false,
-        _alreadyFired = false,
-        _listenerRegistered = false;
+    var pluginUtils = require('cordova/plugin/blackberry10/pluginUtils'),
+        docAddEventListener = document.addEventListener,
+        webworksReady = false,
+        alreadyFired = false,
+        listenerRegistered = false;
 
     //Only fire the webworks event when both webworks is ready and a listener is registered
     function fireWebworksReadyEvent() {
-        if (_listenerRegistered && _webworksReady && !_alreadyFired) {
-            _alreadyFired = true;
-            var evt = document.createEvent("Events");
-            evt.initEvent("webworksready", true, true);
+        var evt;
+        if (listenerRegistered && webworksReady && !alreadyFired) {
+            alreadyFired = true;
+            evt = document.createEvent('Events');
+            evt.initEvent('webworksready', true, true);
             document.dispatchEvent(evt);
         }
     }
@@ -7784,113 +7607,78 @@ window.cordova = require('cordova');
     //Trapping when users add listeners to the webworks ready event
     //This way we can make sure not to fire the event before there is a listener
     document.addEventListener = function (event, callback, capture) {
-        _d.call(document, event, callback, capture);
-        if (event.toLowerCase() === "webworksready") {
-            _listenerRegistered = true;
+        docAddEventListener.call(document, event, callback, capture);
+        if (event.toLowerCase() === 'webworksready') {
+            listenerRegistered = true;
             fireWebworksReadyEvent();
         }
     };
 
-    function createWebworksReady() {
-        function RemoteFunctionCall(functionUri) {
-            var params = {};
+    //Fire webworks ready once plugin javascript has been loaded
+    pluginUtils.getPlugins(
+        function (plugins) {
+            pluginUtils.loadClientJs(plugins, function () {
+                webworksReady = true;
+                fireWebworksReadyEvent();
+            });
+        },
+        function (e) {
+            console.log(e);
+        }
+    );
 
-            function composeUri() {
-                return require("cordova/plugin/blackberry10/utils").getURIPrefix() + functionUri;
-            }
+    /**
+     * webworks.exec
+     *
+     * This will all be moved into lib/blackberry10/exec once cordova.exec can be replaced
+     */
 
-            function createXhrRequest(uri, isAsync) {
-                var request = new XMLHttpRequest();
+    function RemoteFunctionCall(functionUri) {
+         var params = {};
 
-                request.open("POST", uri, isAsync);
-                request.setRequestHeader("Content-Type", "application/json");
-
-                return request;
-            }
-
-            this.addParam = function (name, value) {
-                params[name] = encodeURIComponent(JSON.stringify(value));
-            };
-
-            this.makeSyncCall = function (success, error) {
-                var requestUri = composeUri(),
-                    request = createXhrRequest(requestUri, false),
-                    response,
-                    errored,
-                    cb,
-                    data;
-
-                request.send(JSON.stringify(params));
-
-                response = JSON.parse(decodeURIComponent(request.responseText) || "null");
-                errored = response.code < 0;
-                cb = errored ? error : success;
-                data = errored ? response.msg : response.data;
-
-                if (cb) {
-                    cb(data, response);
-                }
-                else if (errored) {
-                    throw data;
-                }
-
-                return data;
-            };
-
-            this.makeAsyncCall = function (success, error) {
-                var requestUri = composeUri(),
-                    request = createXhrRequest(requestUri, true);
-
-                request.onreadystatechange = function () {
-                    if (request.readyState === 4 && request.status === 200) {
-                        var response = JSON.parse(decodeURIComponent(request.responseText) || "null"),
-                        cb = response.code < 0 ? error : success,
-                        data = response.code < 0 ? response.msg : response.data;
-
-                        return cb && cb(data, response);
-                    }
-                };
-
-                request.send(JSON.stringify(params));
-            };
+        function composeUri() {
+            return require("cordova/plugin/blackberry10/utils").getURIPrefix() + functionUri;
         }
 
-        var builder,
-            request,
-            resp,
-            execFunc;
-
-        //For users who wish to have a single source project across BB7 -> PB -> BB10 they will need to use webworks.js
-        //To aid in this, we will fire the webworksready event on these platforms as well
-        //If blackberry object already exists then we are in an older version of webworks
-        if (window.blackberry) {
-            _webworksReady = true;
-            fireWebworksReadyEvent();
-            return;
+        function createXhrRequest(uri, isAsync) {
+            var request = new XMLHttpRequest();
+            request.open("POST", uri, isAsync);
+            request.setRequestHeader("Content-Type", "application/json");
+            return request;
         }
 
-        // Build out the blackberry namespace based on the APIs desired in the config.xml
-        builder = require('cordova/plugin/blackberry10/builder');
-
-        request = new XMLHttpRequest();
-        request.open("GET", "http://localhost:8472/extensions/get", true);
-
-        request.onreadystatechange = function () {
-            if (request.readyState === 4) {
-                resp = JSON.parse(decodeURIComponent(request.responseText));
-
-                if (request.status === 200) {
-                    builder.build(resp.data).into(window);
-                    //At this point all of the APIs should be built into the window object
-                    //Fire the webworks ready event
-                    _webworksReady = true;
-                    fireWebworksReadyEvent();
-                }
-            }
+        this.addParam = function (name, value) {
+            params[name] = encodeURIComponent(JSON.stringify(value));
         };
-        request.send(null);
 
-        execFunc = function (success, fail, service, action, args, sync) {
+        this.makeSyncCall = function (success, error) {
+            var requestUri = composeUri(),
+                request = createXhrRequest(requestUri, false),
+                response,
+                errored,
+                cb,
+                data;
+
+            request.send(JSON.stringify(params));
+
+            response = JSON.parse(decodeURIComponent(request.responseText) || "null");
+            errored = response.code < 0;
+            cb = errored ? error : success;
+            data = errored ? response.msg : response.data;
+
+            if (cb) {
+                cb(data, response);
+            }
+            else if (errored) {
+                throw data;
+            }
+
+            return data;
+        };
+    }
+
+    window.webworks = {
+        exec: function (success, fail, service, action, args) {
             var uri = service + "/" + action,
                 request = new RemoteFunctionCall(uri),
                 name;
@@ -7901,53 +7689,16 @@ window.cordova = require('cordova');
                 }
             }
 
-            request[sync ? "makeSyncCall" : "makeAsyncCall"](success, fail);
-        };
-
-        window.webworks = {
-            exec: execFunc,
-            execSync: function (service, action, args) {
-                var result;
-
-                execFunc(function (data, response) {
-                    result = data;
-                }, function (data, response) {
-                    throw data;
-                }, service, action, args, true);
-
-                return result;
-            },
-            execAsync: function (service, action, args) {
-                var result;
-
-                execFunc(function (data, response) {
-                    result = data;
-                }, function (data, response) {
-                    throw data;
-                }, service, action, args, false);
-
-                return result;
-            },
-            successCallback: function (id, args) {
-                //HACK: this will live later
-                throw "not implemented";
-            },
-            errorCallback: function (id, args) {
-                //HACK: this will live later
-                throw "not implemented";
-            },
-            defineReadOnlyField: function (obj, field, value) {
-                Object.defineProperty(obj, field, {
-                    "value": value,
-                    "writable": false
-                });
-            },
-            event: require("cordova/plugin/blackberry10/event")
-        };
-    }
-
-    // Let's create the webworks namespace
-    createWebworksReady();
+            return request.makeSyncCall(success, fail);
+        },
+        defineReadOnlyField: function (obj, field, value) {
+            Object.defineProperty(obj, field, {
+                "value": value,
+                "writable": false
+            });
+        },
+        event: require("cordova/plugin/blackberry10/event")
+    };
 }());
 
 document.addEventListener("DOMContentLoaded", function () {

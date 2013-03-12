@@ -477,11 +477,9 @@ self = module.exports = {
     loadModule: function (module) {
         return require(module);
     },
-    loadExtensionModule: function (extBasename, path) {
-        var ext = require("./manifest")[extBasename];
-
-        if (ext) {
-            return require("../ext/" + ext.namespace + "/" + path);
+    loadExtensionModule: function (plugin, path) {
+        if (plugin && path) {
+            return require("../plugin/" + plugin + "/" + path);
         } else {
             return null;
         }
