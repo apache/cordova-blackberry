@@ -16,8 +16,8 @@
 var ROOT = "../../../../";
 
 describe("default plugin", function () {
+
     var defaultPlugin = require(ROOT + 'lib/plugins/default'),
-        Whitelist = require(ROOT + "lib/policy/whitelist").Whitelist,
         testExtension,
         utils,
         mockController,
@@ -38,7 +38,7 @@ describe("default plugin", function () {
             fail = jasmine.createSpy("lib/plugin/default fail");
             args = {};
 
-            GLOBAL.frameworkModules = ["ext/blackberry.app/index.js"];
+            GLOBAL.frameworkModules = ["plugin/blackberry.app/index.js"];
 
             //All of this mocking is required for modules to load, DO NOT REMOVE
             mockController = {
@@ -62,9 +62,9 @@ describe("default plugin", function () {
             delete require.cache[require.resolve(ROOT + "lib/utils")];
             utils = require(ROOT + "lib/utils");
             spyOn(utils, "loadModule").andCallFake(function (module) {
-                // on device, "ext/blackberry.app/index.js" would exist since packager would
+                // on device, "plugin/blackberry.app/index.js" would exist since packager would
                 // name the extension folder with feature id in compilation time
-                if (module.indexOf("/ext") !== -1) {
+                if (module.indexOf("/plugin") !== -1) {
                     return testExtension;
                 } else {
                     return undefined;
@@ -101,40 +101,9 @@ describe("default plugin", function () {
             expect(console.warn).toHaveBeenCalledWith("Method " + req.params.method + " for " + req.params.ext + " not found");
         });
 
-        it("checks if the feature is white listed if it exists", function () {
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
-
-            spyOn(testExtension, "getReadOnlyFields");
-
-            req.params.ext = "blackberry.app";
-            req.params.method = "getReadOnlyFields";
-
-            defaultPlugin.exec(req, res, succ, fail, args);
-
-            expect(fail).not.toHaveBeenCalled();
-            expect(Whitelist.prototype.isFeatureAllowed).toHaveBeenCalledWith(req.origin, req.params.ext);
-        });
-
-
-        it("returns 403 if the feature is not white listed", function () {
-            req.params.ext = "blackberry.app";
-            req.params.method = "getReadOnlyFields";
-
-            var errMsg = "Feature " + req.params.ext + " denied access by whitelist for origin " + req.origin;
-
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(false);
-            spyOn(console, "warn");
-
-            defaultPlugin.exec(req, succ, fail, args);
-
-            expect(console.warn).toHaveBeenCalledWith(errMsg);
-            expect(fail).toHaveBeenCalledWith(-1, errMsg, 403);
-        });
-
         it("calls the method of the extension", function () {
             var env = {"request": req, "response": res};
 
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
             spyOn(testExtension, "getReadOnlyFields");
 
             req.params.ext = "blackberry.app";
@@ -148,7 +117,6 @@ describe("default plugin", function () {
         it("calls a multi-level method of the extension", function () {
             var env = {"request": req, "response": res};
 
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
             spyOn(testExtension, "getReadOnlyFields");
             testExtension.getReadOnlyFields.a = {
                 b : {
@@ -168,7 +136,6 @@ describe("default plugin", function () {
         it("throws a 404 is a multi-level method is not found", function () {
             var env = {"request": req, "response": res};
 
-            spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(true);
             spyOn(console, "warn");
             spyOn(testExtension, "getReadOnlyFields");
             testExtension.getReadOnlyFields.a = {
@@ -183,4 +150,5 @@ describe("default plugin", function () {
             expect(console.warn).toHaveBeenCalledWith("Method " + req.params.method + " for " + req.params.ext + " not found");
         });
     });
+
 });
