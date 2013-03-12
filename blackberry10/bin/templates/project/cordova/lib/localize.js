@@ -189,6 +189,33 @@ var Localize = require("localize"),
         },
         "WARNING_WEBSECURITY_DISABLED": {
             "en": "You have disabled all web security in this WebWorks application"
+        },
+        "PROGRESS_WILL_CREATE_DEBUG_TOKEN": {
+            "en": "Will create debug token"
+        },
+        "PROGRESS_WILL_DEPLOY_DEBUG_TOKEN": {
+            "en": "Will deploy debug token"
+        },
+        "WARN_TARGET_NOT_EXIST": {
+            "en": "The target \"$[1]\" does not exist"
+        },
+        "WARN_IP_NOT_DEFINED": {
+            "en": "IP is not defined in target \"$[1]\""
+        },
+        "WARN_PASSWORD_NOT_DEFINED": {
+            "en": "Password is not defined in target \"$[1]\""
+        },
+        "PROGRESS_DEPLOYING_DEBUG_TOKEN": {
+            "en": "Deploying debug token to target \"$[1]\""
+        },
+        "WARN_NO_DEVICE_PIN_FOUND": {
+            "en": "No device PIN found, will omit debug token generation"
+        },
+        "WARN_NO_SIGNING_PASSWORD_PROVIDED": {
+            "en": "No signing password provided, will omit debug token generation"
+        },
+        "PROGRESS_GENERATING_DEBUG_TOKEN": {
+            "en": "Generating debug token"
         }
 
     }, "", ""); // TODO maybe a bug in localize, must set default locale to "" in order get it to work
