@@ -61,7 +61,7 @@ var build,
             throw "App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters";
         }
         if (!validBarName(bar_name)) {
-            throw "BAR filename can only contain alpha-numeric, '.', and '_' characters";
+            throw "BAR filename can only contain alpha-numeric, '.', '-' and '_' characters";
         }
     }
 
@@ -118,9 +118,9 @@ var build,
     }
 
     function updateProject() {
-        var projectJson = require(project_path + "/project.json");
-            configXMLPath = project_path + "/www/config.xml",
-            xmlString = "";
+        var projectJson,
+            xmlString,
+            configXMLPath = path.resolve(project_path + "/www/config.xml");
 
         if (typeof app_id !== "undefined") {
             xmlString = fs.readFileSync(configXMLPath, "utf-8");
@@ -128,6 +128,7 @@ var build,
         }
 
         if (typeof bar_name !== "undefined") {
+            projectJson = require(path.resolve(project_path + "/project.json"));
             projectJson.barName = bar_name;
             fs.writeFileSync(project_path + "/project.json", JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
         }
