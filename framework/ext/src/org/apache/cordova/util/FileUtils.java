@@ -52,10 +52,8 @@ public class FileUtils {
     // init APP_TMP_DIR with a random value
     static {
         Random gen = new Random();
-        APP_TMP_DIR = "tmp" + gen.nextInt();
+        APP_TMP_DIR = "tmp" + Math.abs(gen.nextInt());
     }
-
-   // private static long APP_TMP_DIR = 
 
     /**
      * Reads file as byte array.
