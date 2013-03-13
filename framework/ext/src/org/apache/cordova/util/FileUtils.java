@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Random;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -35,6 +36,7 @@ import net.rim.device.api.io.FileNotFoundException;
 import net.rim.device.api.io.IOUtilities;
 import net.rim.device.api.io.MIMETypeAssociations;
 import net.rim.device.api.system.Application;
+import net.rim.device.api.system.ControlledAccessException;
 
 /**
  * Contains file utility methods.
@@ -45,7 +47,15 @@ public class FileUtils {
     public static final String LOCAL_PROTOCOL = "local://";
     public static final String FILE_PROTOCOL = "file://";
 
-    private static final String APP_TMP_DIR    = "tmp" + CordovaExtension.getAppID();
+    private static final String APP_TMP_DIR;
+    
+    // init APP_TMP_DIR with a random value
+    static {
+        Random gen = new Random();
+        APP_TMP_DIR = "tmp" + gen.nextInt();
+    }
+
+   // private static long APP_TMP_DIR = 
 
     /**
      * Reads file as byte array.
@@ -226,6 +236,9 @@ public class FileUtils {
                 return;
             }
             fconn.mkdir();
+        } catch (ControlledAccessException e) {
+            Logger.log("ControlledAccessException on dir " + dirPath + ", likely cause is directory intersection after reinstall of app, see Cordova Docs File Quirks");
+            Logger.log(e.getMessage());
         }
         finally {
             try {
