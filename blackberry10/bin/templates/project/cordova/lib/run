@@ -26,13 +26,14 @@ var childProcess = require("child_process"),
     pkgrUtils = require("./packager-utils"),
     properties = require('../../project.json'),
     program = require('commander'),
+    xml2js = require('xml2js'),
     target,
     ip,
     password,
     workingdir,
     barPath;
 
-function generateOptions() {
+function generateOptions(uninstall) {
     var options = [];
 
     workingdir = path.normalize(__dirname + "/.."),
@@ -49,31 +50,32 @@ function generateOptions() {
     options.push("-package");
     options.push(barPath);
 
-    if (program.uninstall) {
+    if (uninstall) {
         options.push("-uninstallApp");
-        execNativeDeploy(options, null);
-        options.pop();
+        return options;
+    } else {
+
+        options.push("-installApp");
+
+        if (program.launch) {
+            options.push("-launchApp");
+        }
+
+        return options;
     }
-
-    options.push("-installApp");
-
-    if (program.launch) {
-        options.push("-launchApp");
-    }
-
-    return options;
 }
 
-function execNativeDeploy(options, callback) {
+function execNativeDeploy(optionsArray, callback) {
     var script = "/bin/blackberry-deploy",
         nativeDeploy;
+        options = optionsArray.join(" ");
 
     if (pkgrUtils.isWindows()) {
         script += ".bat";
     }
 
     if (fs.existsSync(conf.DEPENDENCIES_TOOLS)) {
-        nativeDeploy = childProcess.spawn(path.normalize(conf.DEPENDENCIES_TOOLS + script), options, {
+        nativeDeploy = childProcess.exec(path.normalize(conf.DEPENDENCIES_TOOLS + script +" "+ options), {
             "cwd": workingdir,
             "env": process.env
         });
@@ -93,46 +95,108 @@ function execNativeDeploy(options, callback) {
 }
 
 function checkTarget() {
-    if (!properties.targets[target]){
+    if (!target) {
+        console.log("No target exists, to add that target please run target add <name> <ip> <type> [-p <password>] [--pin <devicepin>]\n");
+        return false;
+    }
+    if (!properties.targets[target]) {
         console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> <type> [-p <password>] [--pin <devicepin>]\n");
         return false;
     }
-    if (properties.targets[target].ip){
+    if (properties.targets[target].ip) {
        ip = properties.targets[target].ip; 
     } else {
         console.log("IP is not defined in target \""+target+"\"\n");
         return false;
     }
-    if (properties.targets[target].password){
+    if (properties.targets[target].password) {
        password = properties.targets[target].password;
     } 
     return true;
-    
+
+}
+
+function deployAll(keys) {
+    target = keys[0];
+
+    if (target) {
+        if (checkTarget()) {
+            var options = generateOptions();
+            if (program.uninstall) {
+                uninstall(
+                    function() {
+                        keys.shift();
+                        deployAll(keys);
+                });
+            } else {
+                execNativeDeploy(options,
+                    function() {
+                        deployAll(keys);
+                });
+            }
+        }
+    }
+}
+
+function uninstall(callback) {
+    var script = "/bin/blackberry-deploy",
+        nativeDeploy;
+
+    if (pkgrUtils.isWindows()) {
+        script += ".bat";
+    }
+
+    if (fs.existsSync(conf.DEPENDENCIES_TOOLS)) {
+        nativeDeploy = childProcess.exec(path.normalize(conf.DEPENDENCIES_TOOLS + script +" -listInstalledApps -device " +ip+ " -password " +password), {
+            "cwd": workingdir,
+            "env": process.env
+        }, function (error, stdout, stderr) {
+            var parser = new xml2js.Parser();
+            fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), function(err, data) {
+                parser.parseString(data, function (err, result) {
+                    if (stdout.indexOf(result['@'].id) != -1) {
+                        var options = generateOptions(true);
+                        execNativeDeploy(options,
+                            function(){
+                                options = generateOptions(false);
+                                execNativeDeploy(options, callback);
+                        });
+                    } else {
+                        options = generateOptions(false);
+                        execNativeDeploy(options, callback);
+                    }
+                });
+            });
+        });
+    }
 }
 
 function exec(callback) {
     program
-        .usage('<target> [--no-launch] [--no-uninstall]')
+        .usage('command [<target>] [--no-launch] [--no-uninstall]')
         .option('--no-uninstall', 'does not uninstall app from device')
         .option('--no-launch', 'do not launch the app on device')
-        .parse(process.argv);
 
-     target = program.args[0] ? program.args[0] : properties.defaultTarget
+    program
+        .command('all')
+        .usage('all [--no-launch] [--no-uninstall]')
+        .description('    Deploy the app on all targets')
+        .option('--no-uninstall', 'does not uninstall app from device')
+        .option('--no-launch', 'do not launch the app on device')
+    
+    program.parse(process.argv);
+    target = program.args[0] ? program.args[0] : properties.defaultTarget
 
-     if(target == "all"){
-        for (var key in properties.targets) {
-            if (properties.targets.hasOwnProperty(key)) {
-                target = key;
-                if(checkTarget()) {
-                    var options = generateOptions();
-                    execNativeDeploy(options, callback);
-                }
-            }
-        }
+    if (target === "all") {
+        deployAll(Object.keys(properties.targets));
     } else {
         if (checkTarget()) {
-            var options = generateOptions();
-            execNativeDeploy(options, callback);
+            if (program.uninstall) {
+                uninstall(callback);
+            } else {
+                options = generateOptions(false);
+                execNativeDeploy(options, callback)
+            }
         }
     }
 }
