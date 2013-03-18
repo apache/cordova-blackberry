@@ -43,7 +43,7 @@ function buildTarget(previous, baton) {
     }
 
     fileManager.copyJnextDependencies(this.session);
-    fileManager.copyExtensions(this.config.accessList, this.session, target, this.extManager);
+    fileManager.copyExtensions(this.session, target);
 
     //Generate frameworkModules.js (this needs to be done AFTER all files have been copied)
     fileManager.generateFrameworkModulesJS(session);
@@ -84,11 +84,10 @@ function buildWorkflow(session, context) {
 }
 
 module.exports = {
-    build: function (session, config, extManager, callback) {
+    build: function (session, config, callback) {
         var context = {
                 session: session,
                 config: config,
-                extManager: extManager
             },
             workflow = buildWorkflow(session, context);
 
