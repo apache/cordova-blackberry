@@ -235,8 +235,8 @@ public class FileUtils {
             }
             fconn.mkdir();
         } catch (ControlledAccessException e) {
-            Logger.log("ControlledAccessException on dir " + dirPath + ", likely cause is directory intersection after reinstall of app, see Cordova Docs File Quirks");
-            Logger.log(e.getMessage());
+            Logger.log("ControlledAccessException on dir " + dirPath + ", either directory conflict after reinstall of app, or device is connected via usb, see Cordova Docs File Blackberry Quirks");
+            Logger.log(e.toString());
         }
         finally {
             try {
