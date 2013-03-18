@@ -93,27 +93,7 @@ _self = {
     },
 
     //Validation for configObj, iterates through whitelisted features in configObj to remove any non-existing APIs
-    validateConfig: function (session, configObj, extManager) {
-        var extPath = session.conf.EXT,
-            isValid = function (feature) {
-                var extBasename = extManager.getExtensionBasenameByFeatureId(feature.id),
-                    apiDir = path.resolve(extPath, extBasename);
-
-                if (!extBasename || !fs.existsSync(apiDir)) {
-                    logger.warn(localize.translate("EXCEPTION_FEATURE_NOT_FOUND", feature.id));
-                    return false;
-                }
-
-                return true;
-            },
-            cordovaJsFiles;
-
-        configObj.accessList.forEach(function (access) {
-            if (access.hasOwnProperty("features")) {
-                access.features = access.features.filter(isValid);
-            }
-        });
-
+    validateConfig: function (session, configObj) {
         //if packageCordovaJs was set, test for existing cordova.js files
         if (configObj.packageCordovaJs) {
             cordovaJsFiles = packagerUtils.listFiles(session.sourceDir, function (file) {

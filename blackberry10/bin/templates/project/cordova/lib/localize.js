@@ -43,15 +43,6 @@ var Localize = require("localize"),
         "EXCEPTION_DEBUG_TOKEN_WRONG_FILE_EXTENSION": {
             "en": "Specified debug token not a .bar extension"
         },
-        "EXCEPTION_FEATURE_NOT_FOUND": {
-            "en": "Failed to find feature with id: $[1]"
-        },
-        "EXCEPTION_MISSING_FILE_IN_API_DIR": {
-            "en": "Failed to find \"$[1]\" in \"$[2]\""
-        },
-        "EXCEPTION_NON_JS_FILE_IN_API_DIR": {
-            "en": "Non-JavaScript file found in API directory: $[1]"
-        },
         "PROGRESS_SESSION_CONFIGXML": {
             "en": "Parsing config.xml"
         },
@@ -129,15 +120,6 @@ var Localize = require("localize"),
         },
         "EXCEPTION_INVALID_SPLASH_SRC_LOCALES": {
             "en": "Splash src should not point to files under \"locales\" folder, bbwp will perform folder-based localization"
-        },
-        "EXCEPTION_EXTENSION_MISSING_MANIFEST": {
-            "en": "manifest.json not found in \"$[1]\""
-        },
-        "EXCEPTION_EXTENSION_ERROR_PARSING_MANIFEST": {
-            "en": "An error has occurred parsing \"$[1]\""
-        },
-        "EXCEPTION_EXTENSION_MISSING_NAMESPACE_MANIFEST": {
-            "en": "\"namespace\" property missing in \"$[1]\""
         },
         "EXCEPTION_EXTENSION_CIRCULAR_DEPENDENCY": {
             "en": "Circular dependency detected for extension: \"$[1]\""

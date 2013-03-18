@@ -218,64 +218,33 @@ function copyJnextDependencies(session) {
     fs.writeFileSync(path.join(dest, "auth.txt"), data);
 }
 
-function checkMissingFileInAPIFolder(apiDir, fileToCheck) {
-    if (!fs.existsSync(apiDir + "/" + fileToCheck)) {
-        throw localize.translate("EXCEPTION_MISSING_FILE_IN_API_DIR", fileToCheck, apiDir);
-    }
-}
-
 function hasValidExtension(file) {
     return VALID_EXTENSIONS.some(function (element, index, array) {
         return path.extname(file) === element;
     });
 }
 
-function checkNonJSFiles(dir) {
-    var files = fs.readdirSync(dir),
-        fullPath;
-
-    files.forEach(function (f) {
-        fullPath = path.join(dir, f);
-        if (!fs.statSync(fullPath).isDirectory()) {
-            if (hasValidExtension(fullPath)) {
-                throw localize.translate("EXCEPTION_NON_JS_FILE_IN_API_DIR", fullPath);
-            }
-        } else {
-            checkNonJSFiles(fullPath);
-        }
-    });
-}
-
-function checkAPIFolder(apiDir) {
-    checkMissingFileInAPIFolder(apiDir, CLIENT_JS);
-    checkMissingFileInAPIFolder(apiDir, SERVER_JS);
-}
-
-function copyExtension(session, target, featureId, extBasename) {
-    var extPath = session.conf.EXT,
-        apiDir = path.normalize(path.resolve(extPath, extBasename)),
+function copyExtension(session, target, pluginPath) {
+    var basename = path.basename(pluginPath),
         extDest = session.sourcePaths.EXT,
         soDest = session.sourcePaths.JNEXT_PLUGINS,
-        soPath = path.normalize(path.join(apiDir, target)),
+        soPath = path.normalize(path.join(pluginPath, "native", target)),
         jsFiles,
         soFiles;
 
-    if (fs.existsSync(apiDir)) {
-        //verify mandatory api files exist
-        checkAPIFolder(apiDir);
-
+    if (fs.existsSync(pluginPath) && fs.statSync(pluginPath).isDirectory()) {
         //create output folders
-        wrench.mkdirSyncRecursive(path.join(extDest, featureId), "0755");
+        wrench.mkdirSyncRecursive(path.join(extDest, basename), "0755");
         wrench.mkdirSyncRecursive(soDest, "0755");
 
         //find all .js and .json files
-        jsFiles = packagerUtils.listFiles(apiDir, function (file) {
+        jsFiles = packagerUtils.listFiles(pluginPath, function (file) {
             return hasValidExtension(file);
         });
 
         //Copy each .js file to its extensions folder
         jsFiles.forEach(function (jsFile) {
-            packagerUtils.copyFile(jsFile, path.join(extDest, featureId), apiDir);
+            packagerUtils.copyFile(jsFile, path.join(extDest, basename), pluginPath);
         });
 
         if (fs.existsSync(soPath)) {
@@ -292,27 +261,18 @@ function copyExtension(session, target, featureId, extBasename) {
     }
 }
 
-function copyExtensions(accessList, session, target, extManager) {
-    var extPath = session.conf.EXT,
-        copied = {},
-        extensions;
+function copyExtensions(session, target) {
+    var pluginDir = session.conf.EXT;
 
-    if (fs.existsSync(extPath)) {
-        extensions = extManager.getAllExtensionsToCopy(accessList);
-
-        extensions.forEach(function (extBasename) {
-            var featureId = extManager.getFeatureIdByExtensionBasename(extBasename);
-
-            if (!featureId) {
-                // error - feature id not found
-            }
-
-            if (!copied.hasOwnProperty(featureId)) {
-                copyExtension(session, target, featureId, extBasename);
-                copied[featureId] = true;
-            }
+    if (fs.existsSync(pluginDir)) {
+        // just read the top-level dirs under "plugin"
+        fs.readdirSync(pluginDir).forEach(function (plugin) {
+            copyExtension(session, target, path.join(pluginDir, plugin));
         });
+
     }
+
+
 }
 
 module.exports = {

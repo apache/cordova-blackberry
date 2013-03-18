@@ -32,7 +32,7 @@ module.exports = {
     PROJECT_ROOT: path.normalize(__dirname + "/../../"),
     BIN: path.normalize(__dirname + "/../Framework/bin"),
     LIB: path.normalize(__dirname + "/../Framework/lib"),
-    EXT: path.normalize(__dirname + "/../Framework/ext"),
+    EXT: path.normalize(__dirname + "/../../plugins"),
     UI: path.normalize(__dirname + "/../Framework/ui-resources"),
     DEPENDENCIES: path.normalize(__dirname + "/../Framework/dependencies"),
     DEPENDENCIES_BOOTSTRAP: path.normalize(__dirname + "/../Framework/bootstrap"),

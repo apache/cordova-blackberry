@@ -61,7 +61,7 @@ function processParamObj(paramObj) {
     return processedObj;
 }
 
-function processFeatures(featuresArray, widgetConfig, extManager, processPredefinedFeatures) {
+function processFeatures(featuresArray, widgetConfig, processPredefinedFeatures) {
     var features = [],
         attribs;
     if (featuresArray) {
@@ -94,25 +94,11 @@ function processFeatures(featuresArray, widgetConfig, extManager, processPredefi
         });
     }
 
-    // always add global features to whitelist
-    extManager.getGlobalFeatures().forEach(function (feature) {
-        var featureFound = features.reduce(function (found, currElem) {
-                if (currElem) {
-                    return found || currElem.id === feature.id;
-                }
-            }, false);
-
-        if (!featureFound) {
-            features.push(feature);
-        }
-    });
-
     return features;
 }
 
-function createAccessListObj(featuresArray, uri, allowSubDomain) {
+function createAccessListObj(uri, allowSubDomain) {
     return {
-        features: featuresArray,
         uri: uri,
         allowSubDomain: allowSubDomain
     };
@@ -137,8 +123,8 @@ function processBuildID(widgetConfig, session) {
     }
 }
 
-function processWidgetData(data, widgetConfig, session, extManager) {
-    var localFeatures, attribs, featureArray, header;
+function processWidgetData(data, widgetConfig, session) {
+    var attribs, featureArray, header;
 
     if (data["@"]) {
         widgetConfig.version = data["@"].version;
@@ -165,15 +151,15 @@ function processWidgetData(data, widgetConfig, session, extManager) {
     widgetConfig.theme = "default";
 
     //set locally available features to access list
-    if (data.feature) {
+   if (data.feature) {
         featureArray = packagerUtils.isArray(data.feature) ? data.feature : [data.feature];
     }
 
     //Handle features that do not have source code
-    featureArray = processFeatures(featureArray, widgetConfig, extManager, true);
+    featureArray = processFeatures(featureArray, widgetConfig, true);
 
-    localFeatures = createAccessListObj(featureArray, "WIDGET_LOCAL", true);
-    widgetConfig.accessList.push(localFeatures);
+    //Push empty WIDGET_LOCAL access obj until whitelisting is cleaned up
+    widgetConfig.accessList.push(createAccessListObj("WIDGET_LOCAL", true));
 
     //add whitelisted features to access list
     if (data.access) {
@@ -193,18 +179,8 @@ function processWidgetData(data, widgetConfig, session, extManager) {
 
                     widgetConfig.hasMultiAccess = true;
                 } else {
-                    //set features for this access list
-                    if (accessElement.feature) {
-                        featureArray = packagerUtils.isArray(accessElement.feature) ? accessElement.feature : [accessElement.feature];
-                    } else {
-                        featureArray = undefined;
-                    }
-
-                    //Handle features that do not have source code
-                    featureArray = processFeatures(featureArray, widgetConfig, extManager, false);
-
                     attribs.subdomains = packagerUtils.toBoolean(attribs.subdomains);
-                    widgetConfig.accessList.push(createAccessListObj(featureArray, attribs.uri, attribs.subdomains, extManager));
+                    widgetConfig.accessList.push(createAccessListObj(attribs.uri, attribs.subdomains));
                 }
             }
         });
@@ -546,10 +522,10 @@ function processCordovaPreferences(data, widgetConfig) {
     }
 }
 
-function processResult(data, session, extManager) {
+function processResult(data, session) {
     var widgetConfig = {};
 
-    processWidgetData(data, widgetConfig, session, extManager);
+    processWidgetData(data, widgetConfig, session);
     processIconData(data, widgetConfig, session);
     processAuthorData(data, widgetConfig);
     processLicenseData(data, widgetConfig);
@@ -666,7 +642,7 @@ function init() {
 }
 
 _self = {
-    parse: function (xmlPath, session, extManager, callback) {
+    parse: function (xmlPath, session, callback) {
         if (!fs.existsSync(xmlPath)) {
             throw localize.translate("EXCEPTION_CONFIG_NOT_FOUND");
         }
@@ -683,7 +659,7 @@ _self = {
                 logger.error(localize.translate("EXCEPTION_PARSING_XML"));
                 fileManager.cleanSource(session);
             } else {
-                callback(processResult(result, session, extManager));
+                callback(processResult(result, session));
             }
         });
     }

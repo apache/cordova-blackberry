@@ -26,7 +26,6 @@ var path = require("path"),
     packagerUtils = require("./packager-utils"),
     packagerValidator = require("./packager-validator"),
     barBuilder = require("./bar-builder"),
-    extManager,
     session;
 
 module.exports = {
@@ -34,7 +33,6 @@ module.exports = {
         try {
             cmdline.parse(process.argv);
             session = require("./session").initialize(cmdline.commander);
-            extManager = require("./extension-manager").initialize(session);
 
             //prepare files for webworks archiving
             logger.log(localize.translate("PROGRESS_FILE_POPULATING_SOURCE"));
@@ -42,21 +40,19 @@ module.exports = {
 
             //parse config.xml
             logger.log(localize.translate("PROGRESS_SESSION_CONFIGXML"));
-            configParser.parse(path.join(session.sourceDir, "config.xml"), session, extManager, function (configObj) {
+            configParser.parse(path.join(session.sourceDir, "config.xml"), session, function (configObj) {
                 //validate session Object
                 packagerValidator.validateSession(session, configObj);
                 //validage configuration object
-                packagerValidator.validateConfig(session, configObj, extManager);
+                packagerValidator.validateConfig(session, configObj);
 
                 //generate user.js
                 logger.log(localize.translate("PROGRESS_GEN_OUTPUT"));
                 //Adding debuEnabled property to user.js. Framework will enable/disable WebInspector based on that variable.
                 configObj.debugEnabled = session.debug;
                 packagerUtils.writeFile(path.join(session.sourcePaths.LIB, "config"), "user.js", "module.exports = " + JSON.stringify(configObj, null, "    ") + ";");
-                //Write manifest map at lib/manifest.js for extensions to reference each other
-                packagerUtils.writeFile(session.sourcePaths.LIB, "manifest.js", "module.exports = " + JSON.stringify(extManager.getExtensionMap(), null, "    ") + ";");
 
-                barBuilder.build(session, configObj, extManager, function (code) {
+                barBuilder.build(session, configObj, function (code) {
                     fileManager.cleanSource(session);
 
                     if (code === 0) {
