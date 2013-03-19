@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit e14d644ae4300282e837c6621522bd3895f556e5
+// commit 81a30b465c3f84cc020dda5a7ede6e83a8e44385
 
-// File generated at :: Mon Mar 18 2013 21:49:25 GMT-0400 (EDT)
+// File generated at :: Tue Mar 19 2013 13:22:52 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -4784,7 +4784,6 @@ define("cordova/plugin/blackberry10/manager", function(require, exports, module)
 
 var cordova = require('cordova'),
     plugins = {
-        'NetworkStatus' : require('cordova/plugin/blackberry10/network'),
         'Accelerometer' : require('cordova/plugin/blackberry10/accelerometer'),
         'Battery' : require('cordova/plugin/blackberry10/battery'),
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
@@ -4989,19 +4988,6 @@ module.exports = {
         result = {"status" : 1, "message" : "Media resources released"};
 
         return result;
-    }
-};
-
-});
-
-// file: lib/blackberry10/plugin/blackberry10/network.js
-define("cordova/plugin/blackberry10/network", function(require, exports, module) {
-
-var cordova = require('cordova');
-
-module.exports = {
-    getConnectionInfo: function (args, win, fail) {
-        return { "status": cordova.callbackStatus.OK, "message": blackberry.connection.type};
     }
 };
 
