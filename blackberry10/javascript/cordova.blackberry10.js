@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit 5d05de4ce3bde852020f933f2e61a64da62f66a8
+// commit e14d644ae4300282e837c6621522bd3895f556e5
 
-// File generated at :: Thu Mar 14 2013 16:49:59 GMT-0400 (EDT)
+// File generated at :: Mon Mar 18 2013 21:49:25 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -4148,32 +4148,6 @@ module.exports = compass;
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/device.js
-define("cordova/plugin/blackberry10/device", function(require, exports, module) {
-
-var channel = require('cordova/channel'),
-    cordova = require('cordova');
-
-// Tell cordova channel to wait on the CordovaInfoReady event
-channel.waitForInitialization('onCordovaInfoReady');
-
-module.exports = {
-    getDeviceInfo : function(args, win, fail){
-        win({
-            platform: "BlackBerry",
-            version: blackberry.system.softwareVersion,
-            model: "Dev Alpha",
-            name: "Dev Alpha", // deprecated: please use device.model
-            uuid: blackberry.identity.uuid,
-            cordova: "2.4.0"
-        });
-
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
-    }
-};
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/event.js
 define("cordova/plugin/blackberry10/event", function(require, exports, module) {
 
@@ -4812,7 +4786,6 @@ var cordova = require('cordova'),
     plugins = {
         'NetworkStatus' : require('cordova/plugin/blackberry10/network'),
         'Accelerometer' : require('cordova/plugin/blackberry10/accelerometer'),
-        'Device' : require('cordova/plugin/blackberry10/device'),
         'Battery' : require('cordova/plugin/blackberry10/battery'),
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
         'Camera' : require('cordova/plugin/blackberry10/camera'),
@@ -4832,15 +4805,12 @@ module.exports = {
     exec: function (win, fail, clazz, action, args) {
         var result = {"status" : cordova.callbackStatus.CLASS_NOT_FOUND_EXCEPTION, "message" : "Class " + clazz + " cannot be found"};
 
-        if (plugins[clazz]) {
-            if (plugins[clazz][action]) {
-                result = plugins[clazz][action](args, win, fail);
-            }
-            else {
-                result = { "status" : cordova.callbackStatus.INVALID_ACTION, "message" : "Action not found: " + action };
-            }
+        if (plugins[clazz] && plugins[clazz][action]) {
+            result = plugins[clazz][action](args, win, fail);
         }
-
+        else {
+            result = webworks.exec(win, fail, clazz, action, args);
+        }
         return result;
     },
     resume: function () {},
@@ -5120,6 +5090,21 @@ module.exports = {
 // file: lib/blackberry10/plugin/blackberry10/pluginUtils.js
 define("cordova/plugin/blackberry10/pluginUtils", function(require, exports, module) {
 
+function build(plugins) {
+    var builder = require('cordova/builder'),
+        plugin;
+    for (plugin in plugins) {
+        if (plugins.hasOwnProperty(plugin)) {
+            if (plugins[plugin].clobbers) {
+                builder.buildIntoAndClobber(plugins[plugin].clobbers, window);
+            }
+            if (plugins[plugin].merges) {
+                builder.buildIntoAndMerge(plugins[plugin].merges, window);
+            }
+        }
+    }
+}
+
 module.exports = {
 
     loadClientJs: function (plugins, callback) {
@@ -5134,6 +5119,7 @@ module.exports = {
                     script.src = 'plugins/' + plugin + '/' + plugins[plugin].modules[i];
                     script.onload = function () {
                         if (--count === 0 && typeof callback === 'function') {
+                            build(plugins);
                             callback();
                         }
                     };
@@ -7622,8 +7608,10 @@ window.cordova = require('cordova');
                 fireWebworksReadyEvent();
             });
         },
-        function (e) {
-            console.log(e);
+        function () {
+            console.log('Unable to load plugins.json');
+            webworksReady = true;
+            fireWebworksReadyEvent();
         }
     );
 
@@ -7673,7 +7661,7 @@ window.cordova = require('cordova');
                 throw data;
             }
 
-            return data;
+            return { status: 0 };
         };
     }
 
