@@ -21,4 +21,4 @@ goto comment
 REM cd into project dir
 cd %~dp0\..\
 
-@node.exe ./cordova/lib/target.js %*
+@node.exe ./cordova/lib/target %*

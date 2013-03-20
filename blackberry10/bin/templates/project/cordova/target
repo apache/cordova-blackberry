@@ -2,4 +2,4 @@
 # go to project root
 cd $( dirname "$0")/../
 
-node "cordova/lib/target.js" "$@"
+node "cordova/lib/target" "$@"
