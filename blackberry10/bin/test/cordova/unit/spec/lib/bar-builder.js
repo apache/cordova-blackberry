@@ -1,4 +1,4 @@
-var srcPath = __dirname + "/../../../lib/",
+var srcPath = __dirname + "/../../../../../templates/project/cordova/lib/",
     path = require("path"),
     wrench = require("wrench"),
     barBuilder = require(srcPath + "bar-builder"),
@@ -26,14 +26,13 @@ describe("BAR builder", function () {
             callback(0);
         });
 
-        barBuilder.build(session, testData.config, extManager, callback);
+        barBuilder.build(session, testData.config, callback);
 
         expect(wrench.mkdirSyncRecursive).toHaveBeenCalledWith(session.outputDir + "/" + target);
         expect(fileMgr.copyWWE).toHaveBeenCalledWith(session, target);
         expect(fileMgr.copyWebplatform).toHaveBeenCalledWith(session, target);
-        expect(fileMgr.copyWebworks).toHaveBeenCalledWith(session);
         expect(fileMgr.copyJnextDependencies).toHaveBeenCalledWith(session);
-        expect(fileMgr.copyExtensions).toHaveBeenCalledWith(config.accessList, session, target, extManager);
+        expect(fileMgr.copyExtensions).toHaveBeenCalledWith(session, target);
         expect(fileMgr.generateFrameworkModulesJS).toHaveBeenCalledWith(session);
         expect(nativePkgr.exec).toHaveBeenCalledWith(session, target, config, jasmine.any(Function));
         expect(callback).toHaveBeenCalledWith(0);

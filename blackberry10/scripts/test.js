@@ -24,7 +24,8 @@ module.exports = function (done, custom) {
         coloured = false,
         specs = [
             "framework/test",
-            "bin/test/cordova/integration"
+            "bin/test/cordova/integration",
+            "bin/test/cordova/unit"
         ];
         key = {};
 

@@ -1,5 +1,5 @@
-var session = require(__dirname + "/../../../lib/session"),
-    localize = require(__dirname + "/../../../lib/localize"),
+var session = require(__dirname + "/../../../../../templates/project/cordova/lib/session"),
+    localize = require(__dirname + "/../../../../../templates/project/cordova/lib/localize"),
     testUtils = require("./test-utilities"),
     path = require("path"),
     fs = require("fs"),
@@ -110,7 +110,7 @@ describe("Session", function () {
     });
 
     it("sets the output directory correctly when specified with a relative path [-o myOutput]", function () {
-        var bbwpDir = __dirname + "/../../../",
+        var bbwpDir = __dirname + "/../../../../../../",
         data = {
             args: [ 'C:/sampleApp/sample.zip' ],
             output: 'myOutput',
@@ -123,8 +123,8 @@ describe("Session", function () {
 
     describe("get params", function () {
         beforeEach(function () {
-            delete require.cache[require.resolve(__dirname + "/../../../lib/session")];
-            session = require(__dirname + "/../../../lib/session");
+            delete require.cache[require.resolve(__dirname + "/../../../../../templates/project/cordova/lib/session")];
+            session = require(__dirname + "/../../../../../templates/project/cordova/lib/session");
         });
 
         it("get params from external file", function () {
@@ -134,7 +134,7 @@ describe("Session", function () {
                 },
                 result;
 
-            spyOn(path, "resolve").andReturn("test/params.json");
+            spyOn(path, "resolve").andReturn("bin/test/cordova/unit/params.json");
             spyOn(fs, "existsSync").andReturn(true);
 
             result = session.initialize(data);
@@ -180,7 +180,7 @@ describe("Session", function () {
     });
 
     describe("when setting the log level", function () {
-        var logger = require(__dirname + "/../../../lib/logger");
+        var logger = require(__dirname + "/../../../../../templates/project/cordova/lib/logger");
 
         beforeEach(function () {
             spyOn(logger, "level");

@@ -1,6 +1,6 @@
 var path = require("path"),
     outputDir = path.resolve("../packager.test"),
-    libPath = __dirname + "/../../../lib/",
+    libPath = __dirname + "/../../../../../templates/project/cordova/lib/",
     barConf = require(libPath + "/bar-conf"),
     configPath = path.resolve("test") + "/config.xml";
 
@@ -20,7 +20,7 @@ module.exports = {
             "PLUGINS": path.normalize(path.resolve(outputDir + "/src") + barConf.PLUGINS),
             "JNEXT_PLUGINS": path.normalize(path.resolve(outputDir + "/src") + barConf.JNEXT_PLUGINS)
         },
-        "archivePath": path.resolve("test/test.zip"),
+        "archivePath": path.resolve("bin/test/cordova/unit/test.zip"),
         "conf": require(path.resolve(libPath + "/conf")),
         "targets": ["simulator"],
         isSigningRequired: function () {

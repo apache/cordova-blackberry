@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var srcPath = __dirname + "/../../../lib/",
+var srcPath = __dirname + "/../../../../../templates/project/cordova/lib/",
     logger = require(srcPath + "logger");
 
 describe("logger", function () {

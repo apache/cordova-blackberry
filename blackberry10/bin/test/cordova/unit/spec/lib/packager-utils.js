@@ -2,10 +2,10 @@ var testData = require("./test-data"),
     utils = require(testData.libPath + "/packager-utils"),
     fs = require("fs"),
     path = require("path"),
-    asciiFile = path.resolve("test/data/ascii_text.txt"),
-    utf8File = path.resolve("test/data/utf8_text.txt"),
-    ucs2beFile = path.resolve("test/data/ucs2be_text.txt"),
-    ucs2leFile = path.resolve("test/data/ucs2le_text.txt"),
+    asciiFile = path.resolve("bin/test/cordova/unit/data/ascii_text.txt"),
+    utf8File = path.resolve("bin/test/cordova/unit/data/utf8_text.txt"),
+    ucs2beFile = path.resolve("bin/test/cordova/unit/data/ucs2be_text.txt"),
+    ucs2leFile = path.resolve("bin/test/cordova/unit/data/ucs2le_text.txt"),
     helloWorld = "Hello World";
 
 describe("Encoded Buffer data to String", function () {
@@ -58,7 +58,7 @@ describe("property wrapper", function () {
         var obj = {
             prop: "value"
         };
-        
+
         utils.wrapPropertyInArray(obj, "secondValue");
         expect(obj.secondValue).not.toBeDefined();
     });

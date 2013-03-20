@@ -3,7 +3,7 @@ var path = require("path"),
     fs = require("fs"),
     childProcess = require("child_process"),
     wrench = require("wrench"),
-    srcPath = __dirname + "/../../../lib/",
+    srcPath = __dirname + "/../../../../../templates/project/cordova/lib/",
     nativePkgr = require(srcPath + "/native-packager"),
     pkgrUtils = require(srcPath + "/packager-utils"),
     testUtils = require("./test-utilities"),
@@ -52,8 +52,8 @@ describe("Native packager", function () {
         spyOn(fs, "writeFileSync");
         spyOn(childProcess, "spawn").andReturn(result);
         spyOn(fs, "existsSync").andCallFake(function (path) {
-            //Return true if this is the dependencies folder check
-            return path.indexOf("dependencies") !== -1;
+            //Return true if this is the bbndk folder check
+            return path.indexOf("bbndk") !== -1;
         });
     });
 
