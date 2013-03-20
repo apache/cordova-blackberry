@@ -146,17 +146,23 @@ var build,
         }
     }
 
-    try {
-        build = jWorkflow.order(validate)
-                         .andThen(clean)
-                         .andThen(copyJavascript)
-                         .andThen(copyFilesToProject)
-                         .andThen(updateProject);
+    if ( process.argv[2] === "-h" || process.argv[2] === "--help" ) {
+        console.log("\nUsage: create <project path> [package name [BAR filename]] \n");
+        console.log("Options: \n");
+        console.log("   -h, --help      output usage information \n");
+    } else {
+        try {
+            build = jWorkflow.order(validate)
+                .andThen(clean)
+                .andThen(copyJavascript)
+                .andThen(copyFilesToProject)
+                .andThen(updateProject);
 
-        build.start(function (error) {
-            done(error);
-        });
-    } catch (ex) {
-        console.log(ex);
+            build.start(function (error) {
+                done(error);
+            });
+        } catch (ex) {
+            console.log(ex);
+        }
     }
 
