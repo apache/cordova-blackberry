@@ -24,7 +24,7 @@ var childProcess = require("child_process"),
     logger = require("./logger"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
-    webworksInfo = require('../Framework/lib/webworks-info'),
+    webworksInfo = require('./../../../../../framework/lib/webworks-info'),
     i18nMgr = require("./i18n-manager"),
     NL = pkgrUtils.isWindows() ? "\r\n" : "\n";
 

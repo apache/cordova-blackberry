@@ -11,16 +11,9 @@ var testData = require("./test-data"),
     path = require("path"),
     fs = require("fs"),
     session = testData.session,
-    configPath = path.resolve("test/config.xml"),
+    configPath = path.resolve("bin/test/cordova/unit/config.xml"),
     configBadPath = path.resolve("test2/config.xml"),
-    configBareMinimumPath = path.resolve("test/config-bare-minimum.xml"),
-    extManager = {
-        getGlobalFeatures: function () {
-            return [{
-                id: "blackberry.event"
-            }];
-        }
-    },
+    configBareMinimumPath = path.resolve("bin/test/cordova/unit/config-bare-minimum.xml"),
     mockParsing = testUtilities.mockParsing;
 
 describe("config parser", function () {
@@ -31,12 +24,12 @@ describe("config parser", function () {
 
     it("tries to open a config.xml file that doesn't exist", function () {
         expect(function () {
-            configParser.parse(configBadPath, session, extManager, {});
+            configParser.parse(configBadPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_CONFIG_NOT_FOUND"));
     });
 
     it("parses standard elements in a config.xml", function () {
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.content).toEqual("local:///startPage.html");
             expect(configObj.id).toEqual("My WidgetId");
             expect(configObj.customHeaders).toEqual({ 'RIM-Widget' : 'rim/widget'});
@@ -63,26 +56,12 @@ describe("config parser", function () {
         var localAccessList,
             accessListFeature;
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             //validate WIDGET_LOCAL accessList
             localAccessList = testUtilities.getAccessListForUri(configObj.accessList, "WIDGET_LOCAL");
             expect(localAccessList).toBeDefined();
             expect(localAccessList.uri).toEqual("WIDGET_LOCAL");
             expect(localAccessList.allowSubDomain).toEqual(true);
-
-            //validate WIDGET_LOCAL feature [blackberry.app]
-            accessListFeature = testUtilities.getFeatureByID(localAccessList.features, "blackberry.app");
-            expect(accessListFeature).toBeDefined();
-            expect(accessListFeature.id).toEqual("blackberry.app");
-            expect(accessListFeature.required).toEqual(true);
-            expect(accessListFeature.version).toEqual("1.0.0.0");
-
-            //validate WIDGET_LOCAL feature [blackberry.system]
-            accessListFeature = testUtilities.getFeatureByID(localAccessList.features, "blackberry.system");
-            expect(accessListFeature).toBeDefined();
-            expect(accessListFeature.id).toEqual("blackberry.system");
-            expect(accessListFeature.required).toEqual(true);
-            expect(accessListFeature.version).toEqual("1.0.0.3");
         });
     });
 
@@ -90,42 +69,28 @@ describe("config parser", function () {
         var customAccessList,
             accessListFeature;
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             //validate http://www.somedomain1.com accessList
             customAccessList = testUtilities.getAccessListForUri(configObj.accessList, "http://www.somedomain1.com");
             expect(customAccessList).toBeDefined();
             expect(customAccessList.uri).toEqual("http://www.somedomain1.com");
             expect(customAccessList.allowSubDomain).toEqual(true);
-
-            //validate http://www.somedomain1.com feature [blackberry.app]
-            accessListFeature = testUtilities.getFeatureByID(customAccessList.features, "blackberry.app");
-            expect(accessListFeature).toBeDefined();
-            expect(accessListFeature.id).toEqual("blackberry.app");
-            expect(accessListFeature.required).toEqual(true);
-            expect(accessListFeature.version).toEqual("1.0.0.0");
-
-            //validate http://www.somedomain1.com feature [blackberry.app.event]
-            accessListFeature = testUtilities.getFeatureByID(customAccessList.features, "blackberry.app.event");
-            expect(accessListFeature).toBeDefined();
-            expect(accessListFeature.id).toEqual("blackberry.app.event");
-            expect(accessListFeature.required).toEqual(false);
-            expect(accessListFeature.version).toEqual("2.0.0.0");
         });
     });
 
     it("parses a bare minimum config.xml without error", function () {
-        var bareMinimumConfigPath = path.resolve("test/config-bare-minimum.xml");
+        var bareMinimumConfigPath = path.resolve("bin/test/cordova/unit/config-bare-minimum.xml");
 
-        configParser.parse(bareMinimumConfigPath, session, extManager, function (configObj) {
+        configParser.parse(bareMinimumConfigPath, session, function (configObj) {
             expect(configObj.content).toEqual("local:///startPage.html");
             expect(configObj.version).toEqual("1.0.0");
         });
     });
 
     it("license url is set even if license body is empty", function () {
-        var licenseConfigPath = path.resolve("test/config-license.xml");
+        var licenseConfigPath = path.resolve("bin/test/cordova/unit/config-license.xml");
 
-        configParser.parse(licenseConfigPath, session, extManager, function (configObj) {
+        configParser.parse(licenseConfigPath, session, function (configObj) {
             expect(configObj.license).toEqual("");
             expect(configObj.licenseURL).toEqual("http://www.apache.org/licenses/LICENSE-2.0");
         });
@@ -139,7 +104,7 @@ describe("config parser", function () {
 
         //Should throw an EXCEPTION_INVALID_ID error
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_ID"));
     });
 
@@ -151,7 +116,7 @@ describe("config parser", function () {
 
         //Should throw an EXCEPTION_INVALID_ID error
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_ID"));
     });
 
@@ -162,7 +127,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_NAME"));
     });
 
@@ -175,7 +140,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_NAME"));
     });
 
@@ -188,7 +153,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_NAME"));
     });
 
@@ -198,7 +163,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.name).toEqual({"default": "API Smoke Test"});
         });
     });
@@ -209,7 +174,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.name).toEqual({"en": "EN VALUE"});
         });
     });
@@ -220,7 +185,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.name).toEqual({"en": "EN VALUE"});
         });
     });
@@ -234,7 +199,7 @@ describe("config parser", function () {
         ];
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.name).toEqual({"default": "API Smoke Test", "en": "EN VALUE", "fr": "FR VALUE"});
         });
     });
@@ -248,7 +213,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_NAME"));
     });
 
@@ -258,7 +223,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.description).toEqual({"default": "This is my app"});
         });
     });
@@ -269,7 +234,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.description).toEqual({"en": "EN VALUE"});
         });
     });
@@ -280,7 +245,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.description).toEqual({"en": "EN VALUE"});
         });
     });
@@ -294,7 +259,7 @@ describe("config parser", function () {
         ];
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.description).toEqual({"default": "This is my app", "en": "EN VALUE", "fr": "FR VALUE"});
         });
     });
@@ -306,19 +271,8 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_CONTENT"));
-    });
-
-    it("Fails when missing feature error is not shown", function () {
-        var data = testUtilities.cloneObj(testData.xml2jsConfig);
-        data.feature = {};
-
-        mockParsing(data);
-
-        expect(function () {
-            configParser.parse(configPath, session, extManager, {});
-        }).toThrow(localize.translate("EXCEPTION_INVALID_FEATURE_ID"));
     });
 
     it("adds local:/// protocol to urls", function () {
@@ -327,7 +281,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.content).toEqual("local:///localFile.html");
         });
     });
@@ -338,7 +292,7 @@ describe("config parser", function () {
         spyOn(logger, "error");
         spyOn(fileManager, "cleanSource");
 
-        configParser.parse(configPath, session, extManager, function () {});
+        configParser.parse(configPath, session, function () {});
 
         expect(fileManager.cleanSource).toHaveBeenCalled();
     });
@@ -350,7 +304,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.permissions).toContain('onePermissionNoAttribs');
         });
     });
@@ -362,7 +316,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.permissions).toContain({ '#': 'systemPerm', '@': { system: 'true' } });
         });
     });
@@ -374,7 +328,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.permissions).toContain('access_shared');
             expect(configObj.permissions).toContain('read_geolocation');
             expect(configObj.permissions).toContain('use_camera');
@@ -391,7 +345,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.permissions).toContain({ '#': 'systemPerm', '@': { system: 'true' } });
             expect(configObj.permissions).toContain({ '#': 'nonSystemPerm', '@': { system: 'false' } });
         });
@@ -403,26 +357,8 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.permissions).toEqual([]);
-        });
-    });
-
-    it("does not add unwanted local features to custom access rules", function () {
-        var customAccessList,
-            data = testUtilities.cloneObj(testData.xml2jsConfig);
-
-        //Add a local feature element and a custom access list
-        data['feature'] = {'@': {id: 'blackberry.app', required: 'true', version: '1.0.0.0'}};//local feature
-        data['access'] = {'@': {uri: 'http://ci0000000094448.rim.net', subdomains: 'true'}};//custom access rule
-
-        mockParsing(data);
-
-        configParser.parse(configPath, session, extManager, function (configObj) {
-            customAccessList = testUtilities.getAccessListForUri(configObj.accessList, 'http://ci0000000094448.rim.net');
-
-            //The custom access list features should only contain global features
-            expect(customAccessList.features).toEqual(extManager.getGlobalFeatures());
         });
     });
 
@@ -434,7 +370,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.enableFlash).toEqual(true);
         });
     });
@@ -447,7 +383,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.enableFlash).toEqual(false);
         });
     });
@@ -458,7 +394,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.enableFlash).toEqual(false);
         });
     });
@@ -472,7 +408,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.autoDeferNetworkingAndJavaScript).toEqual(false);
         });
     });
@@ -488,7 +424,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.permissions).toContain('run_when_backgrounded');
             expect(configObj.autoDeferNetworkingAndJavaScript).toEqual(false);
         });
@@ -502,7 +438,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.autoDeferNetworkingAndJavaScript).toEqual(true);
         });
     });
@@ -514,7 +450,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).not.toThrow();
     });
 
@@ -523,11 +459,10 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             //hasMultiAccess was set to false
             expect(configObj.hasMultiAccess).toEqual(false);
             expect(configObj.accessList).toEqual([ {
-                features : extManager.getGlobalFeatures(),
                 uri : 'WIDGET_LOCAL',
                 allowSubDomain : true
             } ]);
@@ -540,15 +475,13 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             //hasMultiAccess was set to false
             expect(configObj.hasMultiAccess).toEqual(false);
             expect(configObj.accessList).toEqual([ {
-                features : extManager.getGlobalFeatures(),
                 uri : 'WIDGET_LOCAL',
                 allowSubDomain : true
             }, {
-                "features" : extManager.getGlobalFeatures(),
                 "uri" : "http://www.somedomain1.com"
             } ]);
         });
@@ -560,11 +493,10 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             //hasMultiAccess was set to true
             expect(configObj.hasMultiAccess).toEqual(true);
             expect(configObj.accessList).toEqual([ {
-                features : extManager.getGlobalFeatures(),
                 uri : 'WIDGET_LOCAL',
                 allowSubDomain : true
             } ]);
@@ -577,15 +509,13 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             //hasMultiAccess was set to true
             expect(configObj.hasMultiAccess).toEqual(true);
             expect(configObj.accessList).toEqual([ {
-                features : extManager.getGlobalFeatures(),
                 uri : 'WIDGET_LOCAL',
                 allowSubDomain : true
             }, {
-                "features" : extManager.getGlobalFeatures(),
                 "uri" : "http://www.somedomain1.com"
             } ]);
         });
@@ -598,7 +528,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI"));
     });
 
@@ -609,7 +539,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI"));
     });
 
@@ -630,7 +560,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_ACCESS_URI_NO_PROTOCOL", data['access']['@'].uri));
     });
 
@@ -651,7 +581,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_ACCESS_URI_NO_URN", data['access']['@'].uri));
     });
 
@@ -672,7 +602,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).not.toThrow();
     });
 
@@ -682,7 +612,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.version).toEqual("1.0.0");
             expect(configObj.buildId).toEqual("50");
         });
@@ -696,7 +626,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.buildId).toEqual("100");
         });
     });
@@ -710,7 +640,7 @@ describe("config parser", function () {
 
         mockParsing(data);
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             expect(configObj.version).toEqual("1.0.0");
             expect(configObj.buildId).toEqual("100");
         });
@@ -724,13 +654,13 @@ describe("config parser", function () {
 
         //Should throw an EXCEPTION_INVALID_AUTHOR error
         expect(function () {
-            configParser.parse(configPath, session, extManager, {});
+            configParser.parse(configPath, session, {});
         }).toThrow(localize.translate("EXCEPTION_INVALID_AUTHOR"));
     });
 
     it("can parse a standard rim:invoke-target element", function () {
 
-        configParser.parse(configPath, session, extManager, function (configObj) {
+        configParser.parse(configPath, session, function (configObj) {
             var invokeTarget = configObj["invoke-target"][0];
 
             expect(invokeTarget).toBeDefined();
@@ -783,7 +713,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).not.toThrow();
     });
 
@@ -804,7 +734,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).not.toThrow();
 
     });
@@ -818,7 +748,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVOKE_TARGET_INVALID_ID"));
     });
 
@@ -834,7 +764,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVOKE_TARGET_INVALID_TYPE"));
     });
 
@@ -849,7 +779,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVOKE_TARGET_INVALID_TYPE"));
     });
 
@@ -884,7 +814,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVOKE_TARGET_ACTION_INVALID"));
     });
 
@@ -914,7 +844,7 @@ describe("config parser", function () {
         mockParsing(data);
 
         expect(function () {
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
         }).toThrow(localize.translate("EXCEPTION_INVOKE_TARGET_MIME_TYPE_INVALID"));
     });
 
@@ -926,7 +856,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_SPLASH_SRC"));
         });
 
@@ -941,7 +871,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_SPLASH_SRC"));
         });
 
@@ -958,7 +888,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_SPLASH_SRC"));
         });
 
@@ -973,7 +903,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).not.toThrow();
         });
 
@@ -992,7 +922,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).not.toThrow();
         });
 
@@ -1011,7 +941,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_SPLASH_SRC_LOCALES"));
         });
     });
@@ -1024,7 +954,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_ICON_SRC"));
         });
 
@@ -1039,7 +969,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_ICON_SRC"));
         });
 
@@ -1056,7 +986,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_ICON_SRC"));
         });
 
@@ -1071,7 +1001,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).not.toThrow();
         });
 
@@ -1090,7 +1020,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).not.toThrow();
         });
 
@@ -1109,7 +1039,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_ICON_SRC_LOCALES"));
         });
 
@@ -1118,7 +1048,7 @@ describe("config parser", function () {
             mockParsing(data);
 
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).not.toThrow();
 
             expect(packagerUtils.copyFile).toHaveBeenCalled();
@@ -1129,7 +1059,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configBareMinimumPath, session, extManager, function (configObj) {
+            configParser.parse(configBareMinimumPath, session, function (configObj) {
                 expect(configObj.icon).toEqual(["default-icon.png"]);
             });
         });
@@ -1144,7 +1074,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.icon).toEqual(["test.png"]);
                 expect(configObj.icon).not.toEqual(["default-icon.png"]);
                 expect(configObj.icon).not.toContain("default-icon.png");
@@ -1158,7 +1088,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.orientation).toEqual("landscape");
                 expect(configObj.autoOrientation).toEqual(false);
             });
@@ -1171,7 +1101,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.orientation).toEqual("portrait");
                 expect(configObj.autoOrientation).toEqual(false);
             });
@@ -1183,7 +1113,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.autoOrientation).toEqual(true);
             });
         });
@@ -1195,7 +1125,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {});
+            configParser.parse(configPath, session, function (configObj) {});
             expect(logger.warn).toHaveBeenCalled();
         });
 
@@ -1208,7 +1138,7 @@ describe("config parser", function () {
 
             //Should throw an EXCEPTION_INVALID_ORIENTATION_MODE error
             expect(function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {});
+                configParser.parse(configPath, session, function (configObj) {});
             }).toThrow(localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", "notAValidMode"));
         });
 
@@ -1219,7 +1149,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.backgroundColor).toEqual(16777215);//Decimal value of 0xffffff
             });
         });
@@ -1233,7 +1163,7 @@ describe("config parser", function () {
 
             //Should throw an EXCEPTION_BGCOLOR_INVALID error
             expect(function () {
-                configParser.parse(configPath, session, extManager, {});
+                configParser.parse(configPath, session, {});
             }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$UI*@@$"));
         });
 
@@ -1241,7 +1171,7 @@ describe("config parser", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.customHeaders).toEqual({ 'RIM-Widget' : 'rim/widget'});
             });
         });
@@ -1257,7 +1187,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.id).toEqual("myID");
                 expect(configObj.customHeaders).toEqual(undefined);
             });
@@ -1275,7 +1205,7 @@ describe("config parser", function () {
 
             mockParsing(data);
 
-            configParser.parse(configPath, session, extManager, function (configObj) {
+            configParser.parse(configPath, session, function (configObj) {
                 expect(configObj.id).toEqual("myID");
                 expect(configObj.userAgent).toEqual("A Test-User-Agent/(Blackberry-Agent)");
             });
@@ -1294,7 +1224,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableChildWebView).toBe(true);
                 });
             });
@@ -1306,7 +1236,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableChildWebView).toBe(false);
                 });
             });
@@ -1321,7 +1251,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableFormControl).toBe(true);
                 });
             });
@@ -1333,7 +1263,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableFormControl).toBe(false);
                 });
             });
@@ -1350,7 +1280,7 @@ describe("config parser", function () {
                     mockParsing(data);
                 }
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.theme).toBe(themeParsed);
                 });
             }
@@ -1396,7 +1326,7 @@ describe("config parser", function () {
             });
 
             it("sets theme to default when config has NO theme tag provided", function () {
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.theme).toBe("default");
                 });
             });
@@ -1415,7 +1345,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableWebSecurity).toBe(undefined);
                     expect(logger.warn).not.toHaveBeenCalledWith(localize.translate("WARNING_WEBSECURITY_DISABLED"));
                 });
@@ -1428,7 +1358,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableWebSecurity).toBe(false);
                     expect(logger.warn).toHaveBeenCalledWith(localize.translate("WARNING_WEBSECURITY_DISABLED"));
                 });
@@ -1441,7 +1371,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enableWebSecurity).toBe(false);
                     expect(logger.warn).toHaveBeenCalledWith(localize.translate("WARNING_WEBSECURITY_DISABLED"));
                 });
@@ -1460,7 +1390,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enablePopupBlocker).toBe(true);
                 });
             });
@@ -1472,7 +1402,7 @@ describe("config parser", function () {
 
                 mockParsing(data);
 
-                configParser.parse(configPath, session, extManager, function (configObj) {
+                configParser.parse(configPath, session, function (configObj) {
                     expect(configObj.enablePopupBlocker).toBe(true);
                 });
             });

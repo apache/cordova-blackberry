@@ -1,4 +1,4 @@
-var srcPath = __dirname + "/../../../lib/",
+var srcPath = __dirname + "/../../../../../templates/project/cordova/lib/",
     localize = require(srcPath + "localize"),
     cmdline = require(srcPath + "cmdline"),
     cmd;
@@ -52,12 +52,12 @@ describe("Command line", function () {
         cmd.parseOptions(["-g", "myPassword"]);
         expect(cmd.password).toEqual("myPassword");
     });
-    
+
     it("accepts --buildId with argument", function () {
         cmd.parseOptions(["--buildId", "100"]);
         expect(cmd.buildId).toEqual("100");
     });
-    
+
     it("accepts -buildId with argument", function () {
         cmd.parseOptions(["-buildId", "100"]);
         expect(cmd.buildId).toEqual("100");
