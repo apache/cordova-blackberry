@@ -108,6 +108,7 @@ var build,
         //copy node modules to cordova build directory
         wrench.mkdirSyncRecursive(project_path + "/cordova/node_modules", 0777);
         wrench.copyDirSyncRecursive(__dirname + modules_project_dir, project_path + "/cordova/node_modules");
+        fs.chmodSync(project_path + "/cordova/node_modules/plugman/plugman.js", 0755);
 
         //copy framework
         wrench.copyDirSyncRecursive(__dirname + framework_project_dir, project_path + "/cordova/framework");
