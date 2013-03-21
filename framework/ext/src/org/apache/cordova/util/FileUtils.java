@@ -248,6 +248,26 @@ public class FileUtils {
     }
 
     /**
+     * Determines the size of a file on the file system. Size always represents number of bytes contained in the file; never pre-allocated but empty space
+     * @return size in bytes of the selected file, or -1 if the file does not exist or is inaccessible
+     */
+    public static long fileSize(String path) throws IOException {
+        FileConnection fconn = null;
+        long fsize = -1;
+        try {
+            fconn = (FileConnection)Connector.open(path);
+            fsize = fconn.fileSize();
+        } catch (IOException e) {
+            Logger.log(FileUtils.class.getName() + " fileSize:  " + path + "not found or inaccessible");
+        } finally {
+            try {
+                if (fconn != null) fconn.close();
+            } catch (IOException ignored) {}
+        }
+       return fsize;
+    }
+
+    /**
      * Copies a file or directory to a new location. If copying a directory, the
      * entire contents of the directory are copied recursively.
      *
