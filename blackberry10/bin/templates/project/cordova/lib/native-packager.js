@@ -24,7 +24,6 @@ var childProcess = require("child_process"),
     logger = require("./logger"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
-    webworksInfo = require('./../../../../../framework/lib/webworks-info'),
     i18nMgr = require("./i18n-manager"),
     NL = pkgrUtils.isWindows() ? "\r\n" : "\n";
 
@@ -70,13 +69,6 @@ function generateTabletXMLFile(session, config) {
     if (session.debug) {
         xmlObject.env.push({
             _attr : { value : 'slog2', var : 'CONSOLE_MODE' }
-        });
-    }
-
-    //If version can be attained, set env variable
-    if (webworksInfo && webworksInfo.version) {
-        xmlObject.env.push({
-            _attr : { value : webworksInfo.version, var : 'WEBWORKS_VERSION'}
         });
     }
 
