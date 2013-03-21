@@ -228,7 +228,7 @@ public class FileUtils {
     public static void mkdir(String dirPath) throws IOException {
         FileConnection fconn = null;
         try {
-            fconn = (FileConnection)Connector.open(dirPath, Connector.READ);
+            fconn = (FileConnection)Connector.open(dirPath);
             if (fconn.isDirectory()) {
                 // nothing to do
                 return;
