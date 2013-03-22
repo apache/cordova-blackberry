@@ -46,9 +46,6 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(fs.existsSync(appFolder)).toEqual(true);
-            expect(_stdout).toEqual("Project creation complete!");
-            expect(_stderr).toEqual("");
         });
     });
 

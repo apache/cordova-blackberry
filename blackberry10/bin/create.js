@@ -141,7 +141,6 @@ var build,
             process.exit(1);
         }
         else {
-            console.log("Project creation complete!");
             process.exit();
         }
     }
@@ -156,7 +155,8 @@ var build,
                 .andThen(clean)
                 .andThen(copyJavascript)
                 .andThen(copyFilesToProject)
-                .andThen(updateProject);
+                .andThen(updateProject)
+                .andThen(clean);
 
             build.start(function (error) {
                 done(error);
