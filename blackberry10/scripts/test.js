@@ -25,7 +25,8 @@ module.exports = function (done, custom) {
         specs = [
             "framework/test",
             "bin/test/cordova/integration",
-            "bin/test/cordova/unit"
+            "bin/test/cordova/unit",
+            "bin/test/plugins"
         ];
         key = {};
 
