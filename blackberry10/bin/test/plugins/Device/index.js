@@ -13,10 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _apiDir = __dirname + "./../../../templates/project/plugins/Device/",
-index;
 
 describe("Device", function () {
+
+    var _apiDir = __dirname + "./../../../templates/project/plugins/Device/",
+        index,
+        result = {
+            ok: jasmine.createSpy()
+        };
+    
     beforeEach(function () {
         index = require(_apiDir + "index");
     });
@@ -35,34 +40,37 @@ describe("Device", function () {
                     }
                 }
             };
+            GLOBAL.PluginResult = function () {
+                return result;
+            };
         });
 
         afterEach(function () {
             delete GLOBAL.window;
+            delete GLOBAL.PluginResult;
         });
 
-        it("calls success with the Device info", function () {
+        it("calls ok with the Device info", function () {
             var mockedDevice = {
                 scmBundle: "1.0.0.0",
                 modelName: "q10",
                 devicePin: (new Date()).getTime()
-            },
-            success = jasmine.createSpy().andCallFake(function (deviceInfo) {
+            };
+
+            result.ok = jasmine.createSpy().andCallFake(function (deviceInfo) {
                 expect(deviceInfo.platform).toEqual("blackberry10");
                 expect(deviceInfo.version).toEqual(mockedDevice.scmBundle);
                 expect(deviceInfo.model).toEqual(mockedDevice.modelName);
                 expect(deviceInfo.name).toEqual(mockedDevice.modelName);
                 expect(deviceInfo.uuid).toEqual(mockedDevice.devicePin);
                 expect(deviceInfo.cordova).toBeDefined();
-            }),
-            fail = jasmine.createSpy();
+            });
 
             window.qnx.webplatform.device = mockedDevice;
 
-            index.getDeviceInfo(success, fail);
+            index.getDeviceInfo();
 
-            expect(success).toHaveBeenCalled();
-            expect(fail).not.toHaveBeenCalled();
+            expect(result.ok).toHaveBeenCalled();
         });
     });
 });

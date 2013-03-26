@@ -91,7 +91,7 @@ module.exports = {
             plugin[req.params.action](req,
             function (result) {
                 res.send(200, encodeURIComponent(JSON.stringify({
-                    code: 1,
+                    code: 42,
                     data: result
                 })));
             },

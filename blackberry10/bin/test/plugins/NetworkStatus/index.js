@@ -13,10 +13,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _apiDir = __dirname + "./../../../templates/project/plugins/NetworkStatus/",
-index;
+
 
 describe("NetworkStatus", function () {
+    var _apiDir = __dirname + "./../../../templates/project/plugins/NetworkStatus/",
+        index,
+        result = {
+            ok: jasmine.createSpy(),
+            error: jasmine.createSpy()
+        };
+
     beforeEach(function () {
         index = require(_apiDir + "index");
     });
@@ -35,10 +41,14 @@ describe("NetworkStatus", function () {
                     }
                 }
             };
+            GLOBAL.PluginResult = function () {
+                return result;
+            };
         });
 
         afterEach(function () {
             delete GLOBAL.window;
+            delete GLOBAL.PluginResult;
         });
 
         function testConnection(expectedResult, mockedType, mockedTechnology) {
@@ -47,18 +57,16 @@ describe("NetworkStatus", function () {
                     type: mockedType,
                     technology: mockedTechnology
                 }
-            },
-            success = jasmine.createSpy(),
-            fail = jasmine.createSpy();
+            };
 
             if (mockedType) {
                 window.qnx.webplatform.device = mockedDevice;
             }
 
-            index.getConnectionInfo(success, fail);
+            index.getConnectionInfo();
 
-            expect(success).toHaveBeenCalledWith(expectedResult);
-            expect(fail).not.toHaveBeenCalled();
+            expect(result.ok).toHaveBeenCalledWith(expectedResult);
+            expect(result.error).not.toHaveBeenCalled();
         }
 
         it("calls success with a wired connection", function () {
@@ -106,4 +114,5 @@ describe("NetworkStatus", function () {
         });
 
     });
+
 });
