@@ -16,14 +16,15 @@
 
 module.exports = {
     getDeviceInfo: function (success, fail, args, env) {
-        var info = {
-            platform: "blackberry10",
-            version: window.qnx.webplatform.device.scmBundle,
-            model: window.qnx.webplatform.device.modelName,
-            name: window.qnx.webplatform.device.modelName, // deprecated: please use device.model
-            uuid: window.qnx.webplatform.device.devicePin,
-            cordova: "2.5.0"
-        };
-        success(info);
+        var result = new PluginResult(args, env),
+            info = {
+                platform: "blackberry10",
+                version: window.qnx.webplatform.device.scmBundle,
+                model: window.qnx.webplatform.device.modelName,
+                name: window.qnx.webplatform.device.modelName, // deprecated: please use device.model
+                uuid: window.qnx.webplatform.device.devicePin,
+                cordova: "2.5.0"
+            };
+        result.ok(info);
     }
 };

@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit 81a30b465c3f84cc020dda5a7ede6e83a8e44385
+// commit a69c579c923e9bb0b709a64b782d55a137edb043
 
-// File generated at :: Tue Mar 19 2013 13:22:52 GMT-0400 (EDT)
+// File generated at :: Tue Mar 26 2013 15:21:10 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -968,39 +968,8 @@ var cordova = require('cordova'),
 
 module.exports = function(success, fail, service, action, args) {
     try {
-        var manager = require('cordova/plugin/blackberry10/manager'),
-            v = manager.exec(success, fail, service, action, args);
-
-        // If status is OK, then return value back to caller
-        if (v.status == cordova.callbackStatus.OK) {
-
-            // If there is a success callback, then call it now with returned value
-            if (success) {
-                try {
-                    success(v.message);
-                }
-                catch (e) {
-                    console.log("Error in success callback: "+cordova.callbackId+" = "+e);
-                }
-            }
-            return v.message;
-        } else if (v.status == cordova.callbackStatus.NO_RESULT) {
-
-        } else {
-            // If error, then display error
-            console.log("Error: Status="+v.status+" Message="+v.message);
-
-            // If there is a fail callback, then call it now with returned value
-            if (fail) {
-                try {
-                    fail(v.message);
-                }
-                catch (e) {
-                    console.log("Error in error callback: "+cordova.callbackId+" = "+e);
-                }
-            }
-            return null;
-        }
+        require('cordova/plugin/blackberry10/manager').exec(success, fail, service, action, args);
+        return null;
     } catch (e) {
         utils.alert("Error: "+e);
     }
@@ -3898,31 +3867,6 @@ module.exports = {
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/battery.js
-define("cordova/plugin/blackberry10/battery", function(require, exports, module) {
-
-var cordova = require('cordova'),
-    interval;
-
-module.exports = {
-    start: function (args, win, fail) {
-        interval = window.setInterval(function () {
-            win({
-                level: navigator.webkitBattery.level * 100,
-                isPlugged: navigator.webkitBattery.charging
-            });
-        }, 500);
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
-    },
-
-    stop: function (args, win, fail) {
-        window.clearInterval(interval);
-        return { "status" : cordova.callbackStatus.OK, "message" : "stopped" };
-    }
-};
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/camera.js
 define("cordova/plugin/blackberry10/camera", function(require, exports, module) {
 
@@ -4785,7 +4729,6 @@ define("cordova/plugin/blackberry10/manager", function(require, exports, module)
 var cordova = require('cordova'),
     plugins = {
         'Accelerometer' : require('cordova/plugin/blackberry10/accelerometer'),
-        'Battery' : require('cordova/plugin/blackberry10/battery'),
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
         'Camera' : require('cordova/plugin/blackberry10/camera'),
         'Capture' : require('cordova/plugin/blackberry10/capture'),
@@ -5102,7 +5045,7 @@ module.exports = {
             if (plugins.hasOwnProperty(plugin) && plugins[plugin].modules) {
                 for (i = 0; i < plugins[plugin].modules.length; i++) {
                     script = document.createElement('script');
-                    script.src = 'plugins/' + plugin + '/' + plugins[plugin].modules[i];
+                    script.src = 'local:///plugins/' + plugin + '/' + plugins[plugin].modules[i];
                     script.onload = function () {
                         if (--count === 0 && typeof callback === 'function') {
                             build(plugins);
@@ -5114,13 +5057,16 @@ module.exports = {
                 }
             }
         }
+        if (count === 0) {
+           callback();
+        }
     },
 
     getPlugins: function (success, error) {
         var request,
             response;
         request = new XMLHttpRequest();
-        request.open('GET', 'plugins/plugins.json', true);
+        request.open('GET', 'local:///plugins/plugins.json', true);
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
                 if (request.status === 200) {
@@ -7634,20 +7580,8 @@ window.cordova = require('cordova');
                 data;
 
             request.send(JSON.stringify(params));
-
             response = JSON.parse(decodeURIComponent(request.responseText) || "null");
-            errored = response.code < 0;
-            cb = errored ? error : success;
-            data = errored ? response.msg : response.data;
-
-            if (cb) {
-                cb(data, response);
-            }
-            else if (errored) {
-                throw data;
-            }
-
-            return { status: 0 };
+            return response;
         };
     }
 
@@ -7655,7 +7589,10 @@ window.cordova = require('cordova');
         exec: function (success, fail, service, action, args) {
             var uri = service + "/" + action,
                 request = new RemoteFunctionCall(uri),
-                name;
+                callbackId = service + cordova.callbackId++,
+                response,
+                name,
+                didSucceed;
 
             for (name in args) {
                 if (Object.hasOwnProperty.call(args, name)) {
@@ -7663,7 +7600,26 @@ window.cordova = require('cordova');
                 }
             }
 
-            return request.makeSyncCall(success, fail);
+            cordova.callbacks[callbackId] = {success:success, fail:fail};
+            request.addParam("callbackId", callbackId);
+
+            response = request.makeSyncCall();
+
+            //Old WebWorks Extension success
+            if (response.code === 42) {
+                if (success) {
+                    success(response.data, response);
+                }
+                delete cordova.callbacks[callbackId];
+            } else if (response.code < 0) {
+                if (fail) {
+                    fail(response.msg, response);
+                }
+                delete cordova.callbacks[callbackId];
+            } else {
+                didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
+                cordova.callbackFromNative(callbackId, didSucceed, response.code, [didSucceed ? response.data : response.msg], !!response.keepCallback);
+            }
         },
         defineReadOnlyField: function (obj, field, value) {
             Object.defineProperty(obj, field, {
