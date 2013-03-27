@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit f9ac2930aa892422deff2be5a3b3b8f5e8f7edc0
+// commit c8e2a018e93036393bcf5e0edd855187e5c587c5
 
-// File generated at :: Mon Apr 08 2013 15:58:16 GMT-0400 (EDT)
+// File generated at :: Thu Apr 11 2013 16:14:07 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -31,17 +31,28 @@ var require,
     define;
 
 (function () {
-    var modules = {};
+    var modules = {},
     // Stack of moduleIds currently being built.
-    var requireStack = [];
+        requireStack = [],
     // Map of module ID -> index into requireStack of modules currently being built.
-    var inProgressModules = {};
+        inProgressModules = {},
+        SEPERATOR = ".";
+
+
 
     function build(module) {
-        var factory = module.factory;
+        var factory = module.factory,
+            localRequire = function (id) {
+                var resultantId = id;
+                //Its a relative path, so lop off the last portion and add the id (minus "./")
+                if (id.charAt(0) === ".") {
+                    resultantId = module.id.slice(0, module.id.lastIndexOf(SEPERATOR)) + SEPERATOR + id.slice(2);
+                }
+                return require(resultantId);
+            };
         module.exports = {};
         delete module.factory;
-        factory(require, module.exports, module);
+        factory(localRequire, module.exports, module);
         return module.exports;
     }
 
@@ -949,7 +960,6 @@ define("cordova/exec", function(require, exports, module) {
 
 var cordova = require('cordova'),
     plugins = {
-        'Accelerometer' : require('cordova/plugin/blackberry10/accelerometer'),
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
         'Capture' : require('cordova/plugin/blackberry10/capture'),
         'Media': require('cordova/plugin/blackberry10/media'),
@@ -3836,34 +3846,6 @@ module.exports = {
     close: function (args, win, fail) {
         browser.close();
         return { "status" : cordova.callbackStatus.OK, "message" : "" };
-    }
-};
-
-});
-
-// file: lib/blackberry10/plugin/blackberry10/accelerometer.js
-define("cordova/plugin/blackberry10/accelerometer", function(require, exports, module) {
-
-var cordova = require('cordova'),
-    callback;
-
-module.exports = {
-    start: function (args, win, fail) {
-        window.removeEventListener("devicemotion", callback);
-        callback = function (motion) {
-            win({
-                x: motion.accelerationIncludingGravity.x,
-                y: motion.accelerationIncludingGravity.y,
-                z: motion.accelerationIncludingGravity.z,
-                timestamp: motion.timestamp
-            });
-        };
-        window.addEventListener("devicemotion", callback);
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
-    },
-    stop: function (args, win, fail) {
-        window.removeEventListener("devicemotion", callback);
-        return { "status" : cordova.callbackStatus.OK, "message" : "removed" };
     }
 };
 
