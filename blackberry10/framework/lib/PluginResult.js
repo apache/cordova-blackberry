@@ -32,12 +32,12 @@ function PluginResult (args, env) {
         send({ code: CALLBACK_STATUS_NO_RESULT, keepCallback: !!keepCallback });
     };
 
-    this.error = function (msg) {
-        send({ code: CALLBACK_STATUS_ERROR, msg: msg, keepCallback: false });
+    this.error = function (msg, keepCallback) {
+        send({ code: CALLBACK_STATUS_ERROR, msg: msg, keepCallback: !!keepCallback });
     };
 
-    this.ok = function (data) {
-        send({ code: CALLBACK_STATUS_OK, data: data, keepCallback: false });
+    this.ok = function (data, keepCallback) {
+        send({ code: CALLBACK_STATUS_OK, data: data, keepCallback: !!keepCallback });
     };
 
     this.callbackOk = function (data, keepCallback) {
