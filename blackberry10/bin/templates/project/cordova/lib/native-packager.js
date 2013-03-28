@@ -68,7 +68,7 @@ function generateTabletXMLFile(session, config) {
     //Enable slog2 output if debugging
     if (session.debug) {
         xmlObject.env.push({
-            _attr : { value : 'slog2', var : 'CONSOLE_MODE' }
+            _attr : { value : 'slog2', 'var' : 'CONSOLE_MODE' }
         });
     }
 
