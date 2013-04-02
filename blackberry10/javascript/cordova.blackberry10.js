@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit 4c7d302ca09258a6ab9306e7647b1478b06c498a
+// commit 2a6ac9642dcc875318e348c64bf4e69d2e932cc1
 
-// File generated at :: Mon Apr 01 2013 10:04:19 GMT-0400 (EDT)
+// File generated at :: Mon Apr 08 2013 09:08:23 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -952,7 +952,6 @@ var cordova = require('cordova'),
         'Accelerometer' : require('cordova/plugin/blackberry10/accelerometer'),
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
         'Capture' : require('cordova/plugin/blackberry10/capture'),
-        'Logger' : require('cordova/plugin/blackberry10/logger'),
         'Notification' : require('cordova/plugin/blackberry10/notification'),
         'Media': require('cordova/plugin/blackberry10/media'),
         'FileTransfer': require('cordova/plugin/blackberry10/fileTransfer')
@@ -4665,21 +4664,6 @@ module.exports = {
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/logger.js
-define("cordova/plugin/blackberry10/logger", function(require, exports, module) {
-
-var cordova = require('cordova');
-
-module.exports = {
-    log: function (args, win, fail) {
-        console.log(args);
-        return {"status" : cordova.callbackStatus.OK,
-                "message" : 'Message logged to console: ' + args};
-    }
-};
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/magnetometer.js
 define("cordova/plugin/blackberry10/magnetometer", function(require, exports, module) {
 
@@ -4930,13 +4914,15 @@ module.exports = {
     id: "blackberry10",
     initialize: function () {
         document.addEventListener("deviceready", function () {
+            /*
+             TODO
             blackberry.event.addEventListener("pause", function () {
                 cordova.fireDocumentEvent("pause");
             });
             blackberry.event.addEventListener("resume", function () {
                 cordova.fireDocumentEvent("resume");
             });
-
+            */
             window.addEventListener("online", function () {
                 cordova.fireDocumentEvent("online");
             });
@@ -4947,8 +4933,8 @@ module.exports = {
         });
     },
     clobbers: {
-        open: {
-            path: "cordova/plugin/InAppBrowser"
+        requestFileSystem: {
+            path: "cordova/plugin/blackberry10/requestFileSystem"
         }
     },
     merges: {
@@ -5034,6 +5020,30 @@ module.exports = {
         request.send(null);
     }
 }
+
+});
+
+// file: lib/blackberry10/plugin/blackberry10/requestFileSystem.js
+define("cordova/plugin/blackberry10/requestFileSystem", function(require, exports, module) {
+
+function getFileSystemName(fs) {
+    return (fs.name.indexOf("Persistent") != -1) ? "persistent" : "temporary";
+}
+
+function makeEntry(entry) {
+    if (entry.isDirectory) {
+        return new DirectoryEntry(entry.name, decodeURI(entry.toURL()).substring(11));
+    }
+    else {
+        return new FileEntry(entry.name, decodeURI(entry.toURL()).substring(11));
+    }
+}
+
+module.exports = function (type, size, success, fail) {
+    window.webkitRequestFileSystem(type, size, function (fs) {
+        success((new FileSystem(getFileSystemName(fs), makeEntry(fs.root))));
+    }, fail);
+};
 
 });
 
