@@ -134,7 +134,7 @@ function getModulesArray(dest, files, baseDir) {
 
         if (!fs.statSync(file).isDirectory()) {
             if (baseDir !== dest.EXT || !isExcluded(file)) {
-                modulesList.push(path.relative(path.normalize(dest.CHROME), file).replace(/\\/g, "/"));
+                modulesList.push({name: path.relative(path.normalize(dest.CHROME), file).replace(/\\/g, "/"), file: file});
             }
         }
     });
@@ -145,7 +145,8 @@ function getModulesArray(dest, files, baseDir) {
 function generateFrameworkModulesJS(session) {
     var dest = session.sourcePaths,
         modulesList = [],
-        modulesStr = "var frameworkModules = ",
+        modulesStr = "(function () { ",
+        frameworkModulesStr = "window.frameworkModules = [",
         libFiles = wrench.readdirSyncRecursive(dest.LIB),
         extFiles,
         extModules;
@@ -158,8 +159,16 @@ function generateFrameworkModulesJS(session) {
         modulesList = modulesList.concat(extModules);
     }
 
-    modulesStr += JSON.stringify(modulesList, null, "    ") + ";";
-    fs.writeFileSync(path.normalize(dest.CHROME + "/frameworkModules.js"), modulesStr);
+    modulesList.forEach(function (module, index) {
+        modulesStr += "define('" + module.name + "', function (require, exports, module) {\n" +
+                      fs.readFileSync(module.file, "utf-8") + "\n" +
+                      "});\n";
+        frameworkModulesStr += "'" + module.name + "'" +  (index !== modulesList.length-1 ? ", " : "");
+    });
+
+    modulesStr += "}());";
+    frameworkModulesStr += "];\n";
+    fs.writeFileSync(path.normalize(dest.CHROME + "/frameworkModules.js"), frameworkModulesStr + modulesStr);
 }
 
 function copyWWE(session, target) {
