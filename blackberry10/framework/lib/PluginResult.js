@@ -19,14 +19,17 @@ function PluginResult (args, env) {
     var CALLBACK_STATUS_NO_RESULT = 0,
         CALLBACK_STATUS_OK = 1,
         CALLBACK_STATUS_ERROR = 9,
+        callbackId = JSON.parse(decodeURIComponent(args.callbackId)),
         send = function (data) {
             env.response.send(200, encodeURIComponent(JSON.stringify(data)));
         },
         callback = function (success, status, data, keepCallback) {
-            var executeString = "cordova.callbackFromNative(" + decodeURIComponent(args.callbackId) +
-                ", " + !!success + ", " + status + ", " + data + ", " + !!keepCallback + ");";
+            var executeString = "cordova.callbackFromNative('" + callbackId  + "', " +
+                !!success + ", " + status + ", " + data + ", " + !!keepCallback + ");";
             env.webview.executeJavaScript(executeString);
         };
+
+    Object.defineProperty(this, "callbackId", {enumerable: true, value: callbackId});
 
     this.noResult = function (keepCallback) {
         send({ code: CALLBACK_STATUS_NO_RESULT, keepCallback: !!keepCallback });
