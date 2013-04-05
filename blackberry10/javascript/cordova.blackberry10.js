@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit 2a6ac9642dcc875318e348c64bf4e69d2e932cc1
+// commit f9ac2930aa892422deff2be5a3b3b8f5e8f7edc0
 
-// File generated at :: Mon Apr 08 2013 09:08:23 GMT-0400 (EDT)
+// File generated at :: Mon Apr 08 2013 15:58:16 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -952,7 +952,6 @@ var cordova = require('cordova'),
         'Accelerometer' : require('cordova/plugin/blackberry10/accelerometer'),
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
         'Capture' : require('cordova/plugin/blackberry10/capture'),
-        'Notification' : require('cordova/plugin/blackberry10/notification'),
         'Media': require('cordova/plugin/blackberry10/media'),
         'FileTransfer': require('cordova/plugin/blackberry10/fileTransfer')
     };
@@ -4868,43 +4867,6 @@ module.exports = {
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/notification.js
-define("cordova/plugin/blackberry10/notification", function(require, exports, module) {
-
-var cordova = require('cordova');
-
-module.exports = {
-    alert: function (args, win, fail) {
-        if (args.length !== 3) {
-            return {"status" : 9, "message" : "Notification action - alert arguments not found"};
-        }
-
-        //Unpack and map the args
-        var msg = args[0],
-            title = args[1],
-            btnLabel = args[2];
-
-        blackberry.ui.dialog.customAskAsync.apply(this, [ msg, [ btnLabel ], win, { "title" : title } ]);
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
-    },
-    confirm: function (args, win, fail) {
-        if (args.length !== 3) {
-            return {"status" : 9, "message" : "Notification action - confirm arguments not found"};
-        }
-
-        //Unpack and map the args
-        var msg = args[0],
-            title = args[1],
-            btnLabel = args[2],
-            btnLabels = btnLabel.split(",");
-
-        blackberry.ui.dialog.customAskAsync.apply(this, [msg, btnLabels, win, {"title" : title} ]);
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "WebWorks Is On It" };
-    }
-};
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/platform.js
 define("cordova/plugin/blackberry10/platform", function(require, exports, module) {
 
@@ -4935,6 +4897,17 @@ module.exports = {
     clobbers: {
         requestFileSystem: {
             path: "cordova/plugin/blackberry10/requestFileSystem"
+        },
+        navigator: {
+            children: {
+                notification: {
+                    children: {
+                        vibrate: {
+                            path: 'cordova/plugin/blackberry10/vibrate'
+                        }
+                    }
+                }
+            }
         }
     },
     merges: {
@@ -5583,6 +5556,22 @@ self = module.exports = {
         }
 
         return newObj;
+    }
+};
+
+});
+
+// file: lib/blackberry10/plugin/blackberry10/vibrate.js
+define("cordova/plugin/blackberry10/vibrate", function(require, exports, module) {
+
+module.exports = function (time) {
+    var proto = Object.getPrototypeOf(navigator);
+
+    if (proto && proto.vibrate) {
+        proto.vibrate(time);
+    } else if (proto && proto.webkitVibrate) {
+        //Older OS contain webkit prefix
+        proto.webkitVibrate(time);
     }
 };
 
