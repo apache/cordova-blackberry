@@ -20,5 +20,5 @@ var wrench = require('wrench'),
     path = require("path"),
     buildPath = path.normalize(__dirname + "/../../build/");
 
-   wrench.rmdirSyncRecursive(dirPath, true);
+   wrench.rmdirSyncRecursive(buildPath, true);
 
