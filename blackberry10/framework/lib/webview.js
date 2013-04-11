@@ -58,7 +58,12 @@ webview =
             _webviewObj.allowWebEvent("DialogRequested");
 
             _webviewObj.addEventListener("DocumentLoadFinished", function () {
-                window.qnx.webplatform.getApplication().windowVisible = true;
+                // show app window if auto hide splash screen is true, OR splash screen is not specified
+                // if auto hide is set to false explicitly but no splash screen is specified, should still show app window
+                // otherwise the app cannot be launched
+                if (config.autoHideSplashScreen || !config["rim:splash"]) {
+                    window.qnx.webplatform.getApplication().windowVisible = true;
+                }
             });
 
 
@@ -70,7 +75,9 @@ webview =
 
             // If content is not loaded, too bad open the visibility up.
             setTimeout(function () {
-                window.qnx.webplatform.getApplication().windowVisible = true;
+                if (config.autoHideSplashScreen || !config["rim:splash"]) {
+                    window.qnx.webplatform.getApplication().windowVisible = true;
+                }
             }, 2500);
         });
 

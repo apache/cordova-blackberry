@@ -516,9 +516,10 @@ function processNameAndDescription(data, widgetConfig) {
 }
 
 function processCordovaPreferences(data, widgetConfig) {
-    if (data.preferences) {
-        var preferences = processParamObj(data.preferences);
-        widgetConfig.packageCordovaJs = preferences.packageCordovaJs === "enable";
+    if (data.preference) {
+        var preference = processParamObj(data.preference);
+        widgetConfig.packageCordovaJs = preference.packageCordovaJs === "enable";
+        widgetConfig.autoHideSplashScreen = preference.AutoHideSplashScreen !== "false";
     }
 }
 
