@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
        distributed with this work for additional information
@@ -24,7 +24,7 @@
 
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:rim="http://www.blackberry.com/ns/widgets"
-	version="1.0.0.0" id="__PACKAGE__">
+	version="1.0.0.0">
 
   <name>__NAME__</name>
 
@@ -33,7 +33,7 @@
   <description>
        A sample Apache Cordova application that responds to the deviceready event.
   </description>
-    
+
   <license href="http://opensource.org/licenses/alphabetical">
   </license>
 
@@ -65,7 +65,7 @@
   <feature id="blackberry.invoked" />
   <feature id="blackberry.push" />
   <feature id="blackberry.media.microphone" required="true" version="1.0.0.0"/>
-  
+
   <!-- Cordova API -->
   <access subdomains="true" uri="file:///store/home" />
   <access subdomains="true" uri="file:///SDCard" />
@@ -89,8 +89,8 @@
     <rim:permit>read_device_identifying_information</rim:permit>
     <rim:permit>access_shared</rim:permit>
     <rim:permit>read_geolocation</rim:permit>
-    <rim:permit>record_audio</rim:permit> 
-    <rim:permit>access_pimdomain_contacts</rim:permit> 
+    <rim:permit>record_audio</rim:permit>
+    <rim:permit>access_pimdomain_contacts</rim:permit>
   </rim:permissions>
 
 </widget>
