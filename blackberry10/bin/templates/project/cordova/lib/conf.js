@@ -28,14 +28,14 @@ function getToolsDir() {
 }
 
 module.exports = {
-    ROOT: path.normalize(__dirname + "/../Framework"),
+    ROOT: path.normalize(__dirname + "/../framework"),
     PROJECT_ROOT: path.normalize(__dirname + "/../../"),
-    BIN: path.normalize(__dirname + "/../Framework/bin"),
-    LIB: path.normalize(__dirname + "/../Framework/lib"),
+    BIN: path.normalize(__dirname + "/../framework/bin"),
+    LIB: path.normalize(__dirname + "/../framework/lib"),
     EXT: path.normalize(__dirname + "/../../plugins"),
-    UI: path.normalize(__dirname + "/../Framework/ui-resources"),
-    DEPENDENCIES: path.normalize(__dirname + "/../Framework/dependencies"),
-    DEPENDENCIES_BOOTSTRAP: path.normalize(__dirname + "/../Framework/bootstrap"),
+    UI: path.normalize(__dirname + "/../framework/ui-resources"),
+    DEPENDENCIES: path.normalize(__dirname + "/../framework/dependencies"),
+    DEPENDENCIES_BOOTSTRAP: path.normalize(__dirname + "/../framework/bootstrap"),
     DEPENDENCIES_TOOLS: getToolsDir(),
     DEPENDENCIES_WWE: path.normalize(__dirname + "/../dependencies/%s-wwe"),
     DEBUG_TOKEN: path.normalize(__dirname + "/../debugtoken.bar"),
