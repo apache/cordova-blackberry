@@ -20,7 +20,7 @@
     "xml2js": "0.1.13",
     "validator": "0.4.1",
     "wrench": "1.3.9",
-    "plugman": "git+https://github.com/blackberry/cordova-plugman.git#master"
+    "plugman": "git+https://github.com/blackberry/cordova-plugman.git#blackberry10"
   },
   "files": [
     "node_modules",
