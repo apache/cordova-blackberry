@@ -1,0 +1,7 @@
+#!/bin/sh
+cd $( dirname "$0")/../
+
+if [ "$1" = "add" ]
+    then
+        ./cordova/node_modules/plugman/plugman.js  --platform blackberry10 --project . --plugin $2
+fi
