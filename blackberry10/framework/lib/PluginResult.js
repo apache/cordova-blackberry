@@ -25,7 +25,7 @@ function PluginResult (args, env) {
         },
         callback = function (success, status, data, keepCallback) {
             var executeString = "cordova.callbackFromNative('" + callbackId  + "', " +
-                !!success + ", " + status + ", " + data + ", " + !!keepCallback + ");";
+                !!success + ", " + status + ", [" + data + "], " + !!keepCallback + ");";
             env.webview.executeJavaScript(executeString);
         };
 
