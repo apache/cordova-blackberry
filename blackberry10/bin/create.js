@@ -29,17 +29,17 @@ var build,
     fs = require("fs"),
     wrench = require("wrench"),
     jWorkflow = require("jWorkflow"),
-    utils = require('./lib/utils'),
+    utils = require(path.join(__dirname, 'lib/utils')),
     version = getVersion(),
     project_path = process.argv[2],
     app_id = process.argv[3],
     bar_name = process.argv[4],
-    template_project_dir = "/templates/project",
-    modules_project_dir = "/../node_modules",
-    framework_project_dir = "/../framework",
-    build_dir = "build",
-    update_dir = "lib/cordova." + version,
-    js_src = "../javascript",
+    template_project_dir = path.join(__dirname, "templates", "project"),
+    modules_project_dir = path.join(__dirname, "..", "node_modules"),
+    framework_project_dir = path.join(__dirname, "..", "framework"),
+    build_dir = path.join(__dirname, "build"),
+    update_dir = path.join(project_path, "lib", "cordova." + version),
+    js_src = path.join(__dirname, "..", "javascript"),
     js_path = "javascript",
     js_basename = "cordova-" + version + ".js";
 
@@ -88,34 +88,34 @@ var build,
 
     function copyJavascript() {
         wrench.mkdirSyncRecursive(build_dir + "/" + js_path, 0777);
-        utils.copyFile(__dirname + "/" + js_src + "/cordova.blackberry10.js", build_dir + "/" + js_path);
+        utils.copyFile(path.join(js_src, "cordova.blackberry10.js"), path.join(build_dir, js_path));
 
         //rename copied cordova.blackberry10.js file
-        fs.renameSync(build_dir + "/" + js_path + "/cordova.blackberry10.js", build_dir + "/" + js_path + "/" + js_basename);
+        fs.renameSync(path.join(build_dir, js_path, "cordova.blackberry10.js"), path.join(build_dir, js_path, js_basename));
     }
 
     function copyFilesToProject() {
         // create project using template directory
         wrench.mkdirSyncRecursive(project_path, 0777);
-        wrench.copyDirSyncRecursive(__dirname + template_project_dir, project_path);
+        wrench.copyDirSyncRecursive(template_project_dir, project_path);
 
         // change file permission for cordova scripts because ant copy doesn't preserve file permissions
         wrench.chmodSyncRecursive(project_path + "/cordova", 0700);
 
         //copy cordova-*version*.js to www
-        utils.copyFile(build_dir + "/" + js_path + "/" + js_basename, project_path + "/www");
+        utils.copyFile(path.join(build_dir, js_path, js_basename), path.join(project_path, "www"));
 
         //copy node modules to cordova build directory
         wrench.mkdirSyncRecursive(project_path + "/cordova/node_modules", 0777);
-        wrench.copyDirSyncRecursive(__dirname + modules_project_dir, project_path + "/cordova/node_modules");
+        wrench.copyDirSyncRecursive(modules_project_dir, path.join(project_path, "cordova", "node_modules"));
         fs.chmodSync(project_path + "/cordova/node_modules/plugman/plugman.js", 0755);
 
         //copy framework
-        wrench.copyDirSyncRecursive(__dirname + framework_project_dir, project_path + "/cordova/framework");
+        wrench.copyDirSyncRecursive(framework_project_dir, path.join(project_path, "cordova", "framework"));
 
         // save release
-        wrench.mkdirSyncRecursive(project_path + "/" + update_dir, 0777);
-        wrench.copyDirSyncRecursive(build_dir, project_path + "/" + update_dir);
+        wrench.mkdirSyncRecursive(update_dir, 0777);
+        wrench.copyDirSyncRecursive(build_dir, update_dir);
     }
 
     function updateProject() {
@@ -131,7 +131,7 @@ var build,
         if (typeof bar_name !== "undefined") {
             projectJson = require(path.resolve(project_path + "/project.json"));
             projectJson.barName = bar_name;
-            fs.writeFileSync(project_path + "/project.json", JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
+            fs.writeFileSync(path.join(project_path, "project.json"), JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
         }
     }
 
