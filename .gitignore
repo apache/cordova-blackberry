@@ -1,3 +1,29 @@
-#Output files
+# OS X
+
+.DS_Store
+
+# Eclipse
+
+deliverables/
+.preprocessed/
+
+# Text Editor Tmp
+
+._*
+
+# Generated libraries
+
+build/
+dist/
+bin/node_modules
+bin/templates/project/lib
+example/
+ant-contrib-1.0b3.jar
 *.o
 *.a
+
+# OS X
+
+.DS_Store
+
+tags
