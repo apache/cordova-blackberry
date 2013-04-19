@@ -2,7 +2,7 @@
 
 // commit dd02e6c9cd4121910c714e798f84fad2dc072879
 
-// File generated at :: Fri Apr 19 2013 11:54:58 GMT-0400 (EDT)
+// File generated at :: Fri Apr 19 2013 12:41:18 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -933,13 +933,13 @@ module.exports = {
             modulemapper = require('cordova/modulemapper'),
             platform = require('cordova/plugin/blackberry10/platform');
 
-        builder.buildIntoButDoNotClobber(platform.defaults, window);
-        builder.buildIntoAndClobber(platform.clobbers, window);
-        builder.buildIntoAndMerge(platform.merges, window);
-
         modulemapper.loadMatchingModules(/cordova.*\/symbols$/);
         modulemapper.loadMatchingModules(new RegExp('cordova/blackberry10/.*bbsymbols$'));
         modulemapper.mapModules(window);
+
+        builder.buildIntoButDoNotClobber(platform.defaults, window);
+        builder.buildIntoAndClobber(platform.clobbers, window);
+        builder.buildIntoAndMerge(platform.merges, window);
 
         platform.initialize();
     }
