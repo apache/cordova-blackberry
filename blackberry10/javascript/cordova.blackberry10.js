@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit 57999a27c82207cdb0c73f6395d14d18fb1b4170
+// commit dd02e6c9cd4121910c714e798f84fad2dc072879
 
-// File generated at :: Wed Apr 17 2013 11:51:51 GMT-0400 (EDT)
+// File generated at :: Fri Apr 19 2013 11:54:58 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -1964,40 +1964,32 @@ FileReader.prototype.abort = function() {
     return this.nativeReader.abort();
 };
 
+function read(method, context, file, encoding) {
+    if (file.fullPath) {
+         fileUtils.getEntryForURI(file.fullPath, function (entry) {
+            entry.nativeEntry.file(function (nativeFile) {
+                context.nativeReader[method].call(context.nativeReader, nativeFile, encoding);
+            }, context.onerror);
+        }, context.onerror);
+    } else {
+        context.nativeReader[method](file, encoding);
+    }
+}
+
 FileReader.prototype.readAsText = function(file, encoding) {
-    var that = this;
-    fileUtils.getEntryForURI(file.fullPath, function (entry) {
-        entry.nativeEntry.file(function (nativeFile) {
-            that.nativeReader.readAsText(nativeFile, encoding);
-        }, that.onerror);
-    }, that.onerror);
+    read("readAsText", this, file, encoding);
 };
 
 FileReader.prototype.readAsDataURL = function(file) {
-    var that = this;
-    fileUtils.getEntryForURI(file.fullPath, function (entry) {
-        entry.nativeEntry.file(function (nativeFile) {
-            that.nativeReader.readAsDataURL(nativeFile);
-        }, that.onerror);
-    }, that.onerror);
+    read("readAsDataURL", this, file);
 };
 
 FileReader.prototype.readAsBinaryString = function(file) {
-    var that = this;
-    fileUtils.getEntryForURI(file.fullPath, function (entry) {
-        entry.nativeEntry.file(function (nativeFile) {
-            that.nativeReader.readAsBinaryString(nativeFile);
-        }, that.onerror);
-    }, that.onerror);
+    read("readAsBinaryString", this, file);
 };
 
 FileReader.prototype.readAsArrayBuffer = function(file) {
-    var that = this;
-    fileUtils.getEntryForURI(file.fullPath, function (entry) {
-        entry.nativeEntry.file(function (nativeFile) {
-            that.nativeReader.readAsArrayBuffer(nativeFile);
-        }, that.onerror);
-    }, that.onerror);
+    read("readAsArrayBuffer", this, file);
 };
 
 window.FileReader = FileReader;
