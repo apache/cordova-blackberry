@@ -48,7 +48,7 @@ function showDialog(args, dialogType, result) {
             //Prompt dialog callback expects object
             result.callbackOk({
                 buttonIndex: data.ok ? 1 : 0,
-                input1: (data.oktext) ? decodeURIComponent(data.oktext) : null
+                input1: (data.oktext) ? decodeURIComponent(data.oktext) : ""
             }, false);
         }
     });
