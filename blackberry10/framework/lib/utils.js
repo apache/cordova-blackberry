@@ -499,7 +499,7 @@ self = module.exports = {
     },
     translatePath: function (path) {
         if (path.indexOf("local:///") === 0) {
-            var sourceDir = window.qnx.webplatform.getApplication().getEnv("HOME"); //leading slashes need to be removed
+            var sourceDir = window.wp.getApplication().getEnv("HOME"); //leading slashes need to be removed
             path = "file:///" + sourceDir.replace(/^\/*/, '') + "/../app/native/" + path.replace(/local:\/\/\//, '');
         }
         return path;
@@ -509,10 +509,10 @@ self = module.exports = {
             uri: url,
             target: "sys.browser"
         };
-        window.qnx.webplatform.getApplication().invocation.invoke(request);
+        window.wp.core.invocation.invoke(request);
     },
     isPersonal: function () {
-        return window.qnx.webplatform.getApplication().getEnv("PERIMETER") === "personal";
+        return window.wp.getApplication().getEnv("PERIMETER") === "personal";
     },
     deepclone: function (obj) {
         var newObj = obj instanceof Array ? [] : {},

@@ -25,7 +25,7 @@ var PictureSourceType = {
     };
 
 function encodeBase64(filePath, callback) {
-    var sandbox = window.qnx.webplatform.getController().setFileSystemSandbox, // save original sandbox value
+    var sandbox = window.wp.getController().setFileSystemSandbox, // save original sandbox value
         errorHandler = function (err) {
             var msg = "An error occured: ";
 
@@ -52,7 +52,7 @@ function encodeBase64(filePath, callback) {
             };
 
             // set it back to original value
-            window.qnx.webplatform.getController().setFileSystemSandbox = sandbox;
+            window.wp.getController().setFileSystemSandbox = sandbox;
             callback(msg);
         },
         gotFile = function (fileEntry) {
@@ -61,7 +61,7 @@ function encodeBase64(filePath, callback) {
 
                 reader.onloadend = function (e) {
                     // set it back to original value
-                    window.qnx.webplatform.getController().setFileSystemSandbox = sandbox;
+                    window.wp.getController().setFileSystemSandbox = sandbox;
                     callback(this.result);
                 };
 
@@ -69,7 +69,7 @@ function encodeBase64(filePath, callback) {
             }, errorHandler);
         },
         onInitFs = function (fs) {
-            window.qnx.webplatform.getController().setFileSystemSandbox = false;
+            window.wp.getController().setFileSystemSandbox = false;
             fs.root.getFile(filePath, {create: false}, gotFile, errorHandler);
         };
 
@@ -107,12 +107,12 @@ module.exports = {
 
         switch(sourceType) {
         case PictureSourceType.CAMERA:
-            window.qnx.webplatform.getApplication().cards.camera.open("photo", done, cancel, invoked);
+            window.wp.getApplication().cards.camera.open("photo", done, cancel, invoked);
             break;
 
         case PictureSourceType.PHOTOLIBRARY:
         case PictureSourceType.SAVEDPHOTOALBUM:
-            window.qnx.webplatform.getApplication().cards.filePicker.open({
+            window.wp.getApplication().cards.filePicker.open({
                 mode: "Picker",
                 type: ["picture"]
             }, done, cancel, invoked);

@@ -32,8 +32,8 @@ describe("Overlay Webview", function () {
             setGeometry: jasmine.createSpy(),
             setApplicationOrientation: jasmine.createSpy(),
             notifyApplicationOrientationDone: jasmine.createSpy(),
-            onContextMenuRequestEvent: undefined,
-            onNetworkResourceRequested: undefined,
+            on: jasmine.createSpy(),
+            emit: jasmine.createSpy(),
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
             windowGroup: undefined,
@@ -50,7 +50,7 @@ describe("Overlay Webview", function () {
             }
         };
         mockedController = {
-            dispatchEvent : jasmine.createSpy(),
+            emit: jasmine.createSpy(),
             addEventListener : jasmine.createSpy()
         };
 
@@ -58,27 +58,35 @@ describe("Overlay Webview", function () {
             windowVisible: undefined
         };
         GLOBAL.qnx = {
-            callExtensionMethod: jasmine.createSpy(),
-            webplatform: {
-                getController: function () {
-                    return mockedController;
-                },
-                createUIWebView: function (createFunction) {
-                    runs(createFunction);
-                    return mockedWebview;
-                },
-                getApplication: function () {
-                    return mockedApplication;
-                }
+            callExtensionMethod: jasmine.createSpy()
+        };
+        GLOBAL.wp = {
+            getController: function () {
+                return mockedController;
+            },
+            createWebView: function (createFunction) {
+                runs(createFunction);
+                return mockedWebview;
+            },
+            getApplication: function () {
+                return mockedApplication;
             }
         };
         GLOBAL.window = {
-            qnx: qnx
+            qnx: qnx,
+            wp: wp
         };
         GLOBAL.screen = {
             width : 1024,
             height: 768
         };
+    });
+
+    afterEach(function () {
+        delete GLOBAL.window;
+        delete GLOBAL.wp;
+        delete GLOBAL.qnx;
+        delete GLOBAL.screen;
     });
 
     describe("create", function () {
@@ -94,7 +102,7 @@ describe("Overlay Webview", function () {
                 expect(mockedWebview.sensitivity).toEqual("SensitivityTest");
                 expect(mockedWebview.allowQnxObject).toEqual(true);
                 expect(mockedWebview.allowRpc).toEqual(true);
-                expect(mockedController.dispatchEvent).toHaveBeenCalledWith("overlayWebView.initialized", jasmine.any(Array));
+                expect(mockedController.emit).toHaveBeenCalledWith("overlayWebView.initialized", jasmine.any(Array));
             });
         });
 

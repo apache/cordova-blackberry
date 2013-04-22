@@ -26,12 +26,12 @@ var networkResourceRequested = require('./webkitHandlers/networkResourceRequeste
 webview =
     {
     create: function (ready) {
-        _webviewObj = window.qnx.webplatform.createWebView({processId: OUT_OF_PROCESS, defaultSendEventHandlers: ['onChooseFile', 'onOpenWindow'], defaultWebEventHandlers: ['InvokeRequestEvent']}, function () {
+        _webviewObj = wp.createWebView({processId: OUT_OF_PROCESS, defaultSendEventHandlers: ['onChooseFile', 'onOpenWindow'], defaultWebEventHandlers: ['InvokeRequestEvent']}, function () {
             //Create webkit event handlers
             var requestObj =  networkResourceRequested.createHandler(_webviewObj);
 
             //Bind networkResourceRequested event so that everything works
-            _webviewObj.onNetworkResourceRequested = requestObj.networkResourceRequestedHandler;
+            _webviewObj.on("NetworkResourceRequested", requestObj.networkResourceRequestedHandler);
 
             webkitOriginAccess.addWebView(_webviewObj);
 
@@ -57,12 +57,12 @@ webview =
             /* Catch and trigger our custom HTML dialog */
             _webviewObj.allowWebEvent("DialogRequested");
 
-            _webviewObj.addEventListener("DocumentLoadFinished", function () {
+            _webviewObj.on("DocumentLoadFinished", function () {
                 // show app window if auto hide splash screen is true, OR splash screen is not specified
                 // if auto hide is set to false explicitly but no splash screen is specified, should still show app window
                 // otherwise the app cannot be launched
                 if (config.autoHideSplashScreen || !config["rim:splash"]) {
-                    window.qnx.webplatform.getApplication().windowVisible = true;
+                    wp.getApplication().windowVisible = true;
                 }
             });
 
@@ -71,12 +71,12 @@ webview =
                 ready();
             }
 
-            window.qnx.webplatform.getController().dispatchEvent("webview.initialized", [_webviewObj]);
+            wp.getController().emit("webview.initialized", [_webviewObj]);
 
             // If content is not loaded, too bad open the visibility up.
             setTimeout(function () {
                 if (config.autoHideSplashScreen || !config["rim:splash"]) {
-                    window.qnx.webplatform.getApplication().windowVisible = true;
+                    wp.getApplication().windowVisible = true;
                 }
             }, 2500);
         });
@@ -100,11 +100,11 @@ webview =
     },
 
     addEventListener: function (eventName, callback) {
-        _webviewObj.addEventListener(eventName, callback);
+        _webviewObj.on(eventName, callback);
     },
 
     removeEventListener: function (eventName, callback) {
-        _webviewObj.removeEventListener(eventName, callback);
+        _webviewObj.un(eventName, callback);
     },
 
     windowGroup: function () {
@@ -225,47 +225,47 @@ webview.__defineGetter__('processId', function () {
 });
 
 webview.__defineSetter__('onOpenWindow', function (input) {
-    _webviewObj.onOpenWindow = input;
+    _webviewObj.on("OpenWindow", input);
 });
 
 webview.__defineSetter__('onCloseWindow', function (input) {
-    _webviewObj.onCloseWindow = input;
+    _webviewObj.on("CloseWindow", input);
 });
 
 webview.__defineSetter__('onDestroyWindow', function (input) {
-    _webviewObj.onDestroyWindow = input;
+    _webviewObj.on("DestroyWindow", input);
 });
 
 webview.__defineSetter__('onDialogRequested', function (input) {
-    _webviewObj.onDialogRequested = input;
+    _webviewObj.on("DialogRequested", input);
 });
 
 webview.__defineSetter__('onGeolocationPermissionRequest', function (input) {
-    _webviewObj.onGeolocationPermissionRequest = input;
+    _webviewObj.on("GeolocationPermissionRequest", input);
 });
 
 webview.__defineSetter__('onSSLHandshakingFailed', function (input) {
-    _webviewObj.onSSLHandshakingFailed = input;
+    _webviewObj.on("SSLHandshakingFailed", input);
 });
 
 webview.__defineSetter__('onPropertyCurrentContextEvent', function (input) {
-    _webviewObj.onPropertyCurrentContextEvent = input;
+    _webviewObj.on("PropertyCurrentContextEvent", input);
 });
 
 webview.__defineSetter__('onContextMenuRequestEvent', function (input) {
-    _webviewObj.onContextMenuRequestEvent = input;
+    _webviewObj.on("ContextMenuRequestEvent", input);
 });
 
 webview.__defineSetter__('onContextMenuCancelEvent', function (input) {
-    _webviewObj.onContextMenuCancelEvent = input;
+    _webviewObj.on("ContextMenuCancelEvent", input);
 });
 
 webview.__defineSetter__('onUserMediaRequest', function (input) {
-    _webviewObj.onUserMediaRequest = input;
+    _webviewObj.on("UserMediaRequest", input);
 });
 
 webview.__defineSetter__('onChildWindowOpen', function (input) {
-    _webviewObj.onChildWindowOpen = input;
+    _webviewObj.on("ChildWindowOpen", input);
 });
 
 module.exports = webview;

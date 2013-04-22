@@ -44,7 +44,7 @@ function mapConnectionType(con) {
 function currentConnectionType() {
     try {
         //possible for webplatform to throw pps exception
-        return mapConnectionType(window.qnx.webplatform.device.activeConnection || { type : 'none' });
+        return mapConnectionType(window.wp.device.activeConnection || { type : 'none' });
     }
     catch (e) {
         return 'unknown';

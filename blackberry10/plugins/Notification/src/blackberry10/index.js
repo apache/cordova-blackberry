@@ -40,7 +40,7 @@ function showDialog(args, dialogType, result) {
     };
 
     //TODO replace with getOverlayWebview() when available in webplatform
-    qnx.webplatform.getWebViews()[2].dialog.show(messageObj, function (data) {
+    wp.webViews[2].dialog.show(messageObj, function (data) {
         if (typeof data === "number") {
             //Confirm dialog call back needs to be called with one-based indexing [1,2,3 etc]
             result.callbackOk(++data, false);

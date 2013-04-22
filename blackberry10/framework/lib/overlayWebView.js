@@ -22,15 +22,14 @@ webview =
     {
 
     create: function (ready, configSettings) {
-        _webviewObj = window.qnx.webplatform.createUIWebView(function () {
+        _webviewObj = wp.createWebView({ui:true/*shim*/}, function () {
 
             _webviewObj.visible = true;
             _webviewObj.active = true;
             _webviewObj.zOrder = 2;
             _webviewObj.enableCrossSiteXHR = true;
             _webviewObj.setGeometry(0, 0, screen.width, screen.height);
-            _webviewObj.addEventListener("DocumentLoadFinished", function () {
-                _webviewObj.default.setDefaultFont();
+            _webviewObj.on("DocumentLoadFinished", function () {
                 _webviewObj.visible = true;
             });
 
@@ -44,7 +43,7 @@ webview =
                 ready();
             }
 
-            window.qnx.webplatform.getController().dispatchEvent("overlayWebView.initialized", [_webviewObj]);
+            wp.getController().emit("overlayWebView.initialized", [_webviewObj]);
 
         });
     },
@@ -86,21 +85,21 @@ webview =
     },
 
     bindAppWebViewToChildWebViewControls: function (appWebView) {
-        if (_webviewObj && _webviewObj.childwebviewcontrols) {
-            _webviewObj.childwebviewcontrols.subscribeTo(appWebView);
+        if (wp.ui.childwebviewcontrols) {
+            wp.ui.childwebviewcontrols.subscribeTo(appWebView);
         }
     },
 
     renderContextMenuFor: function (targetWebView) {
-        return _webviewObj.contextMenu.subscribeTo(targetWebView);
+        return wp.ui.contextmenu.subscribeTo(targetWebView);
     },
 
     handleDialogFor: function (targetWebView) {
-        return _webviewObj.dialog.subscribeTo(targetWebView);
+        return wp.ui.dialog.subscribeTo(targetWebView);
     },
 
     showDialog: function (description, callback) {
-        return _webviewObj.dialog.show(description, callback);
+        return wp.ui.dialog.show(description, callback);
     },
 
     getWebViewObj: function (webview) {
@@ -108,19 +107,19 @@ webview =
     },
 
     addEventListener: function (eventName, callback) {
-        _webviewObj.addEventListener(eventName, callback);
+        _webviewObj.on(eventName, callback);
     },
 
     removeEventListener: function (eventName, callback) {
-        _webviewObj.removeEventListener(eventName, callback);
+        _webviewObj.un(eventName, callback);
     },
 
     showToast : function (message, options) {
-        return _webviewObj.toast.show(message, options);
+        return wp.ui.toast.show(message, options);
     },
 
     showInvocationList: function (request, title, success, error) {
-        _webviewObj.invocationlist.show(request, title, success, error);
+        wp.ui.invocationlist.show(request, title, success, error);
     }
 };
 

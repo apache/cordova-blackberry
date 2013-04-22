@@ -18,7 +18,7 @@ module.exports = {
     addEventListener: function (event, trigger) {
         if (event) {
             event = "application." + event;
-            window.qnx.webplatform.getApplication().addEventListener(event, trigger);
+            window.wp.getApplication().on(event, trigger);
         } else {
             console.warn("Attempting to register for 'falsey' event: " + event);
         }
@@ -26,7 +26,7 @@ module.exports = {
     removeEventListener: function (event, trigger) {
         if (event) {
             event = "application." + event;
-            window.qnx.webplatform.getApplication().removeEventListener(event, trigger);
+            window.wp.getApplication().un(event, trigger);
         } else {
             console.warn("Attempting to un-register for 'falsey' event: " + event);
         }

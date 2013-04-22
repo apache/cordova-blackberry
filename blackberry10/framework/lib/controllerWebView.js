@@ -17,14 +17,10 @@
 var controllerWebView,
     overlayWebView = require("./overlayWebView"),
     controller,
-    invocation,
-    utils;
 
 controllerWebView = {
     init: function (config) {
-        controller = window.qnx.webplatform.getController();
-        invocation = window.qnx.webplatform.getApplication().invocation;
-        utils = require('./utils');
+        controller = wp.getController();
         controller.enableWebInspector = config.debugEnabled;
         controller.enableCrossSiteXHR = true;
         controller.visible = false;
@@ -58,7 +54,7 @@ controllerWebView = {
     },
 
     dispatchEvent: function (eventType, args) {
-        controller.dispatchEvent(eventType, args);
+        controller.emit(eventType, args);
     }
 };
 
@@ -67,6 +63,6 @@ controllerWebView.__defineGetter__('id', function () {
 });
 
 controllerWebView.__defineSetter__('onChildWebViewCreated', function (input) {
-    controller.onChildWebViewCreated = input;
+    controller.on("ChildWebViewCreated", input);
 });
 module.exports = controllerWebView;

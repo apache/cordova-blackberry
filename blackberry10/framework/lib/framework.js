@@ -52,10 +52,10 @@ function removeEvents() {
 }
 
 function showWebInspectorInfo() {
-    var port = window.qnx.webplatform.getApplication().webInspectorPort,
+    var port = window.wp.getApplication().webInspectorPort,
         messageObj = {};
 
-    qnx.webplatform.device.getNetworkInterfaces(function (networkInfo) {
+    wp.device.getNetworkInterfaces(function (networkInfo) {
         var connectedInterface;
 
         utils.forEach(networkInfo, function (info) {
@@ -71,7 +71,7 @@ function showWebInspectorInfo() {
             messageObj.message = "";
         }
         messageObj.dialogType = 'JavaScriptAlert';
-        overlayWebView.showDialog(messageObj);
+        wp.ui.dialog.show(messageObj);
     });
 }
 
@@ -92,7 +92,7 @@ var _self = {
                 webview.setEnablePlugins(true);
 
                 //Enable flash for the childWebViews
-                controllerWebView.onChildWebViewCreated = function (child) {
+                controllerWebView.onChildWebViewCreated = function (options, child) {
                     //Set webview plugin directory [required for flash]
                     child.setExtraPluginDirectory('/usr/lib/browser/plugins');
 
@@ -106,7 +106,7 @@ var _self = {
             }
 
             if (!config.enablePopupBlocker) {
-                qnx.webplatform.nativeCall('webview.setBlockPopups', webview.id, false);
+                wp.nativeCall('webview.setBlockPopups', webview.id, false);
             }
             // Workaround for executeJavascript doing nothing for the first time
 
@@ -126,22 +126,22 @@ var _self = {
 
             overlayWebView.create(function () {
                 overlayWebView.addEventListener("DocumentLoadFinished", showUrlCallback);
+                overlayWebView.addEventListener("DocumentLoadFinished", function () {
+                    var excludeList = config.enableFormControl ? [] : ["formcontrol"];
+                    excludeList = config.enableChildWebView ? excludeList : excludeList.concat(["childwebviewcontrols"]);
+
+                    wp.ui.init(overlayWebView.getWebViewObj(), webview.getWebViewObj(), {exclude: excludeList});
+                    wp.ui.default.setDefaultFont();
+                });
 
                 overlayWebView.setURL("local:///chrome/ui.html");
-                overlayWebView.renderContextMenuFor(webview);
-                overlayWebView.handleDialogFor(webview);
-                controllerWebView.dispatchEvent('ui.init', null);
                 webview.setUIWebViewObj(overlayWebView.getWebViewObj());
-                if (config.enableChildWebView) {
-                    overlayWebView.bindAppWebViewToChildWebViewControls(webview);
-                } else {
-                    webview.onChildWindowOpen = function (data) {
+                controllerWebView.dispatchEvent('ui.init', null);
+                if (!config.enableChildWebView) {
+                    webview.onChildWindowOpen = function (options, data) {
                         var parsedData = JSON.parse(data);
                         utils.invokeInBrowser(parsedData.url);
                     };
-                }
-                if (config.enableFormControl) {
-                    overlayWebView.getWebViewObj().formcontrol.subscribeTo(webview);
                 }
             });
         },
