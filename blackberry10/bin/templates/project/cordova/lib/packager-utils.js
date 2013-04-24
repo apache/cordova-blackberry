@@ -47,9 +47,7 @@ _self = {
             wrench.mkdirSyncRecursive(fileLocation, "0755");
         }
 
-        fs.writeFile(path.join(fileLocation, fileName), fileData, function (err) {
-            if (err) throw err;
-        });
+        fs.writeFileSync(path.join(fileLocation, fileName), fileData);
     },
     
     copyFile: function (srcFile, destDir, baseDir) {
