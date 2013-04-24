@@ -79,13 +79,14 @@ function isValidPin(pin) {
 commander
     .usage('[command] [params]')
     .option('-p, --password <password>', 'Specifies password for this target')
-    .option('--pin <devicepin>', 'Specifies PIN for this device');
+    .option('--pin <devicepin>', 'Specifies PIN for this device')
+    .option('-t, --type <device | simulator>', 'Specifies the target type');
 
 commander
     .on('--help', function () {
         console.log('   Synopsis:');
         console.log('   $ target');
-        console.log('   $ target add <name> <ip> <type> [-p | --password <password>] [--pin <devicepin>]');
+        console.log('   $ target add <name> <ip> [-t | --type <device | simulator>] [-p | --password <password>] [--pin <devicepin>]');
         console.log('   $ target remove <name>');
         console.log('   $ target default [name]');
         console.log(' ');
@@ -100,7 +101,7 @@ commander
         }
         name = commander.args[0];
         ip = commander.args[1];
-        type = commander.args[2];
+        type = commander.type ? commander.type : "device";
         if (commander.password && typeof commander.password === 'string') {
             password = commander.password;
         }
