@@ -130,7 +130,7 @@ function deployTokenToTargetsRecursively() {
     }
 }
 
-self.createToken = function (projectProperties, target, callback) {
+self.createToken = function (projectProperties, target, keystorepass, callback) {
     var pins = [],
         key;
 
@@ -159,7 +159,7 @@ self.createToken = function (projectProperties, target, callback) {
         if (callback && typeof callback === "function") {
             callback(-1);
         }
-    } else if (!properties.keystorepass) {
+    } else if (!keystorepass) {
         logger.warn(localize.translate("WARN_NO_SIGNING_PASSWORD_PROVIDED"));
         if (callback && typeof callback === "function") {
             callback(-1);
@@ -168,7 +168,7 @@ self.createToken = function (projectProperties, target, callback) {
         logger.info(localize.translate("PROGRESS_GENERATING_DEBUG_TOKEN"));
         // Call "blackberry-debugtokenrequest" to generate debug token
         execNativeScript("/bin/blackberry-debugtokenrequest",
-            generateCreateTokenOptions(pins, properties.keystorepass),
+            generateCreateTokenOptions(pins, keystorepass),
             callback
         );
     }

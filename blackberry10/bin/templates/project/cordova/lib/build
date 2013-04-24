@@ -45,9 +45,10 @@ function copyArgIfExists(arg) {
 }
 
 function createDebugtoken(previous, baton) {
+    var keystorepass = command["keystorepass"] ? command["keystorepass"] : projectProperties.keystorepass;
     baton.take();
     logger.info(localize.translate("PROGRESS_WILL_CREATE_DEBUG_TOKEN"));
-    debugTokenHelper.createToken(projectProperties, getTarget(), function (code) {
+    debugTokenHelper.createToken(projectProperties, getTarget(), keystorepass, function (code) {
         if (code === 0) {
             debugtoken = true;
         }
