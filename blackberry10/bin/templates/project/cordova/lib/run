@@ -96,11 +96,11 @@ function execNativeDeploy(optionsArray, callback) {
 
 function checkTarget() {
     if (!target) {
-        console.log("No target exists, to add that target please run target add <name> <ip> <type> [-p <password>] [--pin <devicepin>]\n");
+        console.log("No target exists, to add that target please run target add <name> <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]\n");
         return false;
     }
     if (!properties.targets[target]) {
-        console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> <type> [-p <password>] [--pin <devicepin>]\n");
+        console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]\n");
         return false;
     }
     if (properties.targets[target].ip) {
