@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit dd02e6c9cd4121910c714e798f84fad2dc072879
+// commit cf23fc942bd8443aa673b6834690e9c55c811b36
 
-// File generated at :: Fri Apr 19 2013 11:54:58 GMT-0400 (EDT)
+// File generated at :: Thu Apr 25 2013 16:30:38 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -929,19 +929,16 @@ define("cordova/platform", function(require, exports, module) {
 module.exports = {
     id: "blackberry10",
     initialize: function() {
-        var builder = require('cordova/builder'),
-            modulemapper = require('cordova/modulemapper'),
-            platform = require('cordova/plugin/blackberry10/platform');
-
-        builder.buildIntoButDoNotClobber(platform.defaults, window);
-        builder.buildIntoAndClobber(platform.clobbers, window);
-        builder.buildIntoAndMerge(platform.merges, window);
+        var modulemapper = require('cordova/modulemapper'),
+            cordova = require('cordova');
 
         modulemapper.loadMatchingModules(/cordova.*\/symbols$/);
         modulemapper.loadMatchingModules(new RegExp('cordova/blackberry10/.*bbsymbols$'));
-        modulemapper.mapModules(window);
 
-        platform.initialize();
+        modulemapper.clobbers('cordova/plugin/blackberry10/vibrate', 'navigator.notification.vibrate');
+        modulemapper.clobbers('cordova/plugin/File', 'navigator.File');
+        modulemapper.merges('cordova/plugin/blackberry10/compass', 'navigator.compass');
+
     }
 };
 
@@ -1728,20 +1725,17 @@ Entry.prototype.setMetadata = function(successCallback, errorCallback, metadataO
 
 Entry.prototype.moveTo = function(parent, newName, successCallback, errorCallback) {
     argscheck.checkArgs('oSFF', 'Entry.moveTo', arguments);
-    var fail = errorCallback && function(code) {
-            errorCallback(new FileError(code));
-        },
-        srcPath = this.fullPath,
+    var srcPath = this.fullPath,
         name = newName || this.name,
         success = function(entry) {
             if (entry) {
-                if (successCallback === 'function') {
+                if (typeof successCallback === 'function') {
                     successCallback(fileUtils.createEntry(entry));
                 }
             }
             else {
-                if (typeof fail === 'function') {
-                    fail(FileError.NOT_FOUND_ERR);
+                if (typeof errorCallback === 'function') {
+                    errorCallback(new FileError(FileError.NOT_FOUND_ERR));
                 }
             }
         };
@@ -1751,10 +1745,7 @@ Entry.prototype.moveTo = function(parent, newName, successCallback, errorCallbac
 
 Entry.prototype.copyTo = function(parent, newName, successCallback, errorCallback) {
     argscheck.checkArgs('oSFF', 'Entry.copyTo', arguments);
-    var fail = errorCallback && function(code) {
-            errorCallback(new FileError(code));
-        },
-        srcPath = this.fullPath,
+    var srcPath = this.fullPath,
         name = newName || this.name,
         success = function(entry) {
             if (entry) {
@@ -1763,8 +1754,8 @@ Entry.prototype.copyTo = function(parent, newName, successCallback, errorCallbac
                 }
             }
             else {
-                if (typeof fail === 'function') {
-                    fail(FileError.NOT_FOUND_ERR);
+                if (typeof errorCallback === 'function') {
+                    errorCallback(new FileError(FileError.NOT_FOUND_ERR));
                 }
             }
         };
@@ -4016,135 +4007,6 @@ module.exports = {
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/platform.js
-define("cordova/plugin/blackberry10/platform", function(require, exports, module) {
-
-var cordova = require('cordova');
-
-module.exports = {
-    id: "blackberry10",
-    initialize: function () {
-        document.addEventListener("deviceready", function () {
-            /*
-             TODO
-            blackberry.event.addEventListener("pause", function () {
-                cordova.fireDocumentEvent("pause");
-            });
-            blackberry.event.addEventListener("resume", function () {
-                cordova.fireDocumentEvent("resume");
-            });
-            */
-            window.addEventListener("online", function () {
-                cordova.fireDocumentEvent("online");
-            });
-
-            window.addEventListener("offline", function () {
-                cordova.fireDocumentEvent("offline");
-            });
-        });
-    },
-    clobbers: {
-        navigator: {
-            children: {
-                notification: {
-                    children: {
-                        vibrate: {
-                            path: 'cordova/plugin/blackberry10/vibrate'
-                        }
-                    }
-                }
-            }
-        },
-        File: {
-            path: 'cordova/plugin/File'
-        }
-    },
-    merges: {
-        navigator: {
-            children: {
-                compass: {
-                    path: 'cordova/plugin/blackberry10/compass'
-                }
-            }
-        }
-    }
-};
-
-});
-
-// file: lib/blackberry10/plugin/blackberry10/pluginUtils.js
-define("cordova/plugin/blackberry10/pluginUtils", function(require, exports, module) {
-
-function build(plugins) {
-    var builder = require('cordova/builder'),
-        plugin;
-    for (plugin in plugins) {
-        if (plugins.hasOwnProperty(plugin)) {
-            if (plugins[plugin].clobbers) {
-                builder.buildIntoAndClobber(plugins[plugin].clobbers, window);
-            }
-            if (plugins[plugin].merges) {
-                builder.buildIntoAndMerge(plugins[plugin].merges, window);
-            }
-        }
-    }
-}
-
-module.exports = {
-
-    loadClientJs: function (plugins, callback) {
-        var plugin,
-            script,
-            i,
-            count = 0;
-        for (plugin in plugins) {
-            if (plugins.hasOwnProperty(plugin) && plugins[plugin].modules) {
-                for (i = 0; i < plugins[plugin].modules.length; i++) {
-                    script = document.createElement('script');
-                    script.src = 'local:///plugins/' + plugin + '/' + plugins[plugin].modules[i];
-                    script.onload = function () {
-                        if (--count === 0 && typeof callback === 'function') {
-                            build(plugins);
-                            callback();
-                        }
-                    };
-                    count++;
-                    document.head.appendChild(script);
-                }
-            }
-        }
-        if (count === 0) {
-            callback();
-        }
-    },
-
-    getPlugins: function (success, error) {
-        var request,
-            response;
-        request = new XMLHttpRequest();
-        request.open('GET', 'local:///plugins/plugins.json', true);
-        request.onreadystatechange = function () {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        response = JSON.parse(decodeURIComponent(request.responseText));
-                        success(response);
-                    }
-                    catch (e) {
-                        error(e);
-                    }
-                }
-                else {
-                    error(request.status);
-                }
-            }
-        };
-        request.send(null);
-    }
-};
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/utils.js
 define("cordova/plugin/blackberry10/utils", function(require, exports, module) {
 
@@ -6287,7 +6149,7 @@ module.exports = {
         // Android and iOS take an array of button label names.
         // Other platforms take a comma separated list.
         // For compatibility, we convert to the desired type based on the platform.
-        if (platform.id == "android" || platform.id == "ios") {
+        if (platform.id == "android" || platform.id == "ios" || platform.id == "blackberry10") {
             if (typeof _buttonLabels === 'string') {
                 var buttonLabelString = _buttonLabels;
                 _buttonLabels = buttonLabelString.split(",");
@@ -6762,8 +6624,7 @@ window.cordova = require('cordova');
 // file: lib/scripts/bootstrap-blackberry10.js
 
 (function () {
-    var pluginUtils = require('cordova/plugin/blackberry10/pluginUtils'),
-        docAddEventListener = document.addEventListener,
+    var docAddEventListener = document.addEventListener,
         webworksReady = false,
         alreadyFired = false,
         listenerRegistered = false;
@@ -6866,20 +6727,11 @@ window.cordova = require('cordova');
         event: require("cordova/plugin/blackberry10/event")
     };
 
-    //Fire webworks ready once plugin javascript has been loaded
-    pluginUtils.getPlugins(
-        function (plugins) {
-            pluginUtils.loadClientJs(plugins, function () {
-                webworksReady = true;
-                fireWebworksReadyEvent();
-            });
-        },
-        function () {
-            console.log('Unable to load plugins.json');
-            webworksReady = true;
-            fireWebworksReadyEvent();
-        }
-    );
+    require("cordova/channel").onPluginsReady.subscribe(function () {
+        require("cordova/modulemapper").mapModules(window);
+        webworksReady = true;
+        fireWebworksReadyEvent();
+    });
 }());
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -6980,7 +6832,7 @@ document.addEventListener("DOMContentLoaded", function () {
         xhr.onerror = function() {
             finishPluginLoading();
         };
-        xhr.open('GET', 'cordova_plugins.json', true); // Async
+        xhr.open('GET', '/cordova_plugins.json', true); // Async
         xhr.send();
     }
     catch(err){

@@ -235,25 +235,26 @@ function hasValidExtension(file) {
 
 function copyExtension(session, target, pluginPath) {
     var basename = path.basename(pluginPath),
+        pluginSrcPath = path.join(pluginPath, "src", "blackberry10"),
         extDest = session.sourcePaths.EXT,
         soDest = session.sourcePaths.JNEXT_PLUGINS,
-        soPath = path.normalize(path.join(pluginPath, "native", target)),
+        soPath = path.normalize(path.join(pluginSrcPath, "native", target)),
         jsFiles,
         soFiles;
 
-    if (fs.existsSync(pluginPath) && fs.statSync(pluginPath).isDirectory()) {
+    if (fs.existsSync(pluginSrcPath) && fs.statSync(pluginSrcPath).isDirectory()) {
         //create output folders
         wrench.mkdirSyncRecursive(path.join(extDest, basename), "0755");
         wrench.mkdirSyncRecursive(soDest, "0755");
 
         //find all .js and .json files
-        jsFiles = packagerUtils.listFiles(pluginPath, function (file) {
+        jsFiles = packagerUtils.listFiles(pluginSrcPath, function (file) {
             return hasValidExtension(file);
         });
 
         //Copy each .js file to its extensions folder
         jsFiles.forEach(function (jsFile) {
-            packagerUtils.copyFile(jsFile, path.join(extDest, basename), pluginPath);
+            packagerUtils.copyFile(jsFile, path.join(extDest, basename), pluginSrcPath);
         });
 
         if (fs.existsSync(soPath)) {
