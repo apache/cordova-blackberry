@@ -1,8 +1,8 @@
 // Platform: blackberry10
 
-// commit cf23fc942bd8443aa673b6834690e9c55c811b36
+// commit f4db421d9c19f337ca764daa7a1a74e6cfef14a2
 
-// File generated at :: Thu Apr 25 2013 16:30:38 GMT-0400 (EDT)
+// File generated at :: Fri Apr 26 2013 11:49:39 GMT-0400 (EDT)
 
 /*
  Licensed to the Apache Software Foundation (ASF) under one
@@ -939,6 +939,7 @@ module.exports = {
         modulemapper.clobbers('cordova/plugin/File', 'navigator.File');
         modulemapper.merges('cordova/plugin/blackberry10/compass', 'navigator.compass');
 
+        modulemapper.mapModules(window);
     }
 };
 
@@ -6728,7 +6729,6 @@ window.cordova = require('cordova');
     };
 
     require("cordova/channel").onPluginsReady.subscribe(function () {
-        require("cordova/modulemapper").mapModules(window);
         webworksReady = true;
         fireWebworksReadyEvent();
     });
