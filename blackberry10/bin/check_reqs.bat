@@ -18,4 +18,4 @@ goto comment
        under the License.
 :comment
 
-@node.exe %~dp0\check_reqs
+@node.exe %~dp0\check_reqs %*
