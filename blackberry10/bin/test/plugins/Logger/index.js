@@ -16,12 +16,12 @@
 
 describe("Logger", function () {
 
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Logger/",
+    var _apiDir = __dirname + "./../../../templates/project/plugins/Logger/src/blackberry10/",
         index,
         result = {
             noResult: jasmine.createSpy("noResult")
         };
-    
+
     beforeEach(function () {
         index = require(_apiDir + "index");
     });
@@ -32,7 +32,7 @@ describe("Logger", function () {
 
     describe("logLevel", function () {
         beforeEach(function () {
-            spyOn(console, "log"); 
+            spyOn(console, "log");
             GLOBAL.PluginResult = function () {
                 return result;
             };

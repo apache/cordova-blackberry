@@ -16,7 +16,7 @@
 
 
 describe("NetworkStatus", function () {
-    var _apiDir = __dirname + "./../../../templates/project/plugins/NetworkStatus/",
+    var _apiDir = __dirname + "./../../../templates/project/plugins/NetworkStatus/src/blackberry10/",
         index,
         result = {
             ok: jasmine.createSpy(),

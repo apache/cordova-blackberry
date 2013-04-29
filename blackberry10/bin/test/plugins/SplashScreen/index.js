@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 describe("SplashScreen", function () {
-    var _apiDir = __dirname + "./../../../templates/project/plugins/SplashScreen/",
+    var _apiDir = __dirname + "./../../../templates/project/plugins/SplashScreen/src/blackberry10/",
         index,
         mockedEnv = {
             response: {

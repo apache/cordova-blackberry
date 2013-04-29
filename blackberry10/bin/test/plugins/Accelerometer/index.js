@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 describe("Accelerometer", function () {
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Accelerometer/",
+    var _apiDir = __dirname + "./../../../templates/project/plugins/Accelerometer/src/blackberry10/",
         index,
         callback,
         result = {

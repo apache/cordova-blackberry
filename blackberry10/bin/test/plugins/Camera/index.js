@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 describe("Camera", function () {
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Camera/",
+    var _apiDir = __dirname + "./../../../templates/project/plugins/Camera/src/blackberry10/",
         index,
         mockDone,
         mockCancel,

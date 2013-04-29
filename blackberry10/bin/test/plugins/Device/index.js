@@ -16,12 +16,12 @@
 
 describe("Device", function () {
 
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Device/",
+    var _apiDir = __dirname + "./../../../templates/project/plugins/Device/src/blackberry10/",
         index,
         result = {
             ok: jasmine.createSpy()
         };
-    
+
     beforeEach(function () {
         index = require(_apiDir + "index");
     });
