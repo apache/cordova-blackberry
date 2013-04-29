@@ -17,32 +17,41 @@
 var SYSTEM_EVENTS = ["device.battery.statusChange",
                      "device.battery.chargeLow",
                      "device.battery.chargeCritical"],
-    clientListener;
+    device = window.qnx.webplatform.device,
+    _clientListeners = {};
 
 module.exports = {
     start: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
-        if (!!clientListener) {
-            result.error("Battery listener already running");
-        } else {
-            clientListener = function (info) {
+        var result = new PluginResult(args, env),
+            listener = function (info) {
                 result.callbackOk(info, true);
             };
+
+        if (_clientListeners[env.webview.id]) {
+            //TODO: Change back to erroring out after reset is implemented
+            //result.error("Battery listener already running");
             SYSTEM_EVENTS.forEach(function (event) {
-                window.qnx.webplatform.device.addEventListener(event, clientListener);
+                device.removeEventListener(event, _clientListeners[env.webview.id]);
             });
-            result.noResult(true);
         }
+
+        _clientListeners[env.webview.id] = listener;
+        SYSTEM_EVENTS.forEach(function (event) {
+            device.addEventListener(event, listener);
+        });
+        result.noResult(true);
     },
     stop: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
-        if (!clientListener) {
+        var result = new PluginResult(args, env),
+            listener = _clientListeners[env.webview.id];
+
+        if (!listener) {
             result.error("Battery listener has not started");
         } else {
             SYSTEM_EVENTS.forEach(function (event) {
-                window.qnx.webplatform.device.removeEventListener(event, clientListener);
+                device.removeEventListener(event, listener);
             });
-            clientListener = null;
+            delete _clientListeners[env.webview.id];
             result.noResult(false);
         }
     }

@@ -19,55 +19,71 @@ describe("Battery", function () {
     var _apiDir = __dirname + "./../../../templates/project/plugins/Battery/src/blackberry10/",
         index,
         callback,
-        result = {
+        mockPluginResult = {
             ok: jasmine.createSpy(),
             error: jasmine.createSpy(),
             noResult: jasmine.createSpy(),
             callbackOk: jasmine.createSpy()
+        },
+        noop = function () {},
+        args,
+        env = {
+            webview: {
+                id: 42
+            }
         };
 
+
     beforeEach(function () {
-        index = require(_apiDir + "index");
         GLOBAL.window = {
             qnx: {
                 webplatform: {
                     device: {
-                        addEventListener: jasmine.createSpy().andCallFake(function (evt, cb) {
+                        addEventListener: jasmine.createSpy("webplatform.device.addEventListener").andCallFake(function (evt, cb) {
                             callback = cb;
                         }),
-                        removeEventListener: jasmine.createSpy()
+                        removeEventListener: jasmine.createSpy("webplatform.device.removeEventListener")
                     }
                 }
             }
         };
         GLOBAL.PluginResult = function () {
-            return result;
+            return mockPluginResult;
         };
+        index = require(_apiDir + "index");
     });
 
     afterEach(function () {
-        index = null;
         delete GLOBAL.window;
         delete GLOBAL.PluginResult;
+        delete require.cache[require.resolve(_apiDir + "index")];
     });
 
     describe("start", function () {
 
         it("calls noResult and keeps callbacks", function () {
-            index.start();
+            index.start(noop, noop, args, env);
+            expect(window.qnx.webplatform.device.removeEventListener).not.toHaveBeenCalled();
             expect(window.qnx.webplatform.device.addEventListener).toHaveBeenCalled();
-            expect(result.noResult).toHaveBeenCalledWith(true);
+            expect(mockPluginResult.noResult).toHaveBeenCalledWith(true);
+            expect(mockPluginResult.error).not.toHaveBeenCalled();
         });
 
         it("callback calls ok and keeps callbacks", function () {
             callback("OK");
-            expect(result.callbackOk).toHaveBeenCalledWith("OK", true);
+            expect(mockPluginResult.callbackOk).toHaveBeenCalledWith("OK", true);
+            expect(mockPluginResult.error).not.toHaveBeenCalled();
         });
 
-        it("calls error if already started", function () {
-            index.start();
-            expect(window.qnx.webplatform.device.addEventListener).not.toHaveBeenCalled();
-            expect(result.error).toHaveBeenCalled();
+        it("does not call error if already started", function () {
+            index.start(noop, noop, args, env);
+            window.qnx.webplatform.device.addEventListener.reset();
+            mockPluginResult.noResult.reset();
+            index.start(noop, noop, args, env);
+            expect(window.qnx.webplatform.device.removeEventListener).toHaveBeenCalled();
+            expect(window.qnx.webplatform.device.addEventListener).toHaveBeenCalled();
+            expect(mockPluginResult.error).not.toHaveBeenCalled();
+            expect(mockPluginResult.noResult).toHaveBeenCalledWith(true);
         });
 
 
@@ -76,9 +92,11 @@ describe("Battery", function () {
     describe("stop", function () {
 
         it("calls noResult and does not keep callbacks", function () {
-            index.stop();
+            index.start(noop, noop, args, env);
+            window.qnx.webplatform.device.removeEventListener.reset();
+            index.stop(noop, noop, args, env);
             expect(window.qnx.webplatform.device.removeEventListener).toHaveBeenCalled();
-            expect(result.noResult).toHaveBeenCalledWith(false);
+            expect(mockPluginResult.noResult).toHaveBeenCalledWith(false);
         });
 
     });
