@@ -149,6 +149,7 @@ function processWidgetData(data, widgetConfig, session) {
     widgetConfig.autoOrientation = true;
     widgetConfig.autoDeferNetworkingAndJavaScript = true;
     widgetConfig.theme = "default";
+    widgetConfig.autoHideSplashScreen = "true";
 
     //set locally available features to access list
    if (data.feature) {

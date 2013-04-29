@@ -42,14 +42,10 @@
   <access subdomains="true" uri="file:///SDCard" />
   <access subdomains="true" uri="*" />
 
-  <icon rim:hover="false" src="res/icon/blackberry/icon-80.png" />
-  <icon rim:hover="true" src="res/icon/blackberry/icon-80.png" />
-
-  <rim:loadingScreen backgroundColor="#CFCFCF"
-                     foregroundImage="res/screen/blackberry/screen-225.png"
-		     onFirstLaunch="true">
-    <rim:transitionEffect type="fadeOut" />
-  </rim:loadingScreen>
+  <icon src="res/icon/blackberry/icon-80.png" />
+  <rim:splash src="res/screen/blackberry/splash-1280x768.png" />
+  <rim:splash src="res/screen/blackberry/splash-720x720.png" />
+  <rim:splash src="res/screen/blackberry/splash-768x1280.png" />
 
   <content src="index.html" />
 
