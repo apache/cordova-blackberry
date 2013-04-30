@@ -1,6 +1,6 @@
 // Platform: blackberry
 
-// 2.7.0-4-gabc9de8
+// dev-4-gabc9de8
 
 // File generated at :: Tue Apr 30 2013 10:52:06 GMT-0700 (PDT)
 
@@ -5386,7 +5386,7 @@ module.exports = {
                     model: "PlayBook",
                     name: "PlayBook", // deprecated: please use device.model
                     uuid: info.uuid,
-                    cordova: "2.7.0"
+                    cordova: "dev"
                 });
             }),
             request = new blackberry.transport.RemoteFunctionCall("org/apache/cordova/getDeviceInfo");
@@ -9401,7 +9401,7 @@ module.exports = {
             model: "Dev Alpha",
             name: "Dev Alpha", // deprecated: please use device.model
             uuid: blackberry.identity.uuid,
-            cordova: "2.7.0"
+            cordova: "dev"
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "Device info returned" };
