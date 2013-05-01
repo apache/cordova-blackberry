@@ -16,7 +16,7 @@
 
 describe("Battery", function () {
 
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Battery/src/blackberry10/",
+    var _apiDir = __dirname + "./../../../../plugins/Battery/src/blackberry10/",
         index,
         callback,
         mockPluginResult = {

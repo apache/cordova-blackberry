@@ -27,9 +27,9 @@ var childProcess = require('child_process'),
     _stdout = "",
     _stderr = "";
 
-function executeScript(shellCommand) {
+function executeScript(shellCommand, shouldError) {
     childProcess.exec(shellCommand, function (error, stdout, stderr) {
-        if (error) {
+        if (error && !shouldError) {
             console.log("Error executing command: " + error);
         }
         _stdout = stdout.toString().trim();
@@ -109,49 +109,49 @@ describe("create tests", function () {
     });
 
     it("No args", function () {
-        executeScript("bin/create");
+        executeScript("bin/create", true);
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("You must give a project PATH");
+            expect(_stdout).toEqual("Project creation failed!\nError: You must give a project PATH");
             expect(_stderr).toEqual("");
         });
     });
 
     it("Empty dir error", function () {
-        executeScript("bin/create ./");
+        executeScript("bin/create ./", true);
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("The project path must be an empty directory");
+            expect(_stdout).toEqual("Project creation failed!\nError: The project path must be an empty directory");
             expect(_stderr).toEqual("");
         });
     });
 
     it("Invalid appId error", function () {
-        executeScript("bin/create " + appFolder + " 23.21#$");
+        executeScript("bin/create " + appFolder + " 23.21#$", true);
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
+            expect(_stdout).toEqual("Project creation failed!\nError: App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
             expect(_stderr).toEqual("");
         });
     });
 
     it("Invalid barName error", function () {
-        executeScript("bin/create " + appFolder + " com.example.app %bad@bar^name");
+        executeScript("bin/create " + appFolder + " com.example.app %bad@bar^name", true);
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
+            expect(_stdout).toEqual("Project creation failed!\nError: BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
             expect(_stderr).toEqual("");
         });
     });

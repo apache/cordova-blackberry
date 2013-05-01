@@ -16,14 +16,15 @@
 -->
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="org.apache.cordova.core"
+    id="org.apache.cordova.core.Device"
     version="0.0.1">
 
-    <name>Camera</name>
+    <name>Device</name>
 
     <platform name="blackberry10">
+        <source-file src="src/blackberry10/index.js" target-dir="Device" />
         <config-file target="www/config.xml" parent="/widget">
-            <feature name="Camera" value="Camera"/>
+            <feature name="Device" value="Device"/>
         </config-file>
     </platform>
 </plugin>

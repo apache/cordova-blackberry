@@ -16,14 +16,15 @@
 -->
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="org.apache.cordova.core"
+    id="org.apache.cordova.core.Accelerometer"
     version="0.0.1">
 
-    <name>Device</name>
+    <name>Device Motion</name>
 
     <platform name="blackberry10">
         <config-file target="www/config.xml" parent="/widget">
-            <feature name="Device" value="Device"/>
+            <feature name="Accelerometer" value="Accelerometer"/>
         </config-file>
+        <source-file src="src/blackberry10/index.js" target-dir="Accelerometer" />
     </platform>
 </plugin>

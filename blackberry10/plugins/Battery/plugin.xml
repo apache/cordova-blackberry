@@ -16,14 +16,15 @@
 -->
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="org.apache.cordova.core"
+    id="org.apache.cordova.core.Battery"
     version="0.0.1">
 
-    <name>Logger</name>
+    <name>Battery</name>
 
     <platform name="blackberry10">
+        <source-file src="src/blackberry10/index.js" target-dir="Battery" />
         <config-file target="www/config.xml" parent="/widget">
-            <feature name="Logger" value="Logger"/>
+            <feature name="Battery" value="Battery"/>
         </config-file>
     </platform>
 </plugin>

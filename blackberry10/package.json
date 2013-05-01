@@ -1,11 +1,11 @@
 {
-  "name": "cordova-blackberry10",
+  "name": "cordova-blackberry",
   "version": "0.0.1",
-  "description": "cordova-blackberry10",
-  "repository": "git://github.rim.net/webworks/cordova-blackberry10.git",
+  "description": "cordova-blackberry",
+  "repository": "https://git-wip-us.apache.org/repos/asf?p=cordova-blackberry.git",
   "author": {
-    "name": "Research In Motion",
-    "url": "http://github.rim.net/webworks/cordova-blackberry10.git"
+    "name": "BlackBerry",
+    "url": "http://developer.blackberry.com/html5/"
   },
   "licenses": [{
     "type": "Apache 2.0",
@@ -23,7 +23,9 @@
     "xml2js": "0.1.13",
     "validator": "0.4.1",
     "wrench": "1.3.9",
-    "plugman": "git+https://github.com/blackberry/cordova-plugman.git#blackberry10"
+    "shelljs":"0.1.2",
+    "elementtree": "0.1.x",
+    "plugman": "git+https://github.com/apache/cordova-plugman.git"
   },
   "devDependencies": {
     "jake":"*"

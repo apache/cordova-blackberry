@@ -19,4 +19,12 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     id="com.blackberry.jpps"
     version="1.0.0">
+
+    <platform name="blackberry10">
+        <lib-file src="src/blackberry10/native/device/libjpps.so" arch="device"/>
+        <lib-file src="src/blackberry10/native/simulator/libjpps.so" arch="simulator"/>
+        <config-file target="www/config.xml" parent="/widget">
+            <feature name="com.blackberry.jpps"/>
+        </config-file>
+    </platform>
 </plugin>
