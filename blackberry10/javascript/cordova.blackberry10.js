@@ -1,9 +1,6 @@
 // Platform: blackberry10
-
-// commit f4db421d9c19f337ca764daa7a1a74e6cfef14a2
-
-// File generated at :: Fri Apr 26 2013 11:49:39 GMT-0400 (EDT)
-
+// 2.7.0rc1-36-g93152a0
+// File generated at :: Fri May 03 2013 09:51:02 GMT-0400 (EDT)
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -22,9 +19,8 @@
  specific language governing permissions and limitations
  under the License.
 */
-
 ;(function() {
-
+var CORDOVA_JS_BUILD_LABEL = '2.7.0rc1-36-g93152a0';
 // file: lib/scripts/require.js
 
 var require,
@@ -230,6 +226,10 @@ var cordova = {
             }
             else {
               setTimeout(function() {
+                  // Fire deviceready on listeners that were registered before cordova.js was loaded.
+                  if (type == 'deviceready') {
+                      document.dispatchEvent(evt);
+                  }
                   documentEventHandlers[type].fire(evt);
               }, 0);
             }
@@ -753,6 +753,7 @@ channel.createSticky('onDestroy');
 // Channels that must fire before "deviceready" is fired.
 channel.waitForInitialization('onCordovaReady');
 channel.waitForInitialization('onCordovaConnectionReady');
+channel.waitForInitialization('onDOMContentLoaded');
 
 module.exports = channel;
 
@@ -1106,8 +1107,6 @@ var CaptureAudioOptions = function(){
     this.limit = 1;
     // Maximum duration of a single sound clip in seconds.
     this.duration = 0;
-    // The selected audio mode. Must match with one of the elements in supportedAudioModes array.
-    this.mode = null;
 };
 
 module.exports = CaptureAudioOptions;
@@ -1148,8 +1147,6 @@ define("cordova/plugin/CaptureImageOptions", function(require, exports, module) 
 var CaptureImageOptions = function(){
     // Upper limit of images user can take. Value must be equal or greater than 1.
     this.limit = 1;
-    // The selected image mode. Must match with one of the elements in supportedImageModes array.
-    this.mode = null;
 };
 
 module.exports = CaptureImageOptions;
@@ -1167,8 +1164,6 @@ var CaptureVideoOptions = function(){
     this.limit = 1;
     // Maximum duration of a single video clip in seconds.
     this.duration = 0;
-    // The selected video mode. Must match with one of the elements in supportedVideoModes array.
-    this.mode = null;
 };
 
 module.exports = CaptureVideoOptions;
@@ -4852,7 +4847,7 @@ console.debug = function() {
 console.assert = function(expression) {
     if (expression) return;
 
-    var message = utils.vformat(arguments[1], [].slice.call(arguments, 2));
+    var message = logger.format.apply(logger.format, [].slice.call(arguments, 1));
     console.log("ASSERT: " + message);
 };
 
@@ -5049,12 +5044,16 @@ function Device() {
 
     channel.onCordovaReady.subscribe(function() {
         me.getInfo(function(info) {
+            var buildLabel = info.cordova;
+            if (buildLabel != CORDOVA_JS_BUILD_LABEL) {
+                buildLabel += ' JS=' + CORDOVA_JS_BUILD_LABEL;
+            }
             me.available = true;
             me.platform = info.platform;
             me.version = info.version;
             me.name = info.name;
             me.uuid = info.uuid;
-            me.cordova = info.cordova;
+            me.cordova = buildLabel;
             me.model = info.model;
             channel.onCordovaInfoReady.fire();
         },function(e) {
@@ -5941,10 +5940,10 @@ function logWithArgs(level, args) {
  * Parameters passed after message are used applied to
  * the message with utils.format()
  */
-logger.logLevel = function(level, message /* , ... */) {
+logger.logLevel = function(level /* , ... */) {
     // format the message with the parameters
-    var formatArgs = [].slice.call(arguments, 2);
-    message    = utils.vformat(message, formatArgs);
+    var formatArgs = [].slice.call(arguments, 1);
+    var message    = logger.format.apply(logger.format, formatArgs);
 
     if (LevelsMap[level] === null) {
         throw new Error("invalid logging level: " + level);
@@ -5979,6 +5978,92 @@ logger.logLevel = function(level, message /* , ... */) {
     }
 };
 
+
+/**
+ * Formats a string and arguments following it ala console.log()
+ *
+ * Any remaining arguments will be appended to the formatted string.
+ *
+ * for rationale, see FireBug's Console API:
+ *    http://getfirebug.com/wiki/index.php/Console_API
+ */
+logger.format = function(formatString, args) {
+    return __format(arguments[0], [].slice.call(arguments,1)).join(' ');
+};
+
+
+//------------------------------------------------------------------------------
+/**
+ * Formats a string and arguments following it ala vsprintf()
+ *
+ * format chars:
+ *   %j - format arg as JSON
+ *   %o - format arg as JSON
+ *   %c - format arg as ''
+ *   %% - replace with '%'
+ * any other char following % will format it's
+ * arg via toString().
+ *
+ * Returns an array containing the formatted string and any remaining
+ * arguments.
+ */
+function __format(formatString, args) {
+    if (formatString === null || formatString === undefined) return [""];
+    if (arguments.length == 1) return [formatString.toString()];
+
+    if (typeof formatString != "string")
+        formatString = formatString.toString();
+
+    var pattern = /(.*?)%(.)(.*)/;
+    var rest    = formatString;
+    var result  = [];
+
+    while (args.length) {
+        var match = pattern.exec(rest);
+        if (!match) break;
+
+        var arg   = args.shift();
+        rest = match[3];
+        result.push(match[1]);
+
+        if (match[2] == '%') {
+            result.push('%');
+            args.unshift(arg);
+            continue;
+        }
+
+        result.push(__formatted(arg, match[2]));
+    }
+
+    result.push(rest);
+
+    var remainingArgs = [].slice.call(args);
+    remainingArgs.unshift(result.join(''));
+    return remainingArgs;
+}
+
+function __formatted(object, formatChar) {
+
+    try {
+        switch(formatChar) {
+            case 'j':
+            case 'o': return JSON.stringify(object);
+            case 'c': return '';
+        }
+    }
+    catch (e) {
+        return "error JSON.stringify()ing argument: " + e;
+    }
+
+    if ((object === null) || (object === undefined)) {
+        return Object.prototype.toString.call(object);
+    }
+
+    return object.toString();
+}
+
+
+//------------------------------------------------------------------------------
 // when deviceready fires, log queued messages
 logger.__onDeviceReady = function() {
     if (DeviceReady) return;
@@ -6147,13 +6232,13 @@ module.exports = {
             console.log("Notification.confirm(string, function, string, string) is deprecated.  Use Notification.confirm(string, function, string, array).");
         }
 
-        // Android and iOS take an array of button label names.
+        // Some platforms take an array of button label names.
         // Other platforms take a comma separated list.
         // For compatibility, we convert to the desired type based on the platform.
-        if (platform.id == "android" || platform.id == "ios" || platform.id == "blackberry10") {
+        if (platform.id == "android" || platform.id == "ios" || platform.id == "windowsphone" || platform.id == "blackberry10") {
             if (typeof _buttonLabels === 'string') {
                 var buttonLabelString = _buttonLabels;
-                _buttonLabels = buttonLabelString.split(",");
+                _buttonLabels = _buttonLabels.split(","); // not crazy about changing the var type here
             }
         } else {
             if (Array.isArray(_buttonLabels)) {
@@ -6174,12 +6259,14 @@ module.exports = {
      * @param {Function} resultCallback     The callback that is called when user clicks on a button.
      * @param {String} title                Title of the dialog (default: "Prompt")
      * @param {Array} buttonLabels          Array of strings for the button labels (default: ["OK","Cancel"])
+     * @param {String} defaultText          Textbox input value (default: "Default text")
      */
-    prompt: function(message, resultCallback, title, buttonLabels) {
+    prompt: function(message, resultCallback, title, buttonLabels, defaultText) {
         var _message = (message || "Prompt message");
         var _title = (title || "Prompt");
         var _buttonLabels = (buttonLabels || ["OK","Cancel"]);
-        exec(resultCallback, null, "Notification", "prompt", [_message, _title, _buttonLabels]);
+        var _defaultText = (defaultText || "Default text");
+        exec(resultCallback, null, "Notification", "prompt", [_message, _title, _buttonLabels, _defaultText]);
     },
 
     /**
@@ -6471,62 +6558,6 @@ utils.alert = function(msg) {
     }
 };
 
-/**
- * Formats a string and arguments following it ala sprintf()
- *
- * see utils.vformat() for more information
- */
-utils.format = function(formatString /* ,... */) {
-    var args = [].slice.call(arguments, 1);
-    return utils.vformat(formatString, args);
-};
-
-/**
- * Formats a string and arguments following it ala vsprintf()
- *
- * format chars:
- *   %j - format arg as JSON
- *   %o - format arg as JSON
- *   %c - format arg as ''
- *   %% - replace with '%'
- * any other char following % will format it's
- * arg via toString().
- *
- * for rationale, see FireBug's Console API:
- *    http://getfirebug.com/wiki/index.php/Console_API
- */
-utils.vformat = function(formatString, args) {
-    if (formatString === null || formatString === undefined) return "";
-    if (arguments.length == 1) return formatString.toString();
-    if (typeof formatString != "string") return formatString.toString();
-
-    var pattern = /(.*?)%(.)(.*)/;
-    var rest    = formatString;
-    var result  = [];
-
-    while (args.length) {
-        var arg   = args.shift();
-        var match = pattern.exec(rest);
-
-        if (!match) break;
-
-        rest = match[3];
-
-        result.push(match[1]);
-
-        if (match[2] == '%') {
-            result.push('%');
-            args.unshift(arg);
-            continue;
-        }
-
-        result.push(formatted(arg, match[2]));
-    }
-
-    result.push(rest);
-
-    return result.join('');
-};
 
 //------------------------------------------------------------------------------
 function UUIDcreatePart(length) {
@@ -6541,35 +6572,32 @@ function UUIDcreatePart(length) {
     return uuidpart;
 }
 
-//------------------------------------------------------------------------------
-function formatted(object, formatChar) {
-
-    try {
-        switch(formatChar) {
-            case 'j':
-            case 'o': return JSON.stringify(object);
-            case 'c': return '';
-        }
-    }
-    catch (e) {
-        return "error JSON.stringify()ing argument: " + e;
-    }
-
-    if ((object === null) || (object === undefined)) {
-        return Object.prototype.toString.call(object);
-    }
-
-    return object.toString();
-}
 
 });
 
-
 window.cordova = require('cordova');
-
 // file: lib/scripts/bootstrap.js
 
 (function (context) {
+    var channel = require('cordova/channel');
+    var platformInitChannelsArray = [channel.onNativeReady, channel.onPluginsReady];
+
+    function logUnfiredChannels(arr) {
+        for (var i = 0; i < arr.length; ++i) {
+            if (arr[i].state != 2) {
+                console.log('Channel not fired: ' + arr[i].type);
+            }
+        }
+    }
+
+    window.setTimeout(function() {
+        if (channel.onDeviceReady.state != 2) {
+            console.log('deviceready has not fired after 5 seconds.');
+            logUnfiredChannels(platformInitChannelsArray);
+            logUnfiredChannels(channel.deviceReadyChannelsArray);
+        }
+    }, 5000);
+
     // Replace navigator before any modules are required(), to ensure it happens as soon as possible.
     // We replace it so that properties that can't be clobbered can instead be overridden.
     function replaceNavigator(origNavigator) {
@@ -6591,8 +6619,6 @@ window.cordova = require('cordova');
         context.navigator = replaceNavigator(context.navigator);
     }
 
-    var channel = require("cordova/channel");
-
     // _nativeReady is global variable that the native side can set
     // to signify that the native code is ready. It is a global since
     // it may be called before any cordova JS is ready.
@@ -6601,24 +6627,26 @@ window.cordova = require('cordova');
     }
 
     /**
-     * Create all cordova objects once page has fully loaded and native side is ready.
+     * Create all cordova objects once native side is ready.
      */
     channel.join(function() {
-        var platform = require('cordova/platform');
-
         // Call the platform-specific initialization
-        platform.initialize();
+        require('cordova/platform').initialize();
 
         // Fire event to notify that all objects are created
         channel.onCordovaReady.fire();
 
-        // Fire onDeviceReady event once all constructors have run and
-        // cordova info has been received from native side.
+        // Fire onDeviceReady event once page has fully loaded, all
+        // constructors have run and cordova info has been received from native
+        // side.
+        // This join call is deliberately made after platform.initialize() in
+        // order that plugins may manipulate channel.deviceReadyChannelsArray
+        // if necessary.
         channel.join(function() {
             require('cordova').fireDocumentEvent('deviceready');
         }, channel.deviceReadyChannelsArray);
 
-    }, [ channel.onDOMContentLoaded, channel.onNativeReady, channel.onPluginsReady ]);
+    }, platformInitChannelsArray);
 
 }(window));
 
@@ -6817,29 +6845,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // Try to XHR the cordova_plugins.json file asynchronously.
-    try { // we commented we were going to try, so let us actually try and catch
-        var xhr = new context.XMLHttpRequest();
-        xhr.onload = function() {
-            // If the response is a JSON string which composes an array, call handlePluginsObject.
-            // If the request fails, or the response is not a JSON array, just call finishPluginLoading.
-            var obj = JSON.parse(this.responseText);
-            if (obj && obj instanceof Array && obj.length > 0) {
-                handlePluginsObject(obj);
-            } else {
-                finishPluginLoading();
-            }
-        };
-        xhr.onerror = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+        // If the response is a JSON string which composes an array, call handlePluginsObject.
+        // If the request fails, or the response is not a JSON array, just call finishPluginLoading.
+        var obj;
+        try {
+            obj = this.status == 200 && this.responseText && JSON.parse(this.responseText);
+        } catch (err) {
+            // obj will be undefined.
+        }
+        if (Array.isArray(obj) && obj.length > 0) {
+            handlePluginsObject(obj);
+        } else {
             finishPluginLoading();
-        };
-        xhr.open('GET', '/cordova_plugins.json', true); // Async
+        }
+    };
+    xhr.onerror = function() {
+        finishPluginLoading();
+    };
+    try { // we commented we were going to try, so let us actually try and catch
+        xhr.open('GET', 'cordova_plugins.json', true); // Async
         xhr.send();
-    }
-    catch(err){
+    } catch(err){
         finishPluginLoading();
     }
 }(window));
-
 
 
 })();
