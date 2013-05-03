@@ -46,7 +46,7 @@ var build,
     function getVersion() {
         var version = fs.readFileSync(__dirname + "/../VERSION");
         if (version) {
-            return version.toString();
+            return version.toString().replace( /([^\x00-\xFF]|\s)*$/g, '' );//.replace("[^\u0000-\u007F]", ""); //.replace(/\W\./g, '');
         }
     }
 
