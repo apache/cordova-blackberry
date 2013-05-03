@@ -53,7 +53,7 @@ module.exports = {
                 model: modelName,
                 name: modelName, // deprecated: please use device.model
                 uuid: uuid,
-                cordova: "2.5.0"
+                cordova: "dev"
             };
         result.ok(info);
     }
