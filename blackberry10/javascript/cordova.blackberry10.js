@@ -1,6 +1,6 @@
 // Platform: blackberry10
-// 2.7.0rc1-36-g93152a0
-// File generated at :: Fri May 03 2013 09:51:02 GMT-0400 (EDT)
+// dev-ga2e3993
+// File generated at :: Mon May 06 2013 18:49:10 GMT-0400 (EDT)
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -20,7 +20,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '2.7.0rc1-36-g93152a0';
+var CORDOVA_JS_BUILD_LABEL = 'dev-ga2e3993';
 // file: lib/scripts/require.js
 
 var require,
@@ -937,7 +937,7 @@ module.exports = {
         modulemapper.loadMatchingModules(new RegExp('cordova/blackberry10/.*bbsymbols$'));
 
         modulemapper.clobbers('cordova/plugin/blackberry10/vibrate', 'navigator.notification.vibrate');
-        modulemapper.clobbers('cordova/plugin/File', 'navigator.File');
+        modulemapper.clobbers('cordova/plugin/File', 'File');
         modulemapper.merges('cordova/plugin/blackberry10/compass', 'navigator.compass');
 
         modulemapper.mapModules(window);
@@ -6865,7 +6865,7 @@ document.addEventListener("DOMContentLoaded", function () {
         finishPluginLoading();
     };
     try { // we commented we were going to try, so let us actually try and catch
-        xhr.open('GET', 'cordova_plugins.json', true); // Async
+        xhr.open('GET', '/cordova_plugins.json', true); // Async
         xhr.send();
     } catch(err){
         finishPluginLoading();
