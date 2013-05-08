@@ -19,6 +19,8 @@ goto comment
 :comment
 
 REM cd into project dir
-cd %~dp0\..\
+pushd %~dp0\..\
 
-@node.exe ./cordova/lib/target %*
+cordova\third_party\node\bin\node.exe ./cordova/lib/target %*
+
+popd
