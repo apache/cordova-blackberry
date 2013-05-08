@@ -18,4 +18,4 @@ goto comment
        under the License.
 :comment
 
-node.exe %~dp0\create.js %*
+%~dp0\third_party\node\node-v0.10.5-win-x86\bin\node.exe %~dp0\create.js %*

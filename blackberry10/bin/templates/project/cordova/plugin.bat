@@ -18,4 +18,4 @@ goto comment
        under the License.
 :comment
 
-@node.exe %~dp0\plugin %*
+%~dp0\third_party\node\bin\node.exe %~dp0/lib/plugin.js %*

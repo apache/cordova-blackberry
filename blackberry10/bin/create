@@ -22,4 +22,15 @@
 #   ./create [path package appname]
 #
 #!/bin/sh
-node $( dirname "$0" )"/create.js" "$@"
+BIN_DIR=$(dirname "$0")
+if [ "`uname`" == "Linux" ] ; then
+    NODE_BIN=$BIN_DIR/../third_party/node/node-v0.10.5-linux-x86/bin
+elif [ "`uname`" == "Darwin" ]; then
+    NODE_BIN=$BIN_DIR/../third_party/node/node-v0.10.5-darwin-x86/bin
+else
+    echo "No node binary found for your OS"
+    exit
+fi
+
+#Run create.js
+$NODE_BIN/node $BIN_DIR"/create.js" "$@"

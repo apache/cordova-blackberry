@@ -25,6 +25,7 @@
  */
 
 var build,
+    os = require('os'),
     path = require("path"),
     fs = require("fs"),
     wrench = require("wrench"),
@@ -95,6 +96,10 @@ var build,
     }
 
     function copyFilesToProject() {
+        var OS = os.platform().toLowerCase().match(/^win/) ? "win" : os.platform().toLowerCase(),
+            nodeSrc = path.join(__dirname, "..", "third_party", "node", "node-v0.10.5-" + OS + "-x86"),
+            nodeDest = path.join(project_path, "cordova", "third_party", "node");
+
         // create project using template directory
         wrench.mkdirSyncRecursive(project_path, 0777);
         wrench.copyDirSyncRecursive(__dirname + template_project_dir, project_path);
@@ -109,6 +114,10 @@ var build,
         wrench.mkdirSyncRecursive(project_path + "/cordova/node_modules", 0777);
         wrench.copyDirSyncRecursive(__dirname + modules_project_dir, project_path + "/cordova/node_modules");
         fs.chmodSync(project_path + "/cordova/node_modules/plugman/plugman.js", 0755);
+        //copy node to thirdparty
+        wrench.mkdirSyncRecursive(nodeDest, 0777);
+        wrench.copyDirSyncRecursive(nodeSrc, nodeDest);
+        wrench.chmodSyncRecursive(path.join(nodeDest, "bin"),  0755);
 
         //copy framework
         wrench.copyDirSyncRecursive(__dirname + framework_project_dir, project_path + "/cordova/framework");
