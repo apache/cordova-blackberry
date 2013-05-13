@@ -21,6 +21,7 @@ package org.apache.cordova.file;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.NumberFormatException;
 import java.util.Enumeration;
 
 import javax.microedition.io.Connector;
@@ -98,32 +99,64 @@ public class FileManager extends Plugin {
     public PluginResult execute(String action, JSONArray args, String callbackId) {
         // perform specified action
         if (ACTION_READ_AS_TEXT.equals(action)) {
-            // get file path
             String filePath = null;
+            int start=-1;
+            int end=-1;
+
+            // get file path
             try {
                 filePath = args.getString(0);
             }
             catch (JSONException e) {
                 Logger.log(this.getClass().getName()
-                        + ": Invalid or missing path: " + e);
+                           + ": Invalid or missing path: " + e);
                 return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
-            return readAsText(filePath, args.optString(1));
+
+            // get read position indices
+            if (args.length() == 4) {
+                try {
+                    start = Integer.parseInt(args.getString(2));
+                    end   = Integer.parseInt(args.getString(3));
+                } catch (JSONException e) {
+                    Logger.log(this.getClass().getName()
+                               + ": Invalid or missing 'start' or 'end' indices: " + e);
+                } catch (NumberFormatException e) {
+                    Logger.log(this.getClass().getName()
+                               + ": Invalid 'start' or 'end' indices: " + e);
+                }
+            }
+            
+            return readAsText(filePath, args.optString(1), start, end);
         }
         else if (ACTION_READ_AS_DATA_URL.equals(action)) {
             // get file path
             String filePath = null;
+            int start=-1;
+            int end=-1;
             try {
                 filePath = args.getString(0);
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 Logger.log(this.getClass().getName()
                         + ": Invalid or missing path: " + e);
                 return new PluginResult(PluginResult.Status.JSON_EXCEPTION,
                         SYNTAX_ERR);
             }
-            return readAsDataURL(filePath);
+
+            // get read indices
+            try { 
+                start = Integer.parseInt(args.getString(1));
+                end   = Integer.parseInt(args.getString(2));
+            } catch (JSONException e) {
+                Logger.log(this.getClass().getName()
+                           + ": Invalid or missing 'start' or 'end' indices: " + e);
+            } catch (NumberFormatException e) {
+                Logger.log(this.getClass().getName()
+                           + ": Invalid 'start' or 'end' indices: " + e);
+            }
+
+            return readAsDataURL(filePath, start, end);
         }
         else if (ACTION_WRITE.equals(action)) {
             // file path
@@ -300,16 +333,22 @@ public class FileManager extends Plugin {
      * @return PluginResult containing encoded file contents or error code if
      *         unable to read or encode file
      */
-    protected static PluginResult readAsText(String filePath, String encoding) {
+    protected static PluginResult readAsText(String filePath, String encoding, int start, int end) {
         PluginResult result = null;
         String logMsg = ": encoding file contents using " + encoding;
-
         // read the file
         try {
             // return encoded file contents
             byte[] blob = FileUtils.readFile(filePath, Connector.READ);
-            result = new PluginResult(PluginResult.Status.OK,
-                    new String(blob, encoding));
+            if (start!=-1 && end!=-1) {        
+                byte[] slice = new byte[end-start];
+                System.arraycopy(blob, start, slice, 0, end-start); 
+                result = new PluginResult(PluginResult.Status.OK,
+                                          new String(slice, encoding));
+            } else {               
+                result = new PluginResult(PluginResult.Status.OK,
+                                          new String(blob, encoding));
+            }
         }
         catch (FileNotFoundException e) {
             logMsg = e.toString();
@@ -342,12 +381,16 @@ public class FileManager extends Plugin {
      * @return PluginResult containing the encoded file contents or an error
      *         code if unable to read the file
      */
-    protected static PluginResult readAsDataURL(String filePath) {
+    protected static PluginResult readAsDataURL(String filePath, int start, int end) {
         String data = null;
         try {
             // read file
             byte[] blob = FileUtils.readFile(filePath, Connector.READ);
-
+            if (start!=-1 && end!=-1) {
+                byte[] slice = new byte[end-start];
+                System.arraycopy(blob, start, slice, 0, end-start);
+                blob = slice;
+            }
             // encode file contents using BASE64 encoding
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Base64OutputStream base64OutputStream = new Base64OutputStream(
