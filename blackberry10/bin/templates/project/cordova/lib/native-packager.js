@@ -48,7 +48,9 @@ function generateTabletXMLFile(session, config) {
                 transparent : 'true',
                 autoOrients : 'true'
             },
-            env : [],
+            env : [{
+                _attr : { value : '2.0.0', var : 'WEBWORKS_VERSION'}
+            }],
             permission : [{
                 _attr : { system : 'true'},
                 _value : 'run_native'
