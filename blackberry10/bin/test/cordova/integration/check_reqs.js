@@ -19,16 +19,16 @@
 
 var childProcess = require('child_process'),
     flag = false,
-    helpFunc,
+    scriptingFunc,
     codeCompare;
 
 function executeScript(shellCommand) {
-    helpFunc = childProcess.exec(shellCommand, function (error, stdout, stderr) {
+    scriptingFunc = childProcess.exec(shellCommand, function (error, stdout, stderr) {
         if (error) {
             codeCompare = error.code;
         }
     }); 
-    helpFunc.on('exit', function (exitCode) {
+    scriptingFunc.on('exit', function (exitCode) {
         codeCompare = exitCode; 
         flag = true;
     });
@@ -36,7 +36,7 @@ function executeScript(shellCommand) {
 
 describe('start check_reqs tests', function () {
     it ('test output if QNX_HOST,_TARGET exists', function () {
-        executeScript('source /Applications/bbndk/bbndk-env.sh; bin/check_reqs');
+        executeScript('source /Applications/bbndk/bbndk-env.sh; bin/check_reqs');//assumes NDK installed in default path
         waitsFor(function () {
             return flag;
         });
@@ -53,7 +53,7 @@ describe('start check_reqs tests', function () {
         });
         runs(function (){
             flag = false;
-            expect(codeCompare).toEqual(255);
+            expect(codeCompare).toEqual(255); //255 is 2s complement of encoding -1
         });
     });
 });
