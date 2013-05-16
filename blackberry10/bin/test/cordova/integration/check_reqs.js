@@ -24,36 +24,36 @@ var childProcess = require('child_process'),
 
 function executeScript(shellCommand) {
     helpFunc = childProcess.exec(shellCommand, function (error, stdout, stderr) {
-    	if (error) {
-        	codeCompare = error.code;
-    	}
+        if (error) {
+            codeCompare = error.code;
+        }
     }); 
     helpFunc.on('exit', function (exitCode) {
         codeCompare = exitCode; 
-		flag = true;
+        flag = true;
     });
 }
 
 describe('start check_reqs tests', function () {
     it ('test output if QNX_HOST,_TARGET exists', function () {
-		executeScript('source /Applications/bbndk/bbndk-env.sh; bin/check_reqs');
-		waitsFor(function () {
+        executeScript('source /Applications/bbndk/bbndk-env.sh; bin/check_reqs');
+        waitsFor(function () {
             return flag;
         });
-    	runs(function () {
-        	flag = false;
-			expect(codeCompare).toEqual(0);
-    	});
-	});
+        runs(function () {
+            flag = false;
+            expect(codeCompare).toEqual(0);
+        });
+    });
 
-	it('test output if QNX_HOST,_TARGET does not exist', function () {
-		executeScript('unset QNX_HOST; unset QNX_TARGET; bin/check_reqs');
-		waitsFor(function () {
-			return flag;
-		});
-		runs(function (){
-			flag = false;
-			expect(codeCompare).toEqual(255);
-		});
-	});
+    it('test output if QNX_HOST,_TARGET does not exist', function () {
+        executeScript('unset QNX_HOST; unset QNX_TARGET; bin/check_reqs');
+        waitsFor(function () {
+            return flag;
+        });
+        runs(function (){
+            flag = false;
+            expect(codeCompare).toEqual(255);
+        });
+    });
 });
