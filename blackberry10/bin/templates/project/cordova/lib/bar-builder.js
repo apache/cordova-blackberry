@@ -33,17 +33,15 @@ function buildTarget(previous, baton) {
     //Create output folder
     wrench.mkdirSyncRecursive(session.outputDir + "/" + target);
 
-    //Copy target dependent files
-    fileManager.copyWWE(this.session, target);
-    fileManager.copyWebplatform(this.session, target);
+    //Copy resources (could be lost if copying assets from other project)
+    fileManager.copyNative(this.session, target);
+    //Generate user config here to overwrite default
+    fileManager.generateUserConfig(session, config);
 
     if (config.packageCordovaJs) {
         //Package cordova.js to chrome folder
         fileManager.copyWebworks(this.session);
     }
-
-    fileManager.copyJnextDependencies(this.session);
-    fileManager.copyExtensions(this.session, target);
 
     //Generate frameworkModules.js (this needs to be done AFTER all files have been copied)
     fileManager.generateFrameworkModulesJS(session);
@@ -87,7 +85,7 @@ module.exports = {
     build: function (session, config, callback) {
         var context = {
                 session: session,
-                config: config,
+                config: config
             },
             workflow = buildWorkflow(session, context);
 

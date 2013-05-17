@@ -16,14 +16,15 @@
 -->
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="org.apache.cordova.core"
+    id="org.apache.cordova.core.Logger"
     version="0.0.1">
 
-    <name>Accelerometer</name>
+    <name>Logger</name>
 
     <platform name="blackberry10">
+        <source-file src="src/blackberry10/index.js" target-dir="Logger" />
         <config-file target="www/config.xml" parent="/widget">
-            <feature name="Acceleromter" value="Accelerometer"/>
+            <feature name="Logger" value="Logger"/>
         </config-file>
-      </platform>
+    </platform>
 </plugin>

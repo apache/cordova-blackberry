@@ -15,12 +15,10 @@ describe("BAR builder", function () {
             config = testData.config,
             target = session.targets[0];
 
+        wrench.mkdirSyncRecursive(path.join(session.sourcePaths.LIB, "config"));
+
         spyOn(wrench, "mkdirSyncRecursive");
-        spyOn(fileMgr, "copyWWE");
-        spyOn(fileMgr, "copyWebplatform");
         spyOn(fileMgr, "copyWebworks");
-        spyOn(fileMgr, "copyJnextDependencies");
-        spyOn(fileMgr, "copyExtensions");
         spyOn(fileMgr, "generateFrameworkModulesJS");
         spyOn(nativePkgr, "exec").andCallFake(function (session, target, config, callback) {
             callback(0);
@@ -29,10 +27,6 @@ describe("BAR builder", function () {
         barBuilder.build(session, testData.config, callback);
 
         expect(wrench.mkdirSyncRecursive).toHaveBeenCalledWith(session.outputDir + "/" + target);
-        expect(fileMgr.copyWWE).toHaveBeenCalledWith(session, target);
-        expect(fileMgr.copyWebplatform).toHaveBeenCalledWith(session, target);
-        expect(fileMgr.copyJnextDependencies).toHaveBeenCalledWith(session);
-        expect(fileMgr.copyExtensions).toHaveBeenCalledWith(session, target);
         expect(fileMgr.generateFrameworkModulesJS).toHaveBeenCalledWith(session);
         expect(nativePkgr.exec).toHaveBeenCalledWith(session, target, config, jasmine.any(Function));
         expect(callback).toHaveBeenCalledWith(0);

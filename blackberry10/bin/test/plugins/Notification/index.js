@@ -38,7 +38,7 @@ function mockAndTestDialog(htmlmessage, title, dialogType, buttonLabel) {
 }
 
 describe("Notification", function () {
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Notification/src/blackberry10/",
+    var _apiDir = __dirname + "./../../../../plugins/Notification/src/blackberry10/",
     index,
     success = function() {},
     fail = function() {},

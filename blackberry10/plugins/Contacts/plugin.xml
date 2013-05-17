@@ -16,14 +16,14 @@
 -->
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="org.apache.cordova.core"
+    id="org.apache.cordova.core.Contacts"
     version="0.0.1">
 
-    <name>NetworkStatus</name>
+    <name>Contacts</name>
 
     <platform name="blackberry10">
         <config-file target="www/config.xml" parent="/widget">
-            <feature name="NetworkStatus" value="NetworkStatus"/>
+            <feature name="Contacts" value="Contacts"/>
         </config-file>
-    </platform>
+      </platform>
 </plugin>
