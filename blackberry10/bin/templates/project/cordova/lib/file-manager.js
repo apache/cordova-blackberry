@@ -196,7 +196,7 @@ function copyWebplatform(session, target) {
 
 function copyWebworks(session) {
     var srcPath = path.normalize(session.conf.PROJECT_ROOT + "/lib"),
-        dest = path.normalize(session.sourceDir + "/chrome"),
+        dest = path.normalize(session.sourceDir),
         srcFiles;
 
     srcFiles = packagerUtils.listFiles(srcPath, function (file) {
