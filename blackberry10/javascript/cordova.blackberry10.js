@@ -1,6 +1,5 @@
 // Platform: blackberry10
-// dev-ga2e3993
-// File generated at :: Mon May 06 2013 18:49:10 GMT-0400 (EDT)
+// 2.7.0rc1-69-gac7968e
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -20,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = 'dev-ga2e3993';
+var CORDOVA_JS_BUILD_LABEL = '2.7.0rc1-69-gac7968e';
 // file: lib/scripts/require.js
 
 var require,
@@ -5799,9 +5798,12 @@ var exec    = require('cordova/exec');
 var utils   = require('cordova/utils');
 
 var UseConsole   = true;
+var UseLogger    = true;
 var Queued       = [];
 var DeviceReady  = false;
 var CurrentLevel;
+
+var originalConsole = console;
 
 /**
  * Logging levels
@@ -5863,8 +5865,7 @@ logger.level = function (value) {
  * Getter/Setter for the useConsole functionality
  *
  * When useConsole is true, the logger will log via the
- * browser 'console' object.  Otherwise, it will use the
- * native Logger plugin.
+ * browser 'console' object.
  */
 logger.useConsole = function (value) {
     if (arguments.length) UseConsole = !!value;
@@ -5886,6 +5887,18 @@ logger.useConsole = function (value) {
     }
 
     return UseConsole;
+};
+
+/**
+ * Getter/Setter for the useLogger functionality
+ *
+ * When useLogger is true, the logger will log via the
+ * native Logger plugin.
+ */
+logger.useLogger = function (value) {
+    // Enforce boolean
+    if (arguments.length) UseLogger = !!value;
+    return UseLogger;
 };
 
 /**
@@ -5957,24 +5970,26 @@ logger.logLevel = function(level /* , ... */) {
         return;
     }
 
-    // if not using the console, use the native logger
-    if (!UseConsole) {
+    // Log using the native logger if that is enabled
+    if (UseLogger) {
         exec(null, null, "Logger", "logLevel", [level, message]);
-        return;
     }
 
-    // make sure console is not using logger
-    if (console.__usingCordovaLogger) {
-        throw new Error("console and logger are too intertwingly");
-    }
+    // Log using the console if that is enabled
+    if (UseConsole) {
+        // make sure console is not using logger
+        if (console.__usingCordovaLogger) {
+            throw new Error("console and logger are too intertwingly");
+        }
 
-    // log to the console
-    switch (level) {
-        case logger.LOG:   console.log(message); break;
-        case logger.ERROR: console.log("ERROR: " + message); break;
-        case logger.WARN:  console.log("WARN: "  + message); break;
-        case logger.INFO:  console.log("INFO: "  + message); break;
-        case logger.DEBUG: console.log("DEBUG: " + message); break;
+        // log to the console
+        switch (level) {
+            case logger.LOG:   originalConsole.log(message); break;
+            case logger.ERROR: originalConsole.log("ERROR: " + message); break;
+            case logger.WARN:  originalConsole.log("WARN: "  + message); break;
+            case logger.INFO:  originalConsole.log("INFO: "  + message); break;
+            case logger.DEBUG: originalConsole.log("DEBUG: " + message); break;
+        }
     }
 };
 
@@ -6805,7 +6820,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // See plugman's plugin_loader.js for the details of this object.
     // This function is only called if the really is a plugins array that isn't empty.
     // Otherwise the XHR response handler will just call finishPluginLoading().
-    function handlePluginsObject(modules) {
+    function handlePluginsObject(modules, path) {
         // First create the callback for when all plugins are loaded.
         var mapper = context.cordova.require('cordova/modulemapper');
         onScriptLoadingComplete = function() {
@@ -6839,11 +6854,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Now inject the scripts.
         for (var i = 0; i < modules.length; i++) {
-            injectScript(modules[i].file);
+            injectScript(path + modules[i].file);
         }
     }
 
-
+    // Find the root of the app
+    var path = '';
+    var scripts = document.getElementsByTagName('script');
+    var term = 'cordova.js';
+    for (var n = scripts.length-1; n>-1; n--) {
+        var src = scripts[n].src;
+        if (src.indexOf(term) == (src.length - term.length)) {
+            path = src.substring(0, src.length - term.length);
+            break;
+        }
+    }
     // Try to XHR the cordova_plugins.json file asynchronously.
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {
@@ -6851,12 +6876,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // If the request fails, or the response is not a JSON array, just call finishPluginLoading.
         var obj;
         try {
-            obj = this.status == 200 && this.responseText && JSON.parse(this.responseText);
+            obj = (this.status == 0 || this.status == 200) && this.responseText && JSON.parse(this.responseText);
         } catch (err) {
             // obj will be undefined.
         }
         if (Array.isArray(obj) && obj.length > 0) {
-            handlePluginsObject(obj);
+            handlePluginsObject(obj, path);
         } else {
             finishPluginLoading();
         }
@@ -6864,8 +6889,9 @@ document.addEventListener("DOMContentLoaded", function () {
     xhr.onerror = function() {
         finishPluginLoading();
     };
+    var plugins_json = path + 'cordova_plugins.json';
     try { // we commented we were going to try, so let us actually try and catch
-        xhr.open('GET', '/cordova_plugins.json', true); // Async
+        xhr.open('GET', plugins_json, true); // Async
         xhr.send();
     } catch(err){
         finishPluginLoading();
