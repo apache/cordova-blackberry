@@ -18,7 +18,38 @@ var utils = require('./utils'),
     controllerWebView = require('./controllerWebView'),
     webview = require('./webview'),
     overlayWebView = require('./overlayWebView'),
-    config = require("./config");
+    config = require("./config"),
+    appEvents = require("./events/applicationEvents"),
+    actionMap = {
+        pause: {
+            event: "inactive",
+            trigger: function () {
+                webview.executeJavascript("cordova.fireDocumentEvent('pause')");
+            }
+        },
+        resume: {
+            event: "active",
+            trigger: function () {
+                webview.executeJavascript("cordova.fireDocumentEvent('resume')");
+            }
+        }
+    };
+
+function addEvents() {
+    for (var action in actionMap) {
+        if (actionMap.hasOwnProperty(action)) {
+            appEvents.addEventListener(actionMap[action].event, actionMap[action].trigger);
+        }
+    }
+}
+
+function removeEvents() {
+    for (var action in actionMap) {
+        if (actionMap.hasOwnProperty(action)) {
+            appEvents.removeEventListener(actionMap[action].event, actionMap[action].trigger);
+        }
+    }
+}
 
 function showWebInspectorInfo() {
     var port = window.qnx.webplatform.getApplication().webInspectorPort,
@@ -118,6 +149,8 @@ var _self = {
             debugEnabled : config.debugEnabled
         });
 
+        addEvents();
+
         //if debugging is enabled, show the IP and port for webinspector
         if (config.debugEnabled) {
             callback = function () {
@@ -131,6 +164,7 @@ var _self = {
         }
     },
     stop: function () {
+        removeEvents();
         webview.destroy();
     }
 };
