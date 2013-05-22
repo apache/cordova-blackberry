@@ -64,7 +64,11 @@ var path = require("path"),
             return argumentor;
         },
         run: function () {
-            var cmd = PLUGMAN + " " + this.args.join(" ");
+            var cmd = "";           
+            if (require('os').type().toLowerCase().indexOf("windows") >= 0) {
+                cmd += "@node.exe ";
+            }
+            cmd += PLUGMAN + " " + this.args.join(" ");
             return shell.exec(cmd, {silent: false});
         }
     },
