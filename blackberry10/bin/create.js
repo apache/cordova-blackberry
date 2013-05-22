@@ -46,9 +46,9 @@ var build,
     js_basename = "cordova-" + version + ".js";
 
 function getVersion() {
-    var version = fs.readFileSync(__dirname + "/../VERSION");
+    var version = fs.readFileSync(path.join(__dirname,  "..", "VERSION"));
     if (version) {
-        return version.toString().replace( /([^\x00-\xFF]|\s)*$/g, '' );//.replace("[^\u0000-\u007F]", ""); //.replace(/\W\./g, '');
+        return version.toString().replace( /([^\x00-\xFF]|\s)*$/g, '' );
     }
 }
 
@@ -89,7 +89,7 @@ function clean() {
 }
 
 function copyJavascript() {
-    wrench.mkdirSyncRecursive(BUILD_DIR + "/" + js_path, 0777);
+    wrench.mkdirSyncRecursive(path.join(BUILD_DIR, js_path), 0777);
     utils.copyFile(CORDOVA_JS_SRC, path.join(BUILD_DIR, js_path));
 
     //rename copied cordova.blackberry10.js file
@@ -104,7 +104,7 @@ function copyFilesToProject() {
     wrench.copyDirSyncRecursive(TEMPLATE_PROJECT_DIR, project_path);
 
     // change file permission for cordova scripts because ant copy doesn't preserve file permissions
-    wrench.chmodSyncRecursive(project_path + "/cordova", 0700);
+    wrench.chmodSyncRecursive(path.join(project_path,"cordova"), 0700);
 
     //copy cordova-*version*.js to www
     utils.copyFile(path.join(BUILD_DIR, js_path, js_basename), path.join(project_path, "www"));
@@ -131,8 +131,8 @@ function copyFilesToProject() {
 }
 
 function updateProject() {
-    var projectJson = require(path.resolve(project_path + "/project.json")),
-        configXMLPath = path.resolve(project_path + "/www/config.xml"),
+    var projectJson = require(path.resolve(path.join(project_path, "project.json"))),
+        configXMLPath = path.resolve(path.join(project_path, "www", "config.xml")),
         xmlString;
 
     if (typeof app_id !== "undefined") {
