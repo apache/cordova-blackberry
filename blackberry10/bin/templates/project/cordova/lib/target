@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-var propertiesFile = 'project.json',
-    properties = require('../../' + propertiesFile),
+var path = require('path'),
+    propertiesFile = path.resolve(path.join(__dirname, '..', '..', 'project.json')),
+    properties = require(propertiesFile),
     fs = require('fs'),
     commander = require('commander'),
     command,
