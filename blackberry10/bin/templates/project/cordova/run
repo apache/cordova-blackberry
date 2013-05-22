@@ -1,4 +1,3 @@
-#cd into project dir
-cd $( dirname "$0")/../
+#!/bin/sh
 
-node ./cordova/lib/run "$@"
+node $( dirname "$0")/../"cordova/lib/run" "$@"
