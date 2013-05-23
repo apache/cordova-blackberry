@@ -25,10 +25,10 @@ var path = require("path"),
     debugTokenHelper = require("./debugtoken-helper"),
     bbwpArgv = [
         process.argv[0],
-        process.argv[1],
-        "./www",
+        path.resolve(path.join(__dirname, process.argv[1])),
+        path.resolve(path.join(__dirname, "..", "..", "www")),
         "-o",
-        "./build"
+        path.resolve(path.join(__dirname, "..", "..", "build"))
     ],
     built = false,
     debugtoken = false;

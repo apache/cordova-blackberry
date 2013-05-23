@@ -18,7 +18,4 @@ goto comment
        under the License.
 :comment
 
-REM cd into project dir
-cd %~dp0\..\
-
-@node.exe ./cordova/lib/target %*
+@node.exe %~dp0\lib\target %*
