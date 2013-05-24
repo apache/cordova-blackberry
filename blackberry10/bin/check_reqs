@@ -19,7 +19,7 @@
 #!/bin/sh
 if command -v node >/dev/null 2>&1; then
     if command -v npm >/dev/null 2>&1; then
-        node $( dirname "$0" )"/check_reqs.js" "$@"
+        node "$( dirname "$0" )/check_reqs.js" "$@"
     else
         echo "npm cannot be found on the path. Aborting."
         exit 1
