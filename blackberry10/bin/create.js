@@ -164,7 +164,7 @@ function updateProject() {
 }
 
 function installPlugins() {
-    var pluginScript = path.resolve(__dirname, "..", path.join(project_path, "cordova", "lib", "plugin.js"));
+    var pluginScript = path.join(project_path, "cordova", "lib", "plugin.js");
     require(pluginScript).add(path.join(__dirname, "..", "plugins"));
 }
 
