@@ -104,6 +104,7 @@ function addPlugin (pluginPath) {
         plugin = path.resolve(GLOBAL_PLUGIN_PATH, plugin);
         if (!fs.existsSync(plugin)) {
             console.log("Input ", pluginPath || argumentor.plugin, " cannot be resolved as a plugin");
+            listHelp();
             process.exit(1);
         }
     }
@@ -119,6 +120,7 @@ function addPlugin (pluginPath) {
 
     if (!pluginDirs.length) {
         console.log("No plugins could be found given the input " + pluginPath || argumentor.plugin);
+        listHelp();
         process.exit(1);
     } else {
         pluginDirs.forEach(function (pluginDir) {
