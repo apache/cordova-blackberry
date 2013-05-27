@@ -104,16 +104,19 @@ function execNativeDeploy(optionsArray, callback) {
 function checkTarget() {
     if (!target) {
         console.log("No target exists, to add that target please run target add <name> <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]");
+        console.log(program.helpInformation()); 
         return false;
     }
     if (!properties.targets[target]) {
         console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]");
+        console.log(program.helpInformation()); 
         return false;
     }
     if (properties.targets[target].ip) {
        ip = properties.targets[target].ip; 
     } else {
         console.log("IP is not defined in target \""+target+"\"");
+        console.log(program.helpInformation()); 
         return false;
     }
     if (properties.targets[target].password) {

@@ -55,6 +55,7 @@ function doReleaseBuild() {
         bbwpArgv.push( projectProperties.keystorepass);
     } else {
         console.log("No signing password provided. Please use --keystorepass via command-line or enter a value for keystorepass in project.json");
+        console.log(command.helpInformation()); 
         process.exit(2);
     }
 
@@ -116,7 +117,9 @@ try {
     command.parse(process.argv);
 
     if (command.debug && command.release) {
-        throw "Invalid build command: cannot specify both debug and release parameters."
+        console.log("Invalid build command: cannot specify both debug and release parameters.");
+        console.log(command.helpInformation());
+        process.exit(2);
     }
 
     // Implicitly call clean first
