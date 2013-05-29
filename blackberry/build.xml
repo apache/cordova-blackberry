@@ -48,7 +48,7 @@
 
     <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
-    <property name="js.basename"     value="cordova-${version}.js" />
+    <property name="js.basename"     value="cordova.js" />
     <property name="js.file"         value="${js.path}/${js.basename}" />
 
     <!-- BUILD JAVASCRIPT -->
