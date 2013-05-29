@@ -43,7 +43,7 @@ var build,
     update_dir = path.join(project_path, "lib", "cordova." + version),
     native_dir = path.join(project_path, "native"),
     js_path = "javascript",
-    js_basename = "cordova-" + version + ".js";
+    js_basename = "cordova.js";
 
 function getVersion() {
     var version = fs.readFileSync(path.join(__dirname,  "..", "VERSION"));
