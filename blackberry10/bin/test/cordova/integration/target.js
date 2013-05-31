@@ -43,14 +43,14 @@ describe("cordova/target tests", function () {
         executeScript("bin/create " + appFolder);
         waitsFor(function () {
             return flag;
-        });
+        },9000);
         runs(function () {
             flag = false;
         });
     });
 
     afterEach(function () {
-        wrench.rmdirSyncRecursive(tempFolder);
+        wrench.rmdirSyncRecursive(tempFolder);   
     });
 
     it("should add a target", function () {
@@ -158,7 +158,7 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Target details not specified");
+            expect(_stdout).toContain("Target details not specified");
             expect(_stderr).toEqual("");
         });
     });
@@ -170,7 +170,7 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("IP is required");
+            expect(_stdout).toContain("IP is required");
             expect(_stderr).toEqual("");
         });
     });
@@ -182,7 +182,7 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Unrecognized command");
+            expect(_stdout).toContain("Unrecognized command");
             expect(_stderr).toEqual("");
         });
     });
@@ -194,7 +194,7 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Invalid IP: 256.254.0.1");
+            expect(_stdout).toContain("Invalid IP: 256.254.0.1");
             expect(_stderr).toEqual("");
         });
     });
@@ -206,7 +206,7 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Invalid target type: bleh");
+            expect(_stdout).toContain("Invalid target type: bleh");
             expect(_stderr).toEqual("");
         });
     });
@@ -218,7 +218,7 @@ describe("cordova/target tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Invalid PIN: NOTAPIN!");
+            expect(_stdout).toContain("Invalid PIN: NOTAPIN!");
             expect(_stderr).toEqual("");
         });
     });
