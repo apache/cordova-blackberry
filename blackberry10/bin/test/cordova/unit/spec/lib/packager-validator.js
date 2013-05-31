@@ -197,23 +197,6 @@ describe("Packager Validator", function () {
             packagerValidator.validateSession(session, configObj);
         }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_PASSWORD"));
     });
-
-    it("generates a warning when the config contains a build id and no password was provided[-g]", function () {
-        var session = testUtilities.cloneObj(testData.session),
-            configObj = testUtilities.cloneObj(testData.config);
-
-        //setup signing parameters
-        session.keystore = "c:/author.p12";
-        session.storepass = undefined;
-        session.buildId = undefined;
-        configObj.buildId = "100";
-
-        //Mock the logger
-        spyOn(logger, "warn");
-
-        packagerValidator.validateSession(session, configObj);
-        expect(logger.warn).toHaveBeenCalledWith(localize.translate("WARNING_SIGNING_PASSWORD_EXPECTED"));
-    });
 });
 
 describe("Packager Validator: validateConfig", function () {
