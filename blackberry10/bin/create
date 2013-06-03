@@ -22,4 +22,11 @@
 #   ./create [path package appname]
 #
 #!/bin/sh
+
+if ! [ -d ../node_modules ] ; then
+    echo "node dependencies not found. Executing 'sudo npm install'"
+    echo "this will require your system password"
+    sudo npm install
+fi
+
 node $( dirname "$0" )"/create.js" "$@"
