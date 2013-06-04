@@ -37,4 +37,3 @@ if [ $? -eq 0 ]; then
 else
   node $BIN_DIR/create.js "$@"
 fi
->>>>>>> [CB-3380] Updates scripts to work better with Node dependency
