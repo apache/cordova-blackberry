@@ -89,7 +89,11 @@ var path = require("path"),
     };
 
 function escapeShell(str) {
-    return str.replace(/(["\s'$`\\])/g,'\\$1');
+    if (require('os').type().toLowerCase().indexOf("windows") >= 0) {
+        return "\"" + str + "\"";
+    } else {
+        return str.replace(/(["\s'$`\\])/g,'\\$1');
+    }
 }
 
 function getPluginId(pluginXMLPath) {
