@@ -2,7 +2,7 @@ var path = require('path');
 
 describe("webview", function () {
     var libPath = path.join(__dirname, "../../../lib/"),
-        networkResourceRequested = require(path.join(libPath, "webkitHandlers/networkResourceRequested")),
+        networkResourceRequested,
         webkitOriginAccess,
         webview,
         mockedController,
@@ -11,7 +11,6 @@ describe("webview", function () {
         globalCreate;
 
     beforeEach(function () {
-        require.cache = {};
         mockedController = {
             enableWebInspector: undefined,
             enableCrossSiteXHR: undefined,
@@ -86,12 +85,18 @@ describe("webview", function () {
             width : 1024,
             height: 768
         };
-        webview = require(path.join(libPath, "webview"));
         webkitOriginAccess = require(path.join(libPath, "policy/webkitOriginAccess"));
+        networkResourceRequested = require(path.join(libPath, "webkitHandlers/networkResourceRequested"));
+        webview = require(path.join(libPath, "webview"));
     });
 
     afterEach(function () {
-        require.cache = {};
+        delete GLOBAL.qnx;
+        delete GLOBAL.window;
+        delete GLOBAL.screen;
+        delete require.cache[require.resolve(libPath + "webview")];
+        delete require.cache[require.resolve(libPath + "policy/webkitOriginAccess")];
+        delete require.cache[require.resolve(libPath + "webkitHandlers/networkResourceRequested")];
     });
 
     describe("create", function () {

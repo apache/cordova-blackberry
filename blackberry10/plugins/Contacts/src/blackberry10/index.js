@@ -175,9 +175,8 @@ function processJnextFindData(eventId, eventHandler, JnextData) {
 }
 
 module.exports = {
-    search: function (successCb, failCb, args, env) {
+    search: function (result, args, env) {
         var cordovaFindOptions = {},
-            result = new PluginResult(args, env),
             key;
 
         for (key in args) {
@@ -189,9 +188,8 @@ module.exports = {
         pimContacts.getInstance().find(cordovaFindOptions, result, processJnextFindData);
         result.noResult(true);
     },
-    save: function (successCb, failCb, args, env) {
+    save: function (result, args, env) {
         var attributes = {},
-            result = new PluginResult(args, env),
             key,
             nativeEmails = [];
 
@@ -223,9 +221,8 @@ module.exports = {
         pimContacts.getInstance().save(attributes, result, processJnextSaveData);
         result.noResult(true);
     },
-    remove: function (successCb, failCb, args, env) {
-        var result = new PluginResult(args, env),
-            attributes = {
+    remove: function (result, args, env) {
+        var attributes = {
                 "contactId": window.parseInt(JSON.parse(decodeURIComponent(args[0]))),
                 "_eventId": result.callbackId
             };

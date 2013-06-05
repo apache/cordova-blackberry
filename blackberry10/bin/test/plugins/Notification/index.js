@@ -39,55 +39,50 @@ function mockAndTestDialog(htmlmessage, title, dialogType, buttonLabel) {
 
 describe("Notification", function () {
     var _apiDir = __dirname + "./../../../../plugins/Notification/src/blackberry10/",
-    index,
-    success = function() {},
-    fail = function() {},
-    result = {
-        error: jasmine.createSpy(),
-        noResult: jasmine.createSpy()
-    },
-    args = {
-        0: "%22Dialog%20message.%22",
-        1: "%22Dialog%20Title%22",
-        2: "%22Continue%22"
-    };
+        index,
+        success = function() {},
+        fail = function() {},
+        result = {
+            error: jasmine.createSpy(),
+            noResult: jasmine.createSpy()
+        },
+        args = {
+            0: "%22Dialog%20message.%22",
+            1: "%22Dialog%20Title%22",
+            2: "%22Continue%22"
+        };
 
     beforeEach(function () {
         index = require(_apiDir + "index");
-
-        GLOBAL.PluginResult = function () {
-            return result;
-        };
     });
 
     afterEach(function () {
-        delete require.cache[require.resolve(_apiDir + "index")];
+        require.cache = {};
         delete GLOBAL.qnx;
-        delete GLOBAL.PluginResult;
     });
 
     describe("alert", function () {
         it("fails with invalid number of args", function () {
-            index.alert(success, fail, {}, {});
+            index.alert(result);
             expect(result.error).toHaveBeenCalledWith("Notification action - alert arguments not found.");
         });
 
         it("calls dialog.show with correct params", function () {
             mockAndTestDialog("Dialog message.", "Dialog Title", "CustomAsk", ["Continue"]);
-            index.alert(success, fail, args, {});
+            index.alert(result, args);
             expect(result.noResult).toHaveBeenCalled();
         });
     });
 
     describe("confirm", function () {
         it("fails with invalid number of args", function () {
-            index.confirm(success, fail, {}, {});
+            index.confirm(result);
             expect(result.error).toHaveBeenCalledWith("Notification action - confirm arguments not found.");
         });
 
         it("calls dialog.show with correct params", function () {
             mockAndTestDialog("Dialog message.", "Dialog Title", "CustomAsk", ["Continue"]);
-            index.confirm(success, fail, args, {});
+            index.confirm(result, args);
             expect(result.noResult).toHaveBeenCalled();
         });
 
@@ -99,20 +94,20 @@ describe("Notification", function () {
             };
 
             mockAndTestDialog("Dialog message.", "Dialog Title", "CustomAsk", ["Continue", "Cancel"]);
-            index.confirm(success, fail, args, {});
+            index.confirm(result, args);
             expect(result.noResult).toHaveBeenCalled();
         });
     });
 
     describe("prompt", function () {
         it("fails with invalid number of args", function () {
-            index.prompt(success, fail, {}, {});
+            index.prompt(result);
             expect(result.error).toHaveBeenCalledWith("Notification action - prompt arguments not found.");
         });
 
         it("calls dialog.show with correct params", function () {
             mockAndTestDialog("Dialog message.", "Dialog Title", "JavaScriptPrompt", ["Continue"]);
-            index.prompt(success, fail, args, {});
+            index.prompt(result, args);
             expect(result.noResult).toHaveBeenCalled();
         });
     });

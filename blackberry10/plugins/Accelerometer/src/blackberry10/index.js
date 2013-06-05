@@ -22,8 +22,7 @@
 var callback;
 
 module.exports = {
-    start: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
+    start: function (result, args, env) {
         window.removeEventListener("devicemotion", callback);
         callback = function (motion) {
             var info = {
@@ -37,8 +36,7 @@ module.exports = {
         window.addEventListener("devicemotion", callback);
         result.noResult(true);
     },
-    stop: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
+    stop: function (result, args, env) {
         window.removeEventListener("devicemotion", callback);
         result.ok("removed");
     }

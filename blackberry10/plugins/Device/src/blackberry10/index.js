@@ -47,9 +47,8 @@ function getUUID () {
 }
 
 module.exports = {
-    getDeviceInfo: function (success, fail, args, env) {
-        var result = new PluginResult(args, env),
-            modelName = getModelName(),
+    getDeviceInfo: function (result, args, env) {
+        var modelName = getModelName(),
             uuid = getUUID(),
             info = {
                 platform: "blackberry10",

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-var DEFAULT_SERVICE = "default",
+var PluginResult = require("./PluginResult"),
+    DEFAULT_SERVICE = "default",
     DEFAULT_ACTION = "exec";
 
 function rebuildRequest(req) {
@@ -74,7 +75,8 @@ module.exports = {
     handle: function (req, res, sourceWebview, config) {
         try {
             var pluginName = "lib/plugins/" + req.params.service,
-                plugin;
+                plugin,
+                env;
 
             if (frameworkModules.indexOf(pluginName + ".js") === -1) {
                 pluginName = "lib/plugins/" + DEFAULT_SERVICE;
@@ -88,34 +90,22 @@ module.exports = {
 
             plugin = require("./utils").loadModule(pluginName);
 
-            plugin[req.params.action](req,
-            function (result) {
-                res.send(200, encodeURIComponent(JSON.stringify({
-                    code: 42,
-                    data: result
-                })));
-            },
-            function (code, error, httpCode) {
-                if (!httpCode) {
-                    httpCode = 200;
-                }
-
-                res.send(httpCode, encodeURIComponent(JSON.stringify({
-                    code: Math.abs(code) * -1 || -1,
-                    data: null,
-                    msg: error
-                })));
-            },
-            req.params.args,
-            {
+            env = {
                 "request": req,
                 "response": res,
                 "webview": sourceWebview,
                 "config": config
-            });
+            };
+
+            plugin[req.params.action](
+                req,
+                new PluginResult(req.params.args, env),
+                req.params.args,
+                env
+            );
         } catch (e) {
-            console.error(e);
-            res.send(404, "can't find the stuff");
+            console.error("lib/servser: ", e);
+            res.send(404, "Server encountered an error executing the request.");
         }
     }
 };

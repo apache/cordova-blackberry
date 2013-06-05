@@ -20,44 +20,35 @@ describe("Device", function () {
         index,
         result = {
             ok: jasmine.createSpy()
-        };
-
-    beforeEach(function () {
-        index = require(_apiDir + "index");
-    });
-
-    afterEach(function () {
-        index = null;
-    });
+        },
+        mockedDevice;
 
     describe("getDeviceInfo", function () {
         beforeEach(function () {
-            GLOBAL.window = {
-                qnx: {
-                    webplatform: {
-                        device: {
-                        }
-                    }
-                }
-            };
-            GLOBAL.PluginResult = function () {
-                return result;
-            };
-        });
-
-        afterEach(function () {
-            delete GLOBAL.window;
-            delete GLOBAL.PluginResult;
-        });
-
-        it("calls ok with the Device info", function () {
-            var mockedDevice = {
+            mockedDevice = {
                 scmBundle: "1.0.0.0",
                 modelName: "q10",
                 devicePin: (new Date()).getTime()
             };
 
-            result.ok = jasmine.createSpy().andCallFake(function (deviceInfo) {
+            GLOBAL.window = {
+                qnx: {
+                    webplatform: {
+                        device: mockedDevice
+                    }
+                }
+            };
+            index = require(_apiDir + "index");
+        });
+
+        afterEach(function () {
+            delete GLOBAL.window;
+            delete require.cache[require.resolve(_apiDir + "index")];
+        });
+
+        it("calls ok with the Device info", function () {
+
+            result.ok.andCallFake(function (deviceInfo) {
                 expect(deviceInfo.platform).toEqual("blackberry10");
                 expect(deviceInfo.version).toEqual(mockedDevice.scmBundle);
                 expect(deviceInfo.model).toEqual(mockedDevice.modelName);
@@ -65,11 +56,72 @@ describe("Device", function () {
                 expect(deviceInfo.cordova).toBeDefined();
             });
 
-            window.qnx.webplatform.device = mockedDevice;
-
-            index.getDeviceInfo();
-
+            index.getDeviceInfo(result);
             expect(result.ok).toHaveBeenCalled();
+        });
+
+        it("returns Z10 for 1280x768", function () {
+            mockedDevice.modelName = undefined;
+            GLOBAL.window.screen = {
+                height: 1280,
+                width: 768
+            };
+
+            result.ok.andCallFake(function (deviceInfo) {
+                expect(deviceInfo.model).toEqual("Z10");
+            });
+
+            index.getDeviceInfo(result);
+            expect(result.ok).toHaveBeenCalled();
+        });
+
+        it("returns Z10 for 768x1280", function () {
+            mockedDevice.modelName = undefined;
+            GLOBAL.window.screen = {
+                height: 768,
+                width: 1280
+            };
+
+            result.ok.andCallFake(function (deviceInfo) {
+                expect(deviceInfo.model).toEqual("Z10");
+            });
+
+            index.getDeviceInfo(result);
+            expect(result.ok).toHaveBeenCalled();
+        });
+
+        it("returns Q10 for 720x720 and OLED", function () {
+            mockedDevice.modelName = undefined;
+            GLOBAL.window.screen = {
+                height: 720,
+                width: 720
+            };
+            GLOBAL.window.matchMedia = jasmine.createSpy().andReturn({matches: true});
+
+            result.ok.andCallFake(function (deviceInfo) {
+                expect(deviceInfo.model).toEqual("Q10");
+            });
+
+            index.getDeviceInfo(result);
+            expect(result.ok).toHaveBeenCalled();
+            expect(GLOBAL.window.matchMedia).toHaveBeenCalledWith("(-blackberry-display-technology: -blackberry-display-oled)");
+        });
+
+        it("returns Q5 for 720x720 and no OLED", function () {
+            mockedDevice.modelName = undefined;
+            GLOBAL.window.screen = {
+                height: 720,
+                width: 720
+            };
+            GLOBAL.window.matchMedia = jasmine.createSpy().andReturn({matches: false});
+
+            result.ok.andCallFake(function (deviceInfo) {
+                expect(deviceInfo.model).toEqual("Q5");
+            });
+
+            index.getDeviceInfo(result);
+            expect(result.ok).toHaveBeenCalled();
+            expect(GLOBAL.window.matchMedia).toHaveBeenCalledWith("(-blackberry-display-technology: -blackberry-display-oled)");
         });
     });
 });

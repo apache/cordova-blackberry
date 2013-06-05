@@ -19,6 +19,7 @@ describe("Camera", function () {
         mockDone,
         mockCancel,
         mockError,
+        MockPluginResult,
         mockedEnv = {
             response: {
                 send: jasmine.createSpy()
@@ -131,16 +132,15 @@ describe("Camera", function () {
                 TYPE_MISMATCH_ERR: 11
             };
 
-            GLOBAL.PluginResult = function (args, env) {};
-            GLOBAL.PluginResult.prototype.callbackOk = jasmine.createSpy();
-            GLOBAL.PluginResult.prototype.callbackError = jasmine.createSpy();
-            GLOBAL.PluginResult.prototype.noResult = jasmine.createSpy();
+            MockPluginResult = function (args, env) {};
+            MockPluginResult.prototype.callbackOk = jasmine.createSpy();
+            MockPluginResult.prototype.callbackError = jasmine.createSpy();
+            MockPluginResult.prototype.noResult = jasmine.createSpy();
         });
 
         afterEach(function () {
             delete GLOBAL.window;
             delete GLOBAL.FileReader;
-            delete GLOBAL.PluginResult;
         });
 
         it("calls PluginResult.callbackOk if invoke camera is successful and image doesn't need encoding", function () {
@@ -148,14 +148,14 @@ describe("Camera", function () {
                 path: "/foo/bar/abc.jpg"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.FILE_URI.toString(),
                 "2": PictureSourceType.CAMERA.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackOk).toHaveBeenCalledWith("file://" + mockDone.path, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackOk).toHaveBeenCalledWith("file://" + mockDone.path, false);
         });
 
         it("calls PluginResult.callbackOk if invoke camera and base64 encode image is successful", function () {
@@ -163,14 +163,14 @@ describe("Camera", function () {
                 path: "/foo/bar/abc.jpg"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.DATA_URL.toString(),
                 "2": PictureSourceType.CAMERA.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackOk).toHaveBeenCalledWith(mockBase64Data, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackOk).toHaveBeenCalledWith(mockBase64Data, false);
         });
 
         it("calls PluginResult.callbackError if invoke camera is successful but base64 encode image failed", function () {
@@ -179,14 +179,14 @@ describe("Camera", function () {
             };
             readFail = true;
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.DATA_URL.toString(),
                 "2": PictureSourceType.CAMERA.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackError).toHaveBeenCalledWith("An error occured: Unknown Error", false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackError).toHaveBeenCalledWith("An error occured: Unknown Error", false);
         });
 
         it("calls PluginResult.callbackError if invoke camera is cancelled by user", function () {
@@ -194,14 +194,14 @@ describe("Camera", function () {
                 reason: "done"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.FILE_URI.toString(),
                 "2": PictureSourceType.CAMERA.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackError).toHaveBeenCalledWith(mockCancel.reason, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackError).toHaveBeenCalledWith(mockCancel.reason, false);
         });
 
         it("calls PluginResult.callbackError if invoke camera encounters error", function () {
@@ -209,14 +209,14 @@ describe("Camera", function () {
                 error: "Camera error"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.FILE_URI.toString(),
                 "2": PictureSourceType.CAMERA.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackError).toHaveBeenCalledWith(mockError.error, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackError).toHaveBeenCalledWith(mockError.error, false);
         });
 
         it("calls PluginResult.callbackOk if invoke file picker is successful and image doesn't need encoding", function () {
@@ -224,14 +224,14 @@ describe("Camera", function () {
                 path: "/foo/bar/abc.jpg"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.FILE_URI.toString(),
                 "2": PictureSourceType.PHOTOLIBRARY.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackOk).toHaveBeenCalledWith("file://" + mockDone.path, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackOk).toHaveBeenCalledWith("file://" + mockDone.path, false);
         });
 
         it("calls PluginResult.callbackOk if invoke file picker and base64 encode image is successful", function () {
@@ -239,14 +239,14 @@ describe("Camera", function () {
                 path: "/foo/bar/abc.jpg"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.DATA_URL.toString(),
                 "2": PictureSourceType.PHOTOLIBRARY.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackOk).toHaveBeenCalledWith(mockBase64Data, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackOk).toHaveBeenCalledWith(mockBase64Data, false);
         });
 
         it("calls PluginResult.callbackError if invoke file picker is successful but base64 encode image failed", function () {
@@ -255,14 +255,14 @@ describe("Camera", function () {
             };
             readFail = true;
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.DATA_URL.toString(),
                 "2": PictureSourceType.PHOTOLIBRARY.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackError).toHaveBeenCalledWith("An error occured: Unknown Error", false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackError).toHaveBeenCalledWith("An error occured: Unknown Error", false);
         });
 
         it("calls PluginResult.callbackError if invoke file picker is cancelled by user", function () {
@@ -270,14 +270,14 @@ describe("Camera", function () {
                 reason: "cancel"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.DATA_URL.toString(),
                 "2": PictureSourceType.PHOTOLIBRARY.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackError).toHaveBeenCalledWith(mockCancel.reason, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackError).toHaveBeenCalledWith(mockCancel.reason, false);
         });
 
         it("calls PluginResult.callbackError if invoke file picker encounters error", function () {
@@ -285,14 +285,14 @@ describe("Camera", function () {
                 error: "File picker error"
             };
 
-            index.takePicture(undefined, undefined, {
+            index.takePicture(new MockPluginResult(), {
                 "1": DestinationType.DATA_URL.toString(),
                 "2": PictureSourceType.PHOTOLIBRARY.toString(),
                 callbackId: "123"
             }, mockedEnv);
 
-            expect(PluginResult.prototype.noResult).toHaveBeenCalledWith(true);
-            expect(PluginResult.prototype.callbackError).toHaveBeenCalledWith(mockError.error, false);
+            expect(MockPluginResult.prototype.noResult).toHaveBeenCalledWith(true);
+            expect(MockPluginResult.prototype.callbackError).toHaveBeenCalledWith(mockError.error, false);
         });
     });
 });

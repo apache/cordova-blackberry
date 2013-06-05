@@ -17,8 +17,9 @@ var ROOT = "../../../";
 
 describe("server", function () {
 
-    var server = require(ROOT + "lib/server"),
-        plugin = require(ROOT + "lib/plugins/default"),
+    var server,
+        plugin,
+        PluginResult,
         applicationAPIServer,
         utils,
         DEFAULT_SERVICE = "default",
@@ -29,8 +30,9 @@ describe("server", function () {
         applicationAPIServer = {
             getReadOnlyFields: function () {}
         };
-        delete require.cache[require.resolve(ROOT + "lib/utils")];
+
         utils = require("../../../lib/utils");
+
         spyOn(utils, "loadModule").andCallFake(function (module) {
             if (module.indexOf("plugin/") >= 0) {
                 // on device, "plugin/blackberry.app/index.js" would exist
@@ -39,18 +41,29 @@ describe("server", function () {
                 return require("../../../lib/" + module);
             }
         });
+
+        plugin = require(ROOT + "lib/plugins/default");
+        server = require(ROOT + "lib/server");
+    });
+
+    afterEach(function () {
+        delete require.cache[require.resolve(ROOT + "lib/utils")];
+        delete require.cache[require.resolve(ROOT + "lib/plugins/default")];
+        delete require.cache[require.resolve(ROOT + "lib/server")];
     });
 
     describe("when handling requests", function () {
-        var req, res;
+        var req,
+            res;
 
         beforeEach(function () {
             req = {
                 params: {
                     service: "",
-                    action: ""
+                    action: "",
+                    args: ""
                 },
-                body: "",
+                body: JSON.stringify({callbackId: 42}),
                 origin: ""
             };
             res = {
@@ -70,12 +83,16 @@ describe("server", function () {
                         action: DEFAULT_ACTION,
                         ext: "not",
                         method: "here",
-                        args: null
+                        args: {
+                            callbackId: 42
+                        }
                     },
-                    body: "",
+                    body: req.body,
                     origin: ""
                 },
-                webview = {};
+                webview = {
+                    id: 42
+                };
 
             spyOn(plugin, DEFAULT_ACTION);
             req.params.service = "not";
@@ -84,8 +101,8 @@ describe("server", function () {
             server.handle(req, res, webview, config);
 
             expect(plugin[DEFAULT_ACTION]).toHaveBeenCalledWith(
-                rebuiltRequest, jasmine.any(Function),
-                jasmine.any(Function),
+                rebuiltRequest,
+                jasmine.any(Object),
                 rebuiltRequest.params.args,
                 {
                     request: rebuiltRequest,
@@ -108,7 +125,9 @@ describe("server", function () {
         });
 
         it("calls the action method on the plugin", function () {
-            var webview = "BLAHBLAHBLAH";
+            var webview = {
+                    id: 42
+                };
 
             spyOn(plugin, "exec");
 
@@ -120,8 +139,7 @@ describe("server", function () {
             }).not.toThrow();
             expect(plugin.exec).toHaveBeenCalledWith(
                 req,
-                jasmine.any(Function),
-                jasmine.any(Function),
+                jasmine.any(Object),
                 req.params.args,
                 {
                     request: req,
@@ -132,84 +150,30 @@ describe("server", function () {
         });
 
         it("parses url encoded args", function () {
-            var webview = "BLAHBLAHBLAH";
+            var webview = {
+                    id: 42
+                };
 
             spyOn(plugin, "exec");
 
             expect(function () {
                 req.params.service = "default";
                 req.params.action = "exec";
-                req.params.args = "a=1&b=2&c=3";
+                req.params.args = "a=1&b=2&c=3&callbackId=42";
 
                 return server.handle(req, res, webview);
             }).not.toThrow();
             expect(plugin.exec).toHaveBeenCalledWith(
                 jasmine.any(Object),
-                jasmine.any(Function),
-                jasmine.any(Function),
-                {
-                    a: '1',
-                    b: '2',
-                    c: '3'
-                },
-                jasmine.any(Object)
-            );
-        });
-
-        it("parses url encoded args", function () {
-            var webview = "BLAHBLAHBLAH";
-
-            spyOn(plugin, "exec");
-
-            expect(function () {
-                req.params.service = "default";
-                req.params.action = "exec";
-                req.body = JSON.stringify({a: '1', b: '2', c: '3'});
-
-                return server.handle(req, res, webview);
-            }).not.toThrow();
-            expect(plugin.exec).toHaveBeenCalledWith(
                 jasmine.any(Object),
-                jasmine.any(Function),
-                jasmine.any(Function),
                 {
                     a: '1',
                     b: '2',
-                    c: '3'
+                    c: '3',
+                    callbackId: '42'
                 },
                 jasmine.any(Object)
             );
-        });
-
-        it("returns the result and code 42 when success callback called", function () {
-            spyOn(plugin, "exec").andCallFake(function (request, succ, fail, body) {
-                succ(["MyFeatureId"]);
-            });
-
-            req.params.service = "default";
-            req.params.action = "exec";
-
-            server.handle(req, res);
-            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: 42,
-                data: ["MyFeatureId"]
-            })));
-        });
-
-        it("returns the result and code -1 when fail callback called", function () {
-            spyOn(plugin, "exec").andCallFake(function (request, succ, fail, body) {
-                fail(-1, "ErrorMessage");
-            });
-
-            req.params.service = "default";
-            req.params.action = "exec";
-
-            server.handle(req, res);
-            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: -1,
-                data: null,
-                msg: "ErrorMessage"
-            })));
         });
     });
 
@@ -229,7 +193,7 @@ describe("server", function () {
                     host: ""
                 },
                 url: "",
-                body: "",
+                body: JSON.stringify({callbackId: 42}),
                 origin: ""
             };
             res = {
@@ -243,12 +207,13 @@ describe("server", function () {
         });
 
         it("calls the action method on the feature", function () {
-            var webview = {};
+            var webview = {
+                    id: 42
+                };
             spyOn(applicationAPIServer, "getReadOnlyFields");
             server.handle(req, res, webview, config);
             expect(applicationAPIServer.getReadOnlyFields).toHaveBeenCalledWith(
-                jasmine.any(Function),
-                jasmine.any(Function),
+                jasmine.any(Object),
                 req.params.args,
                 {
                     request: req,
@@ -257,37 +222,6 @@ describe("server", function () {
                     config: config
                 }
             );
-        });
-
-        it("returns the result and code 42 when success callback called", function () {
-            var expectedResult = {"getReadOnlyFields": "Yogi bear"};
-
-            spyOn(applicationAPIServer, "getReadOnlyFields").andCallFake(function (success, fail) {
-                success(expectedResult);
-            });
-
-            server.handle(req, res);
-
-            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: 42,
-                data: expectedResult
-            })));
-        });
-
-        it("returns the result and code -1 when fail callback called", function () {
-            var expectedResult = "omg";
-
-            spyOn(applicationAPIServer, "getReadOnlyFields").andCallFake(function (success, fail) {
-                fail(-1, expectedResult);
-            });
-
-            server.handle(req, res);
-
-            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: -1,
-                data: null,
-                msg: expectedResult
-            })));
         });
     });
 });

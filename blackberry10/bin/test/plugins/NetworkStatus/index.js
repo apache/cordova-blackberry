@@ -41,14 +41,10 @@ describe("NetworkStatus", function () {
                     }
                 }
             };
-            GLOBAL.PluginResult = function () {
-                return result;
-            };
         });
 
         afterEach(function () {
             delete GLOBAL.window;
-            delete GLOBAL.PluginResult;
         });
 
         function testConnection(expectedResult, mockedType, mockedTechnology) {
@@ -63,7 +59,7 @@ describe("NetworkStatus", function () {
                 window.qnx.webplatform.device = mockedDevice;
             }
 
-            index.getConnectionInfo();
+            index.getConnectionInfo(result);
 
             expect(result.ok).toHaveBeenCalledWith(expectedResult);
             expect(result.error).not.toHaveBeenCalled();

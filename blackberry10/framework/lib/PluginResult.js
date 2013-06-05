@@ -16,40 +16,56 @@
 
 function PluginResult (args, env) {
 
-    var CALLBACK_STATUS_NO_RESULT = 0,
-        CALLBACK_STATUS_OK = 1,
-        CALLBACK_STATUS_ERROR = 9,
-        callbackId = JSON.parse(decodeURIComponent(args.callbackId)),
+    this.CALLBACK_STATUS = {
+        NO_RESULT: 0,
+        OK: 1,
+        CLASS_NOT_FOUND_EXCEPTION: 2,
+        ILLEGAL_ACCESS_EXCEPTION: 3,
+        INSTANTIATION_EXCEPTION: 4,
+        MALFORMED_URL_EXCEPTION: 5,
+        IO_EXCEPTION: 6,
+        INVALID_ACTION: 7,
+        JSON_EXCEPTION: 8,
+        ERROR: 9
+    };
+
+    var callbackId = JSON.parse(decodeURIComponent(args.callbackId)),
         send = function (data) {
             env.response.send(200, encodeURIComponent(JSON.stringify(data)));
         },
         callback = function (success, status, data, keepCallback) {
-            var executeString = "cordova.callbackFromNative('" + callbackId  + "', " +
-                !!success + ", " + status + ", [" + data + "], " + !!keepCallback + ");";
+            var executeString =
+                "cordova.callbackFromNative('" +
+                    callbackId  + "', " +
+                    !!success + ", " +
+                    status + ", " +
+                    "[" + data + "], " +
+                    !!keepCallback +
+                ");";
             env.webview.executeJavaScript(executeString);
         };
 
     Object.defineProperty(this, "callbackId", {enumerable: true, value: callbackId});
 
     this.noResult = function (keepCallback) {
-        send({ code: CALLBACK_STATUS_NO_RESULT, keepCallback: !!keepCallback });
+        send({ code: this.CALLBACK_STATUS.NO_RESULT, keepCallback: !!keepCallback });
     };
 
-    this.error = function (msg, keepCallback) {
-        send({ code: CALLBACK_STATUS_ERROR, msg: msg, keepCallback: !!keepCallback });
+    this.error = function (msg, keepCallback, errorCode) {
+        send({ code: errorCode || this.CALLBACK_STATUS.ERROR, msg: msg, keepCallback: !!keepCallback });
     };
 
     this.ok = function (data, keepCallback) {
-        send({ code: CALLBACK_STATUS_OK, data: data, keepCallback: !!keepCallback });
+        send({ code: this.CALLBACK_STATUS.OK, data: data, keepCallback: !!keepCallback });
     };
 
     this.callbackOk = function (data, keepCallback) {
-        callback(true, CALLBACK_STATUS_OK, JSON.stringify(data), keepCallback);
+        callback(true, this.CALLBACK_STATUS.OK, JSON.stringify(data), keepCallback);
     };
 
-    this.callbackError = function (msg, keepCallback) {
-        callback(false, CALLBACK_STATUS_ERROR, JSON.stringify(msg), keepCallback);
+    this.callbackError = function (msg, keepCallback, errorCode) {
+        callback(false, errorCode || this.CALLBACK_STATUS.ERROR, JSON.stringify(msg), keepCallback);
     };
 }
 
-window.PluginResult = PluginResult;
+module.exports = PluginResult;

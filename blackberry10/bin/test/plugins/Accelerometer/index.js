@@ -40,20 +40,16 @@ describe("Accelerometer", function () {
                 callback = cb;
             })
         };
-        GLOBAL.PluginResult = function () {
-            return result;
-        };
     });
 
     afterEach(function () {
         index = null;
         delete GLOBAL.window;
-        delete GLOBAL.PluginResult;
     });
 
     describe("start", function () {
         it("calls noResult and keeps callbacks", function () {
-            index.start();
+            index.start(result);
             expect(window.addEventListener).toHaveBeenCalled();
             expect(result.noResult).toHaveBeenCalledWith(true);
         });
@@ -64,7 +60,7 @@ describe("Accelerometer", function () {
         });
 
         it("does not call error if already started", function () {
-            index.start();
+            index.start(result);
             expect(window.removeEventListener).toHaveBeenCalled();
             expect(window.addEventListener).toHaveBeenCalled();
             expect(result.error).not.toHaveBeenCalled();
@@ -73,7 +69,7 @@ describe("Accelerometer", function () {
 
     describe("stop", function () {
         it("calls result ok", function () {
-            index.stop();
+            index.stop(result);
             expect(window.removeEventListener).toHaveBeenCalled();
             expect(result.ok).toHaveBeenCalledWith("removed");
         });

@@ -49,7 +49,7 @@ function encodeBase64(filePath, callback) {
             default:
                 msg += "Unknown Error";
                 break;
-            };
+            }
 
             // set it back to original value
             window.qnx.webplatform.getController().setFileSystemSandbox = sandbox;
@@ -77,10 +77,9 @@ function encodeBase64(filePath, callback) {
 }
 
 module.exports = {
-    takePicture: function (success, fail, args, env) {
+    takePicture: function (result, args, env) {
         var destinationType = JSON.parse(decodeURIComponent(args[1])),
             sourceType = JSON.parse(decodeURIComponent(args[2])),
-            result = new PluginResult(args, env),
             done = function (data) {
                 if (destinationType === DestinationType.FILE_URI) {
                     data = "file://" + data;
@@ -106,17 +105,15 @@ module.exports = {
             };
 
         switch(sourceType) {
-        case PictureSourceType.CAMERA:
-            window.qnx.webplatform.getApplication().cards.camera.open("photo", done, cancel, invoked);
+            case PictureSourceType.CAMERA:
+                window.qnx.webplatform.getApplication().cards.camera.open("photo", done, cancel, invoked);
             break;
-
-        case PictureSourceType.PHOTOLIBRARY:
-        case PictureSourceType.SAVEDPHOTOALBUM:
-            window.qnx.webplatform.getApplication().cards.filePicker.open({
+            case PictureSourceType.PHOTOLIBRARY:
+            case PictureSourceType.SAVEDPHOTOALBUM:
+                window.qnx.webplatform.getApplication().cards.filePicker.open({
                 mode: "Picker",
                 type: ["picture"]
             }, done, cancel, invoked);
-            break;
         }
 
         result.noResult(true);

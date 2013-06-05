@@ -44,9 +44,6 @@ describe("Contacts", function () {
             }),
             registerEvents: jasmine.createSpy("JNEXT.regsiterEvents")
         };
-        GLOBAL.PluginResult = function () {
-            return result;
-        };
         index = require(_apiDir + "index");
         GLOBAL.window = {
             parseInt: jasmine.createSpy("window.parseInt"),
@@ -58,7 +55,6 @@ describe("Contacts", function () {
         index = null;
         delete GLOBAL.JNEXT;
         delete GLOBAL.window;
-        delete GLOBAL.PluginResult;
     });
 
     describe("index.search", function () {
@@ -78,7 +74,7 @@ describe("Contacts", function () {
                         ]
                     }
             };
-            index.search(function () {}, function () {}, args, {});
+            index.search(result, args, {});
             expect(JNEXT.invoke).toHaveBeenCalledWith(123, 'find ' + JSON.stringify(jnextArgs));
             expect(result.noResult).toHaveBeenCalledWith(true);
         });
@@ -97,7 +93,7 @@ describe("Contacts", function () {
                         "filter": []
                     }
             };
-            index.search(function () {}, function () {}, args, {});
+            index.search(result, args, {});
             expect(JNEXT.invoke).toHaveBeenCalledWith(123, 'find ' + JSON.stringify(jnextArgs));
             expect(result.noResult).toHaveBeenCalledWith(true);
         });
@@ -116,7 +112,7 @@ describe("Contacts", function () {
             window.parseInt.andCallFake(function () {
                 return 123;
             });
-            index.save(function () {}, function () {}, args, {});
+            index.save(result, args, {});
             expect(JNEXT.invoke).toHaveBeenCalledWith(123, 'save ' + JSON.stringify({"id": 123, "_eventId": "Contacts12345"}));
             expect(result.noResult).toHaveBeenCalledWith(true);
         });
@@ -134,7 +130,7 @@ describe("Contacts", function () {
                     "_eventId": "Contacts12345"
             };
 
-            index.save(function () {}, function () {}, args, {});
+            index.save(result, args, {});
             expect(JNEXT.invoke).toHaveBeenCalledWith(123, 'save ' + JSON.stringify(processedArgs));
             expect(result.noResult).toHaveBeenCalledWith(true);
         });
@@ -157,7 +153,7 @@ describe("Contacts", function () {
                     ],
                     "_eventId": "Contacts12345"
             };
-            index.save(function () {}, function () {}, args, {});
+            index.save(result, args, {});
             expect(JNEXT.invoke).toHaveBeenCalledWith(123, 'save ' + JSON.stringify(processedArgs));
             expect(result.noResult).toHaveBeenCalledWith(true);
 
@@ -175,7 +171,7 @@ describe("Contacts", function () {
             window.parseInt.andCallFake(function () {
                 return 123;
             });
-            index.remove(function () {}, function () {}, args, {});
+            index.remove(result, args, {});
             expect(JNEXT.invoke).toHaveBeenCalledWith(123, 'remove ' + JSON.stringify({"contactId": 123, "_eventId": "Contacts12345"}));
             expect(result.noResult).toHaveBeenCalledWith(true);
         });
@@ -189,7 +185,7 @@ describe("Contacts", function () {
             window.isNaN.andCallFake(function() {
                 return true;
             });
-            index.remove(function () {}, function () {}, args, {});
+            index.remove(result, args, {});
             expect(result.error).toHaveBeenCalledWith(ContactError.UNKNOWN_ERROR);
             expect(result.noResult).toHaveBeenCalledWith(false);
         });

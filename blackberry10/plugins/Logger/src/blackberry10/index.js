@@ -15,9 +15,8 @@
  */
 
 module.exports = {
-    logLevel: function (success, fail, args, env) {
-        var result = new PluginResult(args, env),
-            level = JSON.parse(decodeURIComponent(args[0])),
+    logLevel: function (result, args, env) {
+        var level = JSON.parse(decodeURIComponent(args[0])),
             message = JSON.parse(decodeURIComponent(args[1]));
         console.log(level + ": " + message);
         result.noResult(false);
