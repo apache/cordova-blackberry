@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 2.8.0rc1-2-geedbf67
+// 2.8.0-0-g6208c95
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '2.8.0rc1-2-geedbf67';
+var CORDOVA_JS_BUILD_LABEL = '2.8.0-0-g6208c95';
 // file: lib/scripts/require.js
 
 var require,
@@ -930,7 +930,8 @@ module.exports = {
     id: "blackberry10",
     initialize: function() {
         var modulemapper = require('cordova/modulemapper'),
-            cordova = require('cordova');
+            cordova = require('cordova'),
+            addDocumentEventListener = document.addEventListener;
 
         modulemapper.loadMatchingModules(/cordova.*\/symbols$/);
         modulemapper.loadMatchingModules(new RegExp('cordova/blackberry10/.*bbsymbols$'));
@@ -940,6 +941,15 @@ module.exports = {
         modulemapper.merges('cordova/plugin/blackberry10/compass', 'navigator.compass');
 
         modulemapper.mapModules(window);
+
+        //override to pass online/offline events to window
+        document.addEventListener = function (type) {
+            if (type === "online" || type === "offline") {
+                window.addEventListener.apply(window, arguments);
+            } else {
+                addDocumentEventListener.apply(document, arguments);
+            }
+        }
     }
 };
 
@@ -1995,21 +2005,12 @@ module.exports = function(name, root) {
 
 });
 
-// file: lib/common/plugin/FileTransfer.js
+// file: lib/blackberry10/plugin/FileTransfer.js
 define("cordova/plugin/FileTransfer", function(require, exports, module) {
 
 var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec'),
-    FileTransferError = require('cordova/plugin/FileTransferError'),
-    ProgressEvent = require('cordova/plugin/ProgressEvent');
-
-function newProgressEvent(result) {
-    var pe = new ProgressEvent();
-    pe.lengthComputable = result.lengthComputable;
-    pe.loaded = result.loaded;
-    pe.total = result.total;
-    return pe;
-}
+    FileTransferError = require('cordova/plugin/FileTransferError');
 
 function getBasicAuthHeader(urlString) {
     var header =  null;
@@ -2112,7 +2113,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
     var win = function(result) {
         if (typeof result.lengthComputable != "undefined") {
             if (self.onprogress) {
-                self.onprogress(newProgressEvent(result));
+                self.onprogress(result);
             }
         } else {
             successCallback && successCallback(result);
@@ -2149,21 +2150,10 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
     var win = function(result) {
         if (typeof result.lengthComputable != "undefined") {
             if (self.onprogress) {
-                return self.onprogress(newProgressEvent(result));
+                return self.onprogress(result);
             }
         } else if (successCallback) {
-            var entry = null;
-            if (result.isDirectory) {
-                entry = new (require('cordova/plugin/DirectoryEntry'))();
-            }
-            else if (result.isFile) {
-                entry = new (require('cordova/plugin/FileEntry'))();
-            }
-            entry.isDirectory = result.isDirectory;
-            entry.isFile = result.isFile;
-            entry.name = result.name;
-            entry.fullPath = result.fullPath;
-            successCallback(entry);
+            successCallback(result);
         }
     };
 
@@ -3584,12 +3574,11 @@ define("cordova/plugin/blackberry10/fileTransfer", function(require, exports, mo
 
 /*global Blob:false */
 var cordova = require('cordova'),
-    ProgressEvent = require('cordova/plugin/ProgressEvent'),
     nativeResolveLocalFileSystemURI = function(uri, success, fail) {
         if (uri.substring(0,11) !== "filesystem:") {
             uri = "filesystem:" + uri;
         }
-        window.webkitResolveLocalFileSystemURL(uri, success, fail);
+        resolveLocalFileSystemURI(uri, success, fail);
     },
     xhr;
 
@@ -3601,11 +3590,6 @@ function getParentPath(filePath) {
 function getFileName(filePath) {
     var pos = filePath.lastIndexOf('/');
     return filePath.substring(pos + 1);
-}
-
-function cleanUpPath(filePath) {
-    var pos = filePath.lastIndexOf('/');
-    return filePath.substring(0, pos) + filePath.substring(pos + 1, filePath.length);
 }
 
 function checkURL(url) {
@@ -3629,7 +3613,7 @@ module.exports = {
             headers = args[8];
 
         if (!checkURL(server)) {
-            fail(new window.FileTransferError(window.FileTransferError.INVALID_URL_ERR));
+            fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, server, filePath));
         }
 
         nativeResolveLocalFileSystemURI(filePath, function(entry) {
@@ -3647,23 +3631,23 @@ module.exports = {
                     xhr = new XMLHttpRequest();
                     xhr.open("POST", server);
                     xhr.onload = function(evt) {
-                        if (xhr.status == 200) {
-                            var result = new window.FileUploadResult();
+                        if (xhr.status === 200) {
+                            var result = new FileUploadResult();
                             result.bytesSent = file.size;
                             result.responseCode = xhr.status;
                             result.response = xhr.response;
                             win(result);
-                        } else if (xhr.status == 404) {
-                            fail(new window.FileTransferError(window.FileTransferError.INVALID_URL_ERR, server, filePath, xhr.status));
+                        } else if (xhr.status === 404) {
+                            fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, server, filePath, xhr.status, xhr.response));
                         } else {
-                            fail(new window.FileTransferError(window.FileTransferError.CONNECTION_ERR, server, filePath, xhr.status));
+                            fail(new FileTransferError(FileTransferError.CONNECTION_ERR, server, filePath, xhr.status, xhr.response));
                         }
                     };
                     xhr.ontimeout = function(evt) {
-                        fail(new window.FileTransferError(window.FileTransferError.CONNECTION_ERR, server, filePath, xhr.status));
+                        fail(new FileTransferError(FileTransferError.CONNECTION_ERR, server, filePath, xhr.status, xhr.response));
                     };
                     xhr.onerror = function () {
-                        fail(new window.FileTransferError(window.FileTransferError.CONNECTION_ERR, server, filePath, this.status));
+                        fail(new FileTransferError(FileTransferError.CONNECTION_ERR, server, filePath, this.status, xhr.response));
                     };
                     xhr.onprogress = function (evt) {
                         win(evt);
@@ -3693,10 +3677,10 @@ module.exports = {
                     end = start + bytesPerChunk;
                 }
             }, function(error) {
-                fail(new window.FileTransferError(window.FileTransferError.FILE_NOT_FOUND_ERR));
+                fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR, server, filePath));
             });
         }, function(error) {
-            fail(new window.FileTransferError(window.FileTransferError.FILE_NOT_FOUND_ERR));
+            fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR, server, filePath));
         });
 
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "async"};
@@ -3704,11 +3688,12 @@ module.exports = {
 
     download: function (args, win, fail) {
         var source = args[0],
-            target = cleanUpPath(args[1]),
+            target = args[1],
+            headers = args[4],
             fileWriter;
 
         if (!checkURL(source)) {
-            fail(new window.FileTransferError(window.FileTransferError.INVALID_URL_ERR));
+            fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, source, target));
         }
 
         xhr = new XMLHttpRequest();
@@ -3718,7 +3703,7 @@ module.exports = {
                 fileWriter = writer;
                 fileWriter.onwriteend = function (evt) {
                     if (!evt.target.error) {
-                        win(new window.FileEntry(entry.name, entry.toURL()));
+                        win(entry);
                     } else {
                         fail(evt.target.error);
                     }
@@ -3733,7 +3718,7 @@ module.exports = {
         }
 
         xhr.onerror = function (e) {
-            fail(new window.FileTransferError(window.FileTransferError.CONNECTION_ERR, source, target, xhr.status));
+            fail(new FileTransferError(FileTransferError.CONNECTION_ERR, source, target, xhr.status, xhr.response));
         };
 
         xhr.onload = function () {
@@ -3741,15 +3726,15 @@ module.exports = {
                 if (xhr.status === 200 && xhr.response) {
                     nativeResolveLocalFileSystemURI(getParentPath(target), function (dir) {
                         dir.getFile(getFileName(target), {create: true}, writeFile, function (error) {
-                            fail(new window.FileTransferError(window.FileTransferError.FILE_NOT_FOUND_ERR));
+                            fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR, source, target, xhr.status, xhr.response));
                         });
                     }, function (error) {
-                        fail(new window.FileTransferError(window.FileTransferError.FILE_NOT_FOUND_ERR));
+                        fail(new FileTransferError(FileTransferError.FILE_NOT_FOUND_ERR, source, target, xhr.status, xhr.response));
                     });
                 } else if (xhr.status === 404) {
-                    fail(new window.FileTransferError(window.FileTransferError.INVALID_URL_ERR, source, target, xhr.status));
+                    fail(new FileTransferError(FileTransferError.INVALID_URL_ERR, source, target, xhr.status, xhr.response));
                 } else {
-                    fail(new window.FileTransferError(window.FileTransferError.CONNECTION_ERR, source, target, xhr.status));
+                    fail(new FileTransferError(FileTransferError.CONNECTION_ERR, source, target, xhr.status, xhr.response));
                 }
             }
         };
@@ -3757,8 +3742,12 @@ module.exports = {
             win(evt);
         };
 
-        xhr.responseType = "blob";
         xhr.open("GET", source, true);
+        for (var header in headers) {
+            if (headers.hasOwnProperty(header)) {
+                xhr.setRequestHeader(header, headers[header]);
+            }
+        }
         xhr.send();
         return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "async"};
     }
@@ -6592,6 +6581,11 @@ window.cordova = require('cordova');
 // file: lib/scripts/bootstrap.js
 
 (function (context) {
+    if (context._cordovaJsLoaded) {
+        throw new Error('cordova.js included multiple times.');
+    }
+    context._cordovaJsLoaded = true;
+
     var channel = require('cordova/channel');
     var platformInitChannelsArray = [channel.onNativeReady, channel.onPluginsReady];
 
