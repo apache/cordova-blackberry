@@ -223,11 +223,16 @@ function handleBuildOutput(data) {
 }
 
 function build(previous, baton) {
-    var nativeDeploy;
+    var nativeDeploy,
+        execName = "./build";
 
     baton.take();
 
-    nativeDeploy = childProcess.exec("./build", {
+    if (pkgrUtils.isWindows()) {
+        execName = "build";
+    } 
+
+    nativeDeploy = childProcess.exec(execName, {
         "cwd": path.normalize(__dirname + "/.."),
         "env": process.env
     });

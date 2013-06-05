@@ -87,11 +87,16 @@ function postClean() {
 }
 
 function clean(previous, baton) {
-    var cleanScript;
+    var cleanScript,
+        execName = "./clean";
+
+    if (pkgrUtils.isWindows()) {
+        execName = "clean";
+    } 
 
     baton.take();
 
-    cleanScript = childProcess.exec("./clean", {
+    cleanScript = childProcess.exec(execName, {
         "cwd": path.normalize(__dirname + "/.."),
         "env": process.env
     });
