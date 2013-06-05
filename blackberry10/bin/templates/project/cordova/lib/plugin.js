@@ -22,8 +22,9 @@ var path = require("path"),
     wrench = require("wrench"),
     fs = require('fs'),
     et   = require('elementtree'),
+    escapeStringForShell = require("./packager-utils").escapeStringForShell,
     PROJECT_ROOT = path.join(__dirname, "..", ".."),
-    PLUGMAN = escapeShell(path.join(PROJECT_ROOT, "cordova", "node_modules", "plugman", "main.js")),
+    PLUGMAN = escapeStringForShell(path.join(PROJECT_ROOT, "cordova", "node_modules", "plugman", "main.js")),
     GLOBAL_PLUGIN_PATH = require(path.join(PROJECT_ROOT, "project.json")).globalFetchDir,
     LOCAL_PLUGIN_PATH = path.join(PROJECT_ROOT, "plugins"),
     argumentor = {
@@ -45,21 +46,21 @@ var path = require("path"),
         },
         setProject: function () {
             this.args.push("--project");
-            this.args.push(escapeShell(PROJECT_ROOT));
+            this.args.push(escapeStringForShell(PROJECT_ROOT));
             return argumentor;
         },
         setPlugin: function () {
             var pluginWithoutTrailingSlash = this.plugin.charAt(this.plugin.length - 1) === "/" ? this.plugin.slice(0, -1) : this.plugin;
             this.args.push("--plugin");
-            this.args.push(escapeShell(pluginWithoutTrailingSlash));
+            this.args.push(escapeStringForShell(pluginWithoutTrailingSlash));
             return argumentor;
         },
         setPluginsDir: function (isGlobal) {
             this.args.push("--plugins_dir");
             if (isGlobal) {
-                this.args.push(escapeShell(GLOBAL_PLUGIN_PATH));
+                this.args.push(escapeStringForShell(GLOBAL_PLUGIN_PATH));
             } else {
-                this.args.push(escapeShell(LOCAL_PLUGIN_PATH));
+                this.args.push(escapeStringForShell(LOCAL_PLUGIN_PATH));
             }
             return argumentor;
         },
@@ -87,14 +88,6 @@ var path = require("path"),
                 argumentor.reset().setPlatform().setProject().setPlugin().setPluginsDir().run();
             }
     };
-
-function escapeShell(str) {
-    if (require('os').type().toLowerCase().indexOf("windows") >= 0) {
-        return "\"" + str + "\"";
-    } else {
-        return str.replace(/(["\s'$`\\])/g,'\\$1');
-    }
-}
 
 function getPluginId(pluginXMLPath) {
     var pluginEt = new et.ElementTree(et.XML(fs.readFileSync(pluginXMLPath, "utf-8")));
