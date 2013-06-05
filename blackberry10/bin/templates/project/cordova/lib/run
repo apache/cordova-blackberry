@@ -37,14 +37,11 @@ var childProcess = require("child_process"),
     target,
     ip,
     password,
-    workingdir,
-    barPath;
+    workingdir = path.normalize(__dirname + "/..");
 
 function generateOptions(uninstall) {
     var options = [];
-
-    workingdir = path.normalize(__dirname + "/.."),
-    barPath = path.normalize(__dirname + "/../../build/" + properties.targets[target].type + "/" + properties.barName + ".bar");
+        barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + properties.targets[target].type + "/" + properties.barName + ".bar"));
 
     options.push("-device");
     options.push(ip);
@@ -104,24 +101,24 @@ function execNativeDeploy(optionsArray, callback) {
 function checkTarget() {
     if (!target) {
         console.log("No target exists, to add that target please run target add <name> <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]");
-        console.log(program.helpInformation()); 
+        console.log(program.helpInformation());
         return false;
     }
     if (!properties.targets[target]) {
         console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]");
-        console.log(program.helpInformation()); 
+        console.log(program.helpInformation());
         return false;
     }
     if (properties.targets[target].ip) {
-       ip = properties.targets[target].ip; 
+       ip = properties.targets[target].ip;
     } else {
         console.log("IP is not defined in target \""+target+"\"");
-        console.log(program.helpInformation()); 
+        console.log(program.helpInformation());
         return false;
     }
     if (properties.targets[target].password) {
        password = properties.targets[target].password;
-    } 
+    }
     return true;
 }
 
