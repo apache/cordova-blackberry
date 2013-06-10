@@ -795,7 +795,6 @@ var cordova = require('cordova'),
     plugins = {
         'Compass' : require('cordova/plugin/blackberry10/magnetometer'),
         'Capture' : require('cordova/plugin/blackberry10/capture'),
-        'Media': require('cordova/plugin/blackberry10/media'),
         'FileTransfer': require('cordova/plugin/blackberry10/fileTransfer')
     };
 
