@@ -16,7 +16,7 @@
  */
 
 var path = require('path'),
-    propertiesFile = './targets.json',
+    propertiesFile = path.join(__dirname,'targets.json'),
     properties = require(propertiesFile),
     fs = require('fs'),
     commander = require('commander'),
