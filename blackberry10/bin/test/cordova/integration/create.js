@@ -24,6 +24,7 @@ var childProcess = require('child_process'),
     wrench = require('wrench'),
     fs = require('fs'),
     flag = false,
+    timeout = 10000;
     _stdout = "",
     _stderr = "";
 
@@ -45,7 +46,7 @@ describe("create tests", function () {
         executeScript("bin/create " + appFolder);
         waitsFor(function () {
             return flag;
-        });
+        },timeout);
         runs(function () {
             flag = false;
             project = JSON.parse(fs.readFileSync(appFolder + projectFile, "utf-8"));
@@ -58,11 +59,9 @@ describe("create tests", function () {
             expect(fs.existsSync(appFolder + "/cordova/third_party")).toEqual(true);
             expect(fs.existsSync(appFolder + "/www")).toEqual(true);
             expect(project.barName).toEqual("cordova-BB10-app");
-            expect(project.keystorepass).toEqual("password");
             expect(project.defaultTarget).toEqual("");
             expect(project.targets).toEqual({});
             expect(fs.existsSync("./build")).toEqual(false);
-            expect(_stdout).toEqual("");
             expect(_stderr).toEqual("");
         });
         this.after(function () {
@@ -76,11 +75,10 @@ describe("create tests", function () {
         executeScript("bin/create " + appFolder + " com.example.bb10app");
         waitsFor(function () {
             return flag;
-        });
+        },timeout);
         runs(function () {
             flag = false;
             expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
-            expect(_stdout).toEqual("");
             expect(_stderr).toEqual("");
         });
         this.after(function () {
@@ -94,13 +92,12 @@ describe("create tests", function () {
         executeScript("bin/create " + appFolder + " com.example.bb10app bb10appV1");
         waitsFor(function () {
             return flag;
-        });
+        },timeout);
         runs(function () {
             flag = false;
             project = JSON.parse(fs.readFileSync(appFolder + projectFile, "utf-8"));
             expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
             expect(project.barName).toEqual("bb10appV1");
-            expect(_stdout).toEqual("");
             expect(_stderr).toEqual("");
         });
         this.after(function () {
@@ -115,7 +112,7 @@ describe("create tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Project creation failed!\nError: You must give a project PATH");
+            expect(_stdout).toContain("You must give a project PATH");
             expect(_stderr).toEqual("");
         });
     });
@@ -127,7 +124,7 @@ describe("create tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Project creation failed!\nError: The project path must be an empty directory");
+            expect(_stdout).toContain("The project path must be an empty directory");
             expect(_stderr).toEqual("");
         });
     });
@@ -139,7 +136,7 @@ describe("create tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Project creation failed!\nError: App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
+            expect(_stdout).toContain("App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
             expect(_stderr).toEqual("");
         });
     });
@@ -151,7 +148,7 @@ describe("create tests", function () {
         });
         runs(function () {
             flag = false;
-            expect(_stdout).toEqual("Project creation failed!\nError: BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
+            expect(_stdout).toContain("BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
             expect(_stderr).toEqual("");
         });
     });
