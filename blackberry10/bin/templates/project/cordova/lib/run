@@ -25,7 +25,8 @@ var childProcess = require("child_process"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
     debugTokenHelper = require("./debugtoken-helper"),
-    properties = require('../../project.json'),
+    targets = require(path.join(__dirname,'targets.json')),
+    projectProperties = require(path.join(__dirname,'..','..','project.json')),
     program = require('commander'),
     xml2js = require('xml2js'),
     jWorkflow = require("jWorkflow"),
@@ -41,7 +42,7 @@ var childProcess = require("child_process"),
 
 function generateOptions(uninstall) {
     var options = [];
-        barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + properties.targets[target].type + "/" + properties.barName + ".bar"));
+        barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + projectProperties.barName + ".bar"));
 
     options.push("-device");
     options.push(ip);
@@ -104,20 +105,20 @@ function checkTarget() {
         console.log(program.helpInformation());
         return false;
     }
-    if (!properties.targets[target]) {
+    if (!targets.targets[target]) {
         console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]");
         console.log(program.helpInformation());
         return false;
     }
-    if (properties.targets[target].ip) {
-       ip = properties.targets[target].ip;
+    if (targets.targets[target].ip) {
+       ip = targets.targets[target].ip;
     } else {
         console.log("IP is not defined in target \""+target+"\"");
         console.log(program.helpInformation());
         return false;
     }
-    if (properties.targets[target].password) {
-       password = properties.targets[target].password;
+    if (targets.targets[target].password) {
+       password = targets.targets[target].password;
     }
     return true;
 }
@@ -168,8 +169,8 @@ function checkDebugtoken(previous, baton) {
     baton.take();
 
     // if target has no pin, skip the debug token feature
-    if (properties.targets[target].pin) {
-        debugTokenHelper.checkDebugToken(properties.targets[target].pin, function (valid) {
+    if (targets.targets[target].pin) {
+        debugTokenHelper.checkDebugToken(targets.targets[target].pin, function (valid) {
             // If the debug token is not valid, we need create new debug token
             if (valid) {
                 // No need to create the debug token
@@ -186,12 +187,12 @@ function checkDebugtoken(previous, baton) {
 }
 
 function createDebugToken(previous, baton) {
-    var keystorepass = program["keystorepass"] ? program["keystorepass"] : properties.keystorepass;
+    var keystorepass = program["keystorepass"] ? program["keystorepass"] : targets.keystorepass;
 
     baton.take();
 
     if (needCreateDebugToken) {
-        debugTokenHelper.createToken(properties, "all", keystorepass, function (code) {
+        debugTokenHelper.createToken(targets, "all", keystorepass, function (code) {
             if (code === 0) {
                 // Deploy the debug token if created
                 needDeployDebugToken = true;
@@ -209,7 +210,7 @@ function deployDebugToken(previous, baton) {
 
     // If in debug build and debug token was created, deploy the debug token and wait until the deployment is finished
     if (needDeployDebugToken) {
-        debugTokenHelper.deployToken(properties, target, function () {
+        debugTokenHelper.deployToken(targets, target, function () {
             baton.pass();
         });
     } else {
@@ -276,7 +277,7 @@ function exec() {
     }
 
     program.parse(process.argv);
-    target = program.args[0] ? program.args[0] : properties.defaultTarget;
+    target = program.args[0] ? program.args[0] : targets.defaultTarget;
 
     if (checkTarget()) {
         if (program.build) {
