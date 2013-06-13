@@ -20,6 +20,8 @@ goto comment
 
 set BIN_DIR=%~dp0
 
+"%BIN_DIR%check_reqs"
+
 pushd %BIN_DIR%..
 call npm install
 popd
