@@ -34,12 +34,45 @@ for %%X in (npm) do (
   )
 )
 
+set FOUNDPACKAGER=
+for %%X in (blackberry-nativepackager) do (
+  if not defined FOUNDPACKAGER (
+    set FOUNDPACKAGER=%%~$PATH:X
+  )
+)
+
+set FOUNDDEPLOYER=
+for %%X in (blackberry-deploy) do (
+  if not defined FOUNDDEPLOYER (
+    set FOUNDDEPLOYER=%%~$PATH:X
+  )
+)
+
+set FOUNDSIGNER=
+for %%X in (blackberry-signer) do (
+  if not defined FOUNDSIGNER (
+    set FOUNDSIGNER=%%~$PATH:X
+  )
+)
+
 if not defined FOUNDNODE (
   echo "npm cannot be found on the path. Aborting."
   exit /b 1
 )
 if not defined FOUNDNPM (
   echo "Node cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDPACKAGER (
+  echo "blackberry-nativepackager cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDDEPLOYER (
+  echo "blackberry-deploy cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDSIGNER (
+  echo "blackberry-signer cannot be found on the path. Aborting."
   exit /b 1
 )
 
