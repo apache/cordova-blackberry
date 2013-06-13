@@ -16,10 +16,13 @@
  */
 
 var path = require('path'),
-    propertiesFile = path.join(__dirname,'targets.json'),
-    properties = require(propertiesFile),
     fs = require('fs'),
+    utils = require('./utils'),
     commander = require('commander'),
+    propertyFileName = 'blackberry10.json',
+    propertyFileDir = '.cordova',
+    propertiesFile,
+    properties,
     command,
     name,
     ip,
@@ -27,6 +30,20 @@ var path = require('path'),
     password,
     pin,
     pinRegex = new RegExp("[0-9A-Fa-f]{8}");
+
+function initPropertiesFile() {
+    homePath = findHomePath();
+    propertiesFile = path.join(homePath, propertyFileDir, propertyFileName);
+    if (!fs.existsSync(propertiesFile)) {
+        fs.mkdirSync(path.join(homePath, propertyFileDir));
+        utils.copyFile(propertyFileName, path.join(homePath, propertyFileDir), __dirname); 
+    }
+    properties = require(propertiesFile);
+}
+
+function findHomePath() {
+    return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+}
 
 function writeProjectFile(contents, file) {
     fs.writeFile(file, contents, 'utf-8', function (err) {
@@ -186,6 +203,8 @@ commander
 
 
 try {
+    initPropertiesFile();
+
     commander.parse(process.argv);
 
     if (commander.args.length === 0) {
