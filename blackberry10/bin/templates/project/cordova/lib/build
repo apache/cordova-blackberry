@@ -18,7 +18,8 @@
 
 var path = require("path"),
     command = require("commander"),
-    targets = require(path.join(__dirname,"targets.json")),
+    utils = require("./utils"),
+    bbProperties = require(utils.initPropertiesFile()),
     bbwpArgv = [
     process.argv[0],
     path.resolve(path.join(__dirname, process.argv[1])),
@@ -50,9 +51,9 @@ function doReleaseBuild() {
     if (command["keystorepass"]) {
         bbwpArgv.push("--password");
         bbwpArgv.push(command["keystorepass"]);
-    } else if (targets.keystorepass) {
+    } else if (bbProperties.keystorepass) {
         bbwpArgv.push("--password");
-        bbwpArgv.push(targets.keystorepass);
+        bbwpArgv.push(bbProperties.keystorepass);
     } else {
         console.log("No signing password provided. Please use --keystorepass via command-line or enter a value for keystorepass in project.json");
         console.log(command.helpInformation()); 

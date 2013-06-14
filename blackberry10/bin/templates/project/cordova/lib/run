@@ -22,11 +22,11 @@ var childProcess = require("child_process"),
     util = require("util"),
     wrench = require("wrench"),
     conf = require("./conf"),
+    utils = require("./utils"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
     debugTokenHelper = require("./debugtoken-helper"),
-    targets = require(path.join(__dirname,'targets.json')),
-    projectProperties = require(path.join(__dirname,'..','..','project.json')),
+    targets = require(utils.initPropertiesFile()),
     program = require('commander'),
     xml2js = require('xml2js'),
     jWorkflow = require("jWorkflow"),
@@ -40,9 +40,15 @@ var childProcess = require("child_process"),
     password,
     workingdir = path.normalize(__dirname + "/..");
 
+function generateBarName() {
+    // temporary stub
+    prop = require(path.join("..","..","project.json"));
+    return prop.barName;
+}
+
 function generateOptions(uninstall) {
     var options = [];
-        barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + projectProperties.barName + ".bar"));
+    barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + generateBarName() + ".bar"));
 
     options.push("-device");
     options.push(ip);
