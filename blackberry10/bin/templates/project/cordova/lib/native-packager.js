@@ -197,16 +197,11 @@ function generateOptionsFile(session, target, config) {
 
     //if -d was provided and we are not signing [-g], set debugToken
     if (session.debug && !isSigning) {
-        if (path.extname(conf.DEBUG_TOKEN) === ".bar") {
-            if (fs.existsSync(conf.DEBUG_TOKEN)) {
-                debugToken = "-debugToken" + NL;
-                debugToken += conf.DEBUG_TOKEN + NL;
-            }
-            else {
-                logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND"));
-            }
+        if (fs.existsSync(conf.DEBUG_TOKEN)) {
+            debugToken = "-debugToken" + NL;
+            debugToken += conf.DEBUG_TOKEN + NL;
         } else {
-            logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_WRONG_FILE_EXTENSION"));
+            logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND"));
         }
     }
 

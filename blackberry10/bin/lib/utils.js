@@ -19,8 +19,12 @@ var fs = require('fs'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
-    propertyFileName = 'blackberry10.json',
-    propertyFileDir = '.cordova',
+    PROPERTY_FILE_NAME = 'blackberry10.json',
+    CORDOVA_DIR = '.cordova',
+    DEFAULT_PROPERTY_FILE = {
+        targets: {
+        }
+    },
     _self;
 
 function swapBytes(buffer) {
@@ -169,16 +173,31 @@ _self = {
         return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
     },
 
-    initPropertiesFile : function () {
-        homePath = _self.findHomePath();
-        propertiesFile = path.join(homePath, propertyFileDir, propertyFileName);
-        if (!fs.existsSync(path.join(homePath, propertyFileDir))) {
-            fs.mkdirSync(path.join(homePath, propertyFileDir));
+    getCordovaDir: function () {
+        var cordovaPath = path.join(_self.findHomePath(), CORDOVA_DIR);
+
+        if (!fs.existsSync(cordovaPath)) {
+            fs.mkdirSync(cordovaPath);
         }
+
+        return cordovaPath;
+    },
+
+    getProperties: function () {
+        var propertiesFile = path.join(_self.getCordovaDir(), PROPERTY_FILE_NAME);
+
         if (!fs.existsSync(propertiesFile)) {
-            _self.copyFile(propertyFileName, path.join(homePath, propertyFileDir), __dirname);
+            _self.writeToPropertiesFile(DEFAULT_PROPERTY_FILE);
         }
-        return propertiesFile; 
+
+        return require(propertiesFile);
+    },
+
+    writeToPropertiesFile: function (data) {
+        var contents = JSON.stringify(data, null, 4) + "\n",
+            propertiesFile = path.join(_self.getCordovaDir(), PROPERTY_FILE_NAME);
+
+        fs.writeFileSync(propertiesFile, contents, 'utf-8');
     }
 
 };
