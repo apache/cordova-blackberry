@@ -55,24 +55,36 @@ for %%X in (blackberry-signer) do (
   )
 )
 
+set FOUNDJAVA=
+for %%X in (java) do (
+  if not defined FOUNDJAVA (
+    set FOUNDJAVA=%%~$PATH:X
+  )
+)
+
+
 if not defined FOUNDNODE (
-  echo "npm cannot be found on the path. Aborting."
+  echo npm cannot be found on the path. Aborting.
   exit /b 1
 )
 if not defined FOUNDNPM (
-  echo "Node cannot be found on the path. Aborting."
+  echo node cannot be found on the path. Aborting.
+  exit /b 1
+)
+if not defined FOUNDJAVA (
+  echo java cannot be found on the path. Aborting.
   exit /b 1
 )
 if not defined FOUNDPACKAGER (
-  echo "blackberry-nativepackager cannot be found on the path. Aborting."
+  echo blackberry-nativepackager cannot be found on the path. Aborting.
   exit /b 1
 )
 if not defined FOUNDDEPLOYER (
-  echo "blackberry-deploy cannot be found on the path. Aborting."
+  echo blackberry-deploy cannot be found on the path. Aborting.
   exit /b 1
 )
 if not defined FOUNDSIGNER (
-  echo "blackberry-signer cannot be found on the path. Aborting."
+  echo blackberry-signer cannot be found on the path. Aborting.
   exit /b 1
 )
 
