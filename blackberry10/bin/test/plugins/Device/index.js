@@ -16,7 +16,7 @@
 
 describe("Device", function () {
 
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Device/src/blackberry10/",
+    var _apiDir = __dirname + "./../../../../plugins/Device/src/blackberry10/",
         index,
         result = {
             ok: jasmine.createSpy()

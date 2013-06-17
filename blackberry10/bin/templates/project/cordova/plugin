@@ -19,52 +19,5 @@
  * under the License.
  */
 
-var action = process.argv[2],
-    plugin = process.argv[3],
-    PLUGMAN = require("path").join(__dirname, "node_modules", "plugman", "main.js"),
-    argumentor = {
-        argIndex: 2,
-        setAction: function () {
-            process.argv[this.argIndex++] = "--" + action;
-            return argumentor;
-        },
-        setPlatform: function () {
-            process.argv[this.argIndex++] = "--platform";
-            process.argv[this.argIndex++] = "blackberry10";
-            return argumentor;
-        },
-        setProject: function () {
-            process.argv[this.argIndex++] = "--project";
-            process.argv[this.argIndex++] = ".";
-            return argumentor;
-        },
-        setPlugin: function () {
-            process.argv[this.argIndex++] = "--plugin";
-            process.argv[this.argIndex++] = plugin.charAt(plugin.length - 1) === "/" ? plugin.slice(0, -1) : plugin;
-            return argumentor;
-        },
-        setPluginsDir: function () {
-            process.argv[this.argIndex++] = "--plugins_dir";
-            process.argv[this.argIndex++] = "./plugins";
-            return argumentor;
-        }
-    };
+require(require("path").join(__dirname, "lib", "plugin.js")).cli();
 
-switch(action) {
-    case "uninstall":
-        argumentor.setAction();
-    case "install":
-        argumentor.setPlatform().setProject().setPlugin().setPluginsDir();
-        break;
-    case "fetch":
-    case "remove":
-        argumentor.setAction().setPlugin().setPluginsDir();
-        break;
-    case "prepare":
-        argumentor.setAction().setPlatform().setProject().setPluginsDir();
-        break;
-    case "list":
-        argumentor.setAction();
-}
-
-require(PLUGMAN);

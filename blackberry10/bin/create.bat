@@ -18,4 +18,12 @@ goto comment
        under the License.
 :comment
 
-node.exe %~dp0\create.js %*
+set BIN_DIR=%~dp0
+
+"%BIN_DIR%check_reqs"
+
+pushd %BIN_DIR%..
+call npm install
+popd
+
+node.exe "%BIN_DIR%create.js" %*

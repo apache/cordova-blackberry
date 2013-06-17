@@ -19,6 +19,8 @@ var fs = require('fs'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
+    propertyFileName = 'blackberry10.json',
+    propertyFileDir = '.cordova',
     _self;
 
 function swapBytes(buffer) {
@@ -161,7 +163,24 @@ _self = {
 
     loadModule: function (path) {
         return require(path);
+    },
+
+    findHomePath : function () {
+        return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+    },
+
+    initPropertiesFile : function () {
+        homePath = _self.findHomePath();
+        propertiesFile = path.join(homePath, propertyFileDir, propertyFileName);
+        if (!fs.existsSync(path.join(homePath, propertyFileDir))) {
+            fs.mkdirSync(path.join(homePath, propertyFileDir));
+        }
+        if (!fs.existsSync(propertiesFile)) {
+            _self.copyFile(propertyFileName, path.join(homePath, propertyFileDir), __dirname);
+        }
+        return propertiesFile; 
     }
+
 };
 
 module.exports = _self;

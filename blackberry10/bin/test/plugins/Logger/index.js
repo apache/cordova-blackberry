@@ -16,7 +16,7 @@
 
 describe("Logger", function () {
 
-    var _apiDir = __dirname + "./../../../templates/project/plugins/Logger/src/blackberry10/",
+    var _apiDir = __dirname + "./../../../../plugins/Logger/src/blackberry10/",
         index,
         result = {
             noResult: jasmine.createSpy("noResult")

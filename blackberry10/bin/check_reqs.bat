@@ -18,4 +18,62 @@ goto comment
        under the License.
 :comment
 
-@node.exe %~dp0\check_reqs %*
+set FOUNDNODE=
+for %%e in (%PATHEXT%) do (
+  for %%X in (node%%e) do (
+    if not defined FOUNDNODE (
+      set FOUNDNODE=%%~$PATH:X
+    )
+  )
+)
+
+set FOUNDNPM=
+for %%X in (npm) do (
+  if not defined FOUNDNPM (
+    set FOUNDNPM=%%~$PATH:X
+  )
+)
+
+set FOUNDPACKAGER=
+for %%X in (blackberry-nativepackager) do (
+  if not defined FOUNDPACKAGER (
+    set FOUNDPACKAGER=%%~$PATH:X
+  )
+)
+
+set FOUNDDEPLOYER=
+for %%X in (blackberry-deploy) do (
+  if not defined FOUNDDEPLOYER (
+    set FOUNDDEPLOYER=%%~$PATH:X
+  )
+)
+
+set FOUNDSIGNER=
+for %%X in (blackberry-signer) do (
+  if not defined FOUNDSIGNER (
+    set FOUNDSIGNER=%%~$PATH:X
+  )
+)
+
+if not defined FOUNDNODE (
+  echo "npm cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDNPM (
+  echo "Node cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDPACKAGER (
+  echo "blackberry-nativepackager cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDDEPLOYER (
+  echo "blackberry-deploy cannot be found on the path. Aborting."
+  exit /b 1
+)
+if not defined FOUNDSIGNER (
+  echo "blackberry-signer cannot be found on the path. Aborting."
+  exit /b 1
+)
+
+@node.exe "%~dp0\check_reqs.js" %*

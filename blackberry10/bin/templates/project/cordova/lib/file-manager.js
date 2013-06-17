@@ -84,28 +84,6 @@ function prepare(session) {
         wrench.rmdirSyncRecursive(session.sourceDir);
     }
 
-    if (!fs.existsSync(dest.CHROME)) {
-        wrench.mkdirSyncRecursive(dest.CHROME, "0755");
-    }
-
-    // copy bootstrap as well as ui.html file
-    wrench.copyDirSyncRecursive(conf.DEPENDENCIES_BOOTSTRAP, dest.CHROME);
-
-    if (!fs.existsSync(dest.LIB)) {
-        wrench.mkdirSyncRecursive(dest.LIB, "0755");
-    }
-
-    // copy framework
-    wrench.copyDirSyncRecursive(conf.LIB, dest.LIB);
-
-    // Copy the ui-resources if they exist
-    if (fs.existsSync(conf.UI)) {
-        if (!fs.existsSync(dest.UI)) {
-            wrench.mkdirSyncRecursive(dest.UI, "0755");
-        }
-        wrench.copyDirSyncRecursive(conf.UI, dest.UI);
-    }
-
     // unzip archive
     if (fs.existsSync(session.archivePath)) {
         if (session.archivePath.toLowerCase().match("[.]zip$")) {
@@ -171,32 +149,16 @@ function generateFrameworkModulesJS(session) {
     fs.writeFileSync(path.normalize(dest.CHROME + "/frameworkModules.js"), frameworkModulesStr + modulesStr);
 }
 
-function copyWWE(session, target) {
-    var src = path.normalize(session.conf.DEPENDENCIES_BOOTSTRAP + "/wwe"),
+function copyNative(session, target) {
+    var src = path.normalize(session.conf.NATIVE + "/" + target),
         dest = path.normalize(session.sourceDir);
 
-    packagerUtils.copyFile(src, dest);
-}
-
-function copyWebplatform(session, target) {
-
-    var wpSrc = path.normalize(session.conf.ROOT + "/webplatform.js"),
-        dest = path.normalize(session.sourceDir),
-        i18nSrc = path.normalize(session.conf.ROOT + "/i18n.js");
-
-    if (fs.existsSync(wpSrc)) {
-        logger.warn(localize.translate("WARN_WEBPLATFORM_JS_PACKAGED"));
-        packagerUtils.copyFile(wpSrc, dest);
-    }
-    if (fs.existsSync(i18nSrc)) {
-        logger.warn(localize.translate("WARN_WEBPLATFORM_I18N_PACKAGED"));
-        packagerUtils.copyFile(i18nSrc, dest);
-    }
+    copyDirContents(src, dest);
 }
 
 function copyWebworks(session) {
     var srcPath = path.normalize(session.conf.PROJECT_ROOT + "/lib"),
-        dest = path.normalize(session.sourceDir + "/chrome"),
+        dest = path.normalize(session.sourceDir),
         srcFiles;
 
     srcFiles = packagerUtils.listFiles(srcPath, function (file) {
@@ -213,94 +175,28 @@ function copyWebworks(session) {
     }
 }
 
-
-function copyJnextDependencies(session) {
-    var conf = session.conf,
-        dest = path.normalize(session.sourcePaths.JNEXT_PLUGINS),
-        data = "local:/// *\nfile:// *\nhttp:// *";
-
-    if (!fs.existsSync(dest)) {
-        wrench.mkdirSyncRecursive(dest, "0755");
-    }
-
-    //write auth.txt jnext file
-    fs.writeFileSync(path.join(dest, "auth.txt"), data);
-}
-
 function hasValidExtension(file) {
     return VALID_EXTENSIONS.some(function (element, index, array) {
         return path.extname(file) === element;
     });
 }
 
-function copyExtension(session, target, pluginPath) {
-    var basename = path.basename(pluginPath),
-        pluginSrcPath = path.join(pluginPath, "src", "blackberry10"),
-        extDest = session.sourcePaths.EXT,
-        soDest = session.sourcePaths.JNEXT_PLUGINS,
-        soPath = path.normalize(path.join(pluginSrcPath, "native", target)),
-        jsFiles,
-        soFiles;
-
-    if (fs.existsSync(pluginSrcPath) && fs.statSync(pluginSrcPath).isDirectory()) {
-        //create output folders
-        wrench.mkdirSyncRecursive(path.join(extDest, basename), "0755");
-        wrench.mkdirSyncRecursive(soDest, "0755");
-
-        //find all .js and .json files
-        jsFiles = packagerUtils.listFiles(pluginSrcPath, function (file) {
-            return hasValidExtension(file);
-        });
-
-        //Copy each .js file to its extensions folder
-        jsFiles.forEach(function (jsFile) {
-            packagerUtils.copyFile(jsFile, path.join(extDest, basename), pluginSrcPath);
-        });
-
-        if (fs.existsSync(soPath)) {
-            //find all .so files
-            soFiles = packagerUtils.listFiles(soPath, function (file) {
-                return path.extname(file) === ".so";
-            });
-
-            //Copy each .so file to the extensions folder
-            soFiles.forEach(function (soFile) {
-                packagerUtils.copyFile(soFile, soDest);
-            });
-        }
-    }
-}
-
-function copyExtensions(session, target) {
-    var pluginDir = session.conf.EXT;
-
-    if (fs.existsSync(pluginDir)) {
-        // just read the top-level dirs under "plugin"
-        fs.readdirSync(pluginDir).forEach(function (plugin) {
-            copyExtension(session, target, path.join(pluginDir, plugin));
-        });
-
-    }
-
-
+function generateUserConfig(session, config) {
+    packagerUtils.writeFile(path.join(session.sourcePaths.LIB, "config"), "user.js", "module.exports = " + JSON.stringify(config, null, "    ") + ";");
 }
 
 module.exports = {
     unzip: unzip,
 
-    copyWWE: copyWWE,
-
-    copyWebplatform: copyWebplatform,
+    copyNative: copyNative,
 
     copyWebworks : copyWebworks,
 
-    copyJnextDependencies: copyJnextDependencies,
-
     prepareOutputFiles: prepare,
 
-    copyExtensions: copyExtensions,
-
     generateFrameworkModulesJS: generateFrameworkModulesJS,
+
+    generateUserConfig: generateUserConfig,
 
     cleanSource: function (session) {
         if (!session.keepSource) {

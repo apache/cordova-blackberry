@@ -22,6 +22,10 @@ Install node.js:
 
 [http://nodejs.org/](http://nodejs.org/)
 
+Ensure npm is installed:
+
+More recent versions of Nodejs will come with npm included.
+
 ## Getting Started
 
 Create a new project:
@@ -32,7 +36,7 @@ Create a new project:
 
 A target is a device or simulator which will run the app.
 
-This command will add a new target: 
+This command will add a new target:
 
 `<path to project>/cordova/target add <name> <ip> <device | simulator> [-p | --password <password>] [--pin <devicepin>]`
 
@@ -60,10 +64,10 @@ Here is the build script syntax:
 
 Commands:
 
-    release [options] 
+    release [options]
         Build in release mode. This will sign the resulting bar.
-    
-    debug [options] 
+
+    debug [options]
         Build in debug mode.
 
   Options:
@@ -92,5 +96,5 @@ Now the plugin can be installed by name:
 
 Plugins hosted remotely can be installed by name without using fetch. To see a list of available remote plugins use:
 
-`<path to project>/cordova/plugin list`
+`<path to project>/cordova/plugin ls`
 
