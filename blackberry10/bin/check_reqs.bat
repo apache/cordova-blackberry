@@ -56,9 +56,11 @@ for %%X in (blackberry-signer) do (
 )
 
 set FOUNDJAVA=
-for %%X in (java) do (
-  if not defined FOUNDJAVA (
-    set FOUNDJAVA=%%~$PATH:X
+for %%e in (%PATHEXT%) do (
+  for %%X in (java%%e) do (
+    if not defined FOUNDJAVA (
+      set FOUNDJAVA=%%~$PATH:X
+    )
   )
 )
 
