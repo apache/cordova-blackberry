@@ -20,24 +20,28 @@
 
 NODE=$(command -v node)
 NPM=$(command -v npm)
+JAVA=$(command -v java)
 PACKAGER=$(command -v blackberry-nativepackager)
 DEPLOYER=$(command -v blackberry-deploy)
 SIGNER=$(command -v blackberry-signer)
 
 if [ -z "$NODE" ]; then
-    echo "Node cannot be found on the path. Aborting."
+    echo node cannot be found on the path. Aborting.
     EXIT_CODE=1
 elif [ -z "$NPM" ]; then
-    echo "npm cannot be found on the path. Aborting."
+    echo npm cannot be found on the path. Aborting.
+    EXIT_CODE=1
+elif [ -z "$JAVA" ]; then
+    echo java cannot be found on the path. Aborting.
     EXIT_CODE=1
 elif [ -z "$PACKAGER" ]; then
-    echo "blackberry-nativepackager cannot be found on the path. Aborting."
+    echo blackberry-nativepackager cannot be found on the path. Aborting.
     EXIT_CODE=1
 elif [ -z "$DEPLOYER" ]; then
-    echo "blackberry-deploy cannot be found on the path. Aborting."
+    echo blackberry-deploy cannot be found on the path. Aborting.
     EXIT_CODE=1
 elif [ -z "$SIGNER" ]; then
-    echo "blackberry-signer cannot be found on the path. Aborting."
+    echo blackberry-signer cannot be found on the path. Aborting.
     EXIT_CODE=1
 else
     node "$( dirname "$0" )/check_reqs.js" "$@"
