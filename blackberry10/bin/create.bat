@@ -20,7 +20,9 @@ goto comment
 
 set BIN_DIR=%~dp0
 
-"%BIN_DIR%check_reqs"
+call "%BIN_DIR%check_reqs"
+
+if "%ERRORLEVEL%" == "1" exit /B 1
 
 pushd %BIN_DIR%..
 call npm install
