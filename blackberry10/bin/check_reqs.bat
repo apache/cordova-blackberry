@@ -35,21 +35,21 @@ for %%X in (npm) do (
 )
 
 set FOUNDPACKAGER=
-for %%X in (blackberry-nativepackager) do (
+for %%X in (blackberry-nativepackager.bat) do (
   if not defined FOUNDPACKAGER (
     set FOUNDPACKAGER=%%~$PATH:X
   )
 )
 
 set FOUNDDEPLOYER=
-for %%X in (blackberry-deploy) do (
+for %%X in (blackberry-deploy.bat) do (
   if not defined FOUNDDEPLOYER (
     set FOUNDDEPLOYER=%%~$PATH:X
   )
 )
 
 set FOUNDSIGNER=
-for %%X in (blackberry-signer) do (
+for %%X in (blackberry-signer.bat) do (
   if not defined FOUNDSIGNER (
     set FOUNDSIGNER=%%~$PATH:X
   )
