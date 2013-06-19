@@ -17,6 +17,7 @@
 module.exports = function (done, custom) {
     var jasmine = require('jasmine-node'),
         fs = require('fs'),
+        utils = require('./lib/utils'),
         specs = (custom !== null && fs.existsSync(custom)) ? [custom]  :
             [
                 "framework/test",
@@ -24,7 +25,7 @@ module.exports = function (done, custom) {
                 "bin/test/cordova/unit",
                 "bin/test/plugins"
             ];
-    //console.log(specs);
+    utils.copyFile('bin/lib/utils.js', 'bin/templates/project/cordova/lib/', '../');
     jasmine.executeSpecsInFolder({
         'specFolders': specs,
         'onComplete': function (runner) {

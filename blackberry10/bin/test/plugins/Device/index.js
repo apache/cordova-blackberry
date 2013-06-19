@@ -61,7 +61,6 @@ describe("Device", function () {
                 expect(deviceInfo.platform).toEqual("blackberry10");
                 expect(deviceInfo.version).toEqual(mockedDevice.scmBundle);
                 expect(deviceInfo.model).toEqual(mockedDevice.modelName);
-                expect(deviceInfo.name).toEqual(mockedDevice.modelName);
                 expect(deviceInfo.uuid).toEqual(mockedDevice.devicePin);
                 expect(deviceInfo.cordova).toBeDefined();
             });

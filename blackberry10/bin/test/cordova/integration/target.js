@@ -22,8 +22,12 @@ var childProcess = require('child_process'),
     appFolder = tempFolder + 'tempCordovaApp/',
     projectFile = 'project.json',
     wrench = require('wrench'),
+    utils = require('../../../lib/utils'),
     fs = require('fs'),
+    path = require('path'),
+    configPath = path.join(utils.getCordovaDir(), 'blackberry10.json'),
     flag = false,
+    testAppCreated = false,
     _stdout = "",
     _stderr = "";
 
@@ -40,29 +44,35 @@ function executeScript(shellCommand) {
 
 describe("cordova/target tests", function () {
     beforeEach(function () {
-        executeScript("bin/create " + appFolder);
-        waitsFor(function () {
-            return flag;
-        },9000);
-        runs(function () {
-            flag = false;
-        });
+        utils.copyFile(configPath, path.join(utils.getCordovaDir(), "bb10bak"));
+        fs.unlinkSync(configPath);
+        if (!testAppCreated) {
+            executeScript("bin/create " + appFolder);
+            waitsFor(function () {
+                return flag;
+            },9000);
+            runs(function () {
+                testAppCreated = true;
+                flag = false;
+            });
+        }
     });
 
     afterEach(function () {
-        wrench.rmdirSyncRecursive(tempFolder);   
+        utils.copyFile(path.join(utils.getCordovaDir(), "bb10bak", "blackberry10.json"), path.join(utils.getCordovaDir()));
+        wrench.rmdirSyncRecursive(path.join(utils.getCordovaDir(), "bb10bak"));   
     });
 
     it("should add a target", function () {
         var project,
             target;
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 device -p pass --pin DEADBEEF");
+        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            project = JSON.parse(fs.readFileSync(appFolder + projectFile, 'utf-8'));
+            project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
             expect(project.defaultTarget).toEqual("z10");
             expect(Object.keys(project.targets).length).toEqual(1);
             target = project.targets.z10;
@@ -77,7 +87,7 @@ describe("cordova/target tests", function () {
 
     it("should remove a target", function () {
         var project;
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 device -p pass --pin DEADBEEF");
+        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
         waitsFor(function () {
             return flag;
         });
@@ -89,7 +99,7 @@ describe("cordova/target tests", function () {
             });
             runs(function () {
                 flag = false;
-                project = JSON.parse(fs.readFileSync(appFolder + projectFile, 'utf-8'));
+                project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
                 expect(project.defaultTarget).toEqual("");
                 expect(Object.keys(project.targets).length).toEqual(0);
                 expect(_stdout).toEqual("Deleting default target, please set a new default target");
@@ -100,13 +110,13 @@ describe("cordova/target tests", function () {
 
     it("should set default target", function () {
         var project;
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 device -p pass --pin DEADBEEF");
+        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            executeScript(appFolder + "cordova/target add q10 169.254.0.2 device -p p455w02D --pin FACEFACE");
+            executeScript(appFolder + "cordova/target add q10 169.254.0.2 -t device -p p455w02D --pin FACEFACE");
             waitsFor(function () {
                 return flag;
             });
@@ -118,7 +128,7 @@ describe("cordova/target tests", function () {
                 });
                 runs(function () {
                     flag = false;
-                    project = JSON.parse(fs.readFileSync(appFolder + projectFile, 'utf-8'));
+                    project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
                     expect(project.defaultTarget).toEqual("q10");
                 });
             });
@@ -126,13 +136,13 @@ describe("cordova/target tests", function () {
     });
 
     it("should list targets", function () {
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 device -p pass --pin DEADBEEF");
+        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
         waitsFor(function () {
             return flag;
         });
         runs(function () {
             flag = false;
-            executeScript(appFolder + "cordova/target add q10 169.254.0.2 device -p p455w02D --pin FACEFACE");
+            executeScript(appFolder + "cordova/target add q10 169.254.0.2 -t device -p p455w02D --pin FACEFACE");
             waitsFor(function () {
                 return flag;
             });
@@ -212,7 +222,13 @@ describe("cordova/target tests", function () {
     });
 
     it("should warn invalid pin", function () {
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 device --pin NOTAPIN!");
+
+        //keep this in last test to remove test app
+        this.after(function() { 
+            wrench.rmdirSyncRecursive(tempFolder);
+        });
+
+        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device --pin NOTAPIN!");
         waitsFor(function () {
             return flag;
         });

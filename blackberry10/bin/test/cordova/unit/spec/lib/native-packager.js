@@ -101,18 +101,6 @@ describe("Native packager", function () {
         expect(logger.warn).not.toHaveBeenCalled();
     });
 
-    it("shows debug token warning when debug token not a .bar file", function () {
-        spyOn(pkgrUtils, "writeFile");
-        spyOn(logger, "warn");
-
-        session.debug = true;
-        //Current time will ensure that the file doesn't exist.
-        session.conf.DEBUG_TOKEN = new Date().getTime() + ".xyz";
-
-        nativePkgr.exec(session, target, testData.config, callback);
-        expect(logger.warn).toHaveBeenCalledWith(localize.translate("EXCEPTION_DEBUG_TOKEN_WRONG_FILE_EXTENSION"));
-    });
-
     it("exec blackberry-nativepackager", function () {
         var bbTabletXML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "<qnx><id>" + config.id + "</id>" +
