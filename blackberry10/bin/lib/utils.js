@@ -183,14 +183,22 @@ _self = {
         return cordovaPath;
     },
 
-    getProperties: function () {
+    getPropertiesFilePath: function () {
         var propertiesFile = path.join(_self.getCordovaDir(), PROPERTY_FILE_NAME);
 
         if (!fs.existsSync(propertiesFile)) {
             _self.writeToPropertiesFile(DEFAULT_PROPERTY_FILE);
         }
 
-        return require(propertiesFile);
+        return propertiesFile;
+    },
+
+    getPropertiesFileName: function () {
+        return PROPERTY_FILE_NAME;
+    },
+
+    getProperties: function () {
+        return require(_self.getPropertiesFilePath());
     },
 
     writeToPropertiesFile: function (data) {

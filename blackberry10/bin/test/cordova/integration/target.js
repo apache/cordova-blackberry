@@ -25,7 +25,7 @@ var childProcess = require('child_process'),
     utils = require('../../../lib/utils'),
     fs = require('fs'),
     path = require('path'),
-    configPath = path.join(utils.getCordovaDir(), 'blackberry10.json'),
+    configPath = utils.getPropertiesFilePath(),
     flag = false,
     testAppCreated = false,
     _stdout = "",
@@ -59,8 +59,8 @@ describe("cordova/target tests", function () {
     });
 
     afterEach(function () {
-        utils.copyFile(path.join(utils.getCordovaDir(), "bb10bak", "blackberry10.json"), path.join(utils.getCordovaDir()));
-        wrench.rmdirSyncRecursive(path.join(utils.getCordovaDir(), "bb10bak"));   
+        utils.copyFile(path.join(utils.getCordovaDir(), "bb10bak", utils.getPropertiesFileName()), path.join(utils.getCordovaDir()));
+        wrench.rmdirSyncRecursive(path.join(utils.getCordovaDir(), "bb10bak"));
     });
 
     it("should add a target", function () {
@@ -224,7 +224,7 @@ describe("cordova/target tests", function () {
     it("should warn invalid pin", function () {
 
         //keep this in last test to remove test app
-        this.after(function() { 
+        this.after(function() {
             wrench.rmdirSyncRecursive(tempFolder);
         });
 
