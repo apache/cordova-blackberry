@@ -25,21 +25,22 @@ var childProcess = require('child_process'),
     utils = require('../../../lib/utils'),
     fs = require('fs'),
     path = require('path'),
+    shell = require("shelljs"),
     configPath = utils.getPropertiesFilePath(),
-    flag = false,
     testAppCreated = false,
-    _stdout = "",
-    _stderr = "";
+    _output = "",
+    CREATE_COMMAND = path.normalize(__dirname + "/../../../create") + (utils.isWindows() ? ".bat" : ""),
+    TARGET_COMMAND = path.normalize(appFolder + "cordova/target") + (utils.isWindows() ? ".bat" : "");
 
-function executeScript(shellCommand) {
-    childProcess.exec(shellCommand, function (error, stdout, stderr) {
-        if (error) {
-            //console.log("Error executing command: " + error);
-        }
-        _stdout = stdout.toString().trim();
-        _stderr = stderr.toString().trim();
-        flag = true;
-    });
+function executeScript(shellCommand, args, shouldFail) {
+    var strCommand = "\"" + shellCommand + "\" " + args.join(" "),
+        result;
+
+    //console.log("CREATE About to execute ", strCommand, (new Date()), "\n\n\n");
+    result = shell.exec(strCommand, {silent: true, async: false});
+    //console.log(result.output, "\n\n\n");
+    //console.log("Finished executing  with code ", result.code, " at ", (new Date()), "\n\n\n");
+    _output = result.output;
 }
 
 describe("cordova/target tests", function () {
@@ -47,14 +48,8 @@ describe("cordova/target tests", function () {
         utils.copyFile(configPath, path.join(utils.getCordovaDir(), "bb10bak"));
         fs.unlinkSync(configPath);
         if (!testAppCreated) {
-            executeScript("bin/create " + appFolder);
-            waitsFor(function () {
-                return flag;
-            },9000);
-            runs(function () {
-                testAppCreated = true;
-                flag = false;
-            });
+            executeScript(CREATE_COMMAND , [appFolder]);
+            testAppCreated = true;
         }
     });
 
@@ -66,159 +61,70 @@ describe("cordova/target tests", function () {
     it("should add a target", function () {
         var project,
             target;
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-            expect(project.defaultTarget).toEqual("z10");
-            expect(Object.keys(project.targets).length).toEqual(1);
-            target = project.targets.z10;
-            expect(target.ip).toEqual("169.254.0.1");
-            expect(target.type).toEqual("device");
-            expect(target.password).toEqual("pass");
-            expect(target.pin).toEqual("DEADBEEF");
-            expect(_stdout).toEqual("");
-            expect(_stderr).toEqual("");
-        });
+
+        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
+        project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        expect(project.defaultTarget).toEqual("z10");
+        expect(Object.keys(project.targets).length).toEqual(1);
+        target = project.targets.z10;
+        expect(target.ip).toEqual("169.254.0.1");
+        expect(target.type).toEqual("device");
+        expect(target.password).toEqual("pass");
+        expect(target.pin).toEqual("DEADBEEF");
+        expect(_output).toEqual("");
     });
 
     it("should remove a target", function () {
         var project;
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            executeScript(appFolder + "cordova/target remove z10");
-            waitsFor(function () {
-                return flag;
-            });
-            runs(function () {
-                flag = false;
-                project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-                expect(project.defaultTarget).toEqual("");
-                expect(Object.keys(project.targets).length).toEqual(0);
-                expect(_stdout).toEqual("Deleting default target, please set a new default target");
-                expect(_stderr).toEqual("");
-            });
-        });
+
+        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
+        executeScript(TARGET_COMMAND , ["remove", "z10"]);
+        project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        expect(project.defaultTarget).toEqual("");
+        expect(Object.keys(project.targets).length).toEqual(0);
+        expect(_output).toContain("Deleting default target, please set a new default target");
     });
 
     it("should set default target", function () {
         var project;
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            executeScript(appFolder + "cordova/target add q10 169.254.0.2 -t device -p p455w02D --pin FACEFACE");
-            waitsFor(function () {
-                return flag;
-            });
-            runs(function () {
-                flag = false;
-                executeScript(appFolder + "cordova/target default q10");
-                waitsFor(function () {
-                    return flag;
-                });
-                runs(function () {
-                    flag = false;
-                    project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-                    expect(project.defaultTarget).toEqual("q10");
-                });
-            });
-        });
+
+        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
+        executeScript(TARGET_COMMAND, ["add", "q10", "169.254.0.2", "-t", "device", "-p", "p455w02D", "--pin", "FACEFACE"]);
+        executeScript(TARGET_COMMAND, ["default", "q10"]);
+        project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        expect(project.defaultTarget).toEqual("q10");
     });
 
     it("should list targets", function () {
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device -p pass --pin DEADBEEF");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            executeScript(appFolder + "cordova/target add q10 169.254.0.2 -t device -p p455w02D --pin FACEFACE");
-            waitsFor(function () {
-                return flag;
-            });
-            runs(function () {
-                flag = false;
-                executeScript(appFolder + "cordova/target");
-                waitsFor(function () {
-                    return flag;
-                });
-                runs(function () {
-                    flag = false;
-                    expect(_stdout).toEqual("* z10\n  q10");
-                    expect(_stderr).toEqual("");
-                });
-            });
-        });
+        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
+        executeScript(TARGET_COMMAND, ["add", "q10", "169.254.0.2", "-t", "device", "-p", "p455w02D", "--pin", "FACEFACE"]);
+        executeScript(TARGET_COMMAND, []);
+        expect(_output).toContain("* z10\n  q10");
     });
 
     it("should require name for add/remove", function () {
-        executeScript(appFolder + "cordova/target add");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            expect(_stdout).toContain("Target details not specified");
-            expect(_stderr).toEqual("");
-        });
+        executeScript(TARGET_COMMAND, ["add"], true);
+        expect(_output).toContain("Target details not specified");
     });
 
     it("should require ip for add", function () {
-        executeScript(appFolder + "cordova/target add z10");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            expect(_stdout).toContain("IP is required");
-            expect(_stderr).toEqual("");
-        });
+        executeScript(TARGET_COMMAND, ["add", "z10"], true);
+        expect(_output).toContain("IP is required");
     });
 
     it("should warn unregonized command", function () {
-        executeScript(appFolder + "cordova/target bleh");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            expect(_stdout).toContain("Unrecognized command");
-            expect(_stderr).toEqual("");
-        });
+        executeScript(TARGET_COMMAND, ["bleh"], true);
+        expect(_output).toContain("Unrecognized command");
     });
 
     it("should warn invalid ip", function () {
-        executeScript(appFolder + "cordova/target add z10 256.254.0.1");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            expect(_stdout).toContain("Invalid IP: 256.254.0.1");
-            expect(_stderr).toEqual("");
-        });
+        executeScript(TARGET_COMMAND, ["add", "z10", "256.254.0.1"], true);
+        expect(_output).toContain("Invalid IP: 256.254.0.1");
     });
 
     it("should warn invalid type", function () {
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t bleh");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            expect(_stdout).toContain("Invalid target type: bleh");
-            expect(_stderr).toEqual("");
-        });
+        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "bleh"], true);
+        expect(_output).toContain("Invalid target type: bleh");
     });
 
     it("should warn invalid pin", function () {
@@ -228,14 +134,7 @@ describe("cordova/target tests", function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });
 
-        executeScript(appFolder + "cordova/target add z10 169.254.0.1 -t device --pin NOTAPIN!");
-        waitsFor(function () {
-            return flag;
-        });
-        runs(function () {
-            flag = false;
-            expect(_stdout).toContain("Invalid PIN: NOTAPIN!");
-            expect(_stderr).toEqual("");
-        });
+        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "--pin", "NOTAPIN!"], true);
+        expect(_output).toContain("Invalid PIN: NOTAPIN!");
     });
 });

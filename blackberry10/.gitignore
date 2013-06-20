@@ -21,3 +21,4 @@ bin/templates/project/lib
 example/
 node_modules/
 bin/templates/project/cordova/lib/utils.js
+.tmp
