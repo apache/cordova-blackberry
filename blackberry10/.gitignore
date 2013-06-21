@@ -1,6 +1,7 @@
 # OS X
 
 .DS_Store
+tags
 
 # Eclipse
 
@@ -19,9 +20,5 @@ bin/node_modules
 bin/templates/project/lib
 example/
 node_modules/
-
-# OS X
-
-.DS_Store
-
-tags
+bin/templates/project/cordova/lib/utils.js
+.tmp

@@ -134,7 +134,7 @@ describe("Session", function () {
                 },
                 result;
 
-            spyOn(path, "resolve").andReturn("bin/test/cordova/unit/params.json");
+            spyOn(path, "resolve").andReturn(path.normalize(__dirname + "../../../params.json"));
             spyOn(fs, "existsSync").andReturn(true);
 
             result = session.initialize(data);
