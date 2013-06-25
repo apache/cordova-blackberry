@@ -46,6 +46,8 @@
     <property name="playbook.ext.src"   location="framework/ext-air" />
     <property name="playbook.ext.path"  value="ext-air" />
 
+    <property name="version.file"   value="VERSION" />
+
     <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
     <property name="js.basename"     value="cordova.js" />
@@ -94,6 +96,11 @@
         <mkdir dir="${project.path}" />
         <copy todir="${project.path}">
             <fileset dir="${template.project.dir}" />
+        </copy>
+
+        <!-- copy version file to project -->
+        <copy todir="${project.path}">
+            <fileset file="${version.file}" />
         </copy>
 
         <!-- change file permission for cordova scripts because ant copy doesn't preserve file permissions -->

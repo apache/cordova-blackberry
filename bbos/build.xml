@@ -42,7 +42,7 @@
     <property name="jar.basename" value="cordova.${version}.jar" />
     <property name="jar.file"     value="${jar.path}/${jar.basename}" />
 
-    <property name="playbook.js.path"   value="javascript/playbook" />
+    <property name="version.file"   value="VERSION" />
 
     <property name="js.src"          location="javascript" />
     <property name="js.path"         value="javascript" />
@@ -79,6 +79,11 @@
         <mkdir dir="${project.path}" />
         <copy todir="${project.path}">
             <fileset dir="${template.project.dir}" />
+        </copy>
+
+        <!-- copy version file -->
+        <copy todir="${project.path}">
+            <fileset file="${version.file}" />
         </copy>
 
         <!-- change file permission for cordova scripts because ant copy doesn't preserve file permissions -->
