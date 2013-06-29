@@ -295,6 +295,10 @@ function processAuthorData(data, widgetConfig) {
             widgetConfig.authorEmail = attribs.email;
         }
     }
+
+    if(data.authorId){
+        widgetConfig.authorId = sanitize(data.authorId).trim();
+    }
 }
 
 function processLicenseData(data, widgetConfig) {

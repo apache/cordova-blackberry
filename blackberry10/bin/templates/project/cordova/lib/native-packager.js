@@ -33,6 +33,7 @@ function generateTabletXMLFile(session, config) {
             id : config.id,
             versionNumber : config.version,
             author : config.author,
+            authorId: config.authorId,
             asset : [{
                 _attr : { entry : 'true', type : 'qnx/elf' },
                 _value : 'wwe'
