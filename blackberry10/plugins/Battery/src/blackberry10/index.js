@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-    var _clientListeners = {},
-        _webkitBattery = navigator.webkitBattery || navigator.battery;
+var _clientListeners = {},
+    _webkitBattery = navigator.webkitBattery || navigator.battery;
 
 module.exports = {
     start: function (success, fail, args, env) {

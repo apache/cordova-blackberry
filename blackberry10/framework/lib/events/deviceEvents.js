@@ -18,7 +18,7 @@ module.exports = {
     addEventListener: function (event, trigger) {
         if (event) {
             event = "device." + event;
-            window.qnx.webplatform.device.addEventListener(event, trigger);
+            window.wp.device.on(event, trigger);
         } else {
             console.warn("Attempting to register for 'falsey' event: " + event);
         }
@@ -26,7 +26,7 @@ module.exports = {
     removeEventListener: function (event, trigger) {
         if (event) {
             event = "device." + event;
-            window.qnx.webplatform.device.removeEventListener(event, trigger);
+            window.wp.device.un(event, trigger);
         } else {
             console.warn("Attempting to un-register for 'falsey' event: " + event);
         }

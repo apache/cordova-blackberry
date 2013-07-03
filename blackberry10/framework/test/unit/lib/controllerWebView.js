@@ -31,7 +31,7 @@ describe("controllerWebView", function () {
             setApplicationOrientation: jasmine.createSpy(),
             notifyApplicationOrientationDone: jasmine.createSpy(),
             publishRemoteFunction: jasmine.createSpy(),
-            dispatchEvent : jasmine.createSpy()
+            emit: jasmine.createSpy()
         };
         mockedInvocation = {
             queryTargets: function (request, callback) {
@@ -42,21 +42,26 @@ describe("controllerWebView", function () {
             invocation: mockedInvocation
         };
         GLOBAL.window = {
-            qnx: {
-                webplatform: {
-                    getController: function () {
-                        return mockedController;
-                    },
-                    getApplication: function () {
-                        return mockedApplication;
-                    }
+            wp: {
+                getController: function () {
+                    return mockedController;
+                },
+                getApplication: function () {
+                    return mockedApplication;
                 }
             }
         };
+        GLOBAL.wp = GLOBAL.window.wp;
         GLOBAL.screen = {
             width : 1024,
             height: 768
         };
+    });
+
+    afterEach(function () {
+        delete GLOBAL.wp;
+        delete GLOBAL.screen;
+        delete GLOBAL.window;
     });
 
     describe("init", function () {
@@ -72,7 +77,7 @@ describe("controllerWebView", function () {
         it("tests that the dispatch function is called properly", function () {
             controllerWebView.init({debugEnabled: true});
             controllerWebView.dispatchEvent('Awesome Event', ['these are agruments', 'another argument']);
-            expect(mockedController.dispatchEvent).toHaveBeenCalledWith('Awesome Event', ['these are agruments', 'another argument']);
+            expect(mockedController.emit).toHaveBeenCalledWith('Awesome Event', ['these are agruments', 'another argument']);
         });
     });
 

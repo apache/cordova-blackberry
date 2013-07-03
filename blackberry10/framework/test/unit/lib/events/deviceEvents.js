@@ -21,12 +21,10 @@ var _libDir = __dirname + "./../../../../lib/",
 describe("lib/events/deviceEvents", function () {
     beforeEach(function () {
         GLOBAL.window = {
-            qnx: {
-                webplatform: {
-                    device: {
-                        addEventListener: jasmine.createSpy(),
-                        removeEventListener: jasmine.createSpy()
-                    }
+            wp: {
+                device: {
+                    on: jasmine.createSpy(),
+                    un: jasmine.createSpy()
                 }
             }
         };
@@ -44,7 +42,7 @@ describe("lib/events/deviceEvents", function () {
             var eventName = "MostAwesomeEventEver",
                 trigger = function () {};
             deviceEvents.addEventListener(eventName, trigger);
-            expect(window.qnx.webplatform.device.addEventListener).toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
+            expect(window.wp.device.on).toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
         });
 
         it("warns in the console if the eventName is falsey", function () {
@@ -52,7 +50,7 @@ describe("lib/events/deviceEvents", function () {
                 trigger = function () {};
             spyOn(console, "warn");
             deviceEvents.addEventListener(eventName, trigger);
-            expect(window.qnx.webplatform.device.addEventListener).not.toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
+            expect(window.wp.device.on).not.toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
             expect(console.warn).toHaveBeenCalledWith(jasmine.any(String));
         });
     });
@@ -62,7 +60,7 @@ describe("lib/events/deviceEvents", function () {
             var eventName = "MostAwesomeEventEver",
                 trigger = function () {};
             deviceEvents.removeEventListener(eventName, trigger);
-            expect(window.qnx.webplatform.device.removeEventListener).toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
+            expect(window.wp.device.un).toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
         });
 
         it("warns in the console if the eventName is falsey", function () {
@@ -70,7 +68,7 @@ describe("lib/events/deviceEvents", function () {
                 trigger = function () {};
             spyOn(console, "warn");
             deviceEvents.removeEventListener(eventName, trigger);
-            expect(window.qnx.webplatform.device.removeEventListener).not.toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
+            expect(window.wp.device.un).not.toHaveBeenCalledWith(deviceEventPrefix + eventName, trigger);
             expect(console.warn).toHaveBeenCalledWith(jasmine.any(String));
         });
     });

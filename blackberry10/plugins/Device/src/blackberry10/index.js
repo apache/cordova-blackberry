@@ -15,7 +15,7 @@
  */
 
 function getModelName () {
-    var modelName = window.qnx.webplatform.device.modelName;
+    var modelName = window.wp.device.modelName;
     //Pre 10.2 (meaning Z10 or Q10)
     if (typeof modelName === "undefined") {
         if (window.screen.height === 720 && window.screen.width === 720) {
@@ -28,7 +28,7 @@ function getModelName () {
                    (window.screen.height === 768 && window.screen.width === 1280)) {
             modelName = "Z10";
         } else {
-            modelName = window.qnx.webplatform.deviceName;
+            modelName = window.wp.device.deviceName;
         }
     }
 
@@ -39,7 +39,7 @@ function getUUID () {
     var uuid = "";
     try {
         //Must surround by try catch because this will throw if the app is missing permissions
-        uuid = window.qnx.webplatform.device.devicePin;
+        uuid = window.wp.device.devicePin;
     } catch (e) {
         //DO Nothing
     }
@@ -53,7 +53,7 @@ module.exports = {
             uuid = getUUID(),
             info = {
                 platform: "blackberry10",
-                version: window.qnx.webplatform.device.scmBundle,
+                version: window.wp.device.scmBundle,
                 model: modelName,
                 uuid: uuid,
                 cordova: "dev"

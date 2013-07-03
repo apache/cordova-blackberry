@@ -18,8 +18,8 @@ describe("webview", function () {
             visible: undefined,
             active: undefined,
             setGeometry: jasmine.createSpy(),
-            dispatchEvent : jasmine.createSpy(),
-            addEventListener : jasmine.createSpy()
+            emit: jasmine.createSpy(),
+            on: jasmine.createSpy()
         };
         mockedWebview = {
             id: 42,
@@ -44,7 +44,7 @@ describe("webview", function () {
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
             windowGroup: undefined,
-            addEventListener: jasmine.createSpy(),
+            on: jasmine.createSpy(),
             enableWebEventRedirect: jasmine.createSpy(),
             addKnownSSLCertificate: jasmine.createSpy(),
             continueSSLHandshaking: jasmine.createSpy(),
@@ -57,19 +57,20 @@ describe("webview", function () {
             disallowUserMedia: jasmine.createSpy()
         };
         mockedQnx = {
-            callExtensionMethod: jasmine.createSpy(),
-            webplatform: {
-                getController: function () {
-                    return mockedController;
-                },
-                createWebView: function (options, createFunction) {
-                    //process.nextTick(createFunction);
-                    //setTimeout(createFunction,0);
-                    if (typeof options === 'function') {
-                        runs(options);
-                        globalCreate = options;
-                    }
-                    else {
+            callExtensionMethod: jasmine.createSpy()
+        };
+        mockedWp = {
+            getController: function () {
+                return mockedController;
+            },
+            createWebView: function (options, createFunction) {
+                //process.nextTick(createFunction);
+                //setTimeout(createFunction,0);
+                if (typeof options === 'function') {
+                    runs(options);
+                    globalCreate = options;
+                }
+                else {
                         runs(createFunction);
                         globalCreate = createFunction;
                     }
@@ -79,8 +80,10 @@ describe("webview", function () {
             }
         };
         GLOBAL.qnx = mockedQnx;
+        GLOBAL.wp = mockedWp;
         GLOBAL.window = {
-            qnx: mockedQnx
+            qnx: mockedQnx,
+            wp: mockedWp
         };
         GLOBAL.screen = {
             width : 1024,
@@ -92,6 +95,10 @@ describe("webview", function () {
 
     afterEach(function () {
         require.cache = {};
+        delete GLOBAL.qnx;
+        delete GLOBAL.wp;
+        delete GLOBAL.window;
+        delete GLOBAL.screen;
     });
 
     describe("create", function () {
@@ -113,10 +120,10 @@ describe("webview", function () {
 
 
                 expect(networkResourceRequested.createHandler).toHaveBeenCalledWith(mockedWebview);
-                expect(mockedWebview.onNetworkResourceRequested).toEqual(mockNetworkHandler.networkResourceRequestedHandler);
+                expect(mockedWebview.on).toHaveBeenCalledWith("NetworkResourceRequested", mockNetworkHandler.networkResourceRequestedHandler);
 
                 expect(mockedWebview.allowWebEvent).toHaveBeenCalledWith("DialogRequested");
-                expect(mockedController.dispatchEvent).toHaveBeenCalledWith("webview.initialized", jasmine.any(Array));
+                expect(mockedController.emit).toHaveBeenCalledWith("webview.initialized", jasmine.any(Array));
                 //The default config.xml only has access to WIDGET_LOCAL
                 //and has permission for two apis
                 expect(webkitOriginAccess.addWebView).toHaveBeenCalledWith(mockedWebview);

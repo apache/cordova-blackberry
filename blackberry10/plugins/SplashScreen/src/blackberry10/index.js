@@ -22,7 +22,7 @@ module.exports = {
 
     hide: function (success, fail, args, env) {
         var result = new PluginResult(args, env);
-        window.qnx.webplatform.getApplication().windowVisible = true;
+        window.wp.getApplication().windowVisible = true;
         result.ok(undefined, false);
     }
 };

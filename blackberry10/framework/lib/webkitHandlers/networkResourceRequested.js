@@ -58,7 +58,7 @@ function _formMessage(url, origin, sid, body, securityOrigin, webview) {
     };
 }
 
-function networkResourceRequestedHandler(value) {
+function networkResourceRequestedHandler(options, value) {
     var config = require("./../config"),
         obj = JSON.parse(value),
         response,

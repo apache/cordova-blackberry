@@ -77,11 +77,9 @@ describe("Utils", function () {
                 }
             },
             mockWindow = {
-                qnx: {
-                    webplatform: {
-                        getApplication: function () {
-                            return mockApplication;
-                        }
+                wp: {
+                    getApplication: function () {
+                        return mockApplication;
                     }
                 }
             };
@@ -186,16 +184,14 @@ describe("Utils", function () {
     describe("utils translate path", function () {
         beforeEach(function () {
             GLOBAL.window = {
-                qnx: {
-                    webplatform: {
-                        getApplication: function () {
-                            return {
-                                getEnv: function (path) {
-                                    if (path === "HOME")
-                                        return "/accounts/home";
-                                }
-                            };
-                        }
+                wp: {
+                    getApplication: function () {
+                        return {
+                            getEnv: function (path) {
+                                if (path === "HOME")
+                                    return "/accounts/home";
+                            }
+                        };
                     }
                 }
             };
