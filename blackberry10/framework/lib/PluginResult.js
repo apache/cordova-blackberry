@@ -29,9 +29,9 @@ function PluginResult (args, env) {
         ERROR: 9
     };
 
-    var callbackId = JSON.parse(decodeURIComponent(args.callbackId)),
+    var callbackId = args.callbackId,
         send = function (data) {
-            env.response.send(200, encodeURIComponent(JSON.stringify(data)));
+            env.response.send(200, escape(encodeURIComponent(JSON.stringify(data))));
         },
         callback = function (success, status, data, keepCallback) {
             var executeString =

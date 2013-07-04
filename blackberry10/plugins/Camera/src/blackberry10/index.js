@@ -78,8 +78,8 @@ function encodeBase64(filePath, callback) {
 
 module.exports = {
     takePicture: function (result, args, env) {
-        var destinationType = JSON.parse(decodeURIComponent(args[1])),
-            sourceType = JSON.parse(decodeURIComponent(args[2])),
+        var destinationType = args[1],
+            sourceType = args[2],
             done = function (data) {
                 if (destinationType === DestinationType.FILE_URI) {
                     data = "file://" + data;

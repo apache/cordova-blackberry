@@ -50,7 +50,8 @@ function rebuildRequest(req) {
 
 function parseArgs(req) {
     var args = null,
-        params;
+        params,
+        name;
     // set args
     if (req.params.args && typeof req.params.args === "string") {
         // GET querystring to json
@@ -68,6 +69,13 @@ function parseArgs(req) {
             args = JSON.parse(req.body);
         }
     }
+
+    for (name in args) {
+        if (Object.hasOwnProperty.call(args, name)) {
+            args[name] = (args[name] === "undefined" ? undefined : JSON.parse(decodeURIComponent(unescape(args[name]))));
+        }
+    }
+
     req.params.args = args;
 }
 

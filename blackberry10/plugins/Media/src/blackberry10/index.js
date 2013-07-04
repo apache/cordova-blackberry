@@ -48,12 +48,12 @@ module.exports = {
             return;
         }
 
-        id = JSON.parse(decodeURIComponent(args[0]));
+        id = args[0];
 
         if (!args[1]){
             audioObjects[id] = new Audio();
         } else {
-            audioObjects[id] = new Audio(JSON.parse(decodeURIComponent(args[1])));
+            audioObjects[id] = new Audio(args[1]);
         }
 
         handleMediaErrors();
@@ -72,7 +72,7 @@ module.exports = {
             return;
         }
 
-        id = JSON.parse(decodeURIComponent(args[0]));
+        id = args[0];
 
         audio = audioObjects[id];
 
@@ -95,7 +95,7 @@ module.exports = {
             return;
         }
 
-        id = JSON.parse(decodeURIComponent(args[0]));
+        id = args[0];
 
         audio = audioObjects[id];
 
@@ -120,7 +120,7 @@ module.exports = {
             return;
         }
 
-        audio = audioObjects[JSON.parse(decodeURIComponent(args[0]))];
+        audio = audioObjects[args[0]];
 
         if (!audio) {
             result.error("Audio Object has not been initialized");
@@ -128,7 +128,7 @@ module.exports = {
             result.error("Media seek time argument not found");
         } else {
             try {
-                audio.currentTime = JSON.parse(decodeURIComponent(args[1])) / 1000;
+                audio.currentTime = args[1] / 1000;
                 result.ok();
             } catch (e) {
                 result.error("Error seeking audio: " + e);
@@ -146,7 +146,7 @@ module.exports = {
             return;
         }
 
-        audio = audioObjects[JSON.parse(decodeURIComponent(args[0]))];
+        audio = audioObjects[args[0]];
 
         if (!audio) {
             result.error("Audio Object has not been initialized");
@@ -166,7 +166,7 @@ module.exports = {
             return;
         }
 
-        audio = audioObjects[JSON.parse(decodeURIComponent(args[0]))];
+        audio = audioObjects[args[0]];
 
         if (!audio) {
             result.error("Audio Object has not been initialized");
@@ -186,7 +186,7 @@ module.exports = {
             return;
         }
 
-        audio = audioObjects[JSON.parse(decodeURIComponent(args[0]))];
+        audio = audioObjects[args[0]];
 
         if (!audio) {
             result.error("Audio Object has not been initialized");
@@ -216,7 +216,7 @@ module.exports = {
             return;
         }
 
-        id = JSON.parse(decodeURIComponent(args[0]));
+        id = args[0];
 
         audio = audioObjects[id];
 

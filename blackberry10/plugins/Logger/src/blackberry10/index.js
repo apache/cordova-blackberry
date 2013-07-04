@@ -16,8 +16,8 @@
 
 module.exports = {
     logLevel: function (result, args, env) {
-        var level = JSON.parse(decodeURIComponent(args[0])),
-            message = JSON.parse(decodeURIComponent(args[1]));
+        var level = args[0],
+            message = args[1];
         console.log(level + ": " + message);
         result.noResult(false);
     }

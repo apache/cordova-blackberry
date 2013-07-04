@@ -181,7 +181,7 @@ module.exports = {
 
         for (key in args) {
             if (args.hasOwnProperty(key)) {
-                cordovaFindOptions[key] = JSON.parse(decodeURIComponent(args[key]));
+                cordovaFindOptions[key] = args[key];
             }
         }
 
@@ -193,7 +193,7 @@ module.exports = {
             key,
             nativeEmails = [];
 
-        attributes = JSON.parse(decodeURIComponent(args[0]));
+        attributes = args[0];
 
         //convert birthday format for our native .so file
         if (attributes.birthday) {
@@ -223,7 +223,7 @@ module.exports = {
     },
     remove: function (result, args, env) {
         var attributes = {
-                "contactId": window.parseInt(JSON.parse(decodeURIComponent(args[0]))),
+                "contactId": window.parseInt(args[0]),
                 "_eventId": result.callbackId
             };
 
@@ -283,7 +283,7 @@ JNEXT.PimContacts = function ()
         }
 
         JNEXT.invoke(self.m_id, "find " + JSON.stringify(jnextArgs));
-    }
+    };
 
     self.getContact = function (args) {
         return JSON.parse(JNEXT.invoke(self.m_id, "getContact " + JSON.stringify(args)));
@@ -349,9 +349,9 @@ JNEXT.PimContacts = function ()
             args.result = escape(strData.split(" ").slice(2).join(" "));
             eventHandler = self.eventHandlers[arData[1]];
             if (eventHandler.action === "save" || eventHandler.action === "remove") {
-                eventHandler.handler(eventHandler.result, JSON.parse(decodeURIComponent(args.result)));
+                eventHandler.handler(eventHandler.result, args.result);
             } else if (eventHandler.action === "find") {
-                eventHandler.handler(arData[1], eventHandler, JSON.parse(decodeURIComponent(args.result)));
+                eventHandler.handler(arData[1], eventHandler, args.result);
             }
         }
     };

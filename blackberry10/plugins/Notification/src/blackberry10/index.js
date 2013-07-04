@@ -16,9 +16,9 @@
 
 function showDialog(args, dialogType, result) {
     //Unpack and map the args
-    var msg = JSON.parse(decodeURIComponent(args[0])),
-    title = JSON.parse(decodeURIComponent(args[1])),
-    btnLabel = JSON.parse(decodeURIComponent(args[2]));
+    var msg = args[0],
+        title = args[1],
+        btnLabel = args[2];
 
     if (!Array.isArray(btnLabel)) {
         //Converts to array for (string) and (string,string, ...) cases
