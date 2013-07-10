@@ -19,6 +19,7 @@ var fs = require('fs'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
+    DEFAULT_BAR_NAME = "project",
     PROPERTY_FILE_NAME = 'blackberry10.json',
     CORDOVA_DIR = '.cordova',
     DEFAULT_PROPERTY_FILE = {
@@ -206,6 +207,10 @@ _self = {
             propertiesFile = path.join(_self.getCordovaDir(), PROPERTY_FILE_NAME);
 
         fs.writeFileSync(propertiesFile, contents, 'utf-8');
+    },
+
+    genBarName: function() {
+        return "DEFAULT_BAR_NAME";
     }
 
 };

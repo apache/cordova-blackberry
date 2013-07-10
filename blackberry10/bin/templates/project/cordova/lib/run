@@ -40,12 +40,6 @@ var childProcess = require("child_process"),
     password,
     workingdir = path.normalize(__dirname + "/..");
 
-function generateBarName() {
-    // temporary stub
-    prop = require(path.join("..","..","project.json"));
-    return prop.barName;
-}
-
 function generateOptions(uninstall) {
     var options = [];
     barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + generateBarName() + ".bar"));

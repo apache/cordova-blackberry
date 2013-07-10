@@ -161,10 +161,6 @@ function updateProject() {
         fs.writeFileSync(configXMLPath, xmlString.replace("default.app.id", app_id), "utf-8");
     }
 
-    if (typeof bar_name !== "undefined") {
-        projectJson.barName = bar_name;
-    }
-
     projectJson.globalFetchDir = path.join(__dirname, "..", "plugins");
 
     fs.writeFileSync(path.join(project_path, "project.json"), JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
