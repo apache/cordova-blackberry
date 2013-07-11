@@ -1,9 +1,9 @@
 describe("NetworkResourceRequested event handler", function () {
     var LIB_PATH  = "./../../../../lib/",
-        networkResourceRequested = require(LIB_PATH + "webkitHandlers/networkResourceRequested"),
+        networkResourceRequested,
         Whitelist = require(LIB_PATH + 'policy/whitelist').Whitelist,
-        server = require(LIB_PATH + 'server'),
-        utils = require(LIB_PATH + 'utils'),
+        server,
+        utils,
         mockedWebview;
 
     beforeEach(function () {
@@ -15,12 +15,22 @@ describe("NetworkResourceRequested event handler", function () {
                 childwebviewcontrols: {
                     open: jasmine.createSpy()
                 }
-            }
+            },
+            notifyOpen: jasmine.createSpy(),
+            notifyDataReceived: jasmine.createSpy(),
+            notifyHeaderReceived: jasmine.createSpy(),
+            notifyDone: jasmine.createSpy()
         };
+        utils = require(LIB_PATH + 'utils');
+        spyOn(utils, "invokeInBrowser");
+        server = require(LIB_PATH + 'server');
+        networkResourceRequested = require(LIB_PATH + "webkitHandlers/networkResourceRequested");
     });
 
     afterEach(function () {
-        mockedWebview = undefined;
+        delete require.cache[require.resolve(LIB_PATH + "webkitHandlers/networkResourceRequested")];
+        delete require.cache[require.resolve(LIB_PATH + 'server')];
+        delete require.cache[require.resolve(LIB_PATH + 'utils')];
     });
 
     it("creates a callback for yous", function () {
@@ -56,7 +66,6 @@ describe("NetworkResourceRequested event handler", function () {
 
     it("can apply whitelist rules and deny blocked urls", function () {
         spyOn(Whitelist.prototype, "isAccessAllowed").andReturn(false);
-        spyOn(utils, "invokeInBrowser");
         spyOn(console, "warn");
 
         var url = "http://www.google.com",
@@ -74,7 +83,6 @@ describe("NetworkResourceRequested event handler", function () {
 
     it("can apply whitelist rules and deny blocked urls and route to a uiWebView when target is main frame", function () {
         spyOn(Whitelist.prototype, "isAccessAllowed").andReturn(false);
-        spyOn(utils, "invokeInBrowser");
         spyOn(console, "warn");
 
         var url = "http://www.google.com",
@@ -98,7 +106,6 @@ describe("NetworkResourceRequested event handler", function () {
             returnValue;
 
         spyOn(Whitelist.prototype, "isAccessAllowed").andReturn(false);
-        spyOn(utils, "invokeInBrowser");
         spyOn(console, "warn");
 
         config.enableChildWebView = false;

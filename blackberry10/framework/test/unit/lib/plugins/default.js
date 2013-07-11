@@ -17,26 +17,31 @@ var ROOT = "../../../../";
 
 describe("default plugin", function () {
 
-    var defaultPlugin = require(ROOT + 'lib/plugins/default'),
+    var defaultPlugin,
         testExtension,
         utils,
         mockController,
         mockApplication;
 
     describe("when handling requests", function () {
-        var req, res, succ, fail, args;
-
-        beforeEach(function () {
-            req = {
+        var req = {
                 origin: "http://www.origin.com",
                 params: {}
-            };
+            },
+            res,
+            pluginResult,
+            args = {},
+            env;
+
+        beforeEach(function () {
             res = {
                 send: jasmine.createSpy()
             };
-            succ = jasmine.createSpy("lib/plugin/default success");
-            fail = jasmine.createSpy("lib/plugin/default fail");
-            args = {};
+            env = {
+                "request": req,
+                "response": res
+            };
+            pluginResult = jasmine.createSpy("PluginResult");
 
             GLOBAL.frameworkModules = ["plugin/blackberry.app/index.js"];
 
@@ -59,7 +64,6 @@ describe("default plugin", function () {
                 getReadOnlyFields: function () {}
             };
 
-            delete require.cache[require.resolve(ROOT + "lib/utils")];
             utils = require(ROOT + "lib/utils");
             spyOn(utils, "loadModule").andCallFake(function (module) {
                 // on device, "plugin/blackberry.app/index.js" would exist since packager would
@@ -70,11 +74,15 @@ describe("default plugin", function () {
                     return undefined;
                 }
             });
+
+            defaultPlugin = require(ROOT + 'lib/plugins/default');
         });
 
         afterEach(function () {
             delete GLOBAL.frameworkModules;
             delete GLOBAL.window;
+            delete require.cache[require.resolve(ROOT + "lib/utils")];
+            delete require.cache[require.resolve(ROOT + 'lib/plugins/default')];
         });
 
         it("returns 404 if the extension is not found", function () {
@@ -84,9 +92,9 @@ describe("default plugin", function () {
             req.params.ext = ext;
             spyOn(console, "warn");
 
-            defaultPlugin.exec(req, succ, fail, args);
+            defaultPlugin.exec(req, pluginResult, args, env);
 
-            expect(fail).toHaveBeenCalledWith(-1, errMsg, 404);
+            expect(res.send).toHaveBeenCalledWith(404, errMsg);
             expect(console.warn).toHaveBeenCalledWith(errMsg);
         });
 
@@ -95,28 +103,24 @@ describe("default plugin", function () {
             req.params.method = "NotAMethod";
             spyOn(console, "warn");
 
-            defaultPlugin.exec(req, succ, fail, args);
+            defaultPlugin.exec(req, pluginResult, args, env);
 
-            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String), 404);
+            expect(res.send).toHaveBeenCalledWith(404, jasmine.any(String));
             expect(console.warn).toHaveBeenCalledWith("Method " + req.params.method + " for " + req.params.ext + " not found");
         });
 
         it("calls the method of the extension", function () {
-            var env = {"request": req, "response": res};
-
             spyOn(testExtension, "getReadOnlyFields");
 
             req.params.ext = "blackberry.app";
             req.params.method = "getReadOnlyFields";
 
-            defaultPlugin.exec(req, succ, fail, args, env);
+            defaultPlugin.exec(req, pluginResult, args, env);
 
-            expect(testExtension.getReadOnlyFields).toHaveBeenCalledWith(succ, fail, args, env);
+            expect(testExtension.getReadOnlyFields).toHaveBeenCalledWith(pluginResult, args, env);
         });
 
         it("calls a multi-level method of the extension", function () {
-            var env = {"request": req, "response": res};
-
             spyOn(testExtension, "getReadOnlyFields");
             testExtension.getReadOnlyFields.a = {
                 b : {
@@ -127,15 +131,13 @@ describe("default plugin", function () {
             req.params.ext = "blackberry.app";
             req.params.method = "getReadOnlyFields/a/b/c";
 
-            defaultPlugin.exec(req, succ, fail, args, env);
+            defaultPlugin.exec(req, pluginResult, args, env);
 
-            expect(fail).wasNotCalled();
-            expect(testExtension.getReadOnlyFields.a.b.c).toHaveBeenCalledWith(succ, fail, args, env);
+            expect(res.send).wasNotCalled();
+            expect(testExtension.getReadOnlyFields.a.b.c).toHaveBeenCalledWith(pluginResult, args, env);
         });
 
         it("throws a 404 is a multi-level method is not found", function () {
-            var env = {"request": req, "response": res};
-
             spyOn(console, "warn");
             spyOn(testExtension, "getReadOnlyFields");
             testExtension.getReadOnlyFields.a = {
@@ -144,9 +146,9 @@ describe("default plugin", function () {
             req.params.ext = "blackberry.app";
             req.params.method = "getReadOnlyFields/a/b/c";
 
-            defaultPlugin.exec(req, succ, fail, args, env);
+            defaultPlugin.exec(req, pluginResult, args, env);
 
-            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String), 404);
+            expect(res.send).toHaveBeenCalledWith(404, jasmine.any(String));
             expect(console.warn).toHaveBeenCalledWith("Method " + req.params.method + " for " + req.params.ext + " not found");
         });
     });

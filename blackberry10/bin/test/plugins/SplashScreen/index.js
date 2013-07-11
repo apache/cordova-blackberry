@@ -16,6 +16,7 @@
 describe("SplashScreen", function () {
     var _apiDir = __dirname + "./../../../../plugins/SplashScreen/src/blackberry10/",
         index,
+        MockPluginResult,
         mockedEnv = {
             response: {
                 send: jasmine.createSpy()
@@ -31,23 +32,19 @@ describe("SplashScreen", function () {
     });
 
     afterEach(function () {
-        index = null;
-        delete require.cache[require.resolve(_apiDir + "index")];
+        require.cache = {};
     });
+
     describe("show", function () {
         beforeEach(function () {
-            GLOBAL.PluginResult = function (args, env) {};
-            GLOBAL.PluginResult.prototype.error = jasmine.createSpy();
-        });
-
-        afterEach(function () {
-            delete GLOBAL.PluginResult;
+            MockPluginResult = function (args, env) {};
+            MockPluginResult.prototype.error = jasmine.createSpy();
         });
 
         it("calls PluginResult.error if show is called", function () {
-            index.show();
+            index.show(new MockPluginResult());
 
-            expect(PluginResult.prototype.error).toHaveBeenCalledWith("Not supported on platform", false);
+            expect(MockPluginResult.prototype.error).toHaveBeenCalledWith("Not supported on platform", false);
         });
     });
 
@@ -63,20 +60,19 @@ describe("SplashScreen", function () {
                 }
             };
 
-            GLOBAL.PluginResult = function (args, env) {};
-            GLOBAL.PluginResult.prototype.ok = jasmine.createSpy();
+            MockPluginResult = function (args, env) {};
+            MockPluginResult.prototype.ok = jasmine.createSpy();
         });
 
         afterEach(function () {
             delete GLOBAL.window;
-            delete GLOBAL.PluginResult;
         });
 
         it("calls PluginResult.ok if hide is called", function () {
-            index.hide();
+            index.hide(new MockPluginResult());
 
             expect(mockedApplication.windowVisible).toBeTruthy();
-            expect(PluginResult.prototype.ok).toHaveBeenCalledWith(undefined, false);
+            expect(MockPluginResult.prototype.ok).toHaveBeenCalledWith(undefined, false);
         });
     });
 });

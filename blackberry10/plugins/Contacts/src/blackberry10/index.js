@@ -175,27 +175,25 @@ function processJnextFindData(eventId, eventHandler, JnextData) {
 }
 
 module.exports = {
-    search: function (successCb, failCb, args, env) {
+    search: function (result, args, env) {
         var cordovaFindOptions = {},
-            result = new PluginResult(args, env),
             key;
 
         for (key in args) {
             if (args.hasOwnProperty(key)) {
-                cordovaFindOptions[key] = JSON.parse(decodeURIComponent(args[key]));
+                cordovaFindOptions[key] = args[key];
             }
         }
 
         pimContacts.getInstance().find(cordovaFindOptions, result, processJnextFindData);
         result.noResult(true);
     },
-    save: function (successCb, failCb, args, env) {
+    save: function (result, args, env) {
         var attributes = {},
-            result = new PluginResult(args, env),
             key,
             nativeEmails = [];
 
-        attributes = JSON.parse(decodeURIComponent(args[0]));
+        attributes = args[0];
 
         //convert birthday format for our native .so file
         if (attributes.birthday) {
@@ -223,10 +221,9 @@ module.exports = {
         pimContacts.getInstance().save(attributes, result, processJnextSaveData);
         result.noResult(true);
     },
-    remove: function (successCb, failCb, args, env) {
-        var result = new PluginResult(args, env),
-            attributes = {
-                "contactId": window.parseInt(JSON.parse(decodeURIComponent(args[0]))),
+    remove: function (result, args, env) {
+        var attributes = {
+                "contactId": window.parseInt(args[0]),
                 "_eventId": result.callbackId
             };
 
@@ -286,7 +283,7 @@ JNEXT.PimContacts = function ()
         }
 
         JNEXT.invoke(self.m_id, "find " + JSON.stringify(jnextArgs));
-    }
+    };
 
     self.getContact = function (args) {
         return JSON.parse(JNEXT.invoke(self.m_id, "getContact " + JSON.stringify(args)));
@@ -352,9 +349,9 @@ JNEXT.PimContacts = function ()
             args.result = escape(strData.split(" ").slice(2).join(" "));
             eventHandler = self.eventHandlers[arData[1]];
             if (eventHandler.action === "save" || eventHandler.action === "remove") {
-                eventHandler.handler(eventHandler.result, JSON.parse(decodeURIComponent(args.result)));
+                eventHandler.handler(eventHandler.result, args.result);
             } else if (eventHandler.action === "find") {
-                eventHandler.handler(arData[1], eventHandler, JSON.parse(decodeURIComponent(args.result)));
+                eventHandler.handler(arData[1], eventHandler, args.result);
             }
         }
     };

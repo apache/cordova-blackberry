@@ -19,7 +19,7 @@ var Whitelist = require("../policy/whitelist").Whitelist,
 
 module.exports = {
 
-    exec: function (request, succ, fail, args, env) {
+    exec: function (request, pluginResult, args, env) {
         var extPath = "plugin/" + request.params.ext + "/index",
             requestObj = {
                 extension: null,
@@ -57,7 +57,7 @@ module.exports = {
                     }
                 },
                 exec: function () {
-                    this.method(succ, fail, args, env);
+                    this.method(pluginResult, args, env);
                 }
             };
 
@@ -65,7 +65,7 @@ module.exports = {
             requestObj.getExtension().getMethod().exec();
         } catch (e) {
             console.warn(e.msg);
-            fail(-1, e.msg, e.code);
+            env.response.send(e.code, e.msg);
         }
     }
 };

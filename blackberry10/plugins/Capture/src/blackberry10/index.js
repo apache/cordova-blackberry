@@ -77,13 +77,13 @@ module.exports = {
     },
     captureImage: function (win, fail, args, env) {
         var result = new PluginResult(args, env),
-            options = args[0] === "undefined" ? {} : JSON.parse(decodeURIComponent(args[0]));
+            options = args[0] === "undefined" ? {} : args[0];
 
         capture("photo", options,  result, env.webview);
     },
     captureVideo: function (win, fail, args, env) {
         var result = new PluginResult(args, env),
-            options = args[0] === "undefined" ? {} : JSON.parse(decodeURIComponent(args[0]));
+            options = args[0] === "undefined" ? {} : args[0];
 
         capture("video", options, result, env.webview);
     },

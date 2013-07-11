@@ -16,9 +16,9 @@
 
 function showDialog(args, dialogType, result) {
     //Unpack and map the args
-    var msg = JSON.parse(decodeURIComponent(args[0])),
-    title = JSON.parse(decodeURIComponent(args[1])),
-    btnLabel = JSON.parse(decodeURIComponent(args[2]));
+    var msg = args[0],
+        title = args[1],
+        btnLabel = args[2];
 
     if (!Array.isArray(btnLabel)) {
         //Converts to array for (string) and (string,string, ...) cases
@@ -57,35 +57,31 @@ function showDialog(args, dialogType, result) {
 }
 
 module.exports = {
-    alert: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
-
-        if (Object.keys(args).length < 3) {
+    alert: function (result, args, env) {
+        if (typeof args !== "object" || Object.keys(args).length < 3) {
             result.error("Notification action - alert arguments not found.");
         } else {
             showDialog(args, "CustomAsk", result);
         }
     },
-    confirm: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
 
-        if (Object.keys(args).length < 3) {
+    confirm: function (result, args, env) {
+        if (typeof args !== "object" || Object.keys(args).length < 3) {
             result.error("Notification action - confirm arguments not found.");
         } else {
             showDialog(args, "CustomAsk", result);
         }
     },
-    prompt: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
 
-        if (Object.keys(args).length < 3) {
+    prompt: function (result, args, env) {
+        if (typeof args !== "object" || Object.keys(args).length < 3) {
             result.error("Notification action - prompt arguments not found.");
         } else {
             showDialog(args, "JavaScriptPrompt", result);
         }
     },
-    beep: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
+
+    beep: function (result, args, env) {
         result.error("Beep not supported");
     }
 };

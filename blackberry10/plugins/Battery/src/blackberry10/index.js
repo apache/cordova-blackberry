@@ -14,58 +14,69 @@
  * limitations under the License.
  */
 
-    var _clientListeners = {},
-        _webkitBattery = navigator.webkitBattery || navigator.battery;
+var _clientListeners = {},
+    _webkitBattery = navigator.webkitBattery || navigator.battery;
+
+function createCordovaInfo(webkitInfo) {
+    var resultInfo = {};
+    if (webkitInfo) {
+        if (webkitInfo.srcElement) {
+            //webkitBattery listeners store webkitBattery in srcElement object
+            webkitInfo = webkitInfo.srcElement;
+        }
+
+        //put data from webkitBattery into a format cordova expects
+        //webkitBattery seems to return level as a decimal pre 10.2
+        resultInfo.level = webkitInfo.level <= 1 ? webkitInfo.level * 100 : webkitInfo.level;
+        resultInfo.isPlugged = webkitInfo.charging;
+    }
+    return resultInfo;
+}
 
 module.exports = {
-    start: function (success, fail, args, env) {
-        var result = new PluginResult(args, env),
-            listener = function (info) {
-                var resultInfo = {};
-                if (info) {
-                    if (info.srcElement) {
-                        //webkitBattery listeners store webkitBattery in srcElement object
-                        info = info.srcElement;
-                    }
-
-                    //put data from webkitBattery into a format cordova expects
-                    //webkitBattery seems to return level as a decimal pre 10.2
-                    resultInfo.level = info.level <= 1 ? info.level * 100 : info.level,
-                    resultInfo.isPlugged = info.charging
-                }
-
-                result.callbackOk(resultInfo, true);
+    start: function (result, args, env) {
+        var listener = function (info) {
+                var resultInfo = createCordovaInfo(info);
+                Object.keys(_clientListeners).forEach(function (pluginResult) {
+                    pluginResult.callbackOk(resultInfo, true);
+                });
             };
 
         if (_clientListeners[env.webview.id]) {
             //TODO: Change back to erroring out after reset is implemented
             //result.error("Battery listener already running");
-            _webkitBattery.onchargingchange = null;
-            _webkitBattery.onlevelchange = null;
         }
 
-        _clientListeners[env.webview.id] = listener;
+        _clientListeners[env.webview.id] = result;
 
-        _webkitBattery.onchargingchange = listener;
-        _webkitBattery.onlevelchange = listener;
+        //We set them both together, so only checking one (laziness === efficiency)
+        if (_webkitBattery.onchargingchange !== null) {
+            _webkitBattery.onchargingchange = listener;
+            _webkitBattery.onlevelchange = listener;
+        }
 
         setTimeout(function(){
             //Call callback with webkitBattery data right away
-            listener(_webkitBattery);
+            var resultInfo = createCordovaInfo(_webkitBattery);
+            result.callbackOk(resultInfo);
         });
 
         result.noResult(true);
     },
-    stop: function (success, fail, args, env) {
-        var result = new PluginResult(args, env),
-            listener = _clientListeners[env.webview.id];
+
+    stop: function (result, args, env) {
+        var listener = _clientListeners[env.webview.id];
 
         if (!listener) {
             result.error("Battery listener has not started");
         } else {
-            _webkitBattery.onchargingchange = null;
-            _webkitBattery.onlevelchange = null;
             delete _clientListeners[env.webview.id];
+
+            if (!Object.keys(_clientListeners).length) {
+                _webkitBattery.onchargingchange = null;
+                _webkitBattery.onlevelchange = null;
+            }
+
             result.noResult(false);
         }
     }

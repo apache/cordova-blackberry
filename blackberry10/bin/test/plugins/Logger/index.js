@@ -33,17 +33,10 @@ describe("Logger", function () {
     describe("logLevel", function () {
         beforeEach(function () {
             spyOn(console, "log");
-            GLOBAL.PluginResult = function () {
-                return result;
-            };
-        });
-
-        afterEach(function () {
-            delete GLOBAL.PluginResult;
         });
 
         it("calls console.log", function () {
-            index.logLevel(function () {}, function () {}, ["%22ERROR%22", "%22message%22"]);
+            index.logLevel(result, ["%22ERROR%22", "%22message%22"]);
             expect(console.log).toHaveBeenCalledWith("ERROR: message");
             expect(result.noResult).toHaveBeenCalledWith(false);
         });

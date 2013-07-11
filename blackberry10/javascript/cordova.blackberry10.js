@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 2.9.0-0-g83dc4bd
+// 2.9.0-29-gc3003a9
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '2.9.0-0-g83dc4bd';
+var CORDOVA_JS_BUILD_LABEL = '2.9.0-29-gc3003a9';
 // file: lib/scripts/require.js
 
 var require,
@@ -797,6 +797,58 @@ var cordova = require('cordova'),
         'FileTransfer': require('cordova/plugin/blackberry10/fileTransfer')
     };
 
+function RemoteFunctionCall(functionUri) {
+    var params = {};
+
+    function composeUri() {
+        return require("cordova/plugin/blackberry10/utils").getURIPrefix() + functionUri;
+    }
+
+    function createXhrRequest(uri, isAsync) {
+        var request = new XMLHttpRequest();
+        request.open("POST", uri, isAsync);
+        request.setRequestHeader("Content-Type", "application/json");
+        return request;
+    }
+
+    this.addParam = function (name, value) {
+        params[name] = escape(encodeURIComponent(JSON.stringify(value)));
+    };
+
+    this.makeSyncCall = function () {
+        var request = createXhrRequest(composeUri(), false),
+            response;
+
+        request.send(JSON.stringify(params));
+        response = JSON.parse(decodeURIComponent(unescape(request.responseText)) || "null");
+        return response;
+    };
+}
+
+
+function exec (success, fail, service, action, args) {
+    var uri = service + "/" + action,
+        request = new RemoteFunctionCall(uri),
+        callbackId = service + cordova.callbackId++,
+        response,
+        name,
+        didSucceed;
+
+    for (name in args) {
+        if (Object.hasOwnProperty.call(args, name)) {
+            request.addParam(name, args[name]);
+        }
+    }
+
+    cordova.callbacks[callbackId] = {success:success, fail:fail};
+    request.addParam("callbackId", callbackId);
+
+    response = request.makeSyncCall();
+
+    didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
+    cordova.callbackFromNative(callbackId, didSucceed, response.code, [ didSucceed ? response.data : response.msg ], !!response.keepCallback);
+}
+
 /**
  * Execute a cordova command.  It is up to the native side whether this action
  * is synchronous or asynchronous.  The native side can return:
@@ -815,7 +867,7 @@ module.exports = function (success, fail, service, action, args) {
     if (plugins[service] && plugins[service][action]) {
         return plugins[service][action](args, success, fail);
     }
-    return webworks.exec(success, fail, service, action, args);
+    return exec(success, fail, service, action, args);
 };
 
 });
@@ -928,7 +980,6 @@ module.exports = {
     id: "blackberry10",
     initialize: function() {
         var modulemapper = require('cordova/modulemapper'),
-            cordova = require('cordova'),
             addDocumentEventListener = document.addEventListener;
 
         modulemapper.loadMatchingModules(/cordova.*\/symbols$/);
@@ -947,7 +998,7 @@ module.exports = {
             } else {
                 addDocumentEventListener.apply(document, arguments);
             }
-        }
+        };
     }
 };
 
@@ -3145,77 +3196,6 @@ modulemapper.defaults('cordova/plugin/battery', 'navigator.battery');
 
 });
 
-// file: lib/blackberry10/plugin/blackberry10/InAppBrowser.js
-define("cordova/plugin/blackberry10/InAppBrowser", function(require, exports, module) {
-
-var cordova = require('cordova'),
-    modulemapper = require('cordova/modulemapper'),
-    origOpen = modulemapper.getOriginalSymbol(window, 'open'),
-    browser = {
-        close: function () { } //dummy so we don't have to check for undefined
-    };
-
-var navigate = {
-    "_blank": function (url, whitelisted) {
-        return origOpen(url, "_blank");
-    },
-
-    "_self": function (url, whitelisted) {
-        if (whitelisted) {
-            window.location.href = url;
-            return window;
-        }
-        else {
-            return origOpen(url, "_blank");
-        }
-    },
-
-    "_system": function (url, whitelisted) {
-        blackberry.invoke.invoke({
-            target: "sys.browser",
-            uri: url
-        }, function () {}, function () {});
-
-        return {
-            close: function () { }
-        };
-    }
-};
-
-module.exports = {
-    open: function (args, win, fail) {
-        var url = args[0],
-            target = args[1] || '_self',
-            a = document.createElement('a');
-
-        //Make all URLs absolute
-        a.href = url;
-        url = a.href;
-
-        switch (target) {
-            case '_self':
-            case '_system':
-            case '_blank':
-                break;
-            default:
-                target = '_blank';
-                break;
-        }
-
-        webworks.exec(function (whitelisted) {
-            browser = navigate[target](url, whitelisted);
-        }, fail, "org.apache.cordova", "isWhitelisted", [url], true);
-
-        return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "" };
-    },
-    close: function (args, win, fail) {
-        browser.close();
-        return { "status" : cordova.callbackStatus.OK, "message" : "" };
-    }
-};
-
-});
-
 // file: lib/blackberry10/plugin/blackberry10/compass.js
 define("cordova/plugin/blackberry10/compass", function(require, exports, module) {
 
@@ -3360,93 +3340,6 @@ var exec = require('cordova/exec'),
     };
 
 module.exports = compass;
-
-});
-
-// file: lib/blackberry10/plugin/blackberry10/event.js
-define("cordova/plugin/blackberry10/event", function(require, exports, module) {
-
-var _handlers = {};
-
-function _add(featureId, name, cb, success, fail, once) {
-    var handler;
-    if (featureId && name && typeof cb === "function") {
-        handler = {
-            func: cb,
-            once: !!once
-        };
-        //If this is the first time we are adding a cb
-        if (!_handlers.hasOwnProperty(name)) {
-            _handlers[name] = [handler];
-            //Once listeners should not be registered with the context because there is no underlying event to call them
-            //HOWEVER the webview needs to register itself with lib/event.
-            if (once) {
-                window.webworks.exec(success, fail, "event", "once", {"eventName": name});
-            } else {
-                window.webworks.exec(success, fail, featureId, "add", {"eventName": name});
-            }
-        } else if (!_handlers[name].some(function (element, index, array) {
-            return element.func === cb;
-        })) {
-            //Only add unique callbacks
-            _handlers[name].push(handler);
-        }
-    }
-}
-
-module.exports = {
-    add: function (featureId, name, cb, success, fail) {
-        _add(featureId, name, cb, success, fail, false);
-    },
-
-    once: function (featureId, name, cb, success, fail) {
-        _add(featureId, name, cb, success, fail, true);
-    },
-
-    isOn: function (name) {
-        return !!_handlers[name];
-    },
-
-    remove: function (featureId, name, cb, success, fail) {
-        if (featureId && name && typeof cb === "function") {
-            if (_handlers.hasOwnProperty(name)) {
-                _handlers[name] = _handlers[name].filter(function (element, index, array) {
-                    return element.func !== cb || element.once;
-                });
-
-                if (_handlers[name].length === 0) {
-                    delete _handlers[name];
-                    window.webworks.exec(success, fail, featureId, "remove", {"eventName": name});
-                }
-            }
-        }
-    },
-
-    trigger: function (name, args) {
-        var parsedArgs;
-        if (_handlers.hasOwnProperty(name)) {
-            if (args && args !== "undefined") {
-                parsedArgs = JSON.parse(decodeURIComponent(unescape(args)));
-            }
-            //Call the handlers
-            _handlers[name].forEach(function (handler) {
-                if (handler) {
-                    //args should be an array of arguments
-                    handler.func.apply(undefined, parsedArgs);
-                }
-            });
-            //Remove the once listeners
-            _handlers[name] = _handlers[name].filter(function (handler) {
-                return !handler.once;
-            });
-            //Clean up the array if it is empty
-            if (_handlers[name].length === 0) {
-                delete _handlers[name];
-                //No need to call remove since this would only be for callbacks
-            }
-        }
-    }
-};
 
 });
 
@@ -4343,18 +4236,6 @@ self = module.exports = {
     // Checks if the specified uri starts with 'data:'
     isDataURI : function (uri) {
         return uri && uri.scheme && "data:".indexOf(uri.scheme.toLowerCase()) !== -1;
-    },
-
-    performExec : function (featureId, property, args) {
-        var result;
-
-        window.webworks.exec(function (data, response) {
-            result = data;
-        }, function (data, response) {
-            throw data;
-        }, featureId, property, args, true);
-
-        return result;
     },
 
     inNode : function () {
@@ -6598,121 +6479,10 @@ window.cordova = require('cordova');
 }(window));
 
 // file: lib/scripts/bootstrap-blackberry10.js
+var channel = require("cordova/channel");
 
-(function () {
-    var docAddEventListener = document.addEventListener,
-        webworksReady = false,
-        alreadyFired = false,
-        listenerRegistered = false;
-
-    //Only fire the webworks event when both webworks is ready and a listener is registered
-    function fireWebworksReadyEvent() {
-        var evt;
-        if (listenerRegistered && webworksReady && !alreadyFired) {
-            alreadyFired = true;
-            evt = document.createEvent('Events');
-            evt.initEvent('webworksready', true, true);
-            document.dispatchEvent(evt);
-        }
-    }
-
-    //Trapping when users add listeners to the webworks ready event
-    //This way we can make sure not to fire the event before there is a listener
-    document.addEventListener = function (event, callback, capture) {
-        docAddEventListener.call(document, event, callback, capture);
-        if (event.toLowerCase() === 'webworksready') {
-            listenerRegistered = true;
-            fireWebworksReadyEvent();
-        }
-    };
-
-    function RemoteFunctionCall(functionUri) {
-        var params = {};
-
-        function composeUri() {
-            return require("cordova/plugin/blackberry10/utils").getURIPrefix() + functionUri;
-        }
-
-        function createXhrRequest(uri, isAsync) {
-            var request = new XMLHttpRequest();
-            request.open("POST", uri, isAsync);
-            request.setRequestHeader("Content-Type", "application/json");
-            return request;
-        }
-
-        this.addParam = function (name, value) {
-            params[name] = encodeURIComponent(JSON.stringify(value));
-        };
-
-        this.makeSyncCall = function (success, error) {
-            var requestUri = composeUri(),
-            request = createXhrRequest(requestUri, false),
-            response,
-            errored,
-            cb,
-            data;
-
-            request.send(JSON.stringify(params));
-            response = JSON.parse(decodeURIComponent(request.responseText) || "null");
-            return response;
-        };
-    }
-
-    window.webworks = {
-        exec: function (success, fail, service, action, args) {
-            var uri = service + "/" + action,
-            request = new RemoteFunctionCall(uri),
-            callbackId = service + cordova.callbackId++,
-            response,
-            name,
-            didSucceed;
-
-            for (name in args) {
-                if (Object.hasOwnProperty.call(args, name)) {
-                    request.addParam(name, args[name]);
-                }
-            }
-
-            cordova.callbacks[callbackId] = {success:success, fail:fail};
-            request.addParam("callbackId", callbackId);
-
-            response = request.makeSyncCall();
-
-            //Old WebWorks Extension success
-            if (response.code === 42) {
-                if (success) {
-                    success(response.data, response);
-                }
-                delete cordova.callbacks[callbackId];
-            } else if (response.code < 0) {
-                if (fail) {
-                    fail(response.msg, response);
-                }
-                delete cordova.callbacks[callbackId];
-            } else {
-                didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
-                cordova.callbackFromNative(callbackId, didSucceed, response.code, [ didSucceed ? response.data : response.msg ], !!response.keepCallback);
-            }
-        },
-        defineReadOnlyField: function (obj, field, value) {
-            Object.defineProperty(obj, field, {
-                "value": value,
-                "writable": false
-            });
-        },
-        event: require("cordova/plugin/blackberry10/event")
-    };
-
-    require("cordova/channel").onPluginsReady.subscribe(function () {
-        webworksReady = true;
-        fireWebworksReadyEvent();
-    });
-}());
-
-document.addEventListener("DOMContentLoaded", function () {
-    document.addEventListener("webworksready", function () {
-        require('cordova/channel').onNativeReady.fire();
-    });
+channel.onPluginsReady.subscribe(function () {
+    channel.onNativeReady.fire();
 });
 
 // file: lib/scripts/plugin_loader.js

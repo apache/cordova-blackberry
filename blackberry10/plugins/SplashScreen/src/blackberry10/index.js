@@ -15,13 +15,11 @@
  */
 
 module.exports = {
-    show: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
+    show: function (result, args, env) {
         result.error("Not supported on platform", false);
     },
 
-    hide: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
+    hide: function (result, args, env) {
         window.qnx.webplatform.getApplication().windowVisible = true;
         result.ok(undefined, false);
     }

@@ -41,22 +41,18 @@ describe("Battery", function () {
                 onchargingchange: jasmine.createSpy("navigator.webkitBattery.onchargingchange")
             }
         };
-        GLOBAL.PluginResult = function () {
-            return mockPluginResult;
-        };
         index = require(_apiDir + "index");
     });
 
     afterEach(function () {
         delete GLOBAL.navigator;
-        delete GLOBAL.PluginResult;
         delete require.cache[require.resolve(_apiDir + "index")];
     });
 
     describe("start", function () {
 
         it("calls noResult and keeps callbacks", function () {
-            index.start(noop, noop, args, env);
+            index.start(mockPluginResult, args, env);
             expect(navigator.webkitBattery.onlevelchange).not.toEqual(null);
             expect(navigator.webkitBattery.onchargingchange).not.toEqual(null);
             expect(mockPluginResult.noResult).toHaveBeenCalledWith(true);
@@ -64,9 +60,9 @@ describe("Battery", function () {
         });
 
         it("does not call error if already started", function () {
-            index.start(noop, noop, args, env);
+            index.start(mockPluginResult, args, env);
             mockPluginResult.noResult.reset();
-            index.start(noop, noop, args, env);
+            index.start(mockPluginResult, args, env);
             expect(navigator.webkitBattery.onlevelchange).not.toEqual(null);
             expect(navigator.webkitBattery.onchargingchange).not.toEqual(null);
             expect(mockPluginResult.error).not.toHaveBeenCalled();
@@ -78,12 +74,19 @@ describe("Battery", function () {
     describe("stop", function () {
 
         it("calls noResult and does not keep callbacks", function () {
-            index.start(noop, noop, args, env);
-            index.stop(noop, noop, args, env);
+            index.start(mockPluginResult, args, env);
+            index.stop(mockPluginResult, args, env);
             expect(navigator.webkitBattery.onlevelchange).toEqual(null);
             expect(navigator.webkitBattery.onchargingchange).toEqual(null);
             expect(mockPluginResult.noResult).toHaveBeenCalledWith(false);
         });
 
+        it("will keep callbacks when multiple webviews are listeneing", function () {
+            index.start(mockPluginResult, args, env);
+            index.start(mockPluginResult, args, {webview:{id:1}});
+            index.stop(mockPluginResult, args, env);
+            expect(navigator.webkitBattery.onlevelchange).not.toEqual(null);
+            expect(navigator.webkitBattery.onchargingchange).not.toEqual(null);
+        });
     });
 });

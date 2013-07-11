@@ -52,8 +52,7 @@ function currentConnectionType() {
 }
 
 module.exports = {
-    getConnectionInfo: function (success, fail, args, env) {
-        var result = new PluginResult(args, env);
+    getConnectionInfo: function (result, args, env) {
         result.ok(currentConnectionType());
     }
 };
