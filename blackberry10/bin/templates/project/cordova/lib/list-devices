@@ -20,5 +20,7 @@
 
 set -e
 
-echo 'BlackBerry10: Not able to list connected devices through command-line at this time.'
-exit 1
+CURRENT_DIR=$(pwd)
+BIN_DIR=$(dirname "$0")
+
+node list-devices.js

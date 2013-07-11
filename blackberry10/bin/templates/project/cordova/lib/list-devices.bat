@@ -17,5 +17,4 @@
 
 @ECHO OFF
 
-ECHO echo 'BlackBerry10: Not able to list connected devices through command-line at this time.'
-EXIT /B 1
+@node.exe list-devices.js

@@ -47,11 +47,10 @@ _self = {
                 exec('blackberry-deploy -test ' + t.ip, function(error, stdout, stderr) {
                     // error code 3 corresponds to a connected device
                     if (error.code == 3) {
-                        outstr = outstr + "connected";
+                        console.log(outstr, "connected");
                     } else {
-                        outstr = "disconnected";
+                        // console.log(outstr, "disconnected");
                     }
-                    console.log(outstr);
                 });
             }
         }
