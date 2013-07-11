@@ -17,6 +17,7 @@
 var path = require("path"),
     fs = require("fs"),
     wrench = require("wrench"),
+    utils = require("./utils"),
     logger = require("./logger"),
     signingHelper = require("./signing-helper"),
     barConf = require("./bar-conf"),
@@ -55,7 +56,7 @@ module.exports = {
             outputDir = cmdline.output,
             properties = require("../../project.json"),
             archivePath = path.resolve(cmdline.args[0] ? cmdline.args[0] : "../../www"),
-            archiveName = properties.barName ? properties.barName : path.basename(archivePath, '.zip'),
+            archiveName = utils.genBarName(), 
             appdesc,
             buildId = cmdline.buildId;
 

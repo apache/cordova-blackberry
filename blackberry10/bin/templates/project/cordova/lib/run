@@ -42,7 +42,7 @@ var childProcess = require("child_process"),
 
 function generateOptions(uninstall) {
     var options = [];
-    barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + generateBarName() + ".bar"));
+    barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + utils.genBarName() + ".bar"));
 
     options.push("-device");
     options.push(ip);
