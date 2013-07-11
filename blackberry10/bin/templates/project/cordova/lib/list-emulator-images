@@ -20,5 +20,4 @@
 
 set -e
 
-echo 'BlackBerry10: Not able to list valid emulator images through command-line at this time.'
-exit 1
+node list-emulator-images.js

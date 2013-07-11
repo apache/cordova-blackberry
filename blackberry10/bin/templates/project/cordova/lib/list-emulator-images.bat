@@ -17,5 +17,4 @@
 
 @ECHO OFF
 
-ECHO echo 'BlackBerry10: Not able to list valid emulator images through command-line at this time.'
-EXIT /B 1
+@node.exe list-emulator-images.js

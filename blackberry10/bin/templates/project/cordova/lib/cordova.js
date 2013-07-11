@@ -37,25 +37,28 @@ _self = {
         return targList;
     },
 
-    listTargets : function(type) {
+    listTargets : function(type, pruneDisconnected) {
         var targets = _self.getTargetList(type),
             outstr = null;
         if (targets) {
             for (i in targets) {
                 var t = targets[i];
-                outstr = t.name + " ip: " + t.ip + " status: ";
-                exec('blackberry-deploy -test ' + t.ip, function(error, stdout, stderr) {
-                    // error code 3 corresponds to a connected device
-                    if (error.code == 3) {
-                        console.log(outstr, "connected");
-                    } else {
-                        // console.log(outstr, "disconnected");
-                    }
-                });
+                outstr = t.name + " ip: " + t.ip;
+                if (pruneDisconnected) {
+                    exec('blackberry-deploy -test ' + t.ip, function(error, stdout, stderr) {
+                        // error code 3 corresponds to a connected device, null corresponds to connected sim
+                        if (error == null) {
+                            console.log(outstr, "status: connected");
+                        } else if (error.code == 3) {
+                            console.log(outstr, "status: connected");
+                        } 
+                    });
+                } else {
+                    console.log(outstr);
+                }
             }
         }
     }
-
 };
 
 module.exports = _self;

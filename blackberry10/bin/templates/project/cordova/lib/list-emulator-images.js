@@ -17,4 +17,4 @@
 
 var cordova = require('./cordova');
 
-cordova.listTargets('device', true);
+cordova.listTargets('simulator', false);
