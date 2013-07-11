@@ -82,11 +82,14 @@ var Localize = require("localize"),
         "EXCEPTION_BUFFER_ERROR": {
             "en": "ERROR in bufferToString(): Buffer length must be even"
         },
-        "EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI": {
+        "EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI_OR_ORIGIN": {
             "en": "Invalid config.xml - no <feature> tags are allowed for this <access> element"
         },
         "EXCEPTION_INVALID_ACCESS_URI_NO_PROTOCOL": {
             "en": "Invalid URI attribute in the access element - protocol required($[1])"
+        },
+        "WARNING_URI_AND_ORIGIN_FOUND_IN_CONFIG": {
+            "en": "Uri access atrribute will be used by default"
         },
         "EXCEPTION_INVALID_ACCESS_URI_NO_URN": {
             "en": "Failed to parse the URI attribute in the access element($[1])"

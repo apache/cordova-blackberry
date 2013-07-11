@@ -9,16 +9,20 @@ function getObjectByProperty(array, propertyName, propertyValue) {
 }
 
 module.exports = {
-    getAccessListForUri: function (accessListArray, uriValue) {
-        return getObjectByProperty(accessListArray, "uri", uriValue);
+    getAccessList: function (accessListArray, value) {
+        if (accessListArray[0].hasOwnProperty("uri") === true) {
+            return getObjectByProperty(accessListArray, "uri", value);
+        } else {
+            return getObjectByProperty(accessListArray, "origin", value);
+        }
     },
-    
+
     getFeatureByID: function (featureArray, featureID) {
         return getObjectByProperty(featureArray, "id", featureID);
     },
-    
+
     mockResolve: function (path) {
-        //Mock resolve because of a weird issue where resolve would return an 
+        //Mock resolve because of a weird issue where resolve would return an
         //invalid path on Mac if it cannot find the directory (c:/ doesnt exist on mac)
         spyOn(path, "resolve").andCallFake(function (to) {
             if (arguments.length === 2) {
@@ -29,20 +33,20 @@ module.exports = {
             }
         });
     },
-    
+
     cloneObj: function (obj) {
         var newObj = (obj instanceof Array) ? [] : {}, i;
-        
+
         for (i in obj) {
             if (i === 'clone') continue;
-            
+
             if (obj[i] && typeof obj[i] === "object") {
                 newObj[i] = this.cloneObj(obj[i]);
             } else {
                 newObj[i] = obj[i];
             }
         }
-    
+
         return newObj;
     },
 
@@ -58,12 +62,12 @@ module.exports = {
 
 describe("test-utilities", function () {
     var testUtilities = require("./test-utilities");
-    
+
     it("can clone objects using cloneObj", function () {
         var obj = {
                 A: "A",
                 B: "B",
-                C: { 
+                C: {
                     CA: "CA",
                     CB: "CB",
                     CC: {
@@ -72,10 +76,10 @@ describe("test-utilities", function () {
                 }
             },
             clonedObj = testUtilities.cloneObj(obj);
-        
+
         //not the same object
         expect(clonedObj).not.toBe(obj);
-        
+
         //has the same data
         expect(clonedObj).toEqual(obj);
     });
