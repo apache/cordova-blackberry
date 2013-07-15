@@ -3,7 +3,7 @@
 
 This repo contains cordova projects for the BlackBerry platforms:
 
-blackberry - BBOS 5+ and Tablet OS
+playbook - BlackBerry Tablet OS
 
 blackberry10 - BB10
 
