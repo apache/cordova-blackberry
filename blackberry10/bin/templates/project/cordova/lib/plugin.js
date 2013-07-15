@@ -99,34 +99,36 @@ function addPlugin (pluginPath) {
         pluginDirs = [],
         allFiles;
 
+
     //Check if the path they sent in exists
     if (!fs.existsSync(plugin) ) {
         //Check if the plugin has been fetched globally
         plugin = path.resolve(GLOBAL_PLUGIN_PATH, plugin);
-        if (!fs.existsSync(plugin)) {
-            console.log("Input ", pluginPath || argumentor.plugin, " cannot be resolved as a plugin");
-            listHelp();
-            process.exit(1);
-        }
     }
 
-    allFiles = wrench.readdirSyncRecursive(plugin);
-    allFiles.forEach(function (file) {
-        var fullPath = path.resolve(plugin, file);
-
-        if (path.basename(file) === "plugin.xml") {
-            pluginDirs.push(path.dirname(fullPath));
-        }
-    });
-
-    if (!pluginDirs.length) {
-        console.log("No plugins could be found given the input " + pluginPath || argumentor.plugin);
-        listHelp();
-        process.exit(1);
+    //Check if the new global path is good, if not just pass through
+    if (!fs.existsSync(plugin)) {
+        plugmanInterface.install(pluginPath || argumentor.plugin);
     } else {
-        pluginDirs.forEach(function (pluginDir) {
-            plugmanInterface.install(pluginDir);
+
+        allFiles = wrench.readdirSyncRecursive(plugin);
+        allFiles.forEach(function (file) {
+            var fullPath = path.resolve(plugin, file);
+
+            if (path.basename(file) === "plugin.xml") {
+                pluginDirs.push(path.dirname(fullPath));
+            }
         });
+
+        if (!pluginDirs.length) {
+            console.log("No plugins could be found given the input " + pluginPath || argumentor.plugin);
+            listHelp();
+            process.exit(1);
+        } else {
+            pluginDirs.forEach(function (pluginDir) {
+                plugmanInterface.install(pluginDir);
+            });
+        }
     }
 }
 
