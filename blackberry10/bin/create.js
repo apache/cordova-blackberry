@@ -72,7 +72,7 @@ function validateProjectPath() {
     if (!process.argv[2]) {
         console.log("You must give a project PATH");
         help();
-        process.exit(2); 
+        process.exit(2);
         return "";
     } else {
         return path.resolve(process.argv[2]);
