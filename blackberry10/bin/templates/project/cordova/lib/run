@@ -72,7 +72,7 @@ function generateOptions(uninstall) {
 }
 
 function execNativeDeploy(optionsArray, callback) {
-    var script = "blackberry-deploy",
+    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
         nativeDeploy;
         options = optionsArray.join(" ");
 
@@ -150,7 +150,7 @@ function checkTarget() {
 }
 
 function uninstall() {
-    var script = "/bin/blackberry-deploy",
+    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
         nativeDeploy;
 
     if (pkgrUtils.isWindows()) {

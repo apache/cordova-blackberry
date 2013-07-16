@@ -23,8 +23,11 @@
 #
 #!/bin/sh
 
+source $(dirname "$0")/init
+
 CURRENT_DIR=$(pwd)
 BIN_DIR=$(dirname "$0")
+NPM_PACKAGE_JSON=$CURRENT_DIR/$BIN_DIR/../package.json
 
 #Run check_reqs before doing anything and exit if there's an error
 "$BIN_DIR"/check_reqs
@@ -33,13 +36,16 @@ if [ ${?} -ne 0 ]; then
 fi
 
 #Run npm install every time (even if node_modules folder is present) to cover platform upgrade
-cd "$BIN_DIR"/..
-#Removed sudo usage so that node modules are not ownder by root
-npm install
-cd "$CURRENT_DIR"
+if [ -e $NPM_PACKAGE_JSON ]; then
+    cd "$BIN_DIR"/..
+    #Removed sudo usage so that node modules are not ownder by root
+    $CORDOVA_NODE/npm install
+    cd "$CURRENT_DIR"
 
-if ! [ $? -eq 0 ]; then
-  echo "NPM install failed. Aborting."
-else
-  node "$BIN_DIR"/create.js "$@"
+    if ! [ $? -eq 0 ]; then
+        echo "NPM install failed. Aborting."
+        exit 1
+    fi
 fi
+
+$CORDOVA_NODE/node "$BIN_DIR"/create.js "$@"

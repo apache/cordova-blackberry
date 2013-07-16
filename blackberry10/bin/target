@@ -1,3 +1,3 @@
 #!/bin/sh
-
-node "$( dirname "$0")/lib/target" "$@"
+source $(dirname "$0")/init
+$CORDOVA_NODE/node "$( dirname "$0")/lib/target" "$@"

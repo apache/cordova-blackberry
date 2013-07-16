@@ -18,33 +18,35 @@
 #
 #!/bin/sh
 
-NODE=$(command -v node)
-NPM=$(command -v npm)
-JAVA=$(command -v java)
-PACKAGER=$(command -v blackberry-nativepackager)
-DEPLOYER=$(command -v blackberry-deploy)
-SIGNER=$(command -v blackberry-signer)
+source $(dirname "$0")/init
 
-if [ -z "$NODE" ]; then
+NODE="$CORDOVA_NODE/node"
+NPM="$CORDOVA_NODE/npm"
+JAVA=$(command -v java)
+PACKAGER="$CORDOVA_BBTOOLS/blackberry-nativepackager"
+DEPLOYER="$CORDOVA_BBTOOLS/blackberry-deploy"
+SIGNER="$CORDOVA_BBTOOLS/blackberry-signer"
+
+if [ ! -x "$NODE" ]; then
     echo node cannot be found on the path. Aborting.
     EXIT_CODE=1
-elif [ -z "$NPM" ]; then
+elif [ ! -x "$NPM" ]; then
     echo npm cannot be found on the path. Aborting.
     EXIT_CODE=1
-elif [ -z "$JAVA" ]; then
+elif [ ! -x "$JAVA" ]; then
     echo java cannot be found on the path. Aborting.
     EXIT_CODE=1
-elif [ -z "$PACKAGER" ]; then
+elif [ ! -x "$PACKAGER" ]; then
     echo blackberry-nativepackager cannot be found on the path. Aborting.
     EXIT_CODE=1
-elif [ -z "$DEPLOYER" ]; then
+elif [ ! -x "$DEPLOYER" ]; then
     echo blackberry-deploy cannot be found on the path. Aborting.
     EXIT_CODE=1
-elif [ -z "$SIGNER" ]; then
+elif [ ! -x "$SIGNER" ]; then
     echo blackberry-signer cannot be found on the path. Aborting.
     EXIT_CODE=1
 else
-    node "$( dirname "$0" )/check_reqs.js" "$@"
+    $NODE "$( dirname "$0" )/check_reqs.js" "$@"
     EXIT_CODE=0
 fi
 
