@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.0.0-dev-17-ge74c3f1
+// 3.0.0rc1-0-g1965a39
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.0.0-dev-17-ge74c3f1';
+var CORDOVA_JS_BUILD_LABEL = '3.0.0rc1-0-g1965a39';
 // file: lib/scripts/require.js
 
 var require,
