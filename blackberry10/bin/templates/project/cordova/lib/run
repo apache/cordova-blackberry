@@ -258,6 +258,7 @@ function exec() {
     program
         .usage('[--target=<id>] [-k | --keystorepass] [--no-launch] [--no-uninstall] [--no-build]')
         .option('-k, --keystorepass <password>', 'the password of signing key; needed for creating debug token')
+        .option('--device', 'run on connected device')
         .option('--target', 'specifies the target to run the application')
         .option('--no-uninstall', 'does not uninstall application from device')
         .option('--no-launch', 'do not launch the application on device')
@@ -284,6 +285,8 @@ function exec() {
         } else {
             postBuild();
         }
+    } else {
+        process.exit(1);
     }
 }
 
