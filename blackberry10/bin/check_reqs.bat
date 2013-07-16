@@ -17,43 +17,7 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-
-set FOUNDNODE=
-for %%e in (%PATHEXT%) do (
-  for %%X in (node%%e) do (
-    if not defined FOUNDNODE (
-      set FOUNDNODE=%%~$PATH:X
-    )
-  )
-)
-
-set FOUNDNPM=
-for %%X in (npm) do (
-  if not defined FOUNDNPM (
-    set FOUNDNPM=%%~$PATH:X
-  )
-)
-
-set FOUNDPACKAGER=
-for %%X in (blackberry-nativepackager.bat) do (
-  if not defined FOUNDPACKAGER (
-    set FOUNDPACKAGER=%%~$PATH:X
-  )
-)
-
-set FOUNDDEPLOYER=
-for %%X in (blackberry-deploy.bat) do (
-  if not defined FOUNDDEPLOYER (
-    set FOUNDDEPLOYER=%%~$PATH:X
-  )
-)
-
-set FOUNDSIGNER=
-for %%X in (blackberry-signer.bat) do (
-  if not defined FOUNDSIGNER (
-    set FOUNDSIGNER=%%~$PATH:X
-  )
-)
+call "%~dp0init"
 
 set FOUNDJAVA=
 for %%e in (%PATHEXT%) do (
@@ -63,31 +27,29 @@ for %%e in (%PATHEXT%) do (
     )
   )
 )
-
-
-if not defined FOUNDNODE (
-  echo npm cannot be found on the path. Aborting.
+if not exist "%CORDOVA_NODE%\node.exe" (
+  echo node cannot be found on the path. Aborting.
   exit /b 1
 )
-if not defined FOUNDNPM (
-  echo node cannot be found on the path. Aborting.
+if not exist "%CORDOVA_NODE%\npm" (
+  echo npm cannot be found on the path. Aborting.
   exit /b 1
 )
 if not defined FOUNDJAVA (
   echo java cannot be found on the path. Aborting.
   exit /b 1
 )
-if not defined FOUNDPACKAGER (
+if not exist "%CORDOVA_BBTOOLS%\blackberry-nativepackager" (
   echo blackberry-nativepackager cannot be found on the path. Aborting.
   exit /b 1
 )
-if not defined FOUNDDEPLOYER (
+if not exist "%CORDOVA_BBTOOLS%\blackberry-deploy" (
   echo blackberry-deploy cannot be found on the path. Aborting.
   exit /b 1
 )
-if not defined FOUNDSIGNER (
+if not exist "%CORDOVA_BBTOOLS%\blackberry-signer" (
   echo blackberry-signer cannot be found on the path. Aborting.
   exit /b 1
 )
 
-@node.exe "%~dp0\check_reqs.js" %*
+"%CORDOVA_NODE%\node" "%~dp0\check_reqs.js" %*

@@ -26,7 +26,7 @@
     "validator": "0.4.1",
     "wrench": "1.3.9",
     "shelljs":"0.1.3",
-    "elementtree": "0.1.x",
+    "elementtree": "0.1.5",
     "plugman": "0.9.10"
   },
   "devDependencies": {

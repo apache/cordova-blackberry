@@ -16,5 +16,5 @@
 :: under the License.
 
 @ECHO OFF
-
-@node.exe list-started-emulators.js
+call "%~dp0..\init"
+"%CORDOVA_NODE%\node.exe" "%~dps0\list-started-emulators.js"

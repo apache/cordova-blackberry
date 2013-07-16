@@ -16,6 +16,7 @@
 
 var _self,
     exec = require('child_process').exec,
+    path = require('path'),
     bb10_utils = require('./utils'),
     blackberryProperties = bb10_utils.getProperties();
 
@@ -55,13 +56,15 @@ _self = {
                 } else {
                     count++;
                 }
-            } 
+            }
         }
         complete();
     },
 
     checkConnection: function(ip, type, callback) {
-        exec('blackberry-deploy -test ' + ip, function(error, stdout, stderr) {
+        var script = path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy');
+
+        exec(script + ' -test ' + ip, function(error, stdout, stderr) {
             // error code 3 corresponds to a connected device, null corresponds to connected sim
             callback((type === 'simulator' && error === null) || (type == 'device' && error.code === 3));
         });

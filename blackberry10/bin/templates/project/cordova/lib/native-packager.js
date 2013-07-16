@@ -246,7 +246,7 @@ function generateOptionsFile(session, target, config) {
 }
 
 function execNativePackager(session, callback) {
-    var script = "blackberry-nativepackager",
+    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-nativepackager"),
         cwd = session.sourceDir,
         nativePkgr;
 

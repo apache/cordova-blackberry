@@ -21,9 +21,9 @@ var path = require("path"),
     wrench = require("wrench"),
     fs = require('fs'),
     et   = require('elementtree'),
-    escapeStringForShell = require("./packager-utils").escapeStringForShell,
+    plugman = require('plugman'),
     PROJECT_ROOT = path.join(__dirname, "..", ".."),
-    PLUGMAN = escapeStringForShell(path.join(PROJECT_ROOT, "cordova", "node_modules", "plugman", "main.js")),
+    PLUGMAN = path.join(PROJECT_ROOT, "cordova", "node_modules", "plugman", "main.js"),
     GLOBAL_PLUGIN_PATH = require(path.join(PROJECT_ROOT, "project.json")).globalFetchDir,
     LOCAL_PLUGIN_PATH = path.join(PROJECT_ROOT, "plugins"),
     argumentor = {
@@ -35,41 +35,32 @@ var path = require("path"),
             return argumentor;
         },
         setAction: function () {
-            this.args.push("--" + this.action);
+            this.args.action = this.action;
             return argumentor;
         },
         setPlatform: function () {
-            this.args.push("--platform");
-            this.args.push("blackberry10");
+            this.args.platform = "blackberry10";
             return argumentor;
         },
         setProject: function () {
-            this.args.push("--project");
-            this.args.push(escapeStringForShell(PROJECT_ROOT));
+            this.args.project = PROJECT_ROOT;
             return argumentor;
         },
         setPlugin: function () {
             var pluginWithoutTrailingSlash = this.plugin.charAt(this.plugin.length - 1) === "/" ? this.plugin.slice(0, -1) : this.plugin;
-            this.args.push("--plugin");
-            this.args.push(escapeStringForShell(pluginWithoutTrailingSlash));
+            this.args.plugin = pluginWithoutTrailingSlash;
             return argumentor;
         },
         setPluginsDir: function (isGlobal) {
-            this.args.push("--plugins_dir");
             if (isGlobal) {
-                this.args.push(escapeStringForShell(GLOBAL_PLUGIN_PATH));
+                this.args.pluginDir = GLOBAL_PLUGIN_PATH;
             } else {
-                this.args.push(escapeStringForShell(LOCAL_PLUGIN_PATH));
+                this.args.pluginDir = LOCAL_PLUGIN_PATH;
             }
             return argumentor;
         },
         run: function () {
-            var cmd = "";
-            if (require('os').type().toLowerCase().indexOf("windows") >= 0) {
-                cmd += "@node.exe ";
-            }
-            cmd += PLUGMAN + " " + this.args.join(" ");
-            return shell.exec(cmd, {silent: false});
+            plugman.install(this.args.platform, this.args.project, this.args.plugin, this.args.pluginDir, {});
         }
     },
     plugmanInterface= {
