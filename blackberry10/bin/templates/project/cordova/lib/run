@@ -23,6 +23,7 @@ var childProcess = require("child_process"),
     wrench = require("wrench"),
     conf = require("./conf"),
     utils = require("./utils"),
+    targetUtils = require("./target-utils.js"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
     debugTokenHelper = require("./debugtoken-helper"),
@@ -93,6 +94,35 @@ function execNativeDeploy(optionsArray, callback) {
             callback(code);
         }
     });
+}
+
+function setTarget(callback) {
+    target = program.args[0] ? program.args[0] : targets.defaultTarget;
+    if (program["device"]) {
+        targetUtils.getTargetList("device", true, function (targets) {
+            if (targets && targets.length > 0) {
+                target = targets[0].name;
+                callback();
+            } else {
+                console.error("No connected device found");
+                console.error("Devices must first be configured using platforms/blackberry/cordova/target"); 
+                process.exit(1);
+            }
+        });
+    } else if (program["emulator"]) {
+        targetUtils.getTargetList("simulator", true, function (targets) {
+            if (targets && targets.length > 0) { 
+                target = targets[0].name;
+                callback();
+            } else {
+                console.error("No connected BB10 simulator found");
+                console.error("Simulators must first be configured using platforms/blackberry/cordova/target");
+                process.exit(1);
+            }
+        });
+    } else {
+        callback();
+    }
 }
 
 function checkTarget() {
@@ -273,22 +303,23 @@ function exec() {
     }
 
     program.parse(process.argv);
-    target = program.args[0] ? program.args[0] : targets.defaultTarget;
 
-    if (checkTarget()) {
-        if (program.build) {
-            jWorkflow.order(checkDebugtoken)
-                     .andThen(createDebugToken)
-                     .andThen(deployDebugToken)
-                     .andThen(build)
-                     .andThen(postBuild)
-                     .start();
+    setTarget(function () {
+        if (checkTarget()) {
+            if (program.build) {
+                jWorkflow.order(checkDebugtoken)
+                    .andThen(createDebugToken)
+                    .andThen(deployDebugToken)
+                    .andThen(build)
+                    .andThen(postBuild)
+                    .start();
+            } else {
+                postBuild();
+            }
         } else {
-            postBuild();
+            process.exit(1);
         }
-    } else {
-        process.exit(1);
-    }
+    });
 }
 
 exec();
