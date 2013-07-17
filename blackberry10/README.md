@@ -1,100 +1,53 @@
-# Apache Cordova for BlackBerry 10
+Apache Cordova for BlackBerry 10
+================================
 
-Apache Cordova is an application development platform which allows mobile applications to be written with web technology: HTML, CSS and JavaScript. Access to device APIs is provided by native plugins.
+Apache Cordova is an application development platform that allows you to use common web technologies, primarily HTML5, JavaScript, and CSS, to create applications for mobile devices. Cordova uses a standard set of APIs to access common device features. Additional plugins allow you to access BlackBerry specific APIs, so that you can extend your application to tightly integrate with the BlackBerry 10 OS.
 
-This implementation for BlackBerry 10 packages web assets into a BAR file which may be deployed to devices and simulators.
+Requirements
+------------
 
-## Pre-requisites
+Cordova for BlackBerry has the following software requirements:
 
-Install the latest BlackBerry 10 NDK:
+-   Windows XP (32-bit) or Windows 7 (32-bit and 64-bit) or Mac OSX 10.6.4+
+-   node.js (> 0.9.9) [Download node.js now](http://nodejs.org/)
+-   BlackBerry 10 Native SDK. [Download the BlackBerry 10 Native SDK now.](http://developer.blackberry.com/native/download/)
 
-[https://developer.blackberry.com/native/download/](https://developer.blackberry.com/native/download)
+    After installing the native SDK, its tools must be added to your system path. Either manually add the bin directory to your path or run the following scripts:
+    -    [Linux/Mac] source [BBNDK directory]/bbndk-env.sh
+    -    [Windows] [BBNDK directory]\bbndk-env.bat
 
-Setup environment variables:
-- [Linux/Mac] `source [BBNDK directory]/bbndk-env.sh`
-- [Windows] `[BBNDK directory]\bbndk-env.bat`
+Setting up your signing keys
+----------------------------
 
-Install code signing keys:
+Before starting development, you'll need to register for your code signing key and debug token. The signing key allows you to sign your completed app so that you can distribute it through BlackBerry World. The debug token allows you to test an unsigned app on a BlackBerry 10 device. You do not need to create and install the debug token yourself; if you supply the keystore password, the build script will create and install the debug token for you.
 
-[https://developer.blackberry.com/html5/documentation/signing_setup_bb10_apps_2008396_11.html](https://developer.blackberry.com/html5/documentation/signing_setup_bb10_apps_2008396_11.html)
+-   [Register for your code signing key now.](https://www.blackberry.com/SignedKeys/codesigning.html)
+-   [Set your computer up for code signing. ](http://developer.blackberry.com/html5/documentation/set_up_for_signing.html)
+-   [Learn more about debug tokens.](http://developer.blackberry.com/html5/documentation/running_your_bb10_app_2008471_11.html)
 
-Install node.js:
+Creating your project
+-------------------------
 
-[http://nodejs.org/](http://nodejs.org/)
+To create a new project, you use the `create` command to set up the folder structure for your app.
 
-Ensure npm is installed:
+1.  On the command line, navigate to the folder where you extracted Cordova.
+2.  Run the `create` command using the following syntax:
 
-More recent versions of Nodejs will come with npm included.
+        bin/create <path-to-project>
 
-## Getting Started
+This command creates the folder structure for your project at the specified location. All of your project resource files should be stored in the *<path-to-project>*/www folder, or in a subfolder within it.
 
-Create a new project:
+Adding and managing targets
+---------------------------
 
-`bin/create <path to project>`
+A target refers to a BlackBerry device or emulator that you will use to test your app. Targets are added directly to your project; you can add multiple targets to your project, each with a unique name. Then, when you want to deploy your app to a particular target, you can simply refer to that target by name when you run your script.
 
-## Managing Targets
+###Add a target
 
-A target is a device or simulator which will run the app.
+To add a target, on the command line, type the following command:
 
-This command will add a new target:
+        <path-to-project>/cordova/target add <name> <ip-address> [-t | --type <device | simulator>] [-p | --password <password>] [--pin <device-pin>]
 
-`<path to project>/cordova/target add <name> <ip> <device | simulator> [-p | --password <password>] [--pin <devicepin>]`
+where
 
-To remove a target:
-
-`<path to project>/cordova/target remove <name>`
-
-To set a target as default:
-
-`<path to project>/cordova/target default <name>`
-
-## Building
-
-`<path to project>/cordova/build`
-
-A project can be built in debug or release mode.
-
-To run an application in debug mode, a debug token must first be installed on the device. The build script will automatically attempt to generate a token and install it. This requires code signing keys to be installed on the development machine. Debug mode will also enable WebInspector. A prompt will appear with the URL to access WebInspector from a remote machine.
-
-If building in release mode, a unique buildId must be provided, either via command line or by setting it in config.xml.
-
-Here is the build script syntax:
-
-`build command [<target>] [-k | --keystorepass] [-b | --buildId <number>] [-p | --params <json>] [-ll | --loglevel <level>]`
-
-Commands:
-
-    release [options]
-        Build in release mode. This will sign the resulting bar.
-
-    debug [options]
-        Build in debug mode.
-
-  Options:
-
-    -h, --help                       output usage information
-    -k, --keystorepass <password>    Signing key password
-    -b, --buildId <num>              Specifies the build number for signing (typically incremented from previous signing).
-    -p, --params <params JSON file>  Specifies additional parameters to pass to downstream tools.
-    -ll, --loglevel <loglevel>       set the logging level (error, warn, verbose)`
-
-## Deploying
-
-To deploy the project to a target, use the run command:
-
-`<path to project>/cordova/run <target>`
-
-## Plugin Management
-
-To add a plugin from a local path, you will first need to run fetch:
-
-`<path to project>/cordova/plugin fetch <path to plugin>`
-
-Now the plugin can be installed by name:
-
-`<path to project>/cordova/plugin install <name>`
-
-Plugins hosted remotely can be installed by name without using fetch. To see a list of available remote plugins use:
-
-`<path to project>/cordova/plugin ls`
-
+-   `<name>`  specifies a unique name for the target.
