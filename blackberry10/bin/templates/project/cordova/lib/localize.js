@@ -38,7 +38,7 @@ var Localize = require("localize"),
             "en": "Cannot sign application - No buildId provided [--buildId]"
         },
         "EXCEPTION_DEBUG_TOKEN_NOT_FOUND": {
-            "en": "Failed to find debug token"
+            "en": "Failed to find debug token. If you have an existing debug token, please copy it to %HOME%/.cordova/blackberry10debugtoken.bar. To generate a new debug token, execute the 'run' command."
         },
         "EXCEPTION_DEBUG_TOKEN_WRONG_FILE_EXTENSION": {
             "en": "Specified debug token not a .bar extension"
@@ -191,7 +191,7 @@ var Localize = require("localize"),
             "en": "No device PIN found, will omit debug token generation"
         },
         "WARN_NO_SIGNING_PASSWORD_PROVIDED": {
-            "en": "No signing password provided, will omit debug token generation"
+            "en": "No signing password provided, debug token cannot be generated. Please enter a value for 'keystorepass' in %HOME%/.cordova/blackberry10.json or use --keystorepass via command-line directly from the project cordova scripts (WILL NOT WORK FROM CLI)."
         },
         "PROGRESS_GENERATING_DEBUG_TOKEN": {
             "en": "Generating debug token"

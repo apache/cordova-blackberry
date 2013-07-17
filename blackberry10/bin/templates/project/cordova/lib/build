@@ -55,7 +55,7 @@ function doReleaseBuild() {
         bbwpArgv.push("--password");
         bbwpArgv.push(bbProperties.keystorepass);
     } else {
-        console.log("No signing password provided. Please use --keystorepass via command-line or enter a value for keystorepass in project.json");
+        console.log("No signing password provided. Please enter a value for 'keystorepass' in %HOME%/.cordova/blackberry10.json or use --keystorepass via command-line directly from the project cordova scripts (WILL NOT WORK FROM CLI).");
         console.log(command.helpInformation());
         process.exit(2);
     }
