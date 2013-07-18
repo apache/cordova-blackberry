@@ -18,7 +18,6 @@
  */
 
 var path = require("path"),
-    shell = require('shelljs'),
     wrench = require("wrench"),
     fs = require('fs'),
     et   = require('elementtree'),
