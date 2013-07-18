@@ -2,5 +2,5 @@
 source $(dirname "$0")/init
 
 #package app
-$CORDOVA_NODE/node "$(dirname "$0")/lib/build" "$@"
+"$CORDOVA_NODE/node" "$(dirname "$0")/lib/build" "$@"
 

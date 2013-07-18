@@ -25,7 +25,7 @@ set LOCAL_BBTOOLS_BINARY=%~dp0dependencies\bb-tools\bin
 
 if defined %CORDOVA_NODE% { goto bbtools }
 
-if exist %LOCAL_NODE_BINARY% (
+if exist "%LOCAL_NODE_BINARY%" (
     set CORDOVA_NODE=%LOCAL_NODE_BINARY%
 ) else (
     for %%e in (%PATHEXT%) do (
@@ -45,7 +45,7 @@ if exist %LOCAL_NODE_BINARY% (
 
 if defined %CORDOVA_BBTOOLS% { exit /B }
 
-if exist %LOCAL_BBTOOLS_BINARY% (
+if exist "%LOCAL_BBTOOLS_BINARY%" (
     set CORDOVA_BBTOOLS=%LOCAL_BBTOOLS_BINARY%
 ) else (
     for %%e in (%PATHEXT%) do (

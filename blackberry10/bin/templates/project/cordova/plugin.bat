@@ -18,4 +18,4 @@ goto comment
        under the License.
 :comment
 call "%~dp0init"
-"%CORDOVA_NODE%\node.exe" %~dps0\lib\plugin-wrapper %*
+"%CORDOVA_NODE%\node.exe" "%~dps0\lib\plugin-wrapper" %*

@@ -21,7 +21,7 @@ LOCAL_NODE_BIN=$(pwd)/$(dirname "$0")/dependencies/node/bin
 LOCAL_BBTOOLS=$(pwd)/$(dirname "$0")/dependencies/bb-tools/bin
 
 if [ -z "$CORDOVA_NODE" ]; then
-    if [ -x $LOCAL_NODE_BIN ]; then
+    if [ -x "$LOCAL_NODE_BIN" ]; then
         #set CORDOVA_NODE to local node version, if exists
         CORDOVA_NODE=$LOCAL_NODE_BIN
     else
@@ -36,7 +36,7 @@ if [ -z "$CORDOVA_NODE" ]; then
 fi
 
 if [ -z "$CORDOVA_BBTOOLS" ]; then
-    if [ -x $LOCAL_BBTOOLS ]; then
+    if [ -x "$LOCAL_BBTOOLS" ]; then
         #set CORDOVA_BBTOOLS to local bbtools, if exists
         CORDOVA_BBTOOLS=$LOCAL_BBTOOLS
     else
