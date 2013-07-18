@@ -166,11 +166,6 @@ function updateProject() {
     fs.writeFileSync(path.join(project_path, "project.json"), JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
 }
 
-function installPlugins() {
-    var pluginScript = path.join(project_path, "cordova", "lib", "plugin.js");
-    require(pluginScript).add(path.join(__dirname, "..", "plugins"));
-}
-
 function help() {
     console.log("\nUsage: create <project path> [package name [BAR filename]] \n");
     console.log("Options: \n");
@@ -186,7 +181,6 @@ if ( process.argv[2] === "-h" || process.argv[2] === "--help" ) {
         copyJavascript();
         copyFilesToProject();
         updateProject();
-        installPlugins();
         clean();
         process.exit();
     } catch (ex) {
