@@ -27,7 +27,7 @@
     "wrench": "1.3.9",
     "shelljs":"0.1.2",
     "elementtree": "0.1.x",
-    "plugman": "0.9.6"
+    "plugman": "0.9.10"
   },
   "devDependencies": {
     "jake":"*",
