@@ -73,6 +73,17 @@ _self = {
                 console.log(targets[t].name + ' ip: ' + targets[t].ip + (pruneDisconnected ? ' status: connected' : ''));
             }
         });
+    },
+
+    getPin: function(ip, password, callback) {
+        exec('blackberry-deploy -listDeviceInfo ' + ip + ' -password ' + password, function(error, stdout, stderr) {
+            var result = '',
+                match = /devicepin::0x(.*?)\n/.exec(stdout);
+            if (match && match.length > 0) {
+                result = match[1];
+            }
+            callback(result);
+        });
     }
 
 };
