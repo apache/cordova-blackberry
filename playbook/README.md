@@ -47,7 +47,7 @@ The Cordova developer tooling is split between general tooling and project level
 
 ### General Commands
 
-    ./bin/create [path appname packagename] ............ creates a sample app with the specified application name, to the specified path
+    ./bin/create [path packagename appname] ............ creates a sample app with the specified application name, to the specified path
 
 Please note that once you `create` a Cordova BlackBerry project, you
 will need to edit the `project.properties` file that resides inside your
