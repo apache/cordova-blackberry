@@ -16,5 +16,5 @@
 :: under the License.
 
 @ECHO OFF
-
-@node.exe list-emulator-images.js
+call "%~dp0..\init"
+"%CORDOVA_NODE%\node.exe" "%~dps0\list-emulator-images.js"

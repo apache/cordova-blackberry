@@ -20,4 +20,5 @@
 
 set -e
 
-node list-emulator-images.js
+source $(dirname "$0")/../init
+"$CORDOVA_NODE/node" "$(dirname "$0")/list-emulator-images.js"
