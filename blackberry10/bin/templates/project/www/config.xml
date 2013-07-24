@@ -58,6 +58,4 @@
     <rim:permit>access_pimdomain_contacts</rim:permit>
   </rim:permissions>
 
-  <!-- plugin element deprecated. Remove in 3.0 -->
-
 </widget>
