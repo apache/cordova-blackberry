@@ -114,7 +114,10 @@ function copyJavascript() {
 function copyFilesToProject() {
     var nodeModulesDest = path.join(project_path, "cordova", "node_modules"),
         bbtoolsBinDest = path.join(project_path, "cordova", "dependencies", "bb-tools", "bin"),
-        bbtoolsLibDest = path.join(project_path, "cordova", "dependencies", "bb-tools", "lib");
+        bbtoolsLibDest = path.join(project_path, "cordova", "dependencies", "bb-tools", "lib"),
+        bbNativePackager = "blackberry-nativepackager",
+        bbSigner = "blackberry-signer",
+        bbDeploy = "blackberry-deploy";
 
     // create project using template directory
     wrench.mkdirSyncRecursive(project_path, 0777);
@@ -130,14 +133,14 @@ function copyFilesToProject() {
         wrench.mkdirSyncRecursive(bbtoolsBinDest, 0755);
 
         if (utils.isWindows()) {
-            utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", "blackberry-nativepackager.bat"), bbtoolsBinDest);
-            utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", "blackberry-signer.bat"), bbtoolsBinDest);
-            utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", "blackberry-deploy.bat"), bbtoolsBinDest);
-        } else {
-            utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", "blackberry-nativepackager"), bbtoolsBinDest);
-            utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", "blackberry-signer"), bbtoolsBinDest);
-            utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", "blackberry-deploy"), bbtoolsBinDest);
+            bbNativePackager += ".bat";
+            bbSigner += ".bat";
+            bbDeploy += ".bat";
         }
+
+        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbNativePackager), bbtoolsBinDest);
+        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbSigner), bbtoolsBinDest);
+        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbDeploy), bbtoolsBinDest);
 
         //copy bb-tools lib folder
         wrench.mkdirSyncRecursive(bbtoolsLibDest, 0755);

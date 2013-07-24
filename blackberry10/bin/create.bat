@@ -24,7 +24,7 @@ call "%BIN_DIR%check_reqs"
 
 if "%ERRORLEVEL%" == "1" exit /B 1
 
-if exist "%BIN_DIR%\..\package.json" (
+if exist "%BIN_DIR%..\package.json" (
     pushd %BIN_DIR%..
     call "%CORDOVA_NODE%\npm" install
     popd
