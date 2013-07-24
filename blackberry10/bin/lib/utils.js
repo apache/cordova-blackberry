@@ -19,7 +19,7 @@ var fs = require('fs'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
-    DEFAULT_BAR_NAME = "project",
+    DEFAULT_BAR_NAME = "bb10app",
     PROPERTY_FILE_NAME = 'blackberry10.json',
     CORDOVA_DIR = '.cordova',
     DEFAULT_PROPERTY_FILE = {
@@ -210,7 +210,7 @@ _self = {
     },
 
     genBarName: function() {
-        return "DEFAULT_BAR_NAME";
+        return DEFAULT_BAR_NAME;
     }
 
 };
