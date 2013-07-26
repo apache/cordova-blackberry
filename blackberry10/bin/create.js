@@ -117,7 +117,8 @@ function copyFilesToProject() {
         bbtoolsLibDest = path.join(project_path, "cordova", "dependencies", "bb-tools", "lib"),
         bbNativePackager = "blackberry-nativepackager",
         bbSigner = "blackberry-signer",
-        bbDeploy = "blackberry-deploy";
+        bbDeploy = "blackberry-deploy",
+        bbDebugTokenRequest= "blackberry-debugtokenrequest";
 
     // create project using template directory
     wrench.mkdirSyncRecursive(project_path, 0777);
@@ -136,11 +137,13 @@ function copyFilesToProject() {
             bbNativePackager += ".bat";
             bbSigner += ".bat";
             bbDeploy += ".bat";
+            bbDebugTokenRequest += ".bat";
         }
 
         utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbNativePackager), bbtoolsBinDest);
         utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbSigner), bbtoolsBinDest);
         utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbDeploy), bbtoolsBinDest);
+        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbDebugTokenRequest), bbtoolsBinDest);
 
         //copy bb-tools lib folder
         wrench.mkdirSyncRecursive(bbtoolsLibDest, 0755);
