@@ -51,5 +51,9 @@ if not exist "%CORDOVA_BBTOOLS%\blackberry-signer" (
   echo blackberry-signer cannot be found on the path. Aborting.
   exit /b 1
 )
+if not exist "%CORDOVA_BBTOOLS%\blackberry-debugtokenrequest" (
+  echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
+  exit /b 1
+)
 
 "%CORDOVA_NODE%\node" "%~dp0\check_reqs.js" %*

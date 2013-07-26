@@ -26,6 +26,7 @@ JAVA=$(command -v java)
 PACKAGER="$CORDOVA_BBTOOLS/blackberry-nativepackager"
 DEPLOYER="$CORDOVA_BBTOOLS/blackberry-deploy"
 SIGNER="$CORDOVA_BBTOOLS/blackberry-signer"
+DEBUGTOKENREQUEST="$CORDOVA_BBTOOLS/blackberry-debugtokenrequest"
 
 if [ ! -x "$NODE" ]; then
     echo node cannot be found on the path. Aborting.
@@ -44,6 +45,9 @@ elif [ ! -x "$DEPLOYER" ]; then
     EXIT_CODE=1
 elif [ ! -x "$SIGNER" ]; then
     echo blackberry-signer cannot be found on the path. Aborting.
+    EXIT_CODE=1
+elif [ ! -x "$DEBUGTOKENREQUEST" ]; then
+    echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
     EXIT_CODE=1
 else
     "$NODE" "$( dirname "$0" )/check_reqs.js" "$@"
