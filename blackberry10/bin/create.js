@@ -137,6 +137,7 @@ function copyFilesToProject() {
             bbNativePackager += ".bat";
             bbSigner += ".bat";
             bbDeploy += ".bat";
+            bbDebugTokenRequest += ".bat";
         }
 
         utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbNativePackager), bbtoolsBinDest);
