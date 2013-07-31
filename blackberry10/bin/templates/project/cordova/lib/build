@@ -39,13 +39,6 @@ function copyArgIfExists(arg) {
     }
 }
 
-function doDebugBuild() {
-    //build in debug mode by default
-    bbwpArgv.push("-d");
-
-    build();
-}
-
 function doReleaseBuild() {
     //Note: Packager refers to signing password as "password" not "keystorepass"
     if (command["keystorepass"]) {
@@ -66,6 +59,11 @@ function doReleaseBuild() {
 }
 
 function build() {
+    //enable webinspector in debug mode or if --webinspector was provided
+    if (!command.release || command.webInspector) {
+        bbwpArgv.push("-d");
+    }
+
     copyArgIfExists("params");
     copyArgIfExists("loglevel");
 
@@ -83,7 +81,7 @@ function postClean() {
     if (command.release) {
         doReleaseBuild();
     } else {
-        doDebugBuild();
+        build();
     }
 }
 
@@ -116,6 +114,7 @@ command
     .option('--release', 'build in release mode. This will sign the resulting bar.')
     .option('-k, --keystorepass <password>', 'signing key password')
     .option('-b, --buildId <num>', 'specifies the build number for signing (typically incremented from previous signing).')
+    .option('-d, --web-inspector', 'enables webinspector. Enabled by default in debug mode.).')
     .option('-p, --params <params JSON file>', 'specifies additional parameters to pass to downstream tools.')
     .option('-ll, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)');
 
