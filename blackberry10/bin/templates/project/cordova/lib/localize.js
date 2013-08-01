@@ -89,7 +89,7 @@ var Localize = require("localize"),
             "en": "Invalid URI attribute in the access element - protocol required($[1])"
         },
         "WARNING_URI_AND_ORIGIN_FOUND_IN_CONFIG": {
-            "en": "Uri access atrribute will be used by default"
+            "en": "Invalid config.xml - <access> tags should have one of 'uri' or 'origin' attributes. 'origin' attribute will be ignored"
         },
         "EXCEPTION_INVALID_ACCESS_URI_NO_URN": {
             "en": "Failed to parse the URI attribute in the access element($[1])"
