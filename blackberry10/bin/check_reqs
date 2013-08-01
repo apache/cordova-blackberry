@@ -18,7 +18,7 @@
 #
 #!/bin/sh
 
-source $(dirname "$0")/init
+source "$(dirname "$0")/init"
 
 NODE="$CORDOVA_NODE/node"
 NPM="$CORDOVA_NODE/npm"
