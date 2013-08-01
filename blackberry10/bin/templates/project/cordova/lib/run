@@ -113,22 +113,22 @@ function setTarget(callback) {
                         console.error("No connected device found");
                         process.exit(1);
                     } else {
-                        targetUtils.getDeviceInfo(ip, program["password"], function (device) {
+                        targetUtils.getDeviceInfo(ip, program["devicepass"], function (device) {
                             if (device.name) {
                                 targetName = device.name + "-" + device.pin;
                                 props.targets[targetName] = {
                                     ip: ip,
                                     pin: device.pin,
                                     type: "device",
-                                    password: program["password"]
+                                    password: program["devicepass"]
                                 };
                                 utils.writeToPropertiesFile(props);
                                 target = targetName;
                                 callback();
                             } else {
                                 console.error("Unable to authenticate with device at " + ip);
-                                if (!program["password"]) {
-                                    console.error("Please provide device password using --password");
+                                if (!program["devicepass"]) {
+                                    console.error("Please provide device password using --devicepass");
                                 }
                                 process.exit(1);
                             }
@@ -143,9 +143,33 @@ function setTarget(callback) {
                 target = targets[0].name;
                 callback();
             } else {
-                console.error("No connected BB10 simulator found");
-                console.error("Simulators must first be configured using platforms/blackberry/cordova/target");
-                process.exit(1);
+                targetUtils.findConnectedSimulator(function (ip) {
+                    if (!ip) {
+                        console.error("No connected BlackBerry 10 simulator found");
+                        process.exit(1);
+                    } else {
+                        targetUtils.getDeviceInfo(ip, program["devicepass"], function (device) {
+                            if (device.name) {
+                                targetName = device.name + "-" + device.pin;
+                                props.targets[targetName] = {
+                                    ip: ip,
+                                    pin: device.pin,
+                                    type: "simulator",
+                                    password: program["devicepass"]
+                                };
+                                utils.writeToPropertiesFile(props);
+                                target = targetName;
+                                callback();
+                            } else {
+                                console.error("Unable to authenticate with device at " + ip);
+                                if (!program["devicepass"]) {
+                                    console.error("Please provide device password using --devicepass");
+                                }
+                                process.exit(1);
+                            }
+                        });
+                    }
+                });
             }
         });
     } else {
@@ -314,11 +338,11 @@ function postBuild() {
 
 function exec() {
     program
-        .usage('[--device] [--emulator] [--password] [--target=<id>] [-k | --keystorepass] [--no-launch] [--no-uninstall] [--no-build]')
+        .usage('[--device] [--emulator] [--devicepass] [--target=<id>] [-k | --keystorepass] [--no-launch] [--no-uninstall] [--no-build]')
         .option('-k, --keystorepass <password>', 'the password of signing key; needed for creating debug token')
         .option('--device', 'run on connected device')
         .option('--emulator', 'run on BB10 simulator')
-        .option('--password <password>', 'device password')
+        .option('--devicepass <password>', 'device password')
         .option('--target', 'specifies the target to run the application')
         .option('--no-uninstall', 'does not uninstall application from device')
         .option('--no-launch', 'do not launch the application on device')
