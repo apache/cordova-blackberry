@@ -22,6 +22,7 @@ var path = require("path"),
 
 describe("Native packager", function () {
     beforeEach(function () {
+        process.env.CORDOVA_BBTOOLS = "";
         callback = jasmine.createSpy();
         config = testData.config;
         session = testData.session;

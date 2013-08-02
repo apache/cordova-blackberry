@@ -48,7 +48,6 @@ describe("create tests", function () {
         project = JSON.parse(fs.readFileSync(appFolder + projectFile, "utf-8"));
         expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
         expect(fs.existsSync(appFolder)).toEqual(true);
-        expect(fs.existsSync(appFolder + "/plugins")).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova")).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova/node_modules")).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova/lib")).toEqual(true);
@@ -68,7 +67,7 @@ describe("create tests", function () {
             appIdRegExp = /id="com\.example\.bb10app"/g;
 
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app"]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true); 
+        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });
@@ -80,7 +79,7 @@ describe("create tests", function () {
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app", "bb10appV1"]);
         project = JSON.parse(fs.readFileSync(appFolder + projectFile, "utf-8"));
         expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
-        expect(project.barName).toEqual("bb10appV1");
+        expect(project.barName).toEqual("cordova-BB10-app");
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });
@@ -88,12 +87,12 @@ describe("create tests", function () {
 
     it("No args", function () {
         executeScript(CREATE_COMMAND, [], true);
-        expect(_output).toContain("You must give a project PATH");  
+        expect(_output).toContain("You must give a project PATH");
     });
 
     it("Empty dir error", function () {
         executeScript(CREATE_COMMAND, ["./"], true);
-        expect(_output).toContain("The project path must be an empty directory");   
+        expect(_output).toContain("The project path must be an empty directory");
     });
 
     it("Invalid appId error", function () {
