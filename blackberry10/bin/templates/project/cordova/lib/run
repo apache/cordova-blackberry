@@ -72,7 +72,7 @@ function generateOptions(uninstall) {
 }
 
 function execNativeDeploy(optionsArray, callback) {
-    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
+    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy")),
         nativeDeploy;
         options = optionsArray.join(" ");
 
@@ -105,13 +105,13 @@ function setTarget(callback) {
                 callback();
             } else {
                 console.error("No connected device found");
-                console.error("Devices must first be configured using platforms/blackberry/cordova/target"); 
+                console.error("Devices must first be configured using platforms/blackberry/cordova/target");
                 process.exit(1);
             }
         });
     } else if (program["emulator"]) {
         targetUtils.getTargetList("simulator", true, function (targets) {
-            if (targets && targets.length > 0) { 
+            if (targets && targets.length > 0) {
                 target = targets[0].name;
                 callback();
             } else {
@@ -150,7 +150,7 @@ function checkTarget() {
 }
 
 function uninstall() {
-    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
+    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy")),
         nativeDeploy;
 
     if (pkgrUtils.isWindows()) {
