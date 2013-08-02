@@ -100,7 +100,7 @@ function generateDeployTokenOptions(target) {
 
 function execNativeScript(script, options, callback) {
     var cp;
-        script = path.join(process.env.CORDOVA_BBTOOLS, script);
+        script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, script));
 
     if (pkgrUtils.isWindows()) {
         script += ".bat";
@@ -244,7 +244,7 @@ self.deployToken = function (projectProperties, target, callback) {
 };
 
 self.checkDebugToken = function (pin, callback) {
-    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-nativepackager"),
+    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-nativepackager")),
         nativePackager;
 
     if (!callback || typeof callback !== "function") {

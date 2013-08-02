@@ -62,7 +62,7 @@ _self = {
     },
 
     checkConnection: function(ip, type, callback) {
-        var script = path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy');
+        var script = bb10_utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy'));
 
         exec(script + ' -test ' + ip, function(error, stdout, stderr) {
             // error code 3 corresponds to a connected device, null corresponds to connected sim

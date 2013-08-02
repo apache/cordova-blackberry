@@ -18,6 +18,7 @@ var path = require('path'),
     os = require('os'),
     childProcess = require("child_process"),
     util = require("util"),
+    utils = require("./utils"),
     conf = require("./conf"),
     pkgrUtils = require("./packager-utils"),
     logger = require("./logger"),
@@ -61,7 +62,7 @@ function getDefaultPath(file) {
 }
 
 function execSigner(session, target, callback) {
-    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-signer"),
+    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-signer")),
         signer,
         params = session.getParams("blackberry-signer"),
         args = [];
