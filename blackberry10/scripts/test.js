@@ -22,8 +22,7 @@ module.exports = function (done, custom) {
             [
                 "framework/test",
                 "bin/test/cordova/integration",
-                "bin/test/cordova/unit",
-                "bin/test/plugins"
+                "bin/test/cordova/unit"
             ];
     utils.copyFile('bin/lib/utils.js', 'bin/templates/project/cordova/lib/', '../');
     jasmine.executeSpecsInFolder({
@@ -31,7 +30,7 @@ module.exports = function (done, custom) {
         'onComplete': function (runner) {
             var failedCount = runner.results().failedCount;
             ((done && typeof done === "function") ?  done : process.exit)(failedCount);
-        }, 
+        },
         'isVerbose': false,
         'showColors': true
     });
