@@ -139,20 +139,22 @@ To add additional functionality that is outside of the core features of Cordova,
 
 In order to use a plugin, you must first add it into your project. Once added into your project, the plugin will be bundled with your project during the build process, to ensure that your app has access to all the APIs it needs.
 
+To add and manage plugins you can use the plugman tool. It is available via npm (ie npm install -g plugman)
+
 ###Add a plugin
 
 To add a plugin, on the command line, type the following command:
 
-        <path-to-project>/cordova/plugin add <path to plugin>
+        plugman install --platform blackberry10 --project . --plugin <id|path|url> [--variable NAME=name]
 
 ###Remove a plugin
 
 To remove a plugin, on the command line, type the following command:
 
-        <path-to-project>/cordova/plugin rm <name>
+        plugman uninstall --platform blackberry10 --project . --plugin <id>
 
 ###View a list of installed plugins
 
 To view a list of installed plugins, on the command line, type the following command:
 
-        <path-to-project>/cordova/plugin ls
+        plugman ls
