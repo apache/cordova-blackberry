@@ -12,6 +12,8 @@ var testData = require("./test-data"),
     fs = require("fs"),
     session = testData.session,
     configPath = path.resolve("bin/test/cordova/unit/config.xml"),
+    configPathUri = path.resolve("bin/test/cordova/unit/configUri.xml"),
+    configPathUriOrigin = path.resolve("bin/test/cordova/unit/configUriOrigin.xml"),
     configBadPath = path.resolve("test2/config.xml"),
     configBareMinimumPath = path.resolve("bin/test/cordova/unit/config-bare-minimum.xml"),
     mockParsing = testUtilities.mockParsing;
@@ -56,12 +58,11 @@ describe("config parser", function () {
         var localAccessList,
             accessListFeature;
 
-        configParser.parse(configPath, session, function (configObj) {
+        configParser.parse(configPathUri, session, function (configObj) {
             //validate WIDGET_LOCAL accessList
-            localAccessList = testUtilities.getAccessListForUri(configObj.accessList, "WIDGET_LOCAL");
+            localAccessList = testUtilities.getAccessList(configObj.accessList, "WIDGET_LOCAL");
             expect(localAccessList).toBeDefined();
             expect(localAccessList.uri).toEqual("WIDGET_LOCAL");
-            expect(localAccessList.allowSubDomain).toEqual(true);
         });
     });
 
@@ -69,9 +70,9 @@ describe("config parser", function () {
         var customAccessList,
             accessListFeature;
 
-        configParser.parse(configPath, session, function (configObj) {
+        configParser.parse(configPathUri, session, function (configObj) {
             //validate http://www.somedomain1.com accessList
-            customAccessList = testUtilities.getAccessListForUri(configObj.accessList, "http://www.somedomain1.com");
+            customAccessList = testUtilities.getAccessList(configObj.accessList, "http://www.somedomain1.com");
             expect(customAccessList).toBeDefined();
             expect(customAccessList.uri).toEqual("http://www.somedomain1.com");
             expect(customAccessList.allowSubDomain).toEqual(true);
@@ -101,7 +102,6 @@ describe("config parser", function () {
         data["@"].id = undefined;
 
         mockParsing(data);
-
         //Should throw an EXCEPTION_INVALID_ID error
         expect(function () {
             configParser.parse(configPath, session, {});
@@ -134,7 +134,7 @@ describe("config parser", function () {
     it("Fails when no name was provided - multiple elements", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
         data.name = ["",
-            { '#': 'API Smoke Test-FR', '@': { 'xml:lang': 'fr' } },
+            { '#': 'API Smoke Test-FR', '@': { 'xml:lang': 'fr' } }
         ];
 
         mockParsing(data);
@@ -147,7 +147,7 @@ describe("config parser", function () {
     it("Fails when localized name was provided but empty", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
         data.name = ["API Smoke Test",
-            { '#': '', '@': { 'xml:lang': 'fr' } },
+            { '#': '', '@': { 'xml:lang': 'fr' } }
         ];
 
         mockParsing(data);
@@ -207,7 +207,7 @@ describe("config parser", function () {
     it("Fails when localized name was provided but empty", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
         data.name = ['API Smoke Test',
-            { '#': '', '@': { 'xml:lang': 'fr' } },
+            { '#': '', '@': { 'xml:lang': 'fr' } }
         ];
 
         mockParsing(data);
@@ -454,6 +454,11 @@ describe("config parser", function () {
         }).not.toThrow();
     });
 
+    it("throws a warning when both uri and origin attributes exist", function () {
+        configParser.parse(configPathUriOrigin, session, function (configObj) {});
+        expect(logger.warn).toHaveBeenCalled();
+    });
+
     it("multi access should be false if no access", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
 
@@ -483,6 +488,24 @@ describe("config parser", function () {
                 allowSubDomain : true
             }, {
                 "uri" : "http://www.somedomain1.com"
+            } ]);
+        });
+    });
+
+    it("multi access should be false if no origin is equal to *", function () {
+        var data = testUtilities.cloneObj(testData.xml2jsConfig);
+        data['access'] = {"@" : {"origin" : "http://www.somedomain1.com"}};
+
+        mockParsing(data);
+
+        configParser.parse(configPath, session, function (configObj) {
+            //hasMultiAccess was set to false
+            expect(configObj.hasMultiAccess).toEqual(false);
+            expect(configObj.accessList).toEqual([ {
+                origin : 'WIDGET_LOCAL',
+                allowSubDomain : true
+            }, {
+                "origin" : "http://www.somedomain1.com"
             } ]);
         });
     });
@@ -529,7 +552,7 @@ describe("config parser", function () {
 
         expect(function () {
             configParser.parse(configPath, session, function (configObj) {});
-        }).toThrow(localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI"));
+        }).toThrow(localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI_OR_ORIGIN"));
     });
 
     it("should fail when multi features are defined with the uri being equal to *", function () {
@@ -540,7 +563,7 @@ describe("config parser", function () {
 
         expect(function () {
             configParser.parse(configPath, session, function (configObj) {});
-        }).toThrow(localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI"));
+        }).toThrow(localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI_OR_ORIGIN"));
     });
 
     it("should fail when the access uri attribute does not specify a protocol", function () {

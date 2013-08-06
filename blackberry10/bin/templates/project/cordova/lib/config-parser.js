@@ -97,9 +97,9 @@ function processFeatures(featuresArray, widgetConfig, processPredefinedFeatures)
     return features;
 }
 
-function createAccessListObj(uri, allowSubDomain) {
+function createAccessListObj(uriOrOrigin, allowSubDomain) {
     return {
-        uri: uri,
+        uri: uriOrOrigin,
         allowSubDomain: allowSubDomain
     };
 }
@@ -124,7 +124,11 @@ function processBuildID(widgetConfig, session) {
 }
 
 function processWidgetData(data, widgetConfig, session) {
-    var attribs, featureArray, header;
+    var attribs,
+        featureArray,
+        uriExist,
+        originExist,
+        header;
 
     if (data["@"]) {
         widgetConfig.version = data["@"].version;
@@ -169,19 +173,37 @@ function processWidgetData(data, widgetConfig, session) {
             data.access = [data.access];
         }
 
+        //check if uri and origin attributes are used
+        data.access.forEach(function (accessElement, accessIndex) {
+            attribs = accessElement["@"];
+
+            if (attribs) {
+                if (attribs.uri) {
+                    uriExist = true;
+                }
+                if (attribs.origin) {
+                    originExist = true;
+                }
+            }
+        });
+        if (uriExist === true && originExist === true) {
+            logger.warn(localize.translate("WARNING_URI_AND_ORIGIN_FOUND_IN_CONFIG"));
+        }
+
         data.access.forEach(function (accessElement) {
             attribs = accessElement["@"];
 
             if (attribs) {
-                if (attribs.uri === "*") {
+                if (attribs.uri === "*" || attribs.origin === "*") {
                     if (accessElement.feature) {
-                        throw localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI");
+                        throw localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI_OR_ORIGIN");
                     }
-
                     widgetConfig.hasMultiAccess = true;
                 } else {
                     attribs.subdomains = packagerUtils.toBoolean(attribs.subdomains);
-                    widgetConfig.accessList.push(createAccessListObj(attribs.uri, attribs.subdomains));
+                    if (attribs.uri || attribs.origin) {
+                        widgetConfig.accessList.push(createAccessListObj(attribs.uri || attribs.origin, attribs.subdomains));
+                    }
                 }
             }
         });
