@@ -22,11 +22,7 @@
         <param name="mode" value="portrait" />
         <param name="other" value="portrait" />
       </feature>
-    <feature id="blackberry.app" required="true" version="1.0.0.0">
-        <param name="childBrowser" value="disable" />
-        <param name="websecurity" value="disable" />
-        <param name="popupBlocker" value="enable" />
-    </feature>
+    <feature id="blackberry.app" required="true" version="1.0.0.0" />
     <feature id="blackberry.system" required="true" version="1.0.0.3"/>
     <access origin="http://www.somedomain1.com" subdomains="true">
         <feature id="blackberry.app" required="true" version="1.0.0.0"/>
@@ -50,4 +46,8 @@
             <property var="exts" value="doc" />
         </filter>
     </rim:invoke-target>
+
+    <preference name="backgroundColor" value="0xffffff" />
+    <preference name="childBrowser" value="disable" />
+    <preference name="HideKeyboardFormAccessoryBar" value="disable" />
 </widget>

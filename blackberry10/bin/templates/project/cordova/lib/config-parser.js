@@ -26,8 +26,7 @@ var fs = require("fs"),
     utils = require("./packager-utils"),
     i18nMgr = require("./i18n-manager"),
     _self,
-    _predefinedFeatures,
-    _hybridFeatures;
+    _predefinedFeatures;
 
 //This function will convert a wc3 paramObj with a list of
 //<param name="" value=""> elements into a single object
@@ -82,10 +81,6 @@ function processFeatures(featuresArray, widgetConfig, processPredefinedFeatures)
                         _predefinedFeatures[attribs.id](feature, widgetConfig);
                     }
                 } else {
-                    //Handle features that contain both a namespace and custom params
-                    if (_hybridFeatures[attribs.id]) {
-                        _hybridFeatures[attribs.id](feature, widgetConfig);
-                    }
                     features.push(attribs);
                 }
             } else {
@@ -547,6 +542,63 @@ function processCordovaPreferences(data, widgetConfig) {
         var preference = processParamObj(data.preference);
         widgetConfig.packageCordovaJs = preference.packageCordovaJs === "enable";
         widgetConfig.autoHideSplashScreen = preference.AutoHideSplashScreen !== "false";
+
+        // <preference name="backgroundColor" value="hex" />
+        if (preference.backgroundColor) {
+            widgetConfig.backgroundColor = processBgColor(preference.backgroundColor);
+        }
+
+        // <preference name="childBrowser" value="enable or disable" />
+        if (preference.childBrowser) {
+            widgetConfig.enableChildWebView = ((preference.childBrowser + '').toLowerCase() === 'disable') === false;
+        }
+
+        // <preference name="HideKeyboardFormAccessoryBar" value="enable or disable />
+        if (preference.HideKeyboardFormAccessoryBar) {
+            widgetConfig.enableFormControl = ((preference.HideKeyboardFormAccessoryBar + '').toLowerCase() === 'disable') === false;
+        }
+
+        // <preference name="popupBlocker" value="enable or disable" />
+        if (preference.popupBlocker) {
+            widgetConfig.enablePopupBlocker = ((preference.popupBlocker + '').toLowerCase() === 'enable') === true;
+        }
+
+        // <preference name="orientation" value="portrait, landscape, north or auto" />
+        if (preference.orientation) {
+            if (preference.orientation ===  "landscape" || preference.orientation === "portrait" || preference.orientation === "north") {
+                widgetConfig.autoOrientation = false;
+                widgetConfig.orientation = preference.orientation;
+            } else if (preference.orientation !== "auto") {
+                throw localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", preference.orientation);
+            }
+        }
+
+        // <preference name="theme" value="bright, dark, inherit or default" />
+        if (preference.theme && (typeof preference.theme === "string")) {
+            preference.theme = preference.theme.toLowerCase();
+            if (preference.theme ===  "bright" || preference.theme === "dark" || preference.theme === "inherit" || preference.theme ===  "default") {
+                widgetConfig.theme = preference.theme;
+            }
+        }
+
+        // <preference name="webSecurity" value="enable or disable" />
+        if (preference.webSecurity && (typeof preference.webSecurity === "string") && (preference.webSecurity.toLowerCase() === "disable")) {
+            widgetConfig.enableWebSecurity = false;
+            logger.warn(localize.translate("WARNING_WEBSECURITY_DISABLED"));
+        }
+
+    }
+}
+
+function processBgColor(bgColor) {
+    //convert bgColor to a number
+    bgColorNum = parseInt(bgColor, 16);
+
+    if (isNaN(bgColorNum)) {
+        //bgColor is not a number, throw error
+        throw localize.translate("EXCEPTION_BGCOLOR_INVALID", bgColor);
+    } else {
+        return bgColorNum;
     }
 }
 
@@ -604,70 +656,8 @@ function init() {
                 logger.warn(localize.translate("WARNING_ORIENTATION_DEPRECATED"));
             }
         }
-    };
-
-    //Hybrid features are features that have both an API namespace and custom parameters
-    _hybridFeatures = {
-        "blackberry.app": function (feature, widgetConfig) {
-            if (feature) {
-                var params = processParamObj(feature.param),
-                    bgColor = params.backgroundColor,
-                    childBrowser = params.childBrowser,
-                    formControl = params.formControl,
-                    orientation = params.orientation,
-                    theme = params.theme,
-                    popupBlocker = params.popupBlocker,
-                    websecurity = params.websecurity;
-
-                if (bgColor) {
-                    //Convert bgColor to a number
-                    bgColor = parseInt(bgColor, 16);
-
-                    if (isNaN(bgColor)) {
-                        //bgcolor is not a number, throw error
-                        throw localize.translate("EXCEPTION_BGCOLOR_INVALID", params.backgroundColor);
-                    } else {
-                        widgetConfig.backgroundColor = bgColor;
-                    }
-                }
-
-                if (childBrowser) {
-                    widgetConfig.enableChildWebView = ((childBrowser + '').toLowerCase() === 'disable') === false;
-                }
-
-                if (formControl) {
-                    widgetConfig.enableFormControl = ((formControl + '').toLowerCase() === 'disable') === false;
-                }
-
-                if (popupBlocker) {
-                    widgetConfig.enablePopupBlocker = ((popupBlocker + '').toLowerCase() === 'enable') === true;
-                }
-
-                if (orientation) {
-                    if (orientation ===  "landscape" || orientation === "portrait" || orientation === "north") {
-                        widgetConfig.autoOrientation = false;
-                        widgetConfig.orientation = orientation;
-                    } else if (orientation !== "auto") {
-                        throw localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", orientation);
-                    }
-                }
-
-                if (theme && (typeof theme === "string")) {
-                    theme = theme.toLowerCase();
-
-                    if (theme ===  "bright" || theme === "dark" || theme === "inherit" || theme ===  "default") {
-                        widgetConfig.theme = theme;
-                    }
-                }
-
-                if (websecurity && (typeof websecurity === "string") && (websecurity.toLowerCase() === "disable")) {
-                    widgetConfig.enableWebSecurity = false;
-                    logger.warn(localize.translate("WARNING_WEBSECURITY_DISABLED"));
-                }
-            }
-        }
-    };
-}
+    }
+};
 
 _self = {
     parse: function (xmlPath, session, callback) {
