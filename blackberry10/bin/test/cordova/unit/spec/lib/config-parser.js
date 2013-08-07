@@ -50,7 +50,6 @@ describe("config parser", function () {
             expect(configObj.permissions).toContain('read_geolocation');
             expect(configObj.permissions).toContain('use_camera');
             expect(configObj.enableChildWebView).toBe(false);
-            expect(configObj.enableChildWebView).toBe(false);
         });
     });
 
@@ -1106,8 +1105,7 @@ describe("config parser", function () {
 
         it("sets orientation to landscape when specified", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
-            data['feature'] = { '@': { id: 'blackberry.app', required: true },
-                param: { '@': { name: 'orientation', value: 'landscape' } } };
+            data['preference'] = { '@': { name: 'orientation', value: 'landscape' } };
 
             mockParsing(data);
 
@@ -1119,8 +1117,7 @@ describe("config parser", function () {
 
         it("sets orientation to portrait when specified", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
-            data['feature'] = { '@': { id: 'blackberry.app', required: true },
-                param: { '@': { name: 'orientation', value: 'portrait' } } };
+            data['preference'] = { '@': { name: 'orientation', value: 'portrait' } };
 
             mockParsing(data);
 
@@ -1132,7 +1129,7 @@ describe("config parser", function () {
 
         it("sets auto orientation to true by default", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
-            delete data["feature"];//Remove any orientation data
+            delete data['preference'];//Remove any orientation data
 
             mockParsing(data);
 
@@ -1154,21 +1151,18 @@ describe("config parser", function () {
 
         it("throws an error when blackberry.app orientation exists with an invalid mode param", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
-            data['feature'] = { '@': { id: 'blackberry.app', required: true },
-                param: { '@': { name: 'orientation', value: 'notAValidMode' } } };
+            data['preference'] = { '@': { name: 'orientation', value: 'notAValidMode' } };
 
             mockParsing(data);
 
-            //Should throw an EXCEPTION_INVALID_ORIENTATION_MODE error
             expect(function () {
                 configParser.parse(configPath, session, function (configObj) {});
-            }).toThrow(localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", "notAValidMode"));
+            }).toThrow(localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", "notavalidmode"));
         });
 
-        it("sets backgroundColor when specified via blackberry.app namespace", function () {
+        it("sets backgroundColor when specified as a preference", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
-            data['feature'] = { '@': { id: 'blackberry.app', required: true },
-                param: { '@': { name: 'backgroundColor', value: '0xffffff' } } };
+            data['preference'] = { '@': {name: 'backgroundColor', value: '0xffffff' } };
 
             mockParsing(data);
 
@@ -1177,21 +1171,21 @@ describe("config parser", function () {
             });
         });
 
-        it("throws an error when blackberry.app backgroundColor param is not a number", function () {
+        it("throws an error backgroundColor preference is not a number", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
-            data['feature'] = { '@': { id: 'blackberry.app', required: true },
-                param: { '@': { name: 'backgroundColor', value: '$UI*@@$' } } };
+            data['preference'] = { '@': { name: 'backgroundColor', value: '$UI*@@$' } };
 
             mockParsing(data);
 
             //Should throw an EXCEPTION_BGCOLOR_INVALID error
             expect(function () {
                 configParser.parse(configPath, session, {});
-            }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$UI*@@$"));
+            }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$ui*@@$"));
         });
 
         it("can properly parse the custom RIM-Wiget:rim/wiget element", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
+
             mockParsing(data);
 
             configParser.parse(configPath, session, function (configObj) {
@@ -1235,15 +1229,9 @@ describe("config parser", function () {
         });
 
         describe('disabling childBrowser (childWebView)', function () {
-
-            // { '@': { id: 'blackberry.app', required: true, version: '1.0.0.0' },
-            //   param: { '@': { name: 'childBrowser', value: 'disable' } } }
-
-
             it("sets enableChildWebView to true when childBrowser value is enable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data['feature'] = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'childBrowser', value: 'enable' } } };
+                data['preference'] = { '@': { name: 'childBrowser', value: 'enable' } };
 
                 mockParsing(data);
 
@@ -1254,8 +1242,7 @@ describe("config parser", function () {
 
             it("sets enableChildWebView to false when value is disable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data['feature'] = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'childBrowser', value: 'disable' } } };
+                data['preference'] = { '@': { name: 'childBrowser', value: 'disable' } };
 
                 mockParsing(data);
 
@@ -1266,11 +1253,9 @@ describe("config parser", function () {
         });
 
         describe('disabling formcontrol', function () {
-
-            it("sets enableFormControl to true when formControl value is enable", function () {
+            it("sets enableFormControl to true when HideKeyboardFormAccessoryBar value is disable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data['feature'] = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'formControl', value: 'enable' } } };
+                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'disable'  } };
 
                 mockParsing(data);
 
@@ -1279,10 +1264,9 @@ describe("config parser", function () {
                 });
             });
 
-            it("sets enableFormControl to false when value is disable", function () {
+            it("sets enableFormControl to false when value is enable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data['feature'] = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'formControl', value: 'disable' } } };
+                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'enable' } };
 
                 mockParsing(data);
 
@@ -1297,8 +1281,7 @@ describe("config parser", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
 
                 if (themeInConfig) {
-                    data['feature'] = { '@': { id: 'blackberry.app' },
-                        param: { '@': { name: 'theme', value: themeInConfig } } };
+                    data['preference'] = { '@': { name: 'theme', value: themeInConfig } };
 
                     mockParsing(data);
                 }
@@ -1356,15 +1339,9 @@ describe("config parser", function () {
         });
 
         describe('disabling WebSecurity', function () {
-
-            // { '@': { id: 'blackberry.app', required: true, version: '1.0.0.0' },
-            //   param: { '@': { name: 'childBrowser', value: 'disable' } } }
-
-
             it("doesn't set enableWebSecurity to anything when param value is anything but disable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data.feature = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'websecurity', value: (new Date()).toString() } } };
+                data['preference'] = { '@': { name: 'webSecurity', value: (new Date()).toString() } };
 
                 mockParsing(data);
 
@@ -1376,8 +1353,7 @@ describe("config parser", function () {
 
             it("sets enableWebSecurity to false when value is disable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data.feature = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'websecurity', value: 'disable' } } };
+                data['preference'] = { '@': { name: 'webSecurity', value: 'disable' } };
 
                 mockParsing(data);
 
@@ -1389,8 +1365,7 @@ describe("config parser", function () {
 
             it("sets enableWebSecurity to false when value is disable case insensitive", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data.feature = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'websecurity', value: 'DisAble' } } };
+                data['preference'] = { '@': { name: 'webSecurity', value: 'DisAble' } };
 
                 mockParsing(data);
 
@@ -1402,14 +1377,9 @@ describe("config parser", function () {
         });
 
         describe('enabling popupBlocker', function () {
-
-            // { '@': { id: 'blackberry.app', required: true, version: '1.0.0.0' },
-            //   param: { '@': { name: 'childBrowser', value: 'disable' } } }
-
-            it("sets enableWebSecurity to false when value is disable", function () {
+            it("sets enablePopupBlocker to true when value is enable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data.feature = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'popupBlocker', value: 'enable' } } };
+                data['preference'] = { '@': { name: 'popupBlocker', value: 'enable' } };
 
                 mockParsing(data);
 
@@ -1418,15 +1388,14 @@ describe("config parser", function () {
                 });
             });
 
-            it("sets enableWebSecurity to false when value is disable case insensitive", function () {
+            it("sets enablePopBlocker to false when value is disable case insensitive", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data.feature = { '@': { id: 'blackberry.app' },
-                    param: { '@': { name: 'popupBlocker', value: 'EnAbLe' } } };
+                data['preference'] = { '@': { name: 'popupBlocker', value: 'Disable' } };
 
                 mockParsing(data);
 
                 configParser.parse(configPath, session, function (configObj) {
-                    expect(configObj.enablePopupBlocker).toBe(true);
+                    expect(configObj.enablePopupBlocker).toBe(false);
                 });
             });
         });
