@@ -166,6 +166,10 @@ _self = {
         }
     },
 
+    inQuotes : function (property) {
+        return "\"" + property + "\"";
+    },
+
     loadModule: function (path) {
         return require(path);
     },
