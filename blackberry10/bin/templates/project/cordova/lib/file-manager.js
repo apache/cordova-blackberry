@@ -102,16 +102,14 @@ function getModulesArray(dest, files, baseDir) {
         EXCLUDE_FILES = ["client.js", "manifest.json"];
 
     function isExcluded(file) {
-        return EXCLUDE_FILES.some(function (element) {
-            return path.basename(file) === element;
-        });
+        return EXCLUDE_FILES.indexOf(path.basename(file)) !== -1 || !file.match(/\.(js|json)$/);
     }
 
     files.forEach(function (file) {
         file = path.resolve(baseDir, file);
 
         if (!fs.statSync(file).isDirectory()) {
-            if (baseDir !== dest.EXT || !isExcluded(file)) {
+            if (baseDir !== dest.EXT && !isExcluded(file)) {
                 modulesList.push({name: path.relative(path.normalize(dest.CHROME), file).replace(/\\/g, "/"), file: file});
             }
         }
