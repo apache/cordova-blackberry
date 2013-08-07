@@ -86,9 +86,8 @@ function validate() {
         process.exit(2);
     }
     if (!validPackageName(app_id)) {
-        console.log("App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
-        help();
-        process.exit(2);
+        console.log("[warning] App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters.\n" +
+                    "special characters in '" + app_id + "' will be replaced by '_'");
     }
     if (!validBarName(bar_name)) {
         console.log("BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
