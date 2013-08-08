@@ -502,10 +502,10 @@ describe("config parser", function () {
             //hasMultiAccess was set to false
             expect(configObj.hasMultiAccess).toEqual(false);
             expect(configObj.accessList).toEqual([ {
-                origin : 'WIDGET_LOCAL',
+                uri : 'WIDGET_LOCAL',
                 allowSubDomain : true
             }, {
-                "origin" : "http://www.somedomain1.com"
+                "uri" : "http://www.somedomain1.com"
             } ]);
         });
     });
