@@ -16,6 +16,7 @@
 
 var _self,
     os = require("os"),
+    fs = require('fs'),
     exec = require('child_process').exec,
     path = require('path'),
     bb10_utils = require('./utils'),
@@ -30,6 +31,11 @@ _self = {
                 targets[t].name = t;
                 targList.push(targets[t]);
             },
+            complete = function () {
+                if (count === Object.keys(targets).length) {
+                    callback(targList);
+                }
+            },
             checkConnection = function (name) {
                 _self.checkConnection(targets[name].ip, type, function (connected) {
                     count++;
@@ -38,11 +44,6 @@ _self = {
                     }
                     complete();
                 });
-            },
-            complete = function () {
-                if (count === Object.keys(targets).length) {
-                    callback(targList);
-                }
             },
             t;
 
@@ -64,29 +65,30 @@ _self = {
         complete();
     },
 
-    getDeviceInfo: function(ip, password, callback) {
+    getDeviceInfo: function (ip, password, callback) {
         var cmd = path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy') + ' -listDeviceInfo ' + ip;
         if (password) {
             cmd += ' -password ' + password;
         }
-        exec(cmd, function(error, stdout, stderr) {
+        exec(cmd, function (error, stdout, stderr) {
             var result = {},
-                name = /modelname::(.*?)\n/.exec(stdout),
-                pin = /devicepin::0x(.*?)\n/.exec(stdout);
+                name = /modelname::(.*?)(\r?)\n/.exec(stdout),
+                pin = /devicepin::0x(.*?)(\r?)\n/.exec(stdout);
             if (name && name.length > 0) {
                 result.name = name[1];
             }
             if (pin && pin.length > 0) {
                 result.pin = pin[1];
             }
+
             callback(result);
         });
     },
 
-    findConnectedDevice: function(callback) {
+    findConnectedDevice: function (callback) {
         var defaultIp = '169.254.0.1';
         _self.discoverUsb(function (result) {
-           if (result) {
+            if (result) {
                 _self.checkConnection(result, 'device', function (connection) {
                     if (connection)  {
                         callback(result);
@@ -106,7 +108,7 @@ _self = {
         });
     },
 
-    discoverUsb: function(callback) {
+    discoverUsb: function (callback) {
         var IPV4_TYPE = "IPv4",
             IP_SPLIT_REGEXP = /(169\.254\.\d{1,3}\.)(\d{1,3})/,
             networkInterfaces = os.networkInterfaces(),
@@ -116,11 +118,11 @@ _self = {
 
         for (ni in networkInterfaces) {
             if (networkInterfaces.hasOwnProperty(ni)) {
-                for (i=0; i< networkInterfaces[ni].length; i++) {
+                for (i = 0; i < networkInterfaces[ni].length; i++) {
                     if (networkInterfaces[ni][i].family === IPV4_TYPE) {
                         result = IP_SPLIT_REGEXP.exec(networkInterfaces[ni][i].address);
                         if (result && result[1] && result[2]) {
-                            callback(result[1] + (result[2] -1));
+                            callback(result[1] + (result[2] - 1));
                             return;
                         }
                     }
@@ -132,18 +134,90 @@ _self = {
         callback();
     },
 
-    checkConnection: function(ip, type, callback) {
-        var script = bb10_utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy'));
-        exec(script + ' -test ' + ip, function(error, stdout, stderr) {
-            // error code 3 corresponds to a connected device, null corresponds to connected sim
-            callback((type === 'simulator' && error === null) || (type == 'device' && error.code === 3));
+    findConnectedSimulator: function (callback) {
+        var pathVmDhcpLeases,
+            pathUserProfile,
+            pathAllUserProfile,
+            vmDhcpLeasesFiles,
+            DHCP_LEASES_REGEX = /VMware\\vmnetdhcp.leases$/,
+            targets = blackberryProperties.targets,
+            ipsToTest = [],
+            dhcpIPs = [],
+            t;
+
+        // Firstly, check targets in the properties file
+        if (targets) {
+            for (t in targets) {
+                if (targets.hasOwnProperty(t) && targets[t].type === "simulator" && targets[t].ip) {
+                    ipsToTest.push(targets[t].ip);
+                }
+            }
+        }
+
+        // Secondly, check VMware dhcp.leases file
+        if (bb10_utils.isWindows()) {
+            pathUserProfile = process.env['USERPROFILE'];
+            pathAllUserProfile = pathUserProfile.substr(0, pathUserProfile.lastIndexOf("\\") + 1) + "All Users";
+            vmDhcpLeasesFiles = bb10_utils.readdirSyncRecursive(pathAllUserProfile).filter(function (file) {
+                return DHCP_LEASES_REGEX.test(file);
+            });
+            pathVmDhcpLeases = vmDhcpLeasesFiles[0];
+        } else {
+            pathVmDhcpLeases = "/private/var/db/vmware/vmnet-dhcpd-vmnet8.leases";
+        }
+
+        fs.readFile(pathVmDhcpLeases, 'utf8', function (err, data) {
+            if (!err) {
+                // Find all lines that start with "lease xxx.xxx.xxx.xxx "
+                dhcpIPs = data.match(/lease \d{1,3}.\d{1,3}.\d{1,3}.\d{1,3} /g);
+                dhcpIPs = dhcpIPs.map(function (result) {
+                    return result.substr(6, result.indexOf(' ', 7) - 6);
+                });
+            }
+
+            ipsToTest = ipsToTest.concat(dhcpIPs);
+            // Remove duplicated ip
+            ipsToTest = ipsToTest.filter(function (item, index, arr) {
+                return arr.indexOf(item) === index;
+            });
+
+            _self.checkConnectionRecursive(ipsToTest, 0, callback);
         });
     },
 
-    listTargets : function(type, pruneDisconnected) {
+    checkConnectionRecursive: function (ips, index, callback) {
+        var ip;
+
+        if (!ips || index === ips.length) {
+            callback();
+            return;
+        }
+
+        console.log("Searching for connected BlackBerry 10 Simulator (" + (index + 1) + "/" + ips.length + ")...");
+        ip = ips[index];
+        _self.checkConnection(ip, "simulator", function (connection) {
+            if (connection) {
+                callback(ip);
+            } else {
+                _self.checkConnectionRecursive(ips, index + 1, callback);
+            }
+        });
+    },
+
+    checkConnection: function (ip, type, callback) {
+        var script = path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy');
+        exec(script + ' -test ' + ip, function (error, stdout, stderr) {
+            // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected simulator
+            callback((type === 'simulator' && (error === null || stderr.length === 0 || stderr.indexOf('Error: null') >= 0 || stderr.indexOf('Error: Authentication failed') >= 0)) || (type === 'device' && error.code === 3));
+        });
+    },
+
+    listTargets : function (type, pruneDisconnected) {
         _self.getTargetList(type, pruneDisconnected, function (targets) {
             for (var t in targets) {
-                console.log(targets[t].name + ' ip: ' + targets[t].ip);
+                if (targets.hasOwnProperty(t)) {
+                    console.log(targets[t].name + ' ip: ' + targets[t].ip);
+                }
             }
         });
     }

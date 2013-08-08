@@ -94,6 +94,40 @@ _self = {
         return filteredFiles;
     },
 
+    readdirSyncRecursive: function (baseDir) {
+        var files = [],
+            curFiles = [],
+            nextDirs,
+            isDir = function (f) {
+                return fs.statSync(f).isDirectory();
+            },
+            isFile = function (f) {
+                return !isDir(f);
+            },
+            prependBaseDir = function (fname) {
+                return path.join(baseDir, fname);
+            };
+
+        try {
+            curFiles = fs.readdirSync(baseDir);
+
+            if (curFiles && curFiles.length > 0) {
+                curFiles = curFiles.map(prependBaseDir);
+                nextDirs = curFiles.filter(isDir);
+                curFiles = curFiles.filter(isFile);
+
+                files = files.concat(curFiles);
+
+                while (nextDirs.length) {
+                    files = files.concat(_self.readdirSyncRecursive(nextDirs.shift()));
+                }
+            }
+        } catch (e) {
+        }
+
+        return files;
+    },
+
     isWindows: function () {
         return os.type().toLowerCase().indexOf("windows") >= 0;
     },
@@ -213,7 +247,7 @@ _self = {
         fs.writeFileSync(propertiesFile, contents, 'utf-8');
     },
 
-    genBarName: function() {
+    genBarName: function () {
         return DEFAULT_BAR_NAME;
     }
 

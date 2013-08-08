@@ -26,7 +26,6 @@ var childProcess = require("child_process"),
     debugTokenDir = path.normalize(path.join(utils.getCordovaDir(), "blackberry10debugtoken.bar")),
     properties,
     targets,
-    deployCallback,
     self = {};
 
 function isDebugTokenValid(pin, data) {
@@ -44,11 +43,11 @@ function isDebugTokenValid(pin, data) {
 
     manifests = data.toString().replace(/[\r]/g, '').split('\n');
 
-    for (i=0, l=manifests.length; i<l; i++) {
+    for (i = 0, l = manifests.length; i < l; i++) {
         if (manifests[i].indexOf("Debug-Token-Expiry-Date: ") >= 0) {
             // Parse the expiry date
             line = manifests[i].substring("Debug-Token-Expiry-Date: ".length);
-            expiry = new Date(line.substring(0, line.indexOf("T")) + " " + line.substring(line.indexOf("T") + 1, line.length -1) + " UTC");
+            expiry = new Date(line.substring(0, line.indexOf("T")) + " " + line.substring(line.indexOf("T") + 1, line.length - 1) + " UTC");
         } else if (manifests[i].indexOf("Debug-Token-Device-Id: ") >= 0) {
             line = manifests[i].substring("Debug-Token-Device-Id: ".length);
             devices = line.split(",");
@@ -56,7 +55,7 @@ function isDebugTokenValid(pin, data) {
     }
 
     if (expiry && expiry > now) {
-        for (i=0, l=devices.length; i<l; i++) {
+        for (i = 0, l = devices.length; i < l; i++) {
             if (parseInt(devices[i]) === parseInt(pin, 16)) {
                 return true; // The debug token is valid if not expired and device pin is included
             }
@@ -83,24 +82,26 @@ function generateCreateTokenOptions(pins, password) {
     return options;
 }
 
-function generateDeployTokenOptions(target) {
+function generateDeployTokenOptions(targetIp, targetPassword) {
     var options = [];
 
     options.push("-installDebugToken");
     options.push(debugTokenDir);
 
     options.push("-device");
-    options.push(properties.targets[target].ip);
+    options.push(targetIp);
 
-    options.push("-password");
-    options.push(properties.targets[target].password);
+    if (targetPassword) {
+        options.push("-password");
+        options.push(targetPassword);
+    }
 
     return options;
 }
 
 function execNativeScript(script, options, callback) {
-    var cp;
-        script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, script));
+    var cp,
+        script = path.join(process.env.CORDOVA_BBTOOLS, script);
 
     if (pkgrUtils.isWindows()) {
         script += ".bat";
@@ -120,49 +121,6 @@ function execNativeScript(script, options, callback) {
             callback(code);
         }
     });
-}
-
-function checkTarget(target) {
-    if (!properties.targets[target]) {
-        logger.warn(localize.translate("WARN_TARGET_NOT_EXIST", target));
-        return false;
-    }
-
-    if (!properties.targets[target].ip) {
-        logger.warn(localize.translate("WARN_IP_NOT_DEFINED", target));
-        return false;
-    }
-
-    if (!properties.targets[target].password) {
-        logger.warn(localize.translate("WARN_PASSWORD_NOT_DEFINED", target));
-        return false;
-    }
-
-    return true;
-
-}
-
-// Deploy the debug token for each target in targets array recursively
-function deployTokenToTargetsRecursively() {
-    var target;
-
-    if (targets.length > 0) {
-        target = targets.pop();
-
-        logger.info(localize.translate("PROGRESS_DEPLOYING_DEBUG_TOKEN", target));
-        if (checkTarget(target)) {
-            execNativeScript("blackberry-deploy",
-                generateDeployTokenOptions(target),
-                deployTokenToTargetsRecursively
-            );
-        } else {
-            deployTokenToTargetsRecursively();
-        }
-    } else {
-        if (deployCallback && typeof deployCallback === "function") {
-            deployCallback();
-        }
-    }
 }
 
 self.createToken = function (projectProperties, target, keystorepass, callback) {
@@ -209,38 +167,12 @@ self.createToken = function (projectProperties, target, keystorepass, callback) 
     }
 };
 
-self.deployToken = function (projectProperties, target, callback) {
-    var key;
-
-    // Store the global variable "properties"
-    properties = projectProperties;
-
-    // Initialize the global variable "targets"
-    targets = [];
-
-    // Store callback so it will be invoked after debug token is deployed to all target(s)
-    deployCallback = callback;
-
-    // Gather targets information from properties
-    // Gather PINs information from properties
-    if (target === "all") {
-        for (key in properties.targets) {
-            if (properties.targets.hasOwnProperty(key) && properties.targets[key].pin) {
-                targets.push(key);
-            }
-        }
-    } else {
-        if (!target) {
-            target = properties.defaultTarget;
-        }
-
-        if (properties.targets.hasOwnProperty(target) && properties.targets[target].pin) {
-            targets.push(target);
-        }
-    }
-
-    // Deploy debug token recursively
-    deployTokenToTargetsRecursively();
+self.deployToken = function (target, targetIp, targetPassword, callback) {
+    logger.info(localize.translate("PROGRESS_DEPLOYING_DEBUG_TOKEN", target));
+    execNativeScript("blackberry-deploy",
+        generateDeployTokenOptions(targetIp, targetPassword),
+        callback
+    );
 };
 
 self.checkDebugToken = function (pin, callback) {
@@ -260,7 +192,7 @@ self.checkDebugToken = function (pin, callback) {
         script += ".bat";
     }
 
-    nativePackager = childProcess.exec(path.normalize(script +" -listManifest " + debugTokenDir), {
+    nativePackager = childProcess.exec(path.normalize(script + " -listManifest " + debugTokenDir), {
         "cwd": workingDir,
         "env": process.env
     }, function (error, stdout, stderr) {
