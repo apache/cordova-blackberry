@@ -27,7 +27,7 @@ var childProcess = require("child_process"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
     debugTokenHelper = require("./debugtoken-helper"),
-    targets = utils.getProperties(),
+    props = utils.getProperties(),
     program = require('commander'),
     xml2js = require('xml2js'),
     jWorkflow = require("jWorkflow"),
@@ -43,7 +43,7 @@ var childProcess = require("child_process"),
 
 function generateOptions(uninstall) {
     var options = [];
-    barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + targets.targets[target].type + "/" + utils.genBarName() + ".bar"));
+    barPath = pkgrUtils.escapeStringForShell(path.normalize(__dirname + "/../../build/" + props.targets[target].type + "/" + utils.genBarName() + ".bar"));
 
     options.push("-device");
     options.push(ip);
@@ -97,7 +97,7 @@ function execNativeDeploy(optionsArray, callback) {
 }
 
 function setTarget(callback) {
-    target = program.args[0] ? program.args[0] : targets.defaultTarget;
+    target = program.args[0] ? program.args[0] : props.defaultTarget;
     if (program["device"]) {
         targetUtils.getTargetList("device", true, function (targets) {
             if (targets && targets.length > 0) {
@@ -131,20 +131,20 @@ function checkTarget() {
         console.log(program.helpInformation());
         return false;
     }
-    if (!targets.targets[target]) {
+    if (!props.targets[target]) {
         console.log("The target \""+target+"\" does not exist, to add that target please run target add "+target+" <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]");
         console.log(program.helpInformation());
         return false;
     }
-    if (targets.targets[target].ip) {
-       ip = targets.targets[target].ip;
+    if (props.targets[target].ip) {
+       ip = props.targets[target].ip;
     } else {
         console.log("IP is not defined in target \""+target+"\"");
         console.log(program.helpInformation());
         return false;
     }
-    if (targets.targets[target].password) {
-       password = targets.targets[target].password;
+    if (props.targets[target].password) {
+       password = props.targets[target].password;
     }
     return true;
 }
@@ -191,32 +191,38 @@ function deploy() {
 
 function checkDebugtoken(previous, baton) {
     baton.take();
-
-    // if target has no pin, skip the debug token feature
-    if (targets.targets[target].pin) {
-        debugTokenHelper.checkDebugToken(targets.targets[target].pin, function (valid) {
-            // If the debug token is not valid, we need create new debug token
-            if (valid) {
-                // No need to create the debug token
-                logger.info(localize.translate("PROGRESS_DEBUG_TOKEN_IS_VALID"));
-                needDeployDebugToken = true;
-            } else {
-                needCreateDebugToken = true;
-            }
-            baton.pass();
-        });
+    if (props.targets[target].pin) {
+        validateDebugToken(pin, baton);
     } else {
-        baton.pass();
+        targetUtils.getPin(props.targets[target].ip, props.targets[target].password, function (pin) {
+            props.targets[target].pin = pin;
+            utils.writeToPropertiesFile(props);
+            validateDebugToken(pin, baton);
+        });
     }
 }
 
+function validateDebugToken(pin, baton) {
+    debugTokenHelper.checkDebugToken(pin, function (valid) {
+        // If the debug token is not valid, we need create new debug token
+        if (valid) {
+            // No need to create the debug token
+            logger.info(localize.translate("PROGRESS_DEBUG_TOKEN_IS_VALID"));
+            needDeployDebugToken = true;
+        } else {
+            needCreateDebugToken = true;
+        }
+        baton.pass();
+    });
+}
+
 function createDebugToken(previous, baton) {
-    var keystorepass = program["keystorepass"] ? program["keystorepass"] : targets.keystorepass;
+    var keystorepass = program["keystorepass"] ? program["keystorepass"] : props.keystorepass;
 
     baton.take();
 
     if (needCreateDebugToken) {
-        debugTokenHelper.createToken(targets, "all", keystorepass, function (code) {
+        debugTokenHelper.createToken(props, "all", keystorepass, function (code) {
             if (code === 0) {
                 // Deploy the debug token if created
                 needDeployDebugToken = true;
@@ -234,7 +240,7 @@ function deployDebugToken(previous, baton) {
 
     // If in debug build and debug token was created, deploy the debug token and wait until the deployment is finished
     if (needDeployDebugToken) {
-        debugTokenHelper.deployToken(targets, target, function () {
+        debugTokenHelper.deployToken(props, target, function () {
             baton.pass();
         });
     } else {
