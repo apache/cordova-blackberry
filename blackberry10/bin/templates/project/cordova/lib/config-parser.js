@@ -202,7 +202,11 @@ function processWidgetData(data, widgetConfig, session) {
                 } else {
                     attribs.subdomains = packagerUtils.toBoolean(attribs.subdomains);
                     if (attribs.uri || attribs.origin) {
-                        widgetConfig.accessList.push(createAccessListObj(attribs.uri || attribs.origin, attribs.subdomains));
+                        if (uriExist === true && originExist === true) {
+                            widgetConfig.accessList.push(createAccessListObj(attribs.uri, attribs.subdomains)); //using uri attribute by default
+                        } else {
+                            widgetConfig.accessList.push(createAccessListObj(attribs.uri || attribs.origin, attribs.subdomains));
+                        }
                     }
                 }
             }
