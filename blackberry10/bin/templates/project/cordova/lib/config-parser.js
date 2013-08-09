@@ -429,9 +429,6 @@ function validateConfig(widgetConfig) {
 
     check(widgetConfig.author, localize.translate("EXCEPTION_INVALID_AUTHOR")).notNull();
     check(widgetConfig.id, localize.translate("EXCEPTION_INVALID_ID")).notNull().notEmpty();
-    check(widgetConfig.content, localize.translate("EXCEPTION_INVALID_CONTENT"))
-        .notNull()
-        .notEmpty();
 
     validateSplashScreensIcon(widgetConfig, "rim:splash");
 

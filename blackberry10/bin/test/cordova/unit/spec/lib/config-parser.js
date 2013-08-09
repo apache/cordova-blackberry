@@ -263,17 +263,6 @@ describe("config parser", function () {
         });
     });
 
-    it("Fails when missing content error is not shown", function () {
-        var data = testUtilities.cloneObj(testData.xml2jsConfig);
-        data.content = "";
-
-        mockParsing(data);
-
-        expect(function () {
-            configParser.parse(configPath, session, {});
-        }).toThrow(localize.translate("EXCEPTION_INVALID_CONTENT"));
-    });
-
     it("adds local:/// protocol to urls", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
         data.content["@"].src = "localFile.html";

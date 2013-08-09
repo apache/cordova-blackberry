@@ -31,7 +31,7 @@ module.exports = {
     authorURL: "",
     authorEmail: "",
     copyright: "",
-    content: "index.html",
+    content: "local:///index.html",
     contentCharset: "",
     contentType: "",
     description: "",
