@@ -70,9 +70,6 @@ var Localize = require("localize"),
         "EXCEPTION_INVALID_ID": {
             "en": "Please enter an application id"
         },
-        "EXCEPTION_INVALID_CONTENT": {
-            "en": "Invalid config.xml - failed to parse the <content> element(Invalid source or the source is not specified.)"
-        },
         "EXCEPTION_INVALID_FEATURE_ID": {
             "en": "Invalid <feature> element - failed to find the id attribute"
         },
