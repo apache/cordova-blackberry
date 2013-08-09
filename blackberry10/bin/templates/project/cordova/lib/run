@@ -262,7 +262,7 @@ function deployDebugToken(previous, baton) {
 
     // If in debug build and debug token was created, deploy the debug token and wait until the deployment is finished
     if (needDeployDebugToken) {
-        debugTokenHelper.deployToken(targets, target, function () {
+        debugTokenHelper.deployToken(target, ip, password, function () {
             baton.pass();
         });
     } else {
