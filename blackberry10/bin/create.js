@@ -172,9 +172,6 @@ function copyFilesToProject() {
     wrench.mkdirSyncRecursive(nodeModulesDest, 0777);
     wrench.copyDirSyncRecursive(MODULES_PROJECT_DIR, nodeModulesDest);
 
-    //change permissions of plugman
-    fs.chmodSync(path.join(nodeModulesDest, "plugman", "main.js"), 0755);
-
     //copy framework bootstrap
     TARGETS.forEach(function (target) {
         var chromeDir = path.join(native_dir, target, "chrome"),
