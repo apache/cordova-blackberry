@@ -32,7 +32,6 @@ var build,
     version = getVersion(),
     project_path = validateProjectPath(),
     app_id = process.argv[3],
-    bar_name = process.argv[4],
     TARGETS = ["device", "simulator"],
     TEMPLATE_PROJECT_DIR = path.join(__dirname, "templates", "project"),
     MODULES_PROJECT_DIR = path.join(__dirname, "..", "node_modules"),
@@ -63,11 +62,6 @@ function validPackageName(packageName) {
     return true;
 }
 
-function validBarName(barName) {
-    var barNameRegex = /^[a-zA-Z0-9._\-]+$/;
-    return (typeof barName === "undefined") || barNameRegex.test(barName);
-}
-
 function validateProjectPath() {
     if (!process.argv[2]) {
         console.log("You must give a project PATH");
@@ -88,11 +82,6 @@ function validate() {
     if (!validPackageName(app_id)) {
         console.log("[warning] App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters.\n" +
                     "special characters in '" + app_id + "' will be replaced by '_'");
-    }
-    if (!validBarName(bar_name)) {
-        console.log("BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
-        help();
-        process.exit(2);
     }
 }
 
@@ -203,7 +192,7 @@ function updateProject() {
 }
 
 function help() {
-    console.log("\nUsage: create <project path> [package name [BAR filename]] \n");
+    console.log("\nUsage: create <project path> [package name] \n");
     console.log("Options: \n");
     console.log("   -h, --help      output usage information \n");
 }

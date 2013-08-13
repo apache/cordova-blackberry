@@ -100,8 +100,4 @@ describe("create tests", function () {
         expect(_output).toContain("App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
     });
 
-    it("Invalid barName error", function () {
-        executeScript(CREATE_COMMAND, [appFolder, "com.example.app", "%bad@bar^name"], true);
-        expect(_output).toContain("BAR filename can only contain alpha-numeric, '.', '-' and '_' characters");
-    });
 });
