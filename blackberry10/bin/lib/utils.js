@@ -16,6 +16,7 @@
 
 var fs = require('fs'),
     path = require('path'),
+    childProcess = require('child_process'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
@@ -201,7 +202,58 @@ _self = {
     },
 
     inQuotes : function (property) {
-        return "\"" + property + "\"";
+        //wrap in quotes if it's not already wrapped
+        if (property.indexOf("\"") === -1) {
+            return "\"" + property + "\"";
+        } else {
+            return property;
+        }
+    },
+
+    exec : function (command, args, options, callback) {
+        //Optional params handling [args, options]
+        if (typeof args === "Object" && !Array.isArray(args)) {
+            callback = options;
+            options = args;
+            args = [];
+        } else if (typeof args === "function"){
+            callback = args;
+            options = {};
+            args = [];
+        } else if (typeof options === "function"){
+            callback = options;
+            options = {};
+        }
+
+        //insert executable portion at begining of arg array
+        args.splice(0, 0, command);
+
+        var pkgrUtils = require("./packager-utils"),
+            customOptions = options._customOptions,
+            proc,
+            i;
+
+        for (i = 0; i < args.length; i++) {
+            if (args[i].indexOf(" ") !== -1) {
+                if (!_self.isWindows()) {
+                    //remove any escaped spaces on non-Windows platforms and simply use quotes
+                    args[i] = args[i].replace(/\\ /g, " ");
+                }
+
+                //put any args with spaces in quotes
+                args[i] = _self.inQuotes(args[i]);
+            }
+        };
+
+        //delete _customOptions from options object before sending to exec
+        delete options._customOptions;
+
+        proc = childProcess.exec(args.join(" "), options, callback);
+
+        if (!customOptions || !customOptions.silent) {
+            proc.stdout.on("data", pkgrUtils.handleProcessOutput);
+            proc.stderr.on("data", pkgrUtils.handleProcessOutput);
+        }
     },
 
     loadModule: function (path) {

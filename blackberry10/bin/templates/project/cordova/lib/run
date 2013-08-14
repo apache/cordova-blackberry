@@ -71,29 +71,13 @@ function generateOptions(uninstall) {
     }
 }
 
-function execNativeDeploy(optionsArray, callback) {
-    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy")),
-        nativeDeploy,
-        options = optionsArray.join(" ");
+function execNativeDeploy(options, callback) {
+    var script = path.normalize(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"));
 
-    if (pkgrUtils.isWindows()) {
-        script += ".bat";
-    }
-
-    nativeDeploy = childProcess.exec(path.normalize(script + " " + options), {
+    utils.exec(script, options, {
         "cwd": workingdir,
         "env": process.env
-    });
-
-    nativeDeploy.stdout.on("data", pkgrUtils.handleProcessOutput);
-
-    nativeDeploy.stderr.on("data", pkgrUtils.handleProcessOutput);
-
-    nativeDeploy.on("exit", function (code) {
-        if (callback && typeof callback === "function") {
-            callback(code);
-        }
-    });
+    }, callback);
 }
 
 function checkDeviceInfo(ip, deviceType, callback) {
@@ -190,16 +174,19 @@ function deploy() {
 }
 
 function uninstall() {
-    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy")),
-        nativeDeploy;
+    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
+        args = [
+            "-listInstalledApps",
+            "-device",
+            ip,
+            "-password",
+            password
+        ];
 
-    if (pkgrUtils.isWindows()) {
-        script += ".bat";
-    }
-
-    nativeDeploy = childProcess.exec(script + " -listInstalledApps -device " + ip + " -password " + password, {
+    utils.exec(script, args, {
         "cwd": workingdir,
-        "env": process.env
+        "env": process.env,
+        _customOptions: { silent: true}
     }, function (error, stdout, stderr) {
         var parser = new xml2js.Parser();
         fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), function (err, data) {
@@ -244,8 +231,8 @@ function createDebugToken(previous, baton) {
     baton.take();
 
     if (needCreateDebugToken) {
-        debugTokenHelper.createToken(targets, "all", keystorepass, function (code) {
-            if (code === 0) {
+        debugTokenHelper.createToken(targets, "all", keystorepass, function (error, stdout, stderr) {
+            if (!error) {
                 // Deploy the debug token if created
                 needDeployDebugToken = true;
             }
@@ -276,32 +263,22 @@ function handleBuildOutput(data) {
 }
 
 function build(previous, baton) {
-    var nativeDeploy,
-        execName = "./build";
+    var execName = utils.isWindows() ? "build" : "./build",
+        callback = function (code) {
+            // If error happened during building the bar, exit
+            if (code === 2) {
+                process.exit(2);
+            }
+
+            baton.pass();
+        };
 
     baton.take();
 
-    if (pkgrUtils.isWindows()) {
-        execName = "build";
-    }
-
-    nativeDeploy = childProcess.exec(execName, {
+    utils.exec(execName, [], {
         "cwd": path.normalize(__dirname + "/.."),
         "env": process.env
-    });
-
-    nativeDeploy.stdout.on("data", handleBuildOutput);
-
-    nativeDeploy.stderr.on("data", handleBuildOutput);
-
-    nativeDeploy.on("exit", function (code) {
-        // If error happened during building the bar, exit
-        if (code === 2) {
-            process.exit(2);
-        }
-
-        baton.pass();
-    });
+    }, callback);
 }
 
 function postBuild() {
