@@ -209,19 +209,19 @@ _self = {
         }
     },
 
-    exec : function (command, args, options, callback, silent) {
-        //Optional params handling [args, options]
+    exec : function (command, args, execOptions, callback, options) {
+        //Optional params handling [args, execOptions]
         if (typeof args === "Object" && !Array.isArray(args)) {
-            callback = options;
-            options = args;
+            callback = execOptions;
+            execOptions = args;
             args = [];
         } else if (typeof args === "function"){
             callback = args;
-            options = {};
+            execOptions = {};
             args = [];
-        } else if (typeof options === "function"){
-            callback = options;
-            options = {};
+        } else if (typeof execOptions === "function"){
+            callback = execOptions;
+            execOptions = {};
         }
 
         //insert executable portion at begining of arg array
@@ -238,9 +238,9 @@ _self = {
             }
         };
 
-        proc = childProcess.exec(args.join(" "), options, callback);
+        proc = childProcess.exec(args.join(" "), execOptions, callback);
 
-        if (!silent) {
+        if (!options || !options.silent) {
             proc.stdout.on("data", pkgrUtils.handleProcessOutput);
             proc.stderr.on("data", pkgrUtils.handleProcessOutput);
         }

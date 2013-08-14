@@ -88,7 +88,7 @@ _self = {
             }
 
             callback(result);
-        }, true);
+        }, { silent: true });
     },
 
     findConnectedDevice: function (callback) {
@@ -220,7 +220,7 @@ _self = {
         bb10_utils.exec(script, args, {}, function (error, stdout, stderr) {
             // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected simulator
             callback((type === 'simulator' && (error === null || stderr.length === 0 || stderr.indexOf('Error: null') >= 0 || stderr.indexOf('Error: Authentication failed') >= 0)) || (type === 'device' && error.code === 3));
-        }, true);
+        }, { silent: true });
     },
 
     listTargets : function (type, pruneDisconnected) {

@@ -181,7 +181,7 @@ self.checkDebugToken = function (pin, callback) {
         "env": process.env
     }, function (error, stdout, stderr) {
         callback(isDebugTokenValid(pin, stdout));
-    }, true);
+    }, { silent: true });
 };
 
 module.exports = self;

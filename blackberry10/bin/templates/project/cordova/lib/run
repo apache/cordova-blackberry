@@ -200,7 +200,7 @@ function uninstall() {
                 }
             });
         });
-    }, true);
+    }, { silent: true });
 }
 
 function checkDebugtoken(previous, baton) {
