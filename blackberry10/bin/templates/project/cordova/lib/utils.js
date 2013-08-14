@@ -16,6 +16,7 @@
 
 var fs = require('fs'),
     path = require('path'),
+    childProcess = require('child_process'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
@@ -94,6 +95,40 @@ _self = {
         return filteredFiles;
     },
 
+    readdirSyncRecursive: function (baseDir) {
+        var files = [],
+            curFiles = [],
+            nextDirs,
+            isDir = function (f) {
+                return fs.statSync(f).isDirectory();
+            },
+            isFile = function (f) {
+                return !isDir(f);
+            },
+            prependBaseDir = function (fname) {
+                return path.join(baseDir, fname);
+            };
+
+        try {
+            curFiles = fs.readdirSync(baseDir);
+
+            if (curFiles && curFiles.length > 0) {
+                curFiles = curFiles.map(prependBaseDir);
+                nextDirs = curFiles.filter(isDir);
+                curFiles = curFiles.filter(isFile);
+
+                files = files.concat(curFiles);
+
+                while (nextDirs.length) {
+                    files = files.concat(_self.readdirSyncRecursive(nextDirs.shift()));
+                }
+            }
+        } catch (e) {
+        }
+
+        return files;
+    },
+
     isWindows: function () {
         return os.type().toLowerCase().indexOf("windows") >= 0;
     },
@@ -166,6 +201,51 @@ _self = {
         }
     },
 
+    inQuotes : function (property) {
+        if (property.indexOf("\"") === -1) {
+            return "\"" + property + "\"";
+        } else {
+            return property;
+        }
+    },
+
+    exec : function (command, args, options, callback, silent) {
+        //Optional params handling [args, options]
+        if (typeof args === "Object" && !Array.isArray(args)) {
+            callback = options;
+            options = args;
+            args = [];
+        } else if (typeof args === "function"){
+            callback = args;
+            options = {};
+            args = [];
+        } else if (typeof options === "function"){
+            callback = options;
+            options = {};
+        }
+
+        //insert executable portion at begining of arg array
+        args.splice(0, 0, command);
+
+        var pkgrUtils = require("./packager-utils"),
+            proc,
+            i;
+
+        for (i = 0; i < args.length; i++) {
+            if (args[i].indexOf("-") !== 0 && (fs.existsSync(args[i]) || fs.existsSync(args[i] + ".bat"))) {
+                //put any paths in quotes if it's not already in quotes
+                args[i] = _self.inQuotes(args[i]);
+            }
+        };
+
+        proc = childProcess.exec(args.join(" "), options, callback);
+
+        if (!silent) {
+            proc.stdout.on("data", pkgrUtils.handleProcessOutput);
+            proc.stderr.on("data", pkgrUtils.handleProcessOutput);
+        }
+    },
+
     loadModule: function (path) {
         return require(path);
     },
@@ -209,7 +289,7 @@ _self = {
         fs.writeFileSync(propertiesFile, contents, 'utf-8');
     },
 
-    genBarName: function() {
+    genBarName: function () {
         return DEFAULT_BAR_NAME;
     }
 

@@ -357,7 +357,7 @@ describe("signing-helper", function () {
             session.storepass = "123";
             session.barPath = path.normalize("c:/%s/" + "Demo.bar");
 
-            spyOn(childProcess, "spawn").andReturn({
+            spyOn(childProcess, "exec").andReturn({
                 stdout: {
                     on: stdoutOn
                 },
@@ -374,39 +374,36 @@ describe("signing-helper", function () {
 
         it("exec blackberry-signer without extra params", function () {
             var callback = jasmine.createSpy("callback"),
-                cmd = "blackberry-signer" + (pkgrUtils.isWindows() ? ".bat" : "");
+                cmd = "blackberry-signer";
 
             session.getParams = jasmine.createSpy("session getParams").andReturn(null);
             signingHelper.execSigner(session, "device", callback);
-            expect(childProcess.spawn).toHaveBeenCalledWith(cmd, ["-keystore", session.keystore, "-storepass", session.storepass, path.resolve("c:/device/Demo.bar")], jasmine.any(Object));
+            expect(childProcess.exec).toHaveBeenCalledWith([cmd, "-keystore", session.keystore, "-storepass", session.storepass, path.resolve("c:/device/Demo.bar")].join(" "), jasmine.any(Object), callback);
             expect(stdoutOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
             expect(stderrOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
-            expect(callback).toHaveBeenCalledWith(0);
         });
 
         it("exec blackberry-signer with extra params", function () {
             var callback = jasmine.createSpy("callback"),
-                cmd = "blackberry-signer" + (pkgrUtils.isWindows() ? ".bat" : "");
+                cmd = "blackberry-signer";
 
             session.getParams = jasmine.createSpy("session getParams").andReturn({
                 "-proxyhost": "abc.com",
                 "-proxyport": "80"
             });
             signingHelper.execSigner(session, "device", callback);
-            expect(childProcess.spawn.mostRecentCall.args[0]).toBe(cmd);
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain("-keystore");
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain(session.keystore);
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain("-storepass");
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain(session.storepass);
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain("-proxyport");
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain("80");
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain("-proxyhost");
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain("abc.com");
-            expect(childProcess.spawn.mostRecentCall.args[1]).toContain(path.resolve("c:/device/Demo.bar"));
-            expect(childProcess.spawn.mostRecentCall.args[1].length).toBe(9);
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain(cmd);
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain("-keystore");
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain(session.keystore);
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain("-storepass");
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain(session.storepass);
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain("-proxyport");
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain("80");
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain("-proxyhost");
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain("abc.com");
+            expect(childProcess.exec.mostRecentCall.args[0]).toContain(path.resolve("c:/device/Demo.bar"));
             expect(stdoutOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
             expect(stderrOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
-            expect(callback).toHaveBeenCalledWith(0);
         });
     });
 });

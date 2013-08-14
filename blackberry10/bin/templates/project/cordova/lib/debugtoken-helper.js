@@ -100,27 +100,12 @@ function generateDeployTokenOptions(targetIp, targetPassword) {
 }
 
 function execNativeScript(script, options, callback) {
-    var cp,
-        script = path.join(process.env.CORDOVA_BBTOOLS, script);
+    var script = path.join(process.env.CORDOVA_BBTOOLS, script);
 
-    if (pkgrUtils.isWindows()) {
-        script += ".bat";
-    }
-
-    cp = childProcess.spawn(script, options, {
+    utils.exec(script, options, {
         "cwd" : workingDir,
         "env" : process.env
-    });
-
-    cp.stdout.on("data", pkgrUtils.handleProcessOutput);
-
-    cp.stderr.on("data", pkgrUtils.handleProcessOutput);
-
-    cp.on("exit", function (code) {
-        if (callback && typeof callback === "function") {
-            callback(code);
-        }
-    });
+    }, callback);
 }
 
 self.createToken = function (projectProperties, target, keystorepass, callback) {
@@ -176,8 +161,11 @@ self.deployToken = function (target, targetIp, targetPassword, callback) {
 };
 
 self.checkDebugToken = function (pin, callback) {
-    var script = utils.inQuotes(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-nativepackager")),
-        nativePackager;
+    var script = path.normalize(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-nativepackager")),
+        args = [
+            "-listManifest",
+            path.normalize(debugTokenDir)
+        ];
 
     if (!callback || typeof callback !== "function") {
         return;
@@ -188,18 +176,12 @@ self.checkDebugToken = function (pin, callback) {
         return;
     }
 
-    if (pkgrUtils.isWindows()) {
-        script += ".bat";
-    }
-
-    nativePackager = childProcess.exec(path.normalize(script + " -listManifest " + debugTokenDir), {
+    utils.exec(script, args, {
         "cwd": workingDir,
         "env": process.env
     }, function (error, stdout, stderr) {
         callback(isDebugTokenValid(pin, stdout));
-    });
-
-    return;
+    }, true);
 };
 
 module.exports = self;
