@@ -18,6 +18,7 @@ build/
 dist/
 bin/node_modules
 bin/templates/project/lib
+bin/templates/project/cordova/lib/utils.js
 example/
 node_modules/
 .tmp
