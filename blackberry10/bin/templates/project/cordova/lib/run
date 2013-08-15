@@ -185,7 +185,8 @@ function uninstall() {
 
     utils.exec(script, args, {
         "cwd": workingdir,
-        "env": process.env
+        "env": process.env,
+        _customOptions: { silent: true}
     }, function (error, stdout, stderr) {
         var parser = new xml2js.Parser();
         fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), function (err, data) {
@@ -200,7 +201,7 @@ function uninstall() {
                 }
             });
         });
-    }, { silent: true });
+    });
 }
 
 function checkDebugtoken(previous, baton) {
@@ -262,7 +263,7 @@ function handleBuildOutput(data) {
 }
 
 function build(previous, baton) {
-    var execName = utils.isWindows() ? ".\build" : "./build",
+    var execName = utils.isWindows() ? "build" : "./build",
         callback = function (code) {
             // If error happened during building the bar, exit
             if (code === 2) {

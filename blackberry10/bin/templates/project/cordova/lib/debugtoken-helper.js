@@ -178,10 +178,11 @@ self.checkDebugToken = function (pin, callback) {
 
     utils.exec(script, args, {
         "cwd": workingDir,
-        "env": process.env
+        "env": process.env,
+        _customOptions: { silent: true}
     }, function (error, stdout, stderr) {
         callback(isDebugTokenValid(pin, stdout));
-    }, { silent: true });
+    });
 };
 
 module.exports = self;

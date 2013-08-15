@@ -69,14 +69,17 @@ _self = {
             args = [
                 '-listDeviceInfo',
                 ip
-            ];
+            ],
+            options = {
+                _customOptions: { silent: true }
+            };
 
         if (password) {
             args.push('-password');
             args.push(password);
         }
 
-        bb10_utils.exec(cmd, args, {}, function (error, stdout, stderr) {
+        bb10_utils.exec(cmd, args, options, function (error, stdout, stderr) {
             var result = {},
                 name = /modelname::(.*?)(\r?)\n/.exec(stdout),
                 pin = /devicepin::0x(.*?)(\r?)\n/.exec(stdout);
@@ -88,7 +91,7 @@ _self = {
             }
 
             callback(result);
-        }, { silent: true });
+        });
     },
 
     findConnectedDevice: function (callback) {
@@ -215,12 +218,15 @@ _self = {
             args = [
                 '-test',
                 ip
-            ];
+            ],
+            options = {
+                _customOptions: { silent: true }
+            };
 
-        bb10_utils.exec(script, args, {}, function (error, stdout, stderr) {
+        bb10_utils.exec(script, args, options, function (error, stdout, stderr) {
             // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected simulator
             callback((type === 'simulator' && (error === null || stderr.length === 0 || stderr.indexOf('Error: null') >= 0 || stderr.indexOf('Error: Authentication failed') >= 0)) || (type === 'device' && error.code === 3));
-        }, { silent: true });
+        });
     },
 
     listTargets : function (type, pruneDisconnected) {

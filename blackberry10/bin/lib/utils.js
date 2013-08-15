@@ -202,6 +202,7 @@ _self = {
     },
 
     inQuotes : function (property) {
+        //wrap in quotes if it's not already wrapped
         if (property.indexOf("\"") === -1) {
             return "\"" + property + "\"";
         } else {
@@ -209,38 +210,47 @@ _self = {
         }
     },
 
-    exec : function (command, args, execOptions, callback, options) {
-        //Optional params handling [args, execOptions]
+    exec : function (command, args, options, callback) {
+        //Optional params handling [args, options]
         if (typeof args === "Object" && !Array.isArray(args)) {
-            callback = execOptions;
-            execOptions = args;
+            callback = options;
+            options = args;
             args = [];
         } else if (typeof args === "function"){
             callback = args;
-            execOptions = {};
+            options = {};
             args = [];
-        } else if (typeof execOptions === "function"){
-            callback = execOptions;
-            execOptions = {};
+        } else if (typeof options === "function"){
+            callback = options;
+            options = {};
         }
 
         //insert executable portion at begining of arg array
         args.splice(0, 0, command);
 
         var pkgrUtils = require("./packager-utils"),
+            customOptions = options._customOptions,
             proc,
             i;
 
         for (i = 0; i < args.length; i++) {
-            if (args[i].indexOf("-") !== 0 && (fs.existsSync(args[i]) || fs.existsSync(args[i] + ".bat"))) {
-                //put any paths in quotes if it's not already in quotes
+            if (args[i].indexOf(" ") !== -1) {
+                if (!_self.isWindows()) {
+                    //remove any escaped spaces on non-Windows platforms and simply use quotes
+                    args[i] = args[i].replace(/\\ /g, " ");
+                }
+
+                //put any args with spaces in quotes
                 args[i] = _self.inQuotes(args[i]);
             }
         };
 
-        proc = childProcess.exec(args.join(" "), execOptions, callback);
+        //delete _customOptions from options object before sending to exec
+        delete options._customOptions;
 
-        if (!options || !options.silent) {
+        proc = childProcess.exec(args.join(" "), options, callback);
+
+        if (!customOptions || !customOptions.silent) {
             proc.stdout.on("data", pkgrUtils.handleProcessOutput);
             proc.stderr.on("data", pkgrUtils.handleProcessOutput);
         }
