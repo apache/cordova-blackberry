@@ -67,10 +67,6 @@ function execSigner(session, target, callback) {
         params = session.getParams("blackberry-signer"),
         args = [];
 
-    if (pkgrUtils.isWindows()) {
-        script += ".bat";
-    }
-
     args.push("-keystore");
     args.push(session.keystore);
     args.push("-storepass");
@@ -88,19 +84,9 @@ function execSigner(session, target, callback) {
 
     args.push(path.resolve(util.format(session.barPath, target)));
 
-    signer = childProcess.spawn(script, args, {
+    utils.exec(script, args, {
         "env": process.env
-    });
-
-    signer.stdout.on("data", pkgrUtils.handleProcessOutput);
-
-    signer.stderr.on("data", pkgrUtils.handleProcessOutput);
-
-    signer.on("exit", function (code) {
-        if (callback && typeof callback === "function") {
-            callback(code);
-        }
-    });
+    }, callback);
 }
 
 _self = {

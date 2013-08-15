@@ -53,8 +53,12 @@ function buildTarget(previous, baton) {
             baton.pass(code);
         } else {
             if (target === "device" && session.isSigningRequired(config)) {
-                signingHelper.execSigner(session, target, function (code) {
-                    baton.pass(code);
+                signingHelper.execSigner(session, target, function (error, stdout, stderr) {
+                    if (error && error.code) {
+                        baton.pass(error.code);
+                    } else {
+                        baton.pass();
+                    }
                 });
             } else {
                 baton.pass(code);
