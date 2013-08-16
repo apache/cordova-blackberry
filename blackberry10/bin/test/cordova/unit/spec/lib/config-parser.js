@@ -1157,7 +1157,7 @@ describe("config parser", function () {
 
             expect(function () {
                 configParser.parse(configPath, session, function (configObj) {});
-            }).toThrow(localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", "notAValidMode"));
+            }).toThrow(localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", "notavalidmode"));
         });
 
         it("sets backgroundColor when specified as a preference", function () {
@@ -1180,7 +1180,7 @@ describe("config parser", function () {
             //Should throw an EXCEPTION_BGCOLOR_INVALID error
             expect(function () {
                 configParser.parse(configPath, session, {});
-            }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$UI*@@$"));
+            }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$ui*@@$"));
         });
 
         it("can properly parse the custom RIM-Wiget:rim/wiget element", function () {

@@ -539,28 +539,28 @@ function processNameAndDescription(data, widgetConfig) {
 
 function processCordovaPreferences(data, widgetConfig) {
     if (data.preference) {
-        var preference = processParamObj(data.preference);
-        widgetConfig.packageCordovaJs = preference.packageCordovaJs === "enable";
-        widgetConfig.autoHideSplashScreen = preference.AutoHideSplashScreen !== "false";
+        var preference = JSON.parse(JSON.stringify(processParamObj(data.preference)).toLowerCase());
+        widgetConfig.packageCordovaJs = preference.packagecordovajs === "enable";
+        widgetConfig.autoHideSplashScreen = preference.autohidesplashscreen !== "false";
 
         // <preference name="backgroundColor" value="hex" />
-        if (preference.backgroundColor) {
-            widgetConfig.backgroundColor = processBgColor(preference.backgroundColor);
+        if (preference.backgroundcolor) {
+            widgetConfig.backgroundColor = processBgColor(preference.backgroundcolor);
         }
 
         // <preference name="childBrowser" value="enable or disable" />
-        if (preference.childBrowser) {
-            widgetConfig.enableChildWebView = ((preference.childBrowser + '').toLowerCase() === 'disable') === false;
+        if (preference.childbrowser) {
+            widgetConfig.enableChildWebView = ((preference.childbrowser + '').toLowerCase() === 'disable') === false;
         }
 
-        // <preference name="HideKeyboardFormAccessoryBar" value="enable or disable />
-        if (preference.HideKeyboardFormAccessoryBar) {
-            widgetConfig.enableFormControl = ((preference.HideKeyboardFormAccessoryBar + '').toLowerCase() === 'disable') === false;
+        // <preference name="HideKeyboardFormAccessoryBar" value="enable or disable" />
+        if (preference.hidekeyboardformaccessorybar) {
+            widgetConfig.enableFormControl = ((preference.hidekeyboardformaccessorybar + '').toLowerCase() === 'enable') === false;
         }
 
         // <preference name="popupBlocker" value="enable or disable" />
-        if (preference.popupBlocker) {
-            widgetConfig.enablePopupBlocker = ((preference.popupBlocker + '').toLowerCase() === 'enable') === true;
+        if (preference.popupblocker) {
+            widgetConfig.enablePopupBlocker = ((preference.popupblocker + '').toLowerCase() === 'enable') === true;
         }
 
         // <preference name="orientation" value="portrait, landscape, north or auto" />
@@ -582,7 +582,7 @@ function processCordovaPreferences(data, widgetConfig) {
         }
 
         // <preference name="webSecurity" value="enable or disable" />
-        if (preference.webSecurity && (typeof preference.webSecurity === "string") && (preference.webSecurity.toLowerCase() === "disable")) {
+        if (preference.websecurity && (typeof preference.websecurity === "string") && (preference.websecurity.toLowerCase() === "disable")) {
             widgetConfig.enableWebSecurity = false;
             logger.warn(localize.translate("WARNING_WEBSECURITY_DISABLED"));
         }
