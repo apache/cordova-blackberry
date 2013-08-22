@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #       Licensed to the Apache Software Foundation (ASF) under one
 #       or more contributor license agreements.  See the NOTICE file
 #       distributed with this work for additional information
@@ -16,7 +16,7 @@
 #       specific language governing permissions and limitations
 #       under the License.
 #
-#!/bin/sh
+#!/bin/bash
 CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 LOCAL_NODE_BIN=$CURRENT_DIR/dependencies/node/bin
 LOCAL_BBTOOLS=$CURRENT_DIR/dependencies/bb-tools/bin
