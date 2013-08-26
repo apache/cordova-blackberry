@@ -1253,9 +1253,9 @@ describe("config parser", function () {
         });
 
         describe('disabling formcontrol', function () {
-            it("sets enableFormControl to true when HideKeyboardFormAccessoryBar value is enable", function () {
+            it("sets enableFormControl to true when HideKeyboardFormAccessoryBar value is disable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'enable'  } };
+                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'disable'  } };
 
                 mockParsing(data);
 
@@ -1264,9 +1264,9 @@ describe("config parser", function () {
                 });
             });
 
-            it("sets enableFormControl to false when value is disable", function () {
+            it("sets enableFormControl to false when value is enable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
-                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'disable' } };
+                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'enable' } };
 
                 mockParsing(data);
 
