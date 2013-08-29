@@ -140,6 +140,7 @@ function generateFrameworkModulesJS(session) {
                       fs.readFileSync(module.file, "utf-8") + "\n" +
                       "});\n";
         frameworkModulesStr += "'" + module.name + "'" +  (index !== modulesList.length-1 ? ", " : "");
+        fs.unlinkSync(path.normalize(dest.CHROME + "/" + module.name));
     });
 
     modulesStr += "}());";
