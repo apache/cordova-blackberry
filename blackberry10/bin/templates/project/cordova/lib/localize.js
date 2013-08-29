@@ -198,6 +198,9 @@ var Localize = require("localize"),
         },
         "PROGRESS_GENERATING_DEBUG_TOKEN": {
             "en": "Generating debug token"
+        },
+        "WARN_RUN_DEVICE_OVERIDES_EMULATOR": {
+            "en": "Skipping emulator detection and detecting device. Please provide only 1 of --target, --device, and --emulator"
         }
 
     }, "", ""); // TODO maybe a bug in localize, must set default locale to "" in order get it to work

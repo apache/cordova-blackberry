@@ -80,7 +80,8 @@ _self = {
         }
 
         bb10_utils.exec(cmd, args, options, function (error, stdout, stderr) {
-            var result = {},
+            var err = error,
+                result = {},
                 name = /modelname::(.*?)(\r?)\n/.exec(stdout),
                 pin = /devicepin::0x(.*?)(\r?)\n/.exec(stdout);
             if (name && name.length > 0) {
@@ -90,30 +91,33 @@ _self = {
                 result.pin = pin[1];
             }
 
-            callback(result);
+            if (!result.name) {
+                if (stdout.indexOf("Error:") !== -1) {
+                    err = stdout.slice(stdout.indexOf("Error:") + 6);
+                } else if (stdout === "" && stderr.indexOf("Error:") === 0) {
+                    err = stderr.slice(7);
+                } else {
+                    err = "Unable to authenticate with BlackBerry 10 device/emulator at " + ip + ".";
+                }
+            }
+
+            callback(err, result);
         });
     },
 
     findConnectedDevice: function (callback) {
         var defaultIp = '169.254.0.1';
         _self.discoverUsb(function (result) {
-            if (result) {
-                _self.checkConnection(result, 'device', function (connection) {
-                    if (connection)  {
-                        callback(result);
-                    } else {
-                        callback();
-                    }
-                });
-            } else {
-                _self.checkConnection(defaultIp, 'device', function (connection) {
-                    if (connection) {
-                        callback(defaultIp);
-                    } else {
-                        callback();
-                    }
-                });
+            if (!result) {
+                result = defaultIp;
             }
+            _self.checkConnection(result, 'device', function (connection) {
+                if (connection)  {
+                    callback(result);
+                } else {
+                    callback();
+                }
+            });
         });
     },
 

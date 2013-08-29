@@ -20,6 +20,7 @@ var fs = require('fs'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
+    prompt = require("prompt"),
     DEFAULT_BAR_NAME = "bb10app",
     PROPERTY_FILE_NAME = 'blackberry10.json',
     CORDOVA_DIR = '.cordova',
@@ -234,7 +235,7 @@ _self = {
             i;
 
         for (i = 0; i < args.length; i++) {
-            if (args[i].indexOf(" ") !== -1) {
+            if (args[i] && args[i].indexOf(" ") !== -1) {
                 if (!_self.isWindows()) {
                     //remove any escaped spaces on non-Windows platforms and simply use quotes
                     args[i] = args[i].replace(/\\ /g, " ");
@@ -247,6 +248,8 @@ _self = {
 
         //delete _customOptions from options object before sending to exec
         delete options._customOptions;
+        //Use the process env by default
+        options.env = options.env || process.env;
 
         proc = childProcess.exec(args.join(" "), options, callback);
 
@@ -301,6 +304,35 @@ _self = {
 
     genBarName: function () {
         return DEFAULT_BAR_NAME;
+    },
+
+    clone: function (original) {
+        var clone = {};
+        if (typeof original !== "object") {
+            clone = original;
+        } else if (Array.isArray(original)) {
+            clone =original.slice();
+        } else {
+            for (var prop in original) {
+                clone[prop] = original[prop];
+            }
+        }
+
+        return clone;
+    },
+    prompt: function (options, done) {
+        var promptSchema = {
+                properties: {
+                    "property": options
+                }
+            };
+        prompt.start();
+        prompt.colors = false;
+        prompt.message = "";
+        prompt.delimiter = "";
+        prompt.get(promptSchema, function (err, results) {
+            done(err, results.property);
+        });
     }
 
 };
