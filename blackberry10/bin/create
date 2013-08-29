@@ -23,7 +23,7 @@
 #
 #!/bin/bash
 
-BIN_DIR=$(dirname "$0")
+BIN_DIR=$(dirname "$BASH_SOURCE")
 
 source "$BIN_DIR/init"
 

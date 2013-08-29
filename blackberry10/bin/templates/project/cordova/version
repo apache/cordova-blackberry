@@ -1,7 +1,6 @@
-#!/bin/sh
-CORDOVA_DIR=$(dirname "$0")
+#!/bin/bash
+CORDOVA_DIR=$(dirname "$BASH_SOURCE")
 source "$CORDOVA_DIR/init"
 
 # Prints cordova version number
 "$CORDOVA_NODE/node" "$CORDOVA_DIR/lib/version" "$@"
-
