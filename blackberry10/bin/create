@@ -23,10 +23,11 @@
 #
 #!/bin/sh
 
-source $(dirname "$0")/init
+BIN_DIR=$(dirname "$0")
+
+source "$BIN_DIR/init"
 
 CURRENT_DIR=$(pwd)
-BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 NPM_PACKAGE_JSON="$BIN_DIR"/../package.json
 
 #Run check_reqs before doing anything and exit if there's an error

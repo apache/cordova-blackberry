@@ -1,4 +1,5 @@
 #!/bin/sh
-source $(dirname "$0")/init
+CORDOVA_DIR=$(dirname "$0")
+source "$CORDOVA_DIR/init"
 
-"$CORDOVA_NODE/node" "$( dirname "$0")/lib/run" "$@"
+"$CORDOVA_NODE/node" "$CORDOVA_DIR/lib/run" "$@"
