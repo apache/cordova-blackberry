@@ -255,7 +255,7 @@ function handleDebugToken(deployTarget, allDone) {
                             done(err, result);
                         });
                     } else {
-                        done(program.keystorepass);
+                        done(null, program.keystorepass);
                     }
                 },
                 debugTokenHelper.createToken.bind(this, properties, "all")
