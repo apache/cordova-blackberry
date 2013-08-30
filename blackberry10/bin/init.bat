@@ -18,8 +18,8 @@ goto comment
        under the License.
 :comment
 
-set LOCAL_NODE_BINARY=%~dp0dependencies\node\bin
-set LOCAL_BBTOOLS_BINARY=%~dp0dependencies\bb-tools\bin
+set LOCAL_NODE_BINARY=%~dps0dependencies\node\bin
+set LOCAL_BBTOOLS_BINARY=%~dps0dependencies\bb-tools\bin
 
 
 
