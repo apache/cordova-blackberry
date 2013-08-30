@@ -18,7 +18,8 @@
 #
 #!/bin/sh
 
-source "$(dirname "$0")/init"
+BIN_DIR=$(dirname "$0")
+source "$BIN_DIR/init"
 
 NODE="$CORDOVA_NODE/node"
 NPM="$CORDOVA_NODE/npm"
@@ -50,7 +51,7 @@ elif [ ! -x "$DEBUGTOKENREQUEST" ]; then
     echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
     EXIT_CODE=1
 else
-    "$NODE" "$( dirname "$0" )/check_reqs.js" "$@"
+    "$NODE" "$BIN_DIR/check_reqs.js" "$@"
     EXIT_CODE=0
 fi
 
