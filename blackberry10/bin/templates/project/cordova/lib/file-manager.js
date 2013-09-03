@@ -109,7 +109,7 @@ function getModulesArray(dest, files, baseDir) {
         file = path.resolve(baseDir, file);
 
         if (!fs.statSync(file).isDirectory()) {
-            if (baseDir !== dest.EXT && !isExcluded(file)) {
+            if (!isExcluded(file)) {
                 modulesList.push({name: path.relative(path.normalize(dest.CHROME), file).replace(/\\/g, "/"), file: file});
             }
         }
