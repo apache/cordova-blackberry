@@ -17,7 +17,7 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-call "%~dp0init"
+call "%~dps0init"
 
 set FOUNDJAVA=
 for %%e in (%PATHEXT%) do (
