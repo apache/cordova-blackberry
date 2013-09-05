@@ -27,7 +27,8 @@ var path = require("path"),
     CLIENT_JS = "client.js",
     SERVER_JS = "index.js",
     VALID_EXTENSIONS = [".js", ".json"],
-    CORDOVA_JS_REGEX = /(cordova-.+js)|cordova\.js/;
+    CORDOVA_JS_REGEX = /(cordova-.+js)|cordova\.js/,
+    MODULES_TO_KEEP = ["lib/utils.js", "lib/exception.js"];
 
 function unzip(from, to) {
     var data, entries, p, parent;
@@ -140,7 +141,10 @@ function generateFrameworkModulesJS(session) {
                       fs.readFileSync(module.file, "utf-8") + "\n" +
                       "});\n";
         frameworkModulesStr += "'" + module.name + "'" +  (index !== modulesList.length-1 ? ", " : "");
-        fs.unlinkSync(path.normalize(dest.CHROME + "/" + module.name));
+        // Issue with 10.1 webplatform - requires certain files in chrome/lib
+        if (MODULES_TO_KEEP.indexOf(module.name) < 0) {
+            fs.unlinkSync(path.normalize(dest.CHROME + "/" + module.name));
+        }
     });
 
     modulesStr += "}());";
