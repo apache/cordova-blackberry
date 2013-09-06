@@ -17,7 +17,8 @@
  * under the License.
  */
 
-var MIN_NODE_VER = "0.9.9";
+var MIN_NODE_VER = "0.9.9",
+    checkReqsUtils = require('./templates/project/cordova/lib/check_reqs-utils');
 
 function isNodeNewerThanMin () {
     //Current version is stored as a String in format "X.X.X"
@@ -29,6 +30,10 @@ function isNodeNewerThanMin () {
 if (!isNodeNewerThanMin()) {
     console.log("Node version '" + process.versions.node + "' is not new enough. Please upgrade to " + MIN_NODE_VER + " or newer. Aborting.");
     process.exit(1);
+}
+
+if (!checkReqsUtils.getKeyStorePath()) {
+    console.log('WARNING: Signing keys are not installed on this machine.');
 }
 
 process.exit(0);
