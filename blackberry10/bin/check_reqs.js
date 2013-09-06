@@ -32,7 +32,7 @@ if (!isNodeNewerThanMin()) {
     process.exit(1);
 }
 
-if (!checkReqsUtils.getKeyStorePath()) {
+if (!checkReqsUtils.getKeyStorePath() && !checkReqsUtils.getKeyStorePathBBID()) {
     console.log('WARNING: Signing keys are not installed on this machine.');
 }
 

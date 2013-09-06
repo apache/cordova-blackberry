@@ -2,6 +2,7 @@ var fs = require('fs'),
     os = require('os'),
     childProcess = require('child_process'),
     AUTHOR_P12 = "author.p12",
+    BBIDTOKEN = "bbidtoken.csk",
     CSK = "barsigner.csk",
     DB = "barsigner.db",
     _self;
@@ -44,6 +45,10 @@ _self = {
     getKeyStorePath : function () {
         // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Table    t OS
         return getDefaultPath(AUTHOR_P12);
+    },
+
+    getKeyStorePathBBID: function () {
+        return getDefaultPath(BBIDTOKEN);
     },
 
     getCskPath : function () {
