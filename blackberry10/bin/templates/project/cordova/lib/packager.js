@@ -56,18 +56,24 @@ module.exports = {
 
                     if (code === 0) {
                         logger.log(localize.translate("PROGRESS_COMPLETE"));
+                    }
 
-                        //call packager callback
-                        callback();
+                    if (callback && typeof callback === "function") {
+                        callback(code);
                     }
                 });
             });
         } catch (e) {
             try {
                 fileManager.cleanSource(session);
-            } catch (ex) {}
+            } catch (ex) {
+            } finally {
+                logger.error(e);
+                if (callback && typeof callback === "function") {
+                    callback(e);
+                }
+            }
 
-            logger.error(e);
         }
     }
 };

@@ -162,10 +162,12 @@ _self = {
         var msg = data.toString().replace(/[\n\r]/g, '');
 
         if (msg) {
-            if (msg.toLowerCase().indexOf("error:") >= 0) {
-                logger.error(msg);
-            } else if (msg.toLowerCase().indexOf("warn") >= 0) {
-                logger.warn(msg);
+            if (msg.toLowerCase().indexOf("error: ") >= 0) {
+                logger.error(msg.substring(7));
+            } else if (msg.toLowerCase().indexOf("warn: ") >= 0) {
+                logger.warn(msg.substring(6));
+            } else if (msg.toLowerCase().indexOf("info: ") >= 0) {
+                logger.info(msg.substring(6));
             } else {
                 logger.info(msg);
             }

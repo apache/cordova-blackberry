@@ -34,9 +34,6 @@ var Localize = require("localize"),
         "WARNING_SIGNING_PASSWORD_EXPECTED": {
             "en": "Build ID set in config.xml [version], but no signing password was provided [-g]. Bar will be unsigned"
         },
-        "EXCEPTION_MISSING_SIGNING_BUILDID": {
-            "en": "Cannot sign application - No buildId provided [--buildId]"
-        },
         "EXCEPTION_DEBUG_TOKEN_NOT_FOUND": {
             "en": "Failed to find debug token. If you have an existing debug token, please copy it to %HOME%/.cordova/blackberry10debugtoken.bar. To generate a new debug token, execute the 'run' command."
         },
