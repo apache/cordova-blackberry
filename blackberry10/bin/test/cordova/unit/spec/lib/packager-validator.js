@@ -166,22 +166,6 @@ describe("Packager Validator", function () {
         }).toThrow(localize.translate("EXCEPTION_APPDESC_NOT_FOUND", "c:/bardescriptor.xml"));
     });
 
-    it("throws an exception when a password [-g] was set with no buildId", function () {
-        var session = testUtilities.cloneObj(testData.session),
-            configObj = testUtilities.cloneObj(testData.config);
-
-        //setup signing parameters
-        session.keystore = "c:/author.p12";
-        session.keystoreCsk = "c:/barsigner.csk";
-        session.keystoreDb = "c:/barsigner.db";
-        session.storepass = "myPassword";
-        configObj.buildId = undefined;
-
-        expect(function () {
-            packagerValidator.validateSession(session, configObj);
-        }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_BUILDID"));
-    });
-
     it("throws an exception when --buildId was set with no password [-g]", function () {
         var session = testUtilities.cloneObj(testData.session),
             configObj = testUtilities.cloneObj(testData.config);

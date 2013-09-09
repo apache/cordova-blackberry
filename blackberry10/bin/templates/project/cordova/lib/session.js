@@ -56,7 +56,7 @@ module.exports = {
             outputDir = cmdline.output,
             properties = require("../../project.json"),
             archivePath = path.resolve(cmdline.args[0] ? cmdline.args[0] : "../../www"),
-            archiveName = utils.genBarName(), 
+            archiveName = utils.genBarName(),
             appdesc,
             buildId = cmdline.buildId;
 
@@ -113,7 +113,7 @@ module.exports = {
                 return getParams(cmdline, toolName);
             },
             isSigningRequired: function (config) {
-                return signingHelper.getKeyStorePath() && signingPassword && config.buildId;
+                return signingHelper.getKeyStorePath() && signingPassword;
             },
             "targets": ["simulator", "device"]
         };

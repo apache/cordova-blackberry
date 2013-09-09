@@ -206,7 +206,7 @@ function generateOptionsFile(session, target, config) {
         }
     }
 
-    if (target === "device" && isSigning) {
+    if (target === "device" && isSigning && config.buildId) {
         optionsStr += "-buildId" + NL;
         optionsStr += config.buildId + NL;
     } else if (session.debug) {

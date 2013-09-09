@@ -73,11 +73,6 @@ _self = {
             }
         }
 
-        //if -g was provided with NO build id, throw error
-        if (keysPassword && !buildId) {
-            throw localize.translate("EXCEPTION_MISSING_SIGNING_BUILDID");
-        }
-
         if (commandLinebuildId && !keysPassword) {
             //if --buildId was provided with NO password, throw error
             throw localize.translate("EXCEPTION_MISSING_SIGNING_PASSWORD");
