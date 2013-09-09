@@ -1,6 +1,6 @@
-#!/bin/sh
-<<COMMENT
-    Licensed to the Apache Software Foundation (ASF) under one
+@ECHO OFF
+goto comment
+       Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
        distributed with this work for additional information
        regarding copyright ownership.  The ASF licenses this file
@@ -16,8 +16,6 @@
        KIND, either express or implied.  See the License for the
        specific language governing permissions and limitations
        under the License.
-COMMENT
-CORDOVA_DIR=$(dirname "$0")
-source "$CORDOVA_DIR/init"
-
-"$CORDOVA_NODE/node" "$CORDOVA_DIR/lib/run" "$@"
+:comment
+call "%~dps0init"
+"%CORDOVA_NODE%\node.exe" "%~dps0\lib\install-device" %*

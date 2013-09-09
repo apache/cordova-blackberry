@@ -16,290 +16,29 @@
  * limitations under the License.
  */
 
-var childProcess = require("child_process"),
-    fs = require("fs"),
-    path = require("path"),
-    util = require("util"),
-    wrench = require("wrench"),
-    conf = require("./conf"),
+var path = require("path"),
     utils = require("./utils"),
-    targetUtils = require("./target-utils.js"),
-    localize = require("./localize"),
-    pkgrUtils = require("./packager-utils"),
-    debugTokenHelper = require("./debugtoken-helper"),
-    program = require('commander'),
-    xml2js = require('xml2js'),
+    options = require('commander'),
+    runUtils = require("./run-utils"),
     logger = require("./logger"),
-    async = require("async"),
-    properties = utils.getProperties(),
-    workingdir = path.normalize(__dirname + "/..");
-
-function generateOptions(deployTarget, uninstall) {
-    var options = [],
-        barPath = pkgrUtils.escapeStringForShell(
-            path.normalize(__dirname + "/../../build/" +
-                           (deployTarget.type === "device" ? "device" : "simulator") +
-                           "/" + utils.genBarName() + ".bar"));
-
-    options.push("-device");
-    options.push(deployTarget.ip);
-
-    if (deployTarget.password) {
-        options.push("-password");
-        options.push(deployTarget.password);
-    }
-
-    options.push("-package");
-    options.push(barPath);
-
-    if (uninstall) {
-        options.push("-uninstallApp");
-        return options;
-    } else {
-
-        options.push("-installApp");
-
-        if (program.launch) {
-            options.push("-launchApp");
-        }
-
-        return options;
-    }
-}
-
-function execNativeDeploy(options, callback) {
-    var script = path.normalize(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"));
-
-    utils.exec(script, options, {
-        "cwd": workingdir,
-        "env": process.env
-    }, callback);
-}
-
-function checkDeviceInfo(ip, deviceType, devicePass, done) {
-    var props = utils.getProperties(),
-        targetName;
-
-    targetUtils.getDeviceInfo(ip, devicePass, function (err, device) {
-        if (!err) {
-            targetName = device.name + "-" + device.pin;
-            props.targets[targetName] = {
-                ip: ip,
-                pin: device.pin,
-                type: deviceType
-            };
-            utils.writeToPropertiesFile(props);
-        }
-        done(err, targetName);
-    });
-}
-
-function getTargetName (done) {
-    var ipFinder = program.device ? targetUtils.findConnectedDevice : targetUtils.findConnectedSimulator,
-        targetType = program.device ? "device" : "emulator";
-
-    if (program.target) {
-        done(null, program.target);
-    } else if (program.device || program.emulator) {
-        if (program.device && program.emulator) {
-            localize.translate("WARN_RUN_DEVICE_OVERIDES_EMULATOR");
-        }
-
-        async.series(
-            {
-                ip: function (done) {
-                    ipFinder(function (ip) {
-                        done(null, ip);
-                    });
-                },
-                devicePass: function (done) {
-                    if (!program.devicepass && program.devicepass !== "") {
-                        if (program.query) {
-                            utils.prompt({description: "Please enter your " + targetType +  " password: ", hidden: true}, done);
-                        } else {
-                            done("Please provide device password using --devicepass");
-                        }
-                    } else {
-                        done(null, program.devicepass);
-                    }
-                }
-            },
-            function (err, results) {
-                if (err) {
-                    done(err);
-                } else if (!results.ip) {
-                    done("No connected BlackBerry 10 " + targetType + " found");
-                } else {
-                    program.devicepass = results.devicePass;
-                    checkDeviceInfo(results.ip, targetType, results.devicePass, done);
-                }
-            }
-        );
-    } else {
-        done(null, properties.defaultTarget);
-    }
-}
-
-
-function validateTarget(targetName, allDone) {
-    var deployTarget,
-        err,
-        runTasks = [];
-
-    if (!targetName) {
-        err = "No target exists, to add that target please run target add <name> <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]";
-    } else if (!properties.targets[targetName]) {
-        err = "The target \"" + targetName + "\" does not exist, to add that target please run target add " + targetName + " <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]";
-    } else {
-        deployTarget = utils.clone(properties.targets[targetName]);
-        deployTarget.name = targetName;
-
-        if (!deployTarget.ip) {
-            if (program.query) {
-                runTasks.push(function (done) {
-                    utils.prompt({description: "Please enter the IP address for target " + deployTarget.name + ": "}, function (e, ip) {
-                        deployTarget.ip = ip;
-                        done(e);
-                    });
-                });
-            } else {
-                err = "IP is not defined in target \"" + target + "\"";
-            }
-        }
-
-        if (!deployTarget.password && deployTarget.password !== "") {
-            if (program.devicepass || program.devicepass === "") {
-                deployTarget.password = program.devicepass;
-            } else {
-                if (program.query) {
-                    runTasks.push(function (done) {
-                        utils.prompt({description: "Please enter your " + deployTarget.type +  " password: ", hidden: true}, function (e, devicePass) {
-                            deployTarget.password = devicePass;
-                            done(e);
-                        });
-                    });
-                } else {
-                    err = "Please provide device password using --devicepass or add one to the target " + deployTarget.name + " defined at " + utils.getPropertiesFilePath();
-                }
-            }
-        }
-    }
-
-    async.series(runTasks, function (e) {
-        var finalErr = err || e;
-        if (!finalErr && deployTarget) {
-            logger.info("Target " + deployTarget.name + " selected");
-        }
-        allDone(err || e, deployTarget);
-    });
-}
-
-function uninstall(deployTarget, allDone) {
-    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
-        args = [
-            "-listInstalledApps",
-            "-device",
-            deployTarget.ip
-        ],
-        projectRootDir = path.normalize(path.join(__dirname, "..")),
-        installedAppsOutput,
-        runTasks = [];
-
-    if (program.uninstall) {
-        if (deployTarget.password) {
-            args.push("-password", deployTarget.password);
-        }
-        runTasks = [
-            utils.exec.bind(this, script, args, { "cwd": projectRootDir, _customOptions: {silent: true}}),
-            function listInstalledAppsOutput (stdout, stderr, done) {
-                installedAppsOutput = stdout;
-                fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), done);
-            },
-            function configXMLOutput (result, done) {
-                var parser = new xml2js.Parser();
-                parser.parseString(result, done);
-            },
-            function parsedConfigXMLOutput (result, done) {
-                if (installedAppsOutput.indexOf(result['@'].id) !== -1) {
-                    var options = generateOptions(deployTarget, true);
-                    execNativeDeploy(options, done);
-                } else {
-                    done();
-                }
-            }
-
-        ]
-    }
-
-    async.waterfall(runTasks,
-        function (err, results) {
-            //Absorb error for uninstallation
-            allDone(null, deployTarget);
-        }
-    );
-}
-
-function handleDebugToken(deployTarget, allDone) {
-    program.keystorepass = program.keystorepass || properties.keystorepass;
-
-    // if target has no pin, skip the debug token feature
-    if (deployTarget.pin) {
-        async.waterfall(
-            [
-                debugTokenHelper.checkDebugToken.bind(this, deployTarget.pin),
-                function (done) {
-                    //If no keystorepass is provided debugTokenHelper will throw an error.
-                    if (!program.keystorepass && program.query) {
-                        utils.prompt({description: "Please enter your keystore password: ", hidden: true}, function (err, result) {
-                            program.keystorepass = result;
-                            done(err, result);
-                        });
-                    } else {
-                        done(null, program.keystorepass);
-                    }
-                },
-                debugTokenHelper.createToken.bind(this, properties, "all")
-
-        ],
-        function (err, results) {
-            // If the error is true, then the debug token is valid and creation was skipped.
-            if (err === true) {
-                logger.info(localize.translate("PROGRESS_DEBUG_TOKEN_IS_VALID"));
-                //Clear the error so it is still deployed
-                err = null;
-            }
-
-            if (!err) {
-                debugTokenHelper.deployToken(deployTarget.name, deployTarget.ip, deployTarget.password, function (code) {
-                    allDone(code, deployTarget);
-                });
-            } else {
-                allDone(err);
-            }
-        }
-        );
-    } else {
-        allDone(null, deployTarget);
-    }
-}
+    async = require("async");
 
 function install(deployTarget, done) {
     var buildCmd = utils.isWindows() ? "build" : "./build",
-        buildArgs = program.keystorepass ? ["-k", program.keystorepass] : [],
+        buildArgs = options.keystorepass ? ["-k", options.keystorepass] : [],
         projectRootDir = path.normalize(path.join(__dirname, ".."));
 
     async.series(
         [
             utils.exec.bind(this, buildCmd, buildArgs, {"cwd": projectRootDir}),
-            uninstall.bind(this, deployTarget),
-            execNativeDeploy.bind(this, generateOptions(deployTarget))
+            runUtils.uninstall.bind(this, options, deployTarget),
+            runUtils.deployToTarget.bind(this, options, deployTarget)
         ],
         done
     );
 }
 
-
-program
+options
     .usage('[--device] [--emulator] [--target=<id>]    [--query] [-k | --keystorepass] [-devicepass]    [--no-launch] [--no-uninstall] [--no-build]')
     .option('-k, --keystorepass <password>', 'the password of signing key; needed for creating debug token')
     .option('--device', 'run on connected device')
@@ -326,13 +65,11 @@ process.argv.forEach(function (argument, index, args) {
     }
 });
 
-program.parse(process.argv);
+options.parse(process.argv);
 
 async.waterfall(
     [
-        getTargetName,
-        validateTarget,
-        handleDebugToken,
+        runUtils.getValidatedTarget.bind(this, options),
         install
     ],
     function (err) {
