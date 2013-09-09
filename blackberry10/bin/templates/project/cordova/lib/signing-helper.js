@@ -22,7 +22,7 @@ var path = require('path'),
     conf = require("./conf"),
     pkgrUtils = require("./packager-utils"),
     logger = require("./logger"),
-    checkReqsUtils = require("./check_reqs-utils.js"),
+    signingUtils = require("./signing-utils.js"),
     _self;
 
 function execSigner(session, target, callback) {
@@ -56,15 +56,15 @@ function execSigner(session, target, callback) {
 _self = {
     getKeyStorePath : function () {
         // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Tablet OS
-        return checkReqsUtils.getKeyStorePath();
+        return signingUtils.getKeyStorePath();
     },
 
     getCskPath : function () {
-        return checkReqsUtils.getCskPath();
+        return signingUtils.getCskPath();
     },
 
     getDbPath : function () {
-        return checkReqsUtils.getDbPath();
+        return signingUtils.getDbPath();
     },
 
     execSigner: execSigner
