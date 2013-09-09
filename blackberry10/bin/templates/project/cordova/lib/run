@@ -109,7 +109,7 @@ function getTargetName (done) {
             {
                 ip: function (done) {
                     ipFinder(function (ip) {
-                        done(null, ip);
+                        done(ip ? null : "No connected BlackBerry 10 " + targetType + " found", ip);
                     });
                 },
                 devicePass: function (done) {
@@ -127,8 +127,6 @@ function getTargetName (done) {
             function (err, results) {
                 if (err) {
                     done(err);
-                } else if (!results.ip) {
-                    done("No connected BlackBerry 10 " + targetType + " found");
                 } else {
                     program.devicepass = results.devicePass;
                     checkDeviceInfo(results.ip, targetType, results.devicePass, done);
