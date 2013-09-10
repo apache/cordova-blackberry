@@ -286,16 +286,17 @@ function handleDebugToken(deployTarget, allDone) {
 function install(deployTarget, done) {
     var buildCmd = utils.isWindows() ? "build" : "./build",
         buildArgs = program.keystorepass ? ["-k", program.keystorepass] : [],
-        projectRootDir = path.normalize(path.join(__dirname, ".."));
+        projectRootDir = path.normalize(path.join(__dirname, "..")),
+        installTasks = [];
 
-    async.series(
-        [
-            utils.exec.bind(this, buildCmd, buildArgs, {"cwd": projectRootDir}),
-            uninstall.bind(this, deployTarget),
-            execNativeDeploy.bind(this, generateOptions(deployTarget))
-        ],
-        done
-    );
+    if (program.build) {
+        installTasks.push(utils.exec.bind(this, buildCmd, buildArgs, {"cwd": projectRootDir}));
+    }
+
+    installTasks.push(uninstall.bind(this, deployTarget),
+                      execNativeDeploy.bind(this, generateOptions(deployTarget)));
+
+    async.series(installTasks, done);
 }
 
 
