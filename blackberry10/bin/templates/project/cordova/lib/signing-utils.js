@@ -1,4 +1,5 @@
 var fs = require('fs'),
+    path = require('path'),
     os = require('os'),
     childProcess = require('child_process'),
     AUTHOR_P12 = "author.p12",
@@ -23,7 +24,7 @@ function getDefaultPath(file) {
 
         // Try Windows Vista and Windows 7 location
         p = process.env.HOMEDRIVE + process.env.HOMEPATH + "\\AppData\\Local\\Research In Motion\\" + file;
-        if (fs.existsSyn(p)) {
+        if (fs.existsSync(p)) {
             return p;
         }
     } else if (os.type().toLowerCase().indexOf("darwin") >= 0) {
@@ -43,7 +44,7 @@ function getDefaultPath(file) {
 
 _self = {
     getKeyStorePath : function () {
-        // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Table    t OS
+        // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Tablet OS
         return getDefaultPath(AUTHOR_P12);
     },
 
