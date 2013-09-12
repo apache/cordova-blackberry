@@ -17,7 +17,11 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-call "%~dps0init"
+set INITCALL="%~dps0init"
+if not exist INITCALL (
+    set INITCALL="%~dp0init"
+)
+call %INITCALL%
 
 set FOUNDJAVA=
 for %%e in (%PATHEXT%) do (
