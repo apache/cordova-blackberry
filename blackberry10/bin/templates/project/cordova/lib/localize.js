@@ -191,7 +191,7 @@ var Localize = require("localize"),
             "en": "No device PIN found, will omit debug token generation"
         },
         "WARN_NO_SIGNING_PASSWORD_PROVIDED": {
-            "en": "No signing password provided, debug token cannot be generated. Please enter a value for 'keystorepass' in %HOME%/.cordova/blackberry10.json or use --keystorepass via command-line directly from the project cordova scripts (WILL NOT WORK FROM CLI)."
+            "en": "No signing password provided, debug token cannot be generated. Please enter a value for 'keystorepass' in %HOME%/.cordova/blackberry10.json or use --keystorepass via command-line directly from the project cordova scripts."
         },
         "PROGRESS_GENERATING_DEBUG_TOKEN": {
             "en": "Generating debug token"
