@@ -27,6 +27,7 @@ var fs = require("fs"),
     properties = utils.getProperties(),
     workingdir = path.normalize(__dirname + "/..");
 
+//Options looking for are: (Device | Emulator, query, devicepass). Calls back with:  (error || options object, target object)
 function getTargetName(options, done) {
     var ipFinder = options.device ? targetUtils.findConnectedDevice : targetUtils.findConnectedSimulator,
         targetType = options.device ? "device" : "emulator";
@@ -48,9 +49,12 @@ function getTargetName(options, done) {
             devicePass: function (done) {
                 if (!options.devicepass && options.devicepass !== "") {
                     if (options.query) {
-                        utils.prompt({description: "Please enter your " + targetType +  " password: ", hidden: true}, done);
-                    } else {
+                        var description = options.device ? "Please enter your " + targetType +  " password: " : "Please enter your " + targetType +  " password (For no password press Enter): ";
+                        utils.prompt({description: description, hidden: true}, done);
+                    } else if (!options.emulator) {
                         done("Please provide device password using --devicepass");
+                    } else {
+                        done("");
                     }
                 } else {
                     done(null, options.devicepass);
@@ -62,7 +66,7 @@ function getTargetName(options, done) {
                 done(err);
             } else {
                 options.devicepass = results.devicePass;
-                checkDeviceInfo(results.ip, targetType, results.devicePass, done);
+                _self.checkDeviceInfo(options, results.ip, targetType, results.devicePass, done);
             }
         });
     } else {
@@ -70,6 +74,7 @@ function getTargetName(options, done) {
     }
 }
 
+//Options looking for are: (query, devicepass). Calls back with:  (error || target object)
 function validateTarget(options, targetName, allDone) {
     var deployTarget,
         err,
@@ -95,19 +100,19 @@ function validateTarget(options, targetName, allDone) {
                 err = "IP is not defined in target \"" + target + "\"";
             }
         }
-
         if (!deployTarget.password && deployTarget.password !== "") {
             if (options.devicepass || options.devicepass === "") {
                 deployTarget.password = options.devicepass;
             } else {
                 if (options.query) {
                     runTasks.push(function (done) {
-                        utils.prompt({description: "Please enter your " + deployTarget.type +  " password: ", hidden: true}, function (e, devicePass) {
+                         var description = options.device ? "Please enter your " + deployTarget.type +  " password: " : "Please enter your " + deployTarget.type +  " password (For no password press Enter): ";
+                        utils.prompt({description: description, hidden: true}, function (e, devicePass) {
                             deployTarget.password = devicePass;
                             done(e);
                         });
                     });
-                } else {
+                } else if (!options.emulator) {
                     err = "Please provide device password using --devicepass or add one to the target " + deployTarget.name + " defined at " + utils.getPropertiesFilePath();
                 }
             }
@@ -119,15 +124,15 @@ function validateTarget(options, targetName, allDone) {
         if (!finalErr && deployTarget) {
             logger.info("Target " + deployTarget.name + " selected");
         }
-        allDone(err || e, deployTarget);
+        allDone(err || e, options, deployTarget);
     });
 }
-//options are keystorepass, query
+//Options looking for are: (keystorepass, query). Calls back with:  (error || target object)
 function handleDebugToken(options, deployTarget, allDone) {
     options.keystorepass = options.keystorepass || properties.keystorepass;
 
     // if target has no pin, skip the debug token feature
-    if (deployTarget.pin) {
+    if (deployTarget.pin && !options.emulator) {
         async.waterfall(
             [
                 debugTokenHelper.checkDebugToken.bind(this, deployTarget.pin),
@@ -199,30 +204,32 @@ function generateDeployOptions(options, deployTarget, uninstall) {
     }
 }
 
-function execNativeDeploy(options, callback) {
+function execNativeDeploy(deployOptions, callback) {
     var script = path.normalize(path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"));
 
-    utils.exec(script, options, {
+    utils.exec(script, deployOptions, {
         "cwd": workingdir,
         "env": process.env
     }, callback);
 }
 
 _self = {
-    //options looking for are: query, devicepass, password, target, (device || emulator)
+    //options looking for are: (query, devicepass, password, target, (device || emulator)) Function returns (error || deployTarget)
     getValidatedTarget : function (options, callback) {
         async.waterfall(
             [
                 getTargetName.bind(this, options),
                 validateTarget,
+                handleDebugToken,
             ], callback
         );
     },
-    //options looking for are: launch
+    //options looking for are: (launch) Function returns (error || null)
     deployToTarget : function (options, deployTarget, callback) {
         execNativeDeploy(generateDeployOptions(options, deployTarget, false));
     },
 
+    //options looking for are: (uninstall) Function returns (error || null)
     uninstall : function (options, deployTarget, allDone) {
         var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
             args = [
@@ -250,8 +257,8 @@ _self = {
             },
             function parsedConfigXMLOutput (result, done) {
                 if (installedAppsOutput.indexOf(result['@'].id) !== -1) {
-                    var options = generateDeployOptions(options, deployTarget, true);
-                    execNativeDeploy(options, done);
+                    var deployOptions = generateDeployOptions(options, deployTarget, true);
+                    execNativeDeploy(deployOptions, done);
                 } else {
                     done();
                 }
@@ -268,11 +275,11 @@ _self = {
             );
     },
 
+    //Function returns (error || deployTarget)
     checkBuild : function (deployTarget, allDone) {
-        barPath = pkgrUtils.escapeStringForShell(
-            path.normalize(__dirname + "/../../build/" +
+        barPath = path.normalize(__dirname + "/../../build/" +
                 (deployTarget.type === "device" ? "device" : "simulator") +
-                "/" + utils.genBarName() + ".bar"));
+                "/" + utils.genBarName() + ".bar");
         if (fs.existsSync(barPath)) {
             allDone(null, deployTarget);
         } else {
@@ -281,7 +288,8 @@ _self = {
 
     },
 
-    checkDeviceInfo : function (ip, deviceType, devicePass, done) {
+    //No options needed within function Function returns (error || options, targetName)
+    checkDeviceInfo : function (options, ip, deviceType, devicePass, done) {
         var props = utils.getProperties(),
         targetName;
 
@@ -295,7 +303,7 @@ _self = {
                 };
                 utils.writeToPropertiesFile(props);
             }
-            done(err, targetName);
+            done(err, options, targetName);
         });
     }
 };
