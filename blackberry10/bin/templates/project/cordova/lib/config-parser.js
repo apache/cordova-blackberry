@@ -563,12 +563,12 @@ function processCordovaPreferences(data, widgetConfig) {
             widgetConfig.enablePopupBlocker = ((preference.popupblocker + '').toLowerCase() === 'enable') === true;
         }
 
-        // <preference name="orientation" value="portrait, landscape, north or auto" />
+        // <preference name="orientation" value="portrait, landscape, north, auto or default" />
         if (preference.orientation) {
             if (preference.orientation ===  "landscape" || preference.orientation === "portrait" || preference.orientation === "north") {
                 widgetConfig.autoOrientation = false;
                 widgetConfig.orientation = preference.orientation;
-            } else if (preference.orientation !== "auto") {
+            } else if (preference.orientation !== "auto" && preference.orientation !== "default") {
                 throw localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", preference.orientation);
             }
         }

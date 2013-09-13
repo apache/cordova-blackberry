@@ -1138,6 +1138,40 @@ describe("config parser", function () {
             });
         });
 
+        it("orientation remains auto when auto is specified", function () {
+            var data = testUtilities.cloneObj(testData.xml2jsConfig);
+            data['preference'] = { '@': { name: 'orientation', value: 'auto' } };
+
+            mockParsing(data);
+
+            configParser.parse(configPath, session, function (configObj) {
+                expect(configObj.autoOrientation).toEqual(true);
+            });
+        });
+
+        it("orientation remains auto when default is specified", function () {
+            var data = testUtilities.cloneObj(testData.xml2jsConfig);
+            data['preference'] = { '@': { name: 'orientation', value: 'default' } };
+
+            mockParsing(data);
+
+            configParser.parse(configPath, session, function (configObj) {
+                expect(configObj.autoOrientation).toEqual(true);
+            });
+        });
+
+        it("throws an error when preference.orientation value is invalid", function () {
+            var data = testUtilities.cloneObj(testData.xml2jsConfig);
+            data['preference'] = { '@': { name: 'orientation', value: 'invalid' } };
+
+            mockParsing(data);
+
+            expect(function () {
+                configParser.parse(configPath, session, function (configObj) {});
+            }).toThrow(localize.translate("EXCEPTION_INVALID_ORIENTATION_MODE", "invalid"));
+
+        });
+
         it("throws a warning when blackberry.app.orientation exists", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
             data['feature'] = { '@': { id: 'blackberry.app.orientation', required: true },
