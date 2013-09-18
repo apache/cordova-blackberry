@@ -36,7 +36,7 @@ if (!signingUtils.getKeyStorePath() && !signingUtils.getKeyStorePathBBID()) {
     console.log('WARNING: Signing keys are not installed on this machine.');
 }
 
-if (signingUtils.getKeyStorePath()) {
+if (signingUtils.getDbPath()) {
     console.log('NOTE: BlackBerry ID tokens can now be used in place of your old signing keys. For more information on linking old signing keys with a BlackBerry ID token, please log in at http://developer.blackberry.com and click on Code Signing in the top menu bar.');
 }
 
