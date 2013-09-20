@@ -17,7 +17,8 @@
  * under the License.
  */
 
-var MIN_NODE_VER = "0.9.9";
+var MIN_NODE_VER = "0.9.9",
+    signingUtils = require('./templates/project/cordova/lib/signing-utils');
 
 function isNodeNewerThanMin () {
     //Current version is stored as a String in format "X.X.X"
@@ -29,6 +30,14 @@ function isNodeNewerThanMin () {
 if (!isNodeNewerThanMin()) {
     console.log("Node version '" + process.versions.node + "' is not new enough. Please upgrade to " + MIN_NODE_VER + " or newer. Aborting.");
     process.exit(1);
+}
+
+if (!signingUtils.getKeyStorePath() && !signingUtils.getKeyStorePathBBID()) {
+    console.log('WARNING: Signing keys are not installed on this machine.');
+}
+
+if (signingUtils.getDbPath()) {
+    console.log('NOTE: BlackBerry ID tokens can now be used in place of your old signing keys. For more information on linking old signing keys with a BlackBerry ID token, please log in at http://developer.blackberry.com and click on Code Signing in the top menu bar.');
 }
 
 process.exit(0);
