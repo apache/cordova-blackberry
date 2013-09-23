@@ -60,21 +60,18 @@ function unzip(from, to) {
 
 function copyDirContents(from, to) {
     var files = wrench.readdirSyncRecursive(from),
-        bbwpignore,
         bbwpignoreFile = path.join(from, conf.BBWP_IGNORE_FILENAME),
-        toBeIgnored = [];
+        bbwpignore,
+        ignoreFiles = conf.BBWP_IGNORE_FILENAME;
 
     if (fs.existsSync(bbwpignoreFile)) {
         bbwpignore = new BBWPignore(bbwpignoreFile, files);
-
-        bbwpignore.matchedFiles.forEach(function (i) {
-            toBeIgnored.push(from + "/" + i);
-        });
-        toBeIgnored.push(from + "/" + conf.BBWP_IGNORE_FILENAME); //add the .bbwpignore file to the ignore list
+        bbwpignore.matchedFiles.push(conf.BBWP_IGNORE_FILENAME); //add the .bbwpignore file to the ignore list
+        ignoreFiles = bbwpignore.matchedFiles.join("|");
     }
-    wrench.copyDirSyncRecursive(from, to, {preserve: true}, function (file) {
-        return toBeIgnored.indexOf(file) === -1;
-    });
+
+
+    wrench.copyDirSyncRecursive(from, to, {preserve: true, whitelist: false, filter: new RegExp(ignoreFiles, "g")});
 }
 
 function prepare(session) {

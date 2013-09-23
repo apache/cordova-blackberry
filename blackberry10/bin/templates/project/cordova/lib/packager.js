@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-require('./../third_party/wrench/wrench');
-
 var path = require("path"),
     wrench = require("wrench"),
     cmdline = require("./cmdline"),
