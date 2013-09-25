@@ -17,7 +17,6 @@ var check = require('validator').check,
     sanitize = require('validator').sanitize,
     localize = require("./localize"),
     logger = require("./logger"),
-    signingHelper = require("./signing-helper"),
     path = require("path"),
     fs = require("fs"),
     packagerUtils = require("./packager-utils"),
@@ -35,6 +34,7 @@ _self = {
         var keysFound = session.keystore,
             cskFound = session.keystoreCsk,//barsigner.csk
             dbFound = session.keystoreDb,//barsigner.db
+            bbidFound = session.keystoreBBID,
             keysPassword = session.storepass && typeof session.storepass === "string",
             commandLinebuildId = session.buildId && typeof session.buildId === "string",//--buildId
             buildId = widgetConfig.buildId && typeof widgetConfig.buildId === "string",//Finalized Build ID
@@ -43,6 +43,7 @@ _self = {
             AUTHOR_P12 = "author.p12",
             BARSIGNER_CSK = "barsigner.csk",
             BARSIGNER_DB = "barsigner.db",
+            BARSIGNER_BBID = "bbidtoken.csk",
 
             //Logging function
             signingFileWarn = function (file) {
@@ -56,9 +57,10 @@ _self = {
         if (keysPassword || commandLinebuildId) {
             if (!keysFound) {
                 signingFileError(AUTHOR_P12);
-            } else if (!cskFound) {
-                signingFileError(BARSIGNER_CSK);
-            } else if (!dbFound) {
+            } else if (!cskFound && !bbidFound) {
+                //Only warn about BBID since the old tokens are deprecated
+                signingFileError(BARSIGNER_BBID);
+            } else if (cskFound && !dbFound) {
                 signingFileError(BARSIGNER_DB);
             }
 
@@ -66,9 +68,10 @@ _self = {
         } else if (buildId) {
             if (!keysFound) {
                 signingFileWarn(AUTHOR_P12);
-            } else if (!cskFound) {
-                signingFileWarn(BARSIGNER_CSK);
-            } else if (!dbFound) {
+            } else if (!cskFound && !bbidFound) {
+                //Only warn about BBID since the old tokens are deprecated
+                signingFileWarn(BARSIGNER_BBID);
+            } else if (cskFound && !dbFound) {
                 signingFileWarn(BARSIGNER_DB);
             }
         }
