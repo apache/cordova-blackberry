@@ -22,16 +22,19 @@ var path = require("path"),
     signingUtils = require("./signing-utils"),
     barConf = require("./bar-conf"),
     localize = require("./localize"),
-    params;
+    cmdParams;
 
 function getParams(cmdline, toolName) {
+    var properties = utils.getProperties(),
+        params = properties[toolName];
+
     if (cmdline.params) {
-        if (!params) {
+        if (!cmdParams) {
             var paramsPath = path.resolve(cmdline.params);
 
             if (fs.existsSync(paramsPath)) {
                 try {
-                    params = require(paramsPath);
+                    cmdParams = require(paramsPath);
                 } catch (e) {
                     throw localize.translate("EXCEPTION_PARAMS_FILE_ERROR", paramsPath);
                 }
@@ -39,34 +42,57 @@ function getParams(cmdline, toolName) {
                 throw localize.translate("EXCEPTION_PARAMS_FILE_NOT_FOUND", paramsPath);
             }
         }
+    }
 
+    if (cmdParams && cmdParams[toolName]) {
         if (params) {
-            return params[toolName];
+            params = utils.mixin(cmdParams[toolName], params);
+        } else {
+            params = cmdParams[toolName];
         }
     }
 
-    return null;
+    return params;
 }
 
 
 module.exports = {
+    getKeyStorePass: function (cmdline) {
+        var properties = utils.getProperties(),
+            params = getParams(cmdline, "blackberry-signer") || {},
+            keystorepass;
+
+        //Check commandline first, then properties, then params
+        //Packager expects value provided as password
+        //Cordova scripts expects value provided as keystorepass
+        //String checks are to get around issue where commander sometimes passed in a function
+        if (cmdline.password && typeof cmdline.password === "string") {
+            keystorepass = cmdline.password;
+        } else if (cmdline.keystorepass && typeof cmdline.keystorepass === "string") {
+            keystorepass = cmdline.keystorepass;
+        } else if (properties.keystorepass) {
+            keystorepass = properties.keystorepass;
+        } else if (params["-storepass"]) {
+           keystorepass = params["-storepass"];
+        }
+
+        return keystorepass;
+    },
     initialize: function (cmdline) {
         var sourceDir,
-            signingPassword,
+            signingPassword = module.exports.getKeyStorePass(cmdline),
             outputDir = cmdline.output,
             properties = require("../../project.json"),
             archivePath = path.resolve(cmdline.args[0] ? cmdline.args[0] : "../../www"),
             archiveName = utils.genBarName(),
             appdesc,
-            buildId = cmdline.buildId;
+            buildId = cmdline.buildId,
+            signerParams = getParams(cmdline, "blackberry-signer") || {},
+            keystore = signerParams["-keystore"],
+            bbidtoken = signerParams["-bbidtoken"];
 
         //If -o option was not provided, default output location is the same as .zip
         outputDir = outputDir || path.dirname(archivePath);
-
-        //Only set signingPassword if it contains a value
-        if (cmdline.password && "string" === typeof cmdline.password) {
-            signingPassword = cmdline.password;
-        }
 
         if (cmdline.appdesc && "string" === typeof cmdline.appdesc) {
             appdesc = path.resolve(cmdline.appdesc);
@@ -84,6 +110,15 @@ module.exports = {
         }
 
         logger.level(cmdline.loglevel || 'verbose');
+
+        //If signer params exist, check whether the files are there
+        //This is to be consistent with the default files
+        if (keystore && !fs.existsSync(keystore)) {
+            keystore = false;
+        }
+        if (bbidtoken && !fs.existsSync(bbidtoken)) {
+            bbidtoken = false;
+        }
 
         return {
             "conf": require("./conf"),
@@ -103,10 +138,10 @@ module.exports = {
             "archiveName": archiveName,
             "barPath": outputDir + "/%s/" + archiveName + ".bar",
             "debug": !!cmdline.debug,
-            "keystore": signingUtils.getKeyStorePath(),
+            "keystore": keystore || signingUtils.getKeyStorePath(),
             "keystoreCsk": signingUtils.getCskPath(),
             "keystoreDb": signingUtils.getDbPath(),
-            "keystoreBBID": signingUtils.getKeyStorePathBBID(),
+            "keystoreBBID": bbidtoken || signingUtils.getKeyStorePathBBID(),
             "storepass": signingPassword,
             "buildId": buildId,
             "appdesc" : appdesc,
@@ -114,7 +149,7 @@ module.exports = {
                 return getParams(cmdline, toolName);
             },
             isSigningRequired: function (config) {
-                return signingUtils.getKeyStorePath() && signingPassword;
+                return (keystore || signingUtils.getKeyStorePath()) && signingPassword;
             },
             "targets": ["simulator", "device"]
         };

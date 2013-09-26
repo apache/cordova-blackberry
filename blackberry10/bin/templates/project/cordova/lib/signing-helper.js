@@ -30,11 +30,6 @@ function execSigner(session, target, callback) {
         params = session.getParams("blackberry-signer"),
         args = [];
 
-    args.push("-keystore");
-    args.push(session.keystore);
-    args.push("-storepass");
-    args.push(session.storepass);
-
     if (params) {
         Object.getOwnPropertyNames(params).forEach(function (p) {
             args.push(p);
@@ -44,6 +39,19 @@ function execSigner(session, target, callback) {
             }
         });
     }
+
+    //Only specify default args if they aren't specified by the user
+    if (args.indexOf("-keystore") === -1) {
+        args.push("-keystore");
+        args.push(session.keystore);
+    }
+    if (args.indexOf("-storepass") === -1) {
+        args.push("-storepass");
+        args.push(session.storepass);
+    }
+
+    //Validate arguments
+
 
     args.push(path.resolve(util.format(session.barPath, target)));
 
