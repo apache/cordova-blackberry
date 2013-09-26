@@ -333,6 +333,15 @@ _self = {
         prompt.get(promptSchema, function (err, results) {
             done(err, results.property);
         });
+    },
+
+    mixin: function (mixin, to) {
+        Object.getOwnPropertyNames(mixin).forEach(function (prop) {
+            if (Object.hasOwnProperty.call(mixin, prop)) {
+                Object.defineProperty(to, prop, Object.getOwnPropertyDescriptor(mixin, prop));
+            }
+        });
+        return to;
     }
 
 };

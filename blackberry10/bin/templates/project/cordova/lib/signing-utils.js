@@ -17,47 +17,48 @@ function getDefaultPath(file) {
     var p = "";
     if (os.type().toLowerCase().indexOf("windows") >= 0) {
         // Try Windows XP location
-        p = process.env.HOMEDRIVE + process.env.HOMEPATH + "\\Local Settings\\Application Data\\Research In Motion\\" + file;
-        if (fs.existsSync(p)) {
-            return p;
-        }
-
-        // Try Windows Vista and Windows 7 location
-        p = process.env.HOMEDRIVE + process.env.HOMEPATH + "\\AppData\\Local\\Research In Motion\\" + file;
-        if (fs.existsSync(p)) {
-            return p;
+        p = process.env.HOMEDRIVE + process.env.HOMEPATH + "\\Local Settings\\Application Data\\Research In Motion\\";
+        if (!fs.existsSync(p)) {
+            // Try Windows Vista and Windows 7 location
+            p = process.env.HOMEDRIVE + process.env.HOMEPATH + "\\AppData\\Local\\Research In Motion\\";
         }
     } else if (os.type().toLowerCase().indexOf("darwin") >= 0) {
         // Try Mac OS location
-        p = process.env.HOME + "/Library/Research In Motion/" + file;
-        if (fs.existsSync(p)) {
-            return p;
-        }
+        p = process.env.HOME + "/Library/Research In Motion/";
     } else if (os.type().toLowerCase().indexOf("linux") >= 0) {
         // Try Linux location
-        p = process.env.HOME + "/.rim/" + file;
-        if (fs.existsSync(p)) {
-            return p;
-        }
+        p = process.env.HOME + "/.rim/";
+    }
+
+    return p + file;
+
+}
+
+function getDefaultPathIfExists(file) {
+    var p = getDefaultPath(file);
+    if (fs.existsSync(p)) {
+        return p;
     }
 }
 
 _self = {
+    getDefaultPath: getDefaultPath,
+
     getKeyStorePath : function () {
         // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Tablet OS
-        return getDefaultPath(AUTHOR_P12);
+        return getDefaultPathIfExists(AUTHOR_P12);
     },
 
     getKeyStorePathBBID: function () {
-        return getDefaultPath(BBIDTOKEN);
+        return getDefaultPathIfExists(BBIDTOKEN);
     },
 
     getCskPath : function () {
-        return getDefaultPath(CSK);
+        return getDefaultPathIfExists(CSK);
     },
 
     getDbPath : function () {
-        return getDefaultPath(DB);
+        return getDefaultPathIfExists(DB);
     }
 };
 

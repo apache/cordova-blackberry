@@ -31,6 +31,7 @@ var path = require("path"),
     childProcess = require("child_process"),
     logger = require("./logger"),
     pkgrUtils = require("./packager-utils"),
+    session = require("./session"),
     commandStr;
 
 function copyArgIfExists(arg) {
@@ -71,16 +72,15 @@ try {
             },
             function releaseBuild (allDone) {
                 var childTasks = [],
+                    keystorepass = session.getKeyStorePass(command),
                     err;
 
                 if (command.release) {
                     copyArgIfExists("buildId");
                     //Note: Packager refers to signing password as "password" not "keystorepass"
                     bbwpArgv.push("--password");
-                    if (command.keystorepass) {
-                        bbwpArgv.push(command.keystorepass);
-                    } else if (bbProperties.keystorepass) {
-                        bbwpArgv.push(bbProperties.keystorepass);
+                    if (keystorepass) {
+                        bbwpArgv.push(keystorepass);
                     } else if (command.query) {
                         childTasks.push(utils.prompt.bind(this, {description: "Please enter your keystore password: ", hidden: true}));
                         childTasks.push(function (password, done) {

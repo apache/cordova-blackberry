@@ -24,6 +24,7 @@ var fs = require("fs"),
     xml2js = require('xml2js'),
     logger = require("./logger"),
     async = require("async"),
+    session = require("./session"),
     properties = utils.getProperties(),
     workingdir = path.normalize(__dirname + "/..");
 
@@ -129,7 +130,7 @@ function validateTarget(options, targetName, allDone) {
 }
 //Options looking for are: (keystorepass, query). Calls back with:  (error || target object)
 function handleDebugToken(options, deployTarget, allDone) {
-    options.keystorepass = options.keystorepass || properties.keystorepass;
+    options.keystorepass = session.getKeyStorePass(options);
 
     // if target has no pin, skip the debug token feature
     if (deployTarget.pin && !options.emulator) {
@@ -149,22 +150,22 @@ function handleDebugToken(options, deployTarget, allDone) {
                 },
                 debugTokenHelper.createToken.bind(this, properties, "all")
             ],
-                function (err, results) {
-                    // If the error is true, then the debug token is valid and creation was skipped.
-                    if (err === true) {
-                        logger.info(localize.translate("PROGRESS_DEBUG_TOKEN_IS_VALID"));
-                        //Clear the error so it is still deployed
-                        err = null;
-                    }
-
-                    if (!err) {
-                        debugTokenHelper.deployToken(deployTarget.name, deployTarget.ip, deployTarget.password, function (code) {
-                            allDone(code, deployTarget);
-                        });
-                    } else {
-                        allDone(err);
-                    }
+            function (err, results) {
+                // If the error is true, then the debug token is valid and creation was skipped.
+                if (err === true) {
+                    logger.info(localize.translate("PROGRESS_DEBUG_TOKEN_IS_VALID"));
+                    //Clear the error so it is still deployed
+                    err = null;
                 }
+
+                if (!err) {
+                    debugTokenHelper.deployToken(deployTarget.name, deployTarget.ip, deployTarget.password, function (code) {
+                        allDone(code, deployTarget);
+                    });
+                } else {
+                    allDone(err);
+                }
+            }
         );
     } else {
         allDone(null, deployTarget);
@@ -220,7 +221,7 @@ _self = {
             [
                 getTargetName.bind(this, options),
                 validateTarget,
-                handleDebugToken,
+                handleDebugToken
             ], callback
         );
     },

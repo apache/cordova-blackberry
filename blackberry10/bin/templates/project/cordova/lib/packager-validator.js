@@ -20,6 +20,7 @@ var check = require('validator').check,
     path = require("path"),
     fs = require("fs"),
     packagerUtils = require("./packager-utils"),
+    signingUtils = require("./signing-utils"),
     CORDOVA_JS_REGEX = /(cordova-.+js)|cordova\.js/,
     _self;
 
@@ -32,6 +33,7 @@ _self = {
         //The string checks below is to get around a really weird issue in commander
         //where sometimes unspecified arguments come in as a function...
         var keysFound = session.keystore,
+            keysDefault = session.keystore === signingUtils.getDefaultPath("author.p12"),
             cskFound = session.keystoreCsk,//barsigner.csk
             dbFound = session.keystoreDb,//barsigner.db
             bbidFound = session.keystoreBBID,
@@ -57,10 +59,10 @@ _self = {
         if (keysPassword || commandLinebuildId) {
             if (!keysFound) {
                 signingFileError(AUTHOR_P12);
-            } else if (!cskFound && !bbidFound) {
+            } else if (keysDefault && !cskFound && !bbidFound) {
                 //Only warn about BBID since the old tokens are deprecated
                 signingFileError(BARSIGNER_BBID);
-            } else if (cskFound && !dbFound) {
+            } else if (keysDefault && cskFound && !dbFound) {
                 signingFileError(BARSIGNER_DB);
             }
 
@@ -68,10 +70,10 @@ _self = {
         } else if (buildId) {
             if (!keysFound) {
                 signingFileWarn(AUTHOR_P12);
-            } else if (!cskFound && !bbidFound) {
+            } else if (keysDefault && !cskFound && !bbidFound) {
                 //Only warn about BBID since the old tokens are deprecated
                 signingFileWarn(BARSIGNER_BBID);
-            } else if (cskFound && !dbFound) {
+            } else if (keysDefault && cskFound && !dbFound) {
                 signingFileWarn(BARSIGNER_DB);
             }
         }
