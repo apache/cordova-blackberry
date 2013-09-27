@@ -297,7 +297,7 @@ _self = {
 
     writeToPropertiesFile: function (data) {
         var contents = JSON.stringify(data, null, 4) + "\n",
-            propertiesFile = path.join(_self.getCordovaDir(), PROPERTY_FILE_NAME);
+            propertiesFile = getPropertiesFilePath();
 
         fs.writeFileSync(propertiesFile, contents, 'utf-8');
     },
