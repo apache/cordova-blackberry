@@ -19,7 +19,7 @@ var path = require("path"),
     wrench = require("wrench"),
     utils = require("./utils"),
     logger = require("./logger"),
-    signingHelper = require("./signing-helper"),
+    signingUtils = require("./signing-utils"),
     barConf = require("./bar-conf"),
     localize = require("./localize"),
     params;
@@ -103,9 +103,10 @@ module.exports = {
             "archiveName": archiveName,
             "barPath": outputDir + "/%s/" + archiveName + ".bar",
             "debug": !!cmdline.debug,
-            "keystore": signingHelper.getKeyStorePath(),
-            "keystoreCsk": signingHelper.getCskPath(),
-            "keystoreDb": signingHelper.getDbPath(),
+            "keystore": signingUtils.getKeyStorePath(),
+            "keystoreCsk": signingUtils.getCskPath(),
+            "keystoreDb": signingUtils.getDbPath(),
+            "keystoreBBID": signingUtils.getKeyStorePathBBID(),
             "storepass": signingPassword,
             "buildId": buildId,
             "appdesc" : appdesc,
@@ -113,7 +114,7 @@ module.exports = {
                 return getParams(cmdline, toolName);
             },
             isSigningRequired: function (config) {
-                return signingHelper.getKeyStorePath() && signingPassword;
+                return signingUtils.getKeyStorePath() && signingPassword;
             },
             "targets": ["simulator", "device"]
         };
