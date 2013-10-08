@@ -1298,9 +1298,31 @@ describe("config parser", function () {
                 });
             });
 
+            it("sets enableFormControl to true when HideKeyboardFormAccessoryBar value is false", function () {
+                var data = testUtilities.cloneObj(testData.xml2jsConfig);
+                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'false'  } };
+
+                mockParsing(data);
+
+                configParser.parse(configPath, session, function (configObj) {
+                    expect(configObj.enableFormControl).toBe(true);
+                });
+            });
+
             it("sets enableFormControl to false when value is enable", function () {
                 var data = testUtilities.cloneObj(testData.xml2jsConfig);
                 data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'enable' } };
+
+                mockParsing(data);
+
+                configParser.parse(configPath, session, function (configObj) {
+                    expect(configObj.enableFormControl).toBe(false);
+                });
+            });
+
+            it("sets enableFormControl to false when value is true", function () {
+                var data = testUtilities.cloneObj(testData.xml2jsConfig);
+                data['preference'] = { '@': { name: 'HideKeyboardFormAccessoryBar', value: 'true' } };
 
                 mockParsing(data);
 

@@ -539,7 +539,9 @@ function processNameAndDescription(data, widgetConfig) {
 
 function processCordovaPreferences(data, widgetConfig) {
     if (data.preference) {
-        var preference = JSON.parse(JSON.stringify(processParamObj(data.preference)).toLowerCase());
+        var preference = JSON.parse(JSON.stringify(processParamObj(data.preference)).toLowerCase()),
+            hideFormControl = preference.hidekeyboardformaccessorybar;
+
         widgetConfig.packageCordovaJs = preference.packagecordovajs === "enable";
         widgetConfig.autoHideSplashScreen = preference.autohidesplashscreen !== "false";
 
@@ -550,17 +552,17 @@ function processCordovaPreferences(data, widgetConfig) {
 
         // <preference name="childBrowser" value="enable or disable" />
         if (preference.childbrowser) {
-            widgetConfig.enableChildWebView = ((preference.childbrowser + '').toLowerCase() === 'disable') === false;
+            widgetConfig.enableChildWebView = (preference.childbrowser === 'disable') === false;
         }
 
-        // <preference name="HideKeyboardFormAccessoryBar" value="enable or disable" />
+        // <preference name="HideKeyboardFormAccessoryBar" value="enable/true or disable/false" />
         if (preference.hidekeyboardformaccessorybar) {
-            widgetConfig.enableFormControl = ((preference.hidekeyboardformaccessorybar + '').toLowerCase() === 'enable') === false;
+            widgetConfig.enableFormControl = (hideFormControl !== 'enable' ) && (hideFormControl !== 'true');
         }
 
         // <preference name="popupBlocker" value="enable or disable" />
         if (preference.popupblocker) {
-            widgetConfig.enablePopupBlocker = ((preference.popupblocker + '').toLowerCase() === 'enable') === true;
+            widgetConfig.enablePopupBlocker = (preference.popupblocker === 'enable') === true;
         }
 
         // <preference name="orientation" value="portrait, landscape, north, auto or default" />
@@ -575,14 +577,13 @@ function processCordovaPreferences(data, widgetConfig) {
 
         // <preference name="theme" value="bright, dark, inherit or default" />
         if (preference.theme && (typeof preference.theme === "string")) {
-            preference.theme = preference.theme.toLowerCase();
             if (preference.theme ===  "bright" || preference.theme === "dark" || preference.theme === "inherit" || preference.theme ===  "default") {
                 widgetConfig.theme = preference.theme;
             }
         }
 
         // <preference name="webSecurity" value="enable or disable" />
-        if (preference.websecurity && (typeof preference.websecurity === "string") && (preference.websecurity.toLowerCase() === "disable")) {
+        if (preference.websecurity && (typeof preference.websecurity === "string") && (preference.websecurity === "disable")) {
             widgetConfig.enableWebSecurity = false;
             logger.warn(localize.translate("WARNING_WEBSECURITY_DISABLED"));
         }
@@ -656,8 +657,8 @@ function init() {
                 logger.warn(localize.translate("WARNING_ORIENTATION_DEPRECATED"));
             }
         }
-    }
-};
+    };
+}
 
 _self = {
     parse: function (xmlPath, session, callback) {
