@@ -553,9 +553,10 @@ function processCordovaPreferences(data, widgetConfig) {
             widgetConfig.enableChildWebView = ((preference.childbrowser + '').toLowerCase() === 'disable') === false;
         }
 
-        // <preference name="HideKeyboardFormAccessoryBar" value="enable or disable" />
+        // <preference name="HideKeyboardFormAccessoryBar" value="enable/true or disable/false" />
         if (preference.hidekeyboardformaccessorybar) {
-            widgetConfig.enableFormControl = ((preference.hidekeyboardformaccessorybar + '').toLowerCase() === 'enable') === false;
+            var hideFormControl = (preference.hidekeyboardformaccessorybar + '').toLowerCase();
+            widgetConfig.enableFormControl = ((hideFormControl === 'enable' ) || (hideFormControl === 'true')) === false;
         }
 
         // <preference name="popupBlocker" value="enable or disable" />
