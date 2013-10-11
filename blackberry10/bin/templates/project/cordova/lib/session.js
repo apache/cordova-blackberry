@@ -48,7 +48,7 @@ function getParams(cmdline, toolName) {
         if (params) {
             params = utils.mixin(cmdParams[toolName], params);
         } else {
-            params = cmdParams;
+            params = cmdParams[toolName];
         }
     }
 
