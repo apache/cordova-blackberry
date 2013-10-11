@@ -87,7 +87,7 @@ module.exports = {
             archiveName = utils.genBarName(),
             appdesc,
             buildId = cmdline.buildId,
-            signerParams = getParams(cmdline, "blackberry-signer"),
+            signerParams = getParams(cmdline, "blackberry-signer") || {},
             keystore = signerParams["-keystore"],
             bbidtoken = signerParams["-bbidtoken"];
 
