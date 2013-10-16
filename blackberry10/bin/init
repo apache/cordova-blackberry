@@ -18,8 +18,9 @@
 #
 #!/bin/sh
 CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-LOCAL_NODE_BIN=$CURRENT_DIR/dependencies/node/bin
-LOCAL_BBTOOLS=$CURRENT_DIR/dependencies/bb-tools/bin
+CORDOVA_HOME_DIR=$HOME/.cordova/lib/blackberry10/cordova/$(cat "$CURRENT_DIR/../VERSION")
+LOCAL_NODE_BIN=$CORDOVA_HOME_DIR/bin/dependencies/node/bin
+LOCAL_BBTOOLS=$CORDOVA_HOME_DIR/bin/dependencies/bb-tools/bin
 
 if [ -z "$CORDOVA_NODE" ]; then
     if [ -x "$LOCAL_NODE_BIN" ]; then
