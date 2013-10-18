@@ -229,7 +229,15 @@ _self = {
 
         bb10_utils.exec(script, args, options, function (error, stdout, stderr) {
             // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected simulator
-            callback((type === 'simulator' && (error === null || stderr.length === 0 || stderr.indexOf('Error: null') >= 0 || stderr.indexOf('Error: Authentication failed') >= 0)) || (type === 'device' && error.code === 3));
+            var isSimConnected = (type === "simulator" && (
+                    error === null ||
+                    stderr.length === 0 ||
+                    stderr.indexOf('Error: null') >= 0 ||
+                    stderr.indexOf('Error: Authentication failed') >= 0
+                )),
+                isDeviceConnected = (type === "device" && error && error.code === 3);
+
+            callback(isSimConnected || isDeviceConnected);
         });
     },
 
