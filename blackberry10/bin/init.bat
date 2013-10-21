@@ -18,45 +18,41 @@ goto comment
        under the License.
 :comment
 
-set LOCAL_NODE_BINARY=%~dps0dependencies\node\bin
-set LOCAL_BBTOOLS_BINARY=%~dps0dependencies\bb-tools\bin
+set /P CORDOVA_VERSION=<%~dps0..\VERSION
+set CORDOVA_HOME_DIR=%HOME%\.cordova\lib\blackberry10\cordova\%CORDOVA_VERSION%
+set LOCAL_NODE_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\node\bin
+set LOCAL_BBTOOLS_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\bb-tools\bin
 
-
-
-if defined %CORDOVA_NODE% { goto bbtools }
+if defined CORDOVA_NODE ( goto bbtools )
 
 if exist "%LOCAL_NODE_BINARY%" (
     set CORDOVA_NODE=%LOCAL_NODE_BINARY%
 ) else (
+    set FOUNDNODE=
     for %%e in (%PATHEXT%) do (
         for %%X in (node%%e) do (
             if not defined FOUNDNODE (
                 set FOUNDNODE=%%~$PATH:X
+                for %%F in ("%%~$PATH:X") do set CORDOVA_NODE=%%~dpF
             )
         )
-    )
-
-    if defined FOUNDNODE (
-        for %%F in ("%FOUNDNODE%") do set CORDOVA_NODE=%%~dpF
     )
 )
 
 :bbtools
 
-if defined %CORDOVA_BBTOOLS% { exit /B }
+if defined CORDOVA_BBTOOLS ( exit /B )
 
 if exist "%LOCAL_BBTOOLS_BINARY%" (
     set CORDOVA_BBTOOLS=%LOCAL_BBTOOLS_BINARY%
 ) else (
+    set FOUNDBBTOOLS=
     for %%e in (%PATHEXT%) do (
         for %%X in (blackberry-nativepackager%%e) do (
             if not defined FOUNDBBTOOLS (
                 set FOUNDBBTOOLS=%%~$PATH:X
+                for %%F in ("%%~$PATH:X") do set CORDOVA_BBTOOLS=%%~dpF
             )
         )
-    )
-
-    if defined FOUNDBBTOOLS (
-        for %%F in ("%FOUNDBBTOOLS%") do set CORDOVA_BBTOOLS=%%~dpF
     )
 )

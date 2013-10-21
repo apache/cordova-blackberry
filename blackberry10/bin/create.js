@@ -34,6 +34,7 @@ var build,
     app_id = process.argv[3],
     TARGETS = ["device", "simulator"],
     TEMPLATE_PROJECT_DIR = path.join(__dirname, "templates", "project"),
+    ROOT_PROJECT_DIR = path.join(__dirname, ".."),
     MODULES_PROJECT_DIR = path.join(__dirname, "..", "node_modules"),
     BOOTSTRAP_PROJECT_DIR = path.join(__dirname, "..", "framework", "bootstrap"),
     FRAMEWORK_LIB_PROJECT_DIR = path.join(__dirname, "..", "framework", "lib"),
@@ -112,32 +113,6 @@ function copyFilesToProject() {
     wrench.mkdirSyncRecursive(project_path, 0777);
     wrench.copyDirSyncRecursive(TEMPLATE_PROJECT_DIR, project_path);
 
-    //copy dependencies folder if exists
-    if (fs.existsSync(path.join(BIN_DIR, "dependencies"))) {
-        //Copy node binaries
-        wrench.mkdirSyncRecursive(path.join(project_path, "cordova", "dependencies", "node"), 0755);
-        wrench.copyDirSyncRecursive(path.join(BIN_DIR, "dependencies", "node"), path.join(project_path, "cordova", "dependencies", "node"));
-
-        //Copy bb-tools bin files
-        wrench.mkdirSyncRecursive(bbtoolsBinDest, 0755);
-
-        if (utils.isWindows()) {
-            bbNativePackager += ".bat";
-            bbSigner += ".bat";
-            bbDeploy += ".bat";
-            bbDebugTokenRequest += ".bat";
-        }
-
-        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbNativePackager), bbtoolsBinDest);
-        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbSigner), bbtoolsBinDest);
-        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbDeploy), bbtoolsBinDest);
-        utils.copyFile(path.join(BIN_DIR, "dependencies", "bb-tools", "bin", bbDebugTokenRequest), bbtoolsBinDest);
-
-        //copy bb-tools lib folder
-        wrench.mkdirSyncRecursive(bbtoolsLibDest, 0755);
-        wrench.copyDirSyncRecursive(path.join(BIN_DIR, "dependencies", "bb-tools", "lib"), bbtoolsLibDest);
-    }
-
     // copy repo level target tool to project
     utils.copyFile(path.join(BIN_DIR, "target"), path.join(project_path, "cordova"));
     utils.copyFile(path.join(BIN_DIR, "target.bat"), path.join(project_path, "cordova"));
@@ -150,6 +125,9 @@ function copyFilesToProject() {
     } else {
         utils.copyFile(path.join(BIN_DIR, "init"), path.join(project_path, "cordova"));
     }
+
+    //copy VERSION file [used to identify corresponding ~/.cordova/lib directory for dependencies]
+    utils.copyFile(path.join(ROOT_PROJECT_DIR, "VERSION"), path.join(project_path));
 
     // change file permission for cordova scripts because ant copy doesn't preserve file permissions
     wrench.chmodSyncRecursive(path.join(project_path,"cordova"), 0700);
