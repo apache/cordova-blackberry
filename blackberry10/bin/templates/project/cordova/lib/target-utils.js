@@ -175,8 +175,10 @@ _self = {
                 return DHCP_LEASES_REGEX.test(file);
             });
             pathVmDhcpLeases = vmDhcpLeasesFiles[0];
-        } else {
+        } else if (bb10_utils.isOSX()) {
             pathVmDhcpLeases = "/private/var/db/vmware/vmnet-dhcpd-vmnet8.leases";
+        } else {
+            pathVmDhcpLeases = "/var/db/vmware/vmnet-dhcpd-vmnet8.leases";
         }
 
         fs.readFile(pathVmDhcpLeases, 'utf8', function (err, data) {

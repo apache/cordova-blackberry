@@ -134,6 +134,10 @@ _self = {
         return os.type().toLowerCase().indexOf("windows") >= 0;
     },
 
+    isOSX: function () {
+        return os.type().toLowerCase().indexOf("darwin") >= 0;
+    },
+
     isArray: function (obj) {
         return obj.constructor.toString().indexOf("Array") !== -1;
     },
