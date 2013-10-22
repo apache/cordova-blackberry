@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-var fs = require("fs"),
+var path = require("path"),
+    fs = require("fs"),
     readline = require("readline"),
     util = require("util"),
-    filename = "www/cordova.js";
+    filename = path.resolve(__dirname, "../../", "www/cordova.js");
 
 if (fs.existsSync(filename)) {
     var rl = readline.createInterface({
