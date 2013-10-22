@@ -20,7 +20,7 @@ goto comment
 set BIN_DIR=%~dp0
 
 call "%BIN_DIR%init"
-if ERRORLEVEL 1 exit /B 1
+if ERRORLEVEL 1 exit /B %ERRORLEVEL% 
 
 if exist "%BIN_DIR%..\package.json" (
     pushd %BIN_DIR%..
@@ -30,3 +30,4 @@ if exist "%BIN_DIR%..\package.json" (
 )
 
 "%CORDOVA_NODE%\node" "%BIN_DIR%create.js" %*
+if ERRORLEVEL 1 exit /B %ERRORLEVEL%

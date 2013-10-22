@@ -42,6 +42,7 @@ var build,
     BIN_DIR = path.join(__dirname),
     BUILD_DIR = path.join(__dirname, "build"),
     CORDOVA_JS_SRC = path.join(__dirname, "..", "javascript", "cordova.blackberry10.js"),
+    ERROR_VALUE = 2,
     update_dir = path.join(project_path, "lib", "cordova." + version),
     native_dir = path.join(project_path, "native"),
     js_path = "javascript",
@@ -68,7 +69,7 @@ function validateProjectPath() {
     if (!process.argv[2]) {
         console.log("You must give a project PATH");
         help();
-        process.exit(2);
+        process.exit(ERROR_VALUE);
         return "";
     } else {
         return path.resolve(process.argv[2]);
@@ -79,7 +80,7 @@ function validate() {
     if (fs.existsSync(project_path)) {
         console.log("The project path must be an empty directory");
         help();
-        process.exit(2);
+        process.exit(ERROR_VALUE);
     }
     if (!validPackageName(app_id)) {
         console.log("[warning] App ID must be sequence of alpha-numeric (optionally separated by '.') characters, no longer than 50 characters.\n" +
@@ -193,6 +194,6 @@ if ( process.argv[2] === "-h" || process.argv[2] === "--help" ) {
     } catch (ex) {
         console.log("Project creation failed!");
         console.error(os.EOL + ex);
-        process.exit(2);
+        process.exit(ERROR_VALUE);
     }
 }

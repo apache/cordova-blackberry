@@ -23,11 +23,13 @@ COMMENT
 VMWARE_DEFAULT_PATH=/Applications/VMware\ Fusion.app/Contents/Library
 VMWARE_TOOL=vmrun
 OS_NAME=`uname`
+ERROR_VALUE=2
+NOTIMPLEMENTED_VALUE=1
 
 if [ "$1" = "" -o ! -e "$1" ]
 then
     echo "BlackBerry10: must provide path to valid vmwarevm image"
-    exit 2
+    exit $ERROR_VALUE
 fi
 
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -45,9 +47,9 @@ if [ "$OS_NAME" = "Darwin" ]; then
         exit 0 
     else
         echo "BlackBerry10: could not find VMware Fusion 'vmrun' tool"
-        exit 1 
+        exit $ERROR_VALUE
     fi
 else
     echo "BlackBerry10: currently only supports installing to emulator on OS X"
-    exit 1
+    exit $NOTIMPLEMENTED_VALUE 
 fi

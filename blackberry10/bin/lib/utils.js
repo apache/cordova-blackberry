@@ -15,6 +15,7 @@
  */
 
 var fs = require('fs'),
+    async = require('async'),
     path = require('path'),
     childProcess = require('child_process'),
     wrench = require('wrench'),
@@ -24,6 +25,7 @@ var fs = require('fs'),
     DEFAULT_BAR_NAME = "bb10app",
     PROPERTY_FILE_NAME = 'blackberry10.json',
     CORDOVA_DIR = '.cordova',
+    ERROR_VALUE = 2,
     DEFAULT_PROPERTY_FILE = {
         targets: {
         }
@@ -346,6 +348,27 @@ _self = {
             }
         });
         return to;
+    },
+
+    series: function (steps) {
+        async.series(steps, this.exit_handler);
+    },
+
+    waterfall: function (steps) { 
+        async.waterfall(steps, this.exit_handler);
+    },
+
+    exit_handler: function (err) {
+        if (err) {
+            if (typeof err === "string") {
+                console.error(err);
+            } else {
+                console.error("An error has occurred");
+            }
+            process.exit(ERROR_VALUE);
+        } else {
+            process.exit(0);
+        }
     }
 
 };

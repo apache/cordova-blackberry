@@ -40,7 +40,7 @@ if [ -e "$NPM_PACKAGE_JSON" ]; then
 
     if ! [ $? -eq 0 ]; then
         echo "NPM install failed. Aborting."
-        exit 1
+        exit $?
     fi
 fi
 

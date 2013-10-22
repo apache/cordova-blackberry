@@ -16,6 +16,7 @@
 :: under the License.
 
 @ECHO OFF
+set NOTIMPLEMENTED_VALUE=1
 
 ECHO echo 'BlackBerry10: Not able to start emulator images on windows command-line at this time.'
-EXIT /B 1
+EXIT /B %NOTIMPLEMENTED_VALUE%

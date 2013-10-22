@@ -24,5 +24,5 @@ if not exist INITCALL (
 )
 
 call %INITCALL%
-if ERRORLEVEL 1 exit /B 1
+if ERRORLEVEL 1 exit /B %ERRORLEVEL%
 

@@ -18,6 +18,7 @@
  */
 
 var MIN_NODE_VER = "0.9.9",
+    ERROR_VALUE = 2,
     signingUtils = require('./lib/signing-utils');
 
 function isNodeNewerThanMin () {
@@ -29,7 +30,7 @@ function isNodeNewerThanMin () {
 
 if (!isNodeNewerThanMin()) {
     console.log("Node version '" + process.versions.node + "' is not new enough. Please upgrade to " + MIN_NODE_VER + " or newer. Aborting.");
-    process.exit(2);
+    process.exit(ERROR_VALUE);
 }
 
 if (!signingUtils.getKeyStorePath()) {
