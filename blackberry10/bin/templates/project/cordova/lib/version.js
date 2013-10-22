@@ -19,7 +19,9 @@
 var fs = require("fs"),
     readline = require("readline"),
     util = require("util"),
-    filename = "www/cordova.js";
+    path = require('path'),
+    projectPath = path.resolve(__dirname,'../..'),
+    filename = path.join(projectPath, 'www/cordova.js');
 
 if (fs.existsSync(filename)) {
     var rl = readline.createInterface({
