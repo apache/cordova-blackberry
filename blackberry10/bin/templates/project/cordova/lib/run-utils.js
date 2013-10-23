@@ -101,13 +101,14 @@ function validateTarget(options, targetName, allDone) {
                 err = "IP is not defined in target \"" + target + "\"";
             }
         }
+
         if (!deployTarget.password && deployTarget.password !== "") {
             if (options.devicepass || options.devicepass === "") {
                 deployTarget.password = options.devicepass;
             } else {
                 if (options.query) {
                     runTasks.push(function (done) {
-                         var description = options.device ? "Please enter your " + deployTarget.type +  " password: " : "Please enter your " + deployTarget.type +  " password (For no password press Enter): ";
+                        var description = options.device ? "Please enter your " + deployTarget.type +  " password: " : "Please enter your " + deployTarget.type +  " password (For no password press Enter): ";
                         utils.prompt({description: description, hidden: true}, function (e, devicePass) {
                             deployTarget.password = devicePass;
                             done(e);
@@ -117,6 +118,15 @@ function validateTarget(options, targetName, allDone) {
                     err = "Please provide device password using --devicepass or add one to the target " + deployTarget.name + " defined at " + utils.getPropertiesFilePath();
                 }
             }
+        }
+
+        if (!deployTarget.pin) {
+            runTasks.push(function (done) {
+                targetUtils.getDeviceInfo.bind(deployTarget.ip, deployTarget.devicePass, function (err, result) {
+                    deployTarget.pin = result.pin;
+                    done(err);
+                });
+            });
         }
     }
 
@@ -247,25 +257,24 @@ _self = {
                 args.push("-password", deployTarget.password);
             }
             runTasks = [
-            utils.exec.bind(this, script, args, { "cwd": projectRootDir, _customOptions: {silent: true}}),
-            function listInstalledAppsOutput (stdout, stderr, done) {
-                installedAppsOutput = stdout;
-                fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), done);
-            },
-            function configXMLOutput (result, done) {
-                var parser = new xml2js.Parser();
-                parser.parseString(result, done);
-            },
-            function parsedConfigXMLOutput (result, done) {
-                if (installedAppsOutput.indexOf(result['@'].id) !== -1) {
-                    var deployOptions = generateDeployOptions(options, deployTarget, true);
-                    execNativeDeploy(deployOptions, done);
-                } else {
-                    done();
+                utils.exec.bind(this, script, args, { "cwd": projectRootDir, _customOptions: {silent: true}}),
+                function listInstalledAppsOutput (stdout, stderr, done) {
+                    installedAppsOutput = stdout;
+                    fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), done);
+                },
+                function configXMLOutput (result, done) {
+                    var parser = new xml2js.Parser();
+                    parser.parseString(result, done);
+                },
+                function parsedConfigXMLOutput (result, done) {
+                    if (installedAppsOutput.indexOf(result['@'].id) !== -1) {
+                        var deployOptions = generateDeployOptions(options, deployTarget, true);
+                        execNativeDeploy(deployOptions, done);
+                    } else {
+                        done();
+                    }
                 }
-            }
-
-            ]
+            ];
         }
 
         async.waterfall(runTasks,
@@ -273,7 +282,7 @@ _self = {
                 //Absorb error for uninstallation
                 allDone(null, deployTarget);
             }
-            );
+        );
     },
 
     //Function returns (error || deployTarget)
@@ -292,7 +301,7 @@ _self = {
     //No options needed within function Function returns (error || options, targetName)
     checkDeviceInfo : function (options, ip, deviceType, devicePass, done) {
         var props = utils.getProperties(),
-        targetName;
+            targetName;
 
         targetUtils.getDeviceInfo(ip, devicePass, function (err, device) {
             if (!err) {
