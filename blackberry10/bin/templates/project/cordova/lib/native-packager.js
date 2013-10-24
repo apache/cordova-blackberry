@@ -26,10 +26,14 @@ var childProcess = require("child_process"),
     localize = require("./localize"),
     pkgrUtils = require("./packager-utils"),
     i18nMgr = require("./i18n-manager"),
+    et = require("elementtree"),
+    xmlHelper = require("./xml-helpers"),
     NL = pkgrUtils.isWindows() ? "\r\n" : "\n";
 
 function generateTabletXMLFile(session, config) {
     var files = wrench.readdirSyncRecursive(session.sourceDir),
+        xmlData,
+        xmlDoc,
         xmlObject = {
             id : config.id,
             versionNumber : config.version,
@@ -186,8 +190,21 @@ function generateTabletXMLFile(session, config) {
     //Add auto orientation
     xmlObject.initialWindow.autoOrients = config.autoOrientation;
 
-    pkgrUtils.writeFile(session.sourceDir, conf.BAR_DESCRIPTOR, data2xml('qnx', xmlObject));
-}
+    xmlData = data2xml('qnx', xmlObject);
+
+    //Inject any config-file modifications for bar-descriptor.xml
+    if (config.configFileInjections && Array.isArray(config.configFileInjections)) {
+        xmlDoc = new et.ElementTree(et.XML(xmlData));
+        config.configFileInjections.forEach(function (config_file) {
+            if (config_file.attrib["parent"] && config_file.attrib["target"]  && config_file.attrib["target"] === "bar-descriptor.xml") {
+                xmlHelper.graftXML(xmlDoc, config_file._children, config_file.attrib["parent"]);
+            }
+        });
+        xmlData = xmlDoc.write({indent: 4});
+    }
+
+    pkgrUtils.writeFile(session.sourceDir, conf.BAR_DESCRIPTOR, xmlData);
+ }
 
 function generateOptionsFile(session, target, config) {
     var srcFiles = wrench.readdirSyncRecursive(session.sourceDir),

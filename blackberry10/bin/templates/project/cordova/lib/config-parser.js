@@ -25,6 +25,8 @@ var fs = require("fs"),
     fileManager = require("./file-manager"),
     utils = require("./packager-utils"),
     i18nMgr = require("./i18n-manager"),
+    et = require("elementtree"),
+    _config_doc,
     _self,
     _predefinedFeatures;
 
@@ -625,6 +627,9 @@ function processResult(data, session) {
     //if --buildId was specified, it takes precedence
     processBuildID(widgetConfig, session);
 
+    //store any config-file element injections
+    widgetConfig.configFileInjections = _config_doc.findall("config-file");
+
     return widgetConfig;
 }
 
@@ -666,6 +671,9 @@ _self = {
         var fileData = fs.readFileSync(xmlPath),
             xml = utils.bufferToString(fileData),
             parser = new xml2js.Parser({trim: true, normalize: true, explicitRoot: false});
+
+        //Used for config-file injections
+        _config_doc = new et.ElementTree(et.XML(xml));
 
         init();
 
