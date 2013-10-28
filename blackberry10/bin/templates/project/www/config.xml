@@ -34,9 +34,6 @@
        A sample Apache Cordova application that responds to the deviceready event.
   </description>
 
-  <license href="http://opensource.org/licenses/alphabetical">
-  </license>
-
   <!-- Expose access to all URIs, including the file and http protocols -->
   <access subdomains="true" uri="file:///store/home" />
   <access subdomains="true" uri="file:///SDCard" />
