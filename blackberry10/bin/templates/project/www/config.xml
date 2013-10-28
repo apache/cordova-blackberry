@@ -49,8 +49,4 @@
 
   <content src="index.html" />
 
-  <rim:permissions>
-    <rim:permit>access_shared</rim:permit>
-  </rim:permissions>
-
 </widget>
