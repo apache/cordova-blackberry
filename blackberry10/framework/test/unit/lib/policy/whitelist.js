@@ -597,7 +597,7 @@ describe("whitelist", function () {
 
                 expect(whitelist.getFeaturesForUrl("http://google.com")).toContain("blackberry.app");
                 expect(whitelist.getFeaturesForUrl("http://sub.google.com")).toContain("blackberry.media.camera");
-                expect(whitelist.getFeaturesForUrl("http://sub.google.com")).not.toContain("blckberry.app");
+                expect(whitelist.getFeaturesForUrl("http://sub.google.com")).not.toContain("blackberry.app");
                 expect(whitelist.getFeaturesForUrl("http://code.google.com")).toEqual([]);
             });
 
