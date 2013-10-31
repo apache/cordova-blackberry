@@ -29,6 +29,8 @@
   <name>Webworks Application</name>
 
   <author>Your Name Here</author>
+  
+  <authorId>Your Author ID Here</authorId>
 
   <description>
        A sample Apache Cordova application that responds to the deviceready event.
