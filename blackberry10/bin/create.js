@@ -82,7 +82,7 @@ function validate() {
         process.exit(2);
     }
     if (!validPackageName(app_id)) {
-        console.log("[warning] App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters.\n" +
+        console.log("[warning] App ID must be sequence of alpha-numeric (optionally separated by '.') characters, no longer than 50 characters.\n" +
                     "special characters in '" + app_id + "' will be replaced by '_'");
     }
 }
