@@ -76,7 +76,7 @@ function initializeDomains() {
     });
 }
 
-function initializaWebview(webview) {
+function initializeWebview(webview) {
     //Always allow file access from local and let the OS deal with permissions
     addOriginAccessWhitelistEntry(webview, LOCAL_URI, FILE_URI, true);
     addOriginAccessWhitelistEntry(webview, FILE_URI, LOCAL_URI, true);
@@ -105,7 +105,7 @@ module.exports = {
     addWebView: function (webview) {
         if (_webviews.indexOf(webview) === -1) {
             _webviews.push(webview);
-            initializaWebview(webview);
+            initializeWebview(webview);
             if (!_isInitialized) {
                 initializeDomains();
                 _isInitialized = true;
