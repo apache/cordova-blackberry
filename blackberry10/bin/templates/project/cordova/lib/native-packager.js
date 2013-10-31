@@ -244,7 +244,7 @@ function generateOptionsFile(session, target, config) {
 
     optionsStr += path.resolve(util.format(session.barPath, target)) + NL;
 
-    //to supoprt splash screens/icons for multiple resolutions/devices
+    //to support splash screens/icons for multiple resolutions/devices
     optionsStr += "-barVersion" + NL;
     optionsStr += "1.5" + NL;
 
