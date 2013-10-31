@@ -1206,7 +1206,7 @@ describe("config parser", function () {
             }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$ui*@@$"));
         });
 
-        it("can properly parse the custom RIM-Wiget:rim/wiget element", function () {
+        it("can properly parse the custom RIM-Widget:rim/widget element", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
 
             mockParsing(data);
