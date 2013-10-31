@@ -18,7 +18,7 @@
  */
 
 var MIN_NODE_VER = "0.9.9",
-    signingUtils = require('./templates/project/cordova/lib/signing-utils');
+    signingUtils = require('./lib/signing-utils');
 
 function isNodeNewerThanMin () {
     //Current version is stored as a String in format "X.X.X"
@@ -29,7 +29,7 @@ function isNodeNewerThanMin () {
 
 if (!isNodeNewerThanMin()) {
     console.log("Node version '" + process.versions.node + "' is not new enough. Please upgrade to " + MIN_NODE_VER + " or newer. Aborting.");
-    process.exit(1);
+    process.exit(2);
 }
 
 if (!signingUtils.getKeyStorePath()) {
