@@ -129,7 +129,7 @@ function JNEXT_() {
 
     self.processEvent = function(strNativeEvt) {
         // Process an event received from native code. The event
-        // containes the target JavaScript object id and the
+        // contains the target JavaScript object id and the
         // relevant parameters.
 
         var arParams = strNativeEvt.split(" ");
