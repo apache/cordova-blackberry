@@ -71,8 +71,8 @@ describe("controllerWebView", function () {
 
         it("tests that the dispatch function is called properly", function () {
             controllerWebView.init({debugEnabled: true});
-            controllerWebView.dispatchEvent('Awesome Event', ['these are agruments', 'another argument']);
-            expect(mockedController.dispatchEvent).toHaveBeenCalledWith('Awesome Event', ['these are agruments', 'another argument']);
+            controllerWebView.dispatchEvent('Awesome Event', ['these are arguments', 'another argument']);
+            expect(mockedController.dispatchEvent).toHaveBeenCalledWith('Awesome Event', ['these are arguments', 'another argument']);
         });
     });
 
