@@ -170,7 +170,7 @@ describe("Overlay Webview", function () {
             expect(mockedWebview.contextMenu.subscribeTo).toHaveBeenCalledWith(webview);
         });
 
-        it("It has a zOrder propety ", function () {
+        it("It has a zOrder property ", function () {
             expect(webview.zOrder).toBeDefined();
         });
 
