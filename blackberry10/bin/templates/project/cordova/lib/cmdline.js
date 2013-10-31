@@ -21,7 +21,7 @@ var command = require("commander"),
 command
     .version('1.0.0.0')
     .usage('[drive:][path]archive [-s [dir]] [[ -g genpassword] [-buildId num]] [-o dir] [-d] [-p paramsjsonfile]')
-    .option('-s, --source [dir]', 'Save source. The default behaviour is to not save the source files. If dir is specified then creates dir\\src\\ directory structure. If no dir specified then the path of archive is assumed')
+    .option('-s, --source [dir]', 'Save source. The default behavior is to not save the source files. If dir is specified then creates dir\\src\\ directory structure. If no dir specified then the path of archive is assumed')
     .option('-g, --password <password>', 'Signing key password')
     .option('-buildId <num>', '[deprecated] Use --buildId.')
     .option('-b, --buildId <num>', 'Specifies the build number for signing (typically incremented from previous signing).')

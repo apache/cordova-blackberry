@@ -230,7 +230,7 @@ var define,
             dependencies = ['require', 'exports', 'module'];
         }
 
-        //According to the AMDJS spec we should parse out the require statments
+        //According to the AMDJS spec we should parse out the require statements
         //from factory.toString and add those to the list of dependencies
 
         //Normalize the name. Remove local:// and .js

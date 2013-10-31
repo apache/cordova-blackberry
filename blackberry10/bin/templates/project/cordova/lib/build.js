@@ -95,7 +95,7 @@ try {
                 async.waterfall(childTasks, function (error) { allDone(error || err);});
             },
             function build (done) {
-                //enable weybinspector in debug mode or if --webinspector was provided
+                //enable webinspector in debug mode or if --webinspector was provided
                 if (!command.release || command.webInspector) {
                     bbwpArgv.push("-d");
                 }

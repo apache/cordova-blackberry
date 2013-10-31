@@ -230,7 +230,7 @@ _self = {
             options = {};
         }
 
-        //insert executable portion at begining of arg array
+        //insert executable portion at beginning of arg array
         args.splice(0, 0, command);
 
         var pkgrUtils = require("./packager-utils"),

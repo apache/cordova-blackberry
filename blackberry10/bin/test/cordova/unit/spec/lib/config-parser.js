@@ -642,7 +642,7 @@ describe("config parser", function () {
         });
     });
 
-    it("overides the build id specified in version with --buildId flag", function () {
+    it("overrides the build id specified in version with --buildId flag", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
         data["@"].version = "1.0.0.50";
 
@@ -681,7 +681,7 @@ describe("config parser", function () {
             expect(invokeTarget.type).toBeDefined();
             expect(invokeTarget.type).toEqual("APPLICATION");
             expect(invokeTarget["require-source-permissions"]).toBeDefined();
-            expect(invokeTarget["require-source-permissions"]).toEqual("invoke_accross_perimeters,access_shared");
+            expect(invokeTarget["require-source-permissions"]).toEqual("invoke_across_perimeters,access_shared");
             expect(invokeTarget.filter).toBeDefined();
             expect(invokeTarget.filter[0].action).toBeDefined();
             expect(invokeTarget.filter[0].action).toContain("bb.action.VIEW");
@@ -1206,7 +1206,7 @@ describe("config parser", function () {
             }).toThrow(localize.translate("EXCEPTION_BGCOLOR_INVALID", "$ui*@@$"));
         });
 
-        it("can properly parse the custom RIM-Wiget:rim/wiget element", function () {
+        it("can properly parse the custom RIM-Widget:rim/widget element", function () {
             var data = testUtilities.cloneObj(testData.xml2jsConfig);
 
             mockParsing(data);

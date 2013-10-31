@@ -20,7 +20,7 @@
 */
 
 var _event = require("../../lib/event"),
-    ONCE_EVENT_ERROR = "Error occured while adding once event listener.",
+    ONCE_EVENT_ERROR = "Error occurred while adding once event listener.",
     ERROR_ID = -1;
 
 module.exports = {

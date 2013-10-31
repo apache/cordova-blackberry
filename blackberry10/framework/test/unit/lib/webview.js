@@ -170,7 +170,7 @@ describe("webview", function () {
     });
 
     describe("id", function () {
-        it("can get the id for the webiew", function () {
+        it("can get the id for the webview", function () {
             webview.create();
             expect(webview.id).toEqual(mockedWebview.id);
         });
@@ -245,7 +245,7 @@ describe("webview", function () {
             expect(mockedWebview.addKnownSSLCertificate).toHaveBeenCalledWith(url, certificateInfo);
         });
 
-        it("continue SSL Hanshaking", function () {
+        it("continue SSL Handshaking", function () {
             var streamId = 8,
                 SSLAction = 'SSLActionReject';
             webview.create();

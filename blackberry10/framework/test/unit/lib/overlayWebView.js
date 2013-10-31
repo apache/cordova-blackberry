@@ -135,7 +135,7 @@ describe("Overlay Webview", function () {
             expect(webview.windowGroup()).toEqual(mockedWebview.windowGroup);
         });
 
-        it("can get the id for the webiew", function () {
+        it("can get the id for the webview", function () {
             webview.create();
             expect(webview.id).toEqual(mockedWebview.id);
         });
@@ -170,7 +170,7 @@ describe("Overlay Webview", function () {
             expect(mockedWebview.contextMenu.subscribeTo).toHaveBeenCalledWith(webview);
         });
 
-        it("It has a zOrder propety ", function () {
+        it("It has a zOrder property ", function () {
             expect(webview.zOrder).toBeDefined();
         });
 
