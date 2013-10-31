@@ -704,7 +704,7 @@ describe("whitelist", function () {
                 expect(whitelist.isAccessAllowed("file://store/home/user/documents/file.doc")).toEqual(true);
             });
 
-            it("can access file if rule specifed was file:///", function () {
+            it("can access file if rule specified was file:///", function () {
                 var whitelist = new Whitelist({
                     hasMultiAccess : false,
                     accessList : [
@@ -720,7 +720,7 @@ describe("whitelist", function () {
                 expect(whitelist.isAccessAllowed("file:///etc/passwd")).toEqual(false);
             });
 
-            it("can access file if rule specifed was file:///", function () {
+            it("can access file if rule specified was file:///", function () {
                 var whitelist = new Whitelist({
                     "hasMultiAccess": false,
                     "accessList": [
