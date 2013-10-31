@@ -43,23 +43,23 @@ function generateLocalizedMetadataForSplashScreenIcon(config, configKey, xmlObje
 
     if (localeFiles) {
         localeFiles.forEach(function (path) {
-            var splitted = path.replace(/\.\./g, "").split("/"),
+            var split = path.replace(/\.\./g, "").split("/"),
                 locale;
 
-            splitted = splitted.filter(function (element) {
+            split = split.filter(function (element) {
                 return element.length > 0;
             });
 
-            if (splitted.length > 1) {
-                locale = splitted[0];
+            if (split.length > 1) {
+                locale = split[0];
 
                 if (!localeMap[locale]) {
                     localeMap[locale] = [];
                 }
 
                 // remove locale subfolder from path
-                splitted.splice(0, 1);
-                localeMap[locale].push(splitted.join("/"));
+                split.splice(0, 1);
+                localeMap[locale].push(split.join("/"));
             }
         });
     }
