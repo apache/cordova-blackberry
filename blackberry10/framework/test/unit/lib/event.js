@@ -31,7 +31,7 @@ describe("lib/event", function () {
     describe("trigger", function () {
 
 
-        it("will trigger on the content webview when no webview is registered (for backwards compatability)", function () {
+        it("will trigger on the content webview when no webview is registered (for backwards compatibility)", function () {
             event.trigger("foo", {"id": 123});
             expect(mockedWebview.executeJavaScript).not.toHaveBeenCalled();
             expect(webview.executeJavascript).toHaveBeenCalled();
