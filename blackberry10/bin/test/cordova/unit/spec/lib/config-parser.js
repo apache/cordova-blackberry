@@ -681,7 +681,7 @@ describe("config parser", function () {
             expect(invokeTarget.type).toBeDefined();
             expect(invokeTarget.type).toEqual("APPLICATION");
             expect(invokeTarget["require-source-permissions"]).toBeDefined();
-            expect(invokeTarget["require-source-permissions"]).toEqual("invoke_accross_perimeters,access_shared");
+            expect(invokeTarget["require-source-permissions"]).toEqual("invoke_across_perimeters,access_shared");
             expect(invokeTarget.filter).toBeDefined();
             expect(invokeTarget.filter[0].action).toBeDefined();
             expect(invokeTarget.filter[0].action).toContain("bb.action.VIEW");
