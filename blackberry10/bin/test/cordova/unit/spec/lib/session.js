@@ -85,7 +85,7 @@ describe("Session", function () {
     });
 
     it("does not set the password when not a string", function () {
-        //Commander somtimes improperly sets password to a function, when no value provided
+        //Commander sometimes improperly sets password to a function, when no value provided
         var data = {
             args: [ 'C:/sampleApp/sample.zip' ],
             output: 'C:/sampleApp/bin',
