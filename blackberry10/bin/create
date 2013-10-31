@@ -34,7 +34,7 @@ NPM_PACKAGE_JSON="$BIN_DIR"/../package.json
 #Run npm install every time (even if node_modules folder is present) to cover platform upgrade
 if [ -e "$NPM_PACKAGE_JSON" ]; then
     cd "$BIN_DIR"/..
-    #Removed sudo usage so that node modules are not ownder by root
+    #Removed sudo usage so that node modules are not owned by root
     "$CORDOVA_NODE/npm" install
     cd "$CURRENT_DIR"
 
