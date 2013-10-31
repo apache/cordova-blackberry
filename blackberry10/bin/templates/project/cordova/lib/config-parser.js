@@ -115,7 +115,7 @@ function processVersion(widgetConfig) {
 
 function processBuildID(widgetConfig, session) {
     if (session.buildId) {
-        //user specified a build id (--buildId), overide any previously set build id
+        //user specified a build id (--buildId), override any previously set build id
         widgetConfig.buildId = session.buildId;
     }
 }

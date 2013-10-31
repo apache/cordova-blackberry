@@ -642,7 +642,7 @@ describe("config parser", function () {
         });
     });
 
-    it("overides the build id specified in version with --buildId flag", function () {
+    it("overrides the build id specified in version with --buildId flag", function () {
         var data = testUtilities.cloneObj(testData.xml2jsConfig);
         data["@"].version = "1.0.0.50";
 

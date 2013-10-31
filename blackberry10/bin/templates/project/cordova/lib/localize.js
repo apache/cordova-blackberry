@@ -193,7 +193,7 @@ var Localize = require("localize"),
         "PROGRESS_GENERATING_DEBUG_TOKEN": {
             "en": "Generating debug token"
         },
-        "WARN_RUN_DEVICE_OVERIDES_EMULATOR": {
+        "WARN_RUN_DEVICE_OVERRIDES_EMULATOR": {
             "en": "Skipping emulator detection and detecting device. Please provide only 1 of --target, --device, and --emulator"
         }
 
