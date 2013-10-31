@@ -44,7 +44,7 @@ describe("NetworkResourceRequested event handler", function () {
         mockedWebview = undefined;
     });
 
-    it("creates a callback for yous", function () {
+    it("creates a callback for you", function () {
         var requestObj = networkResourceRequested.createHandler();
         expect(requestObj.networkResourceRequestedHandler).toBeDefined();
     });
