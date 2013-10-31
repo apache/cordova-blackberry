@@ -30,12 +30,6 @@ source "$BIN_DIR/init"
 CURRENT_DIR=$(pwd)
 NPM_PACKAGE_JSON="$BIN_DIR"/../package.json
 
-#Run check_reqs before doing anything and exit if there's an error
-"$BIN_DIR"/check_reqs
-if [ ${?} -ne 0 ]; then
-    exit 1
-fi
-
 #Run npm install every time (even if node_modules folder is present) to cover platform upgrade
 if [ -e "$NPM_PACKAGE_JSON" ]; then
     cd "$BIN_DIR"/..

@@ -29,6 +29,7 @@ var childProcess = require('child_process'),
     configPath = utils.getPropertiesFilePath(),
     testAppCreated = false,
     _output = "",
+    _code,
     CREATE_COMMAND = path.normalize(__dirname + "/../../../create") + (utils.isWindows() ? ".bat" : ""),
     TARGET_COMMAND = path.normalize(appFolder + "cordova/target") + (utils.isWindows() ? ".bat" : "");
 
@@ -41,6 +42,7 @@ function executeScript(shellCommand, args, shouldFail) {
     //console.log(result.output, "\n\n\n");
     //console.log("Finished executing  with code ", result.code, " at ", (new Date()), "\n\n\n");
     _output = result.output;
+    _code = result.code;
 }
 
 describe("cordova/target tests", function () {
@@ -71,7 +73,7 @@ describe("cordova/target tests", function () {
         expect(target.type).toEqual("device");
         expect(target.password).toEqual("pass");
         expect(target.pin).toEqual("DEADBEEF");
-        expect(_output).toEqual("");
+        expect(_code).toEqual(0);
     });
 
     it("should remove a target", function () {
