@@ -245,7 +245,7 @@ describe("webview", function () {
             expect(mockedWebview.addKnownSSLCertificate).toHaveBeenCalledWith(url, certificateInfo);
         });
 
-        it("continue SSL Hanshaking", function () {
+        it("continue SSL Handshaking", function () {
             var streamId = 8,
                 SSLAction = 'SSLActionReject';
             webview.create();
