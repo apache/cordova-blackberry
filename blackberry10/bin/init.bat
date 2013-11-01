@@ -23,7 +23,15 @@ set CORDOVA_HOME_DIR=%HOME%\.cordova\lib\blackberry10\cordova\%CORDOVA_VERSION%
 set LOCAL_NODE_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\node\bin
 set LOCAL_BBTOOLS_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\bb-tools\bin
 
-if defined CORDOVA_NODE ( goto bbtools )
+if defined CORDOVA_NODE (
+    if exist "%CORDOVA_NODE%" (
+        if defined CORDOVA_BBTOOLS (
+            if exist "%CORDOVA_BBTOOLS%" (
+                goto end
+            )
+        )
+    )
+)
 
 if exist "%LOCAL_NODE_BINARY%" (
     set CORDOVA_NODE=%LOCAL_NODE_BINARY%
@@ -39,10 +47,6 @@ if exist "%LOCAL_NODE_BINARY%" (
     )
 )
 
-:bbtools
-
-if defined CORDOVA_BBTOOLS ( exit /B )
-
 if exist "%LOCAL_BBTOOLS_BINARY%" (
     set CORDOVA_BBTOOLS=%LOCAL_BBTOOLS_BINARY%
 ) else (
@@ -56,3 +60,46 @@ if exist "%LOCAL_BBTOOLS_BINARY%" (
         )
     )
 )
+
+set FOUNDJAVA=
+for %%e in (%PATHEXT%) do (
+  for %%X in (java%%e) do (
+    if not defined FOUNDJAVA (
+      set FOUNDJAVA=%%~$PATH:X
+    )
+  )
+)
+if not exist "%CORDOVA_NODE%\node.exe" (
+  echo node cannot be found on the path. Aborting.
+  exit /b 2
+)
+if not exist "%CORDOVA_NODE%\npm" (
+  echo npm cannot be found on the path. Aborting.
+  exit /b 2
+)
+if not defined FOUNDJAVA (
+  echo java cannot be found on the path. Aborting.
+  exit /b 2
+)
+if not exist "%CORDOVA_BBTOOLS%\blackberry-nativepackager.bat" (
+  echo blackberry-nativepackager cannot be found on the path. Aborting.
+  exit /b 2
+)
+if not exist "%CORDOVA_BBTOOLS%\blackberry-deploy.bat" (
+  echo blackberry-deploy cannot be found on the path. Aborting.
+  exit /b 2
+)
+if not exist "%CORDOVA_BBTOOLS%\blackberry-signer.bat" (
+  echo blackberry-signer cannot be found on the path. Aborting.
+  exit /b 2
+)
+if not exist "%CORDOVA_BBTOOLS%\blackberry-debugtokenrequest.bat" (
+  echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
+  exit /b 2
+)
+
+"%CORDOVA_NODE%\node" "%~dp0\check_reqs.js" %*
+
+:end
+
+exit /b 0

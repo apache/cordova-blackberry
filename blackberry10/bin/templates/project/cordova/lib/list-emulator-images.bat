@@ -17,4 +17,6 @@
 
 @ECHO OFF
 call "%~dp0..\init"
+if ERRORLEVEL 1 exit /B 1
+
 "%CORDOVA_NODE%\node.exe" "%~dps0\list-emulator-images.js"

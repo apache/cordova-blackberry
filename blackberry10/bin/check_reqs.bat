@@ -17,47 +17,12 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
+
 set INITCALL="%~dps0init"
 if not exist INITCALL (
     set INITCALL="%~dp0init"
 )
+
 call %INITCALL%
+if ERRORLEVEL 1 exit /B 1
 
-set FOUNDJAVA=
-for %%e in (%PATHEXT%) do (
-  for %%X in (java%%e) do (
-    if not defined FOUNDJAVA (
-      set FOUNDJAVA=%%~$PATH:X
-    )
-  )
-)
-if not exist "%CORDOVA_NODE%\node.exe" (
-  echo node cannot be found on the path. Aborting.
-  exit /b 1
-)
-if not exist "%CORDOVA_NODE%\npm" (
-  echo npm cannot be found on the path. Aborting.
-  exit /b 1
-)
-if not defined FOUNDJAVA (
-  echo java cannot be found on the path. Aborting.
-  exit /b 1
-)
-if not exist "%CORDOVA_BBTOOLS%\blackberry-nativepackager" (
-  echo blackberry-nativepackager cannot be found on the path. Aborting.
-  exit /b 1
-)
-if not exist "%CORDOVA_BBTOOLS%\blackberry-deploy" (
-  echo blackberry-deploy cannot be found on the path. Aborting.
-  exit /b 1
-)
-if not exist "%CORDOVA_BBTOOLS%\blackberry-signer" (
-  echo blackberry-signer cannot be found on the path. Aborting.
-  exit /b 1
-)
-if not exist "%CORDOVA_BBTOOLS%\blackberry-debugtokenrequest" (
-  echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
-  exit /b 1
-)
-
-"%CORDOVA_NODE%\node" "%~dp0\check_reqs.js" %*
