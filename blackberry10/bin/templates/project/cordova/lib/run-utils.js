@@ -82,9 +82,9 @@ function validateTarget(options, targetName, allDone) {
         runTasks = [];
 
     if (!targetName) {
-        err = "No target exists, to add that target please run target add <name> <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]";
+        err = "No target exists, to add that target please run: target add <name> <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]";
     } else if (!properties.targets[targetName]) {
-        err = "The target \"" + targetName + "\" does not exist, to add that target please run target add " + targetName + " <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]";
+        err = "The target \"" + targetName + "\" does not exist, to add that target please run: target add " + targetName + " <ip> [-t | --type <device | simulator>] [-p <password>] [--pin <devicepin>]";
     } else {
         deployTarget = utils.clone(properties.targets[targetName]);
         deployTarget.name = targetName;
