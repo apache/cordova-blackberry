@@ -18,6 +18,7 @@
 
 var path = require("path"),
     command = require("commander"),
+    os = require("os"),
     utils = require("./utils"),
     bbProperties = utils.getProperties(),
     bbwpArgv = [
@@ -29,7 +30,6 @@ var path = require("path"),
     ],
     async = require("async"),
     childProcess = require("child_process"),
-    logger = require("./logger"),
     pkgrUtils = require("./packager-utils"),
     session = require("./session"),
     commandStr;
@@ -56,7 +56,7 @@ try {
     command.parse(process.argv);
 
     if (command.debug && command.release) {
-        logger.warn("Invalid build command: cannot specify both debug and release parameters.");
+        console.error("Invalid build command: cannot specify both debug and release parameters.");
         console.log(command.helpInformation());
         process.exit(2);
     }
@@ -116,8 +116,8 @@ try {
         function (err, results) {
             if (err) {
                 if (typeof err === "string") {
-                    logger.error(err);
-                    process.exit(1);
+                    console.error(os.EOL + err);
+                    process.exit(2);
                 } else if (typeof err === "number") {
                     process.exit(err);
                 } else {
@@ -129,7 +129,7 @@ try {
         }
     );
 } catch (e) {
-    logger.error(e);
+    console.error(os.EOL + e);
     process.exit(2);
 }
 

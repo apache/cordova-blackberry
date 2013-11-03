@@ -25,7 +25,7 @@ module.exports = {
         }
     },
     error: function (msg) {
-        console.log("[ERROR]   " + msg);
+        console.error("[ERROR]   " + msg);
     },
     warn: function (msg) {
         if (level !== 'error') {

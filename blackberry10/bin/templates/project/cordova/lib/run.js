@@ -17,10 +17,10 @@
  */
 
 var path = require("path"),
+    os = require("os"),
     utils = require("./utils"),
     options = require('commander'),
     runUtils = require("./run-utils"),
-    logger = require("./logger"),
     async = require("async"),
     ERROR_CODE = 2;
 
@@ -77,9 +77,7 @@ async.waterfall(
     function (err) {
         if (err) {
             if (typeof err === "string") {
-                logger.error(err);
-            } else {
-                logger.error("An error has occurred");
+                console.error(os.EOL + err);
             }
             process.exit(ERROR_CODE);
         } else {

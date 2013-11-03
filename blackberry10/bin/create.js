@@ -26,7 +26,8 @@
 
 var build,
     path = require("path"),
-    fs = require("fs"),
+    fs = require("fs")
+    os = require("os"),
     wrench = require("wrench"),
     utils = require(path.join(__dirname, 'lib/utils')),
     version = getVersion(),
@@ -196,8 +197,8 @@ if ( process.argv[2] === "-h" || process.argv[2] === "--help" ) {
         clean();
         process.exit();
     } catch (ex) {
-        console.log("Project creation failed!\n" + "Error: " + ex);
-        process.exit(1);
+        console.log("Project creation failed!");
+        console.error(os.EOL + ex);
+        process.exit(2);
     }
 }
-
