@@ -121,22 +121,16 @@ function copyFilesToProject() {
     utils.copyFile(path.join(BIN_DIR, "lib", "signing-utils.js"), path.join(project_path, "cordova", "lib"));
 
     // copy repo level init script to project
-    if (utils.isWindows()) {
-        utils.copyFile(path.join(BIN_DIR, "init.bat"), path.join(project_path, "cordova"));
-    } else {
-        utils.copyFile(path.join(BIN_DIR, "init"), path.join(project_path, "cordova"));
-    }
+    utils.copyFile(path.join(BIN_DIR, "init.bat"), path.join(project_path, "cordova"));
+    utils.copyFile(path.join(BIN_DIR, "init"), path.join(project_path, "cordova"));
 
     //copy VERSION file [used to identify corresponding ~/.cordova/lib directory for dependencies]
     utils.copyFile(path.join(ROOT_PROJECT_DIR, "VERSION"), path.join(project_path));
 
     // copy repo level check_reqs script to project
     utils.copyFile(path.join(BIN_DIR, "check_reqs.js"), path.join(project_path, "cordova"));
-    if (utils.isWindows()) {
-        utils.copyFile(path.join(BIN_DIR, "check_reqs.bat"), path.join(project_path, "cordova"));
-    } else {
-        utils.copyFile(path.join(BIN_DIR, "check_reqs"), path.join(project_path, "cordova"));
-    }
+    utils.copyFile(path.join(BIN_DIR, "check_reqs.bat"), path.join(project_path, "cordova"));
+    utils.copyFile(path.join(BIN_DIR, "check_reqs"), path.join(project_path, "cordova"));
 
     // change file permission for cordova scripts because ant copy doesn't preserve file permissions
     wrench.chmodSyncRecursive(path.join(project_path,"cordova"), 0700);
