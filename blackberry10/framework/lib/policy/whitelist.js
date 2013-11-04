@@ -54,7 +54,7 @@ function _isMatch(access, requestURI) {
         return false;
     }
 
-    // 2. Compare host - if subdoman is false, host must match exactly
+    // 2. Compare host - if subdomain is false, host must match exactly
     // (referenceURI MUST HAVE host specified - not null.)
     // Special Case: Ignore this condition if we are dealing with file://
     if (!requestURI.authority && !util.isFileURI(requestURI)) {

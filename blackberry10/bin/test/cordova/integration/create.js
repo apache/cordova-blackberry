@@ -97,7 +97,7 @@ describe("create tests", function () {
 
     it("Invalid appId error", function () {
         executeScript(CREATE_COMMAND, [appFolder, "23.21#$"], true);
-        expect(_output).toContain("App ID must be sequence of alpha-numeric (optionally seperated by '.') characters, no longer than 50 characters");
+        expect(_output).toContain("App ID must be sequence of alpha-numeric (optionally separated by '.') characters, no longer than 50 characters");
     });
 
 });

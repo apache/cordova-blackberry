@@ -114,7 +114,7 @@ describe("cordova/target tests", function () {
         expect(_output).toContain("IP is required");
     });
 
-    it("should warn unregonized command", function () {
+    it("should warn unrecognized command", function () {
         executeScript(TARGET_COMMAND, ["bleh"], true);
         expect(_output).toContain("Unrecognized command");
     });

@@ -45,7 +45,7 @@ _self = {
     getDefaultPath: getDefaultPath,
 
     getKeyStorePath : function () {
-        // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Tablet OS
+        // Todo: decide where to put sigtool.p12 which is generated and used in WebWorks SDK for Tablet OS
         return getDefaultPathIfExists(AUTHOR_P12);
     },
 

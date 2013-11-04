@@ -218,7 +218,7 @@ describe("Utils", function () {
             path = utils.translatePath(path);
             expect(path).toEqual("tel://250-654-34243");
         });
-        it("translate path successfully retuns an updated string for a local path", function () {
+        it("translate path successfully returns an updated string for a local path", function () {
             var path = "local:///this-is-a-local/img/path.jpg";
             path = utils.translatePath(path);
             expect(path).toEqual("file:///accounts/home/../app/native/this-is-a-local/img/path.jpg");

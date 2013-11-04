@@ -37,7 +37,7 @@ function getTargetName(options, done) {
         done(null, options, options.target);
     } else if (options.device || options.emulator) {
         if (options.device && options.emulator) {
-            localize.translate("WARN_RUN_DEVICE_OVERIDES_EMULATOR");
+            localize.translate("WARN_RUN_DEVICE_OVERRIDES_EMULATOR");
         }
 
         async.series(

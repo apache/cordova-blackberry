@@ -30,7 +30,7 @@
     </access>
     <rim:invoke-target id="com.domain.subdomain.appname.app1">
 	<type>APPLICATION</type>
-        <require-source-permissions>invoke_accross_perimeters,access_shared</require-source-permissions>
+        <require-source-permissions>invoke_across_perimeters,access_shared</require-source-permissions>
         <filter>
             <action>bb.action.OPEN</action>
             <action>bb.action.SET</action>

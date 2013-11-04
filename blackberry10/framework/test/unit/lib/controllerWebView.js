@@ -71,13 +71,13 @@ describe("controllerWebView", function () {
 
         it("tests that the dispatch function is called properly", function () {
             controllerWebView.init({debugEnabled: true});
-            controllerWebView.dispatchEvent('Awesome Event', ['these are agruments', 'another argument']);
-            expect(mockedController.dispatchEvent).toHaveBeenCalledWith('Awesome Event', ['these are agruments', 'another argument']);
+            controllerWebView.dispatchEvent('Awesome Event', ['these are arguments', 'another argument']);
+            expect(mockedController.dispatchEvent).toHaveBeenCalledWith('Awesome Event', ['these are arguments', 'another argument']);
         });
     });
 
     describe("id", function () {
-        it("can get the id for the webiew", function () {
+        it("can get the id for the webview", function () {
             controllerWebView.init({debugEnabled: true});
             expect(controllerWebView.id).toEqual(mockedController.id);
         });

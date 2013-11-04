@@ -75,7 +75,7 @@ describe("property wrapper", function () {
         expect(obj.prop[0]).toEqual("value");
     });
 
-    it("does not wrap a property that doesn't esist in the object", function () {
+    it("does not wrap a property that doesn't exist in the object", function () {
         var obj = {
             prop: "value"
         };
