@@ -33,7 +33,7 @@ if [ -z "$CORDOVA_NODE" ] && [ -z "$CORDOVA_BBTOOLS" ]; then
         #set CORDOVA_NODE to whichever node is on path, if exists
         NODE_PATH=$(command -v node)
         if [ ! -z "$NODE_PATH" ]; then
-            CORDOVA_NODE=$(dirname $NODE_PATH)
+            CORDOVA_NODE=$(dirname "$NODE_PATH")
         fi
     fi
     export CORDOVA_NODE=$CORDOVA_NODE
@@ -46,7 +46,7 @@ if [ -z "$CORDOVA_NODE" ] && [ -z "$CORDOVA_BBTOOLS" ]; then
         #set CORDOVA_BBTOOLS to whichever bbtools is on path, if exists
         BBTOOLS_PATH=$(command -v blackberry-nativepackager)
         if [ ! -z "$BBTOOLS_PATH" ]; then
-            CORDOVA_BBTOOLS=$(dirname $BBTOOLS_PATH)
+            CORDOVA_BBTOOLS=$(dirname "$BBTOOLS_PATH")
         fi
     fi
     export CORDOVA_BBTOOLS=$CORDOVA_BBTOOLS
