@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.2.0-dev-5ad41a7
+// 3.3.0-dev-9bbf2b7
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.2.0-dev-5ad41a7';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-9bbf2b7';
 // file: lib/scripts/require.js
 
 /*jshint -W079 */
@@ -799,6 +799,36 @@ module.exports = webworks.exec;
 
 });
 
+// file: lib/common/exec/proxy.js
+define("cordova/exec/proxy", function(require, exports, module) {
+
+
+// internal map of proxy function
+var CommandProxyMap = {};
+
+module.exports = {
+
+    // example: cordova.commandProxy.add("Accelerometer",{getCurrentAcceleration: function(successCallback, errorCallback, options) {...},...);
+    add:function(id,proxyObj) {
+        console.log("adding proxy for " + id);
+        CommandProxyMap[id] = proxyObj;
+        return proxyObj;
+    },
+
+    // cordova.commandProxy.remove("Accelerometer");
+    remove:function(id) {
+        var proxy = CommandProxyMap[id];
+        delete CommandProxyMap[id];
+        CommandProxyMap[id] = null;
+        return proxy;
+    },
+
+    get:function(service,action) {
+        return ( CommandProxyMap[service] ? CommandProxyMap[service][action] : null );
+    }
+};
+});
+
 // file: lib/common/init.js
 define("cordova/init", function(require, exports, module) {
 
@@ -1139,6 +1169,16 @@ module.exports = {
                     "writable": false
                 });
             }
+        };
+
+        //map blackberry.event to document for backwards compatibility
+        if (!window.blackberry) {
+            window.blackberry = {};
+        }
+        window.blackberry.event =
+        {
+            addEventListner: document.addEventListener,
+            removeEventListener: document.removeEventListener
         };
     }
 };
