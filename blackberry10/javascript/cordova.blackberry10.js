@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.2.0-dev-5ad41a7
+// 3.3.0-dev-9740276
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.2.0-dev-5ad41a7';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-9740276';
 // file: lib/scripts/require.js
 
 /*jshint -W079 */
@@ -795,8 +795,108 @@ module.exports = channel;
 // file: lib/blackberry10/exec.js
 define("cordova/exec", function(require, exports, module) {
 
-module.exports = webworks.exec;
+var cordova = require('cordova');
 
+function RemoteFunctionCall(functionUri) {
+    var params = {};
+
+    function composeUri() {
+        return "http://localhost:8472/" + functionUri;
+    }
+
+    function createXhrRequest(uri, isAsync) {
+        var request = new XMLHttpRequest();
+        request.open("POST", uri, isAsync);
+        request.setRequestHeader("Content-Type", "application/json");
+        return request;
+    }
+
+    this.addParam = function (name, value) {
+        params[name] = encodeURIComponent(JSON.stringify(value));
+    };
+
+    this.makeSyncCall = function () {
+        var requestUri = composeUri(),
+        request = createXhrRequest(requestUri, false),
+        response;
+        request.send(JSON.stringify(params));
+        response = JSON.parse(decodeURIComponent(request.responseText) || "null");
+        return response;
+    };
+
+}
+
+module.exports = function (success, fail, service, action, args) {
+    var uri = service + "/" + action,
+    request = new RemoteFunctionCall(uri),
+    callbackId = service + cordova.callbackId++,
+    response,
+    name,
+    didSucceed;
+
+    cordova.callbacks[callbackId] = {
+        success: success,
+        fail: fail
+    };
+
+    request.addParam("callbackId", callbackId);
+
+    for (name in args) {
+        if (Object.hasOwnProperty.call(args, name)) {
+            request.addParam(name, args[name]);
+        }
+    }
+
+    response = request.makeSyncCall();
+
+    if (response.code < 0) {
+        if (fail) {
+            fail(response.msg, response);
+        }
+        delete cordova.callbacks[callbackId];
+    } else {
+        didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
+        cordova.callbackFromNative(
+            callbackId,
+            didSucceed,
+            response.code,
+            [ didSucceed ? response.data : response.msg ],
+            !!response.keepCallback
+        );
+    }
+
+};
+
+});
+
+// file: lib/common/exec/proxy.js
+define("cordova/exec/proxy", function(require, exports, module) {
+
+
+// internal map of proxy function
+var CommandProxyMap = {};
+
+module.exports = {
+
+    // example: cordova.commandProxy.add("Accelerometer",{getCurrentAcceleration: function(successCallback, errorCallback, options) {...},...);
+    add:function(id,proxyObj) {
+        console.log("adding proxy for " + id);
+        CommandProxyMap[id] = proxyObj;
+        return proxyObj;
+    },
+
+    // cordova.commandProxy.remove("Accelerometer");
+    remove:function(id) {
+        var proxy = CommandProxyMap[id];
+        delete CommandProxyMap[id];
+        CommandProxyMap[id] = null;
+        return proxy;
+    },
+
+    get:function(service,action) {
+        return ( CommandProxyMap[service] ? CommandProxyMap[service][action] : null );
+    }
+};
 });
 
 // file: lib/common/init.js
@@ -1018,129 +1118,40 @@ exports.reset();
 define("cordova/platform", function(require, exports, module) {
 
 module.exports = {
-    id: "blackberry10",
-    bootstrap: function() {
-        var cordova = require('cordova'),
-            channel = require('cordova/channel'),
-            addDocumentEventListener = document.addEventListener,
-            webworksReady = false,
-            alreadyFired = false,
-            listenerRegistered = false;
 
-        //override to pass online/offline events to window
+    id: "blackberry10",
+
+    bootstrap: function() {
+
+        var channel = require('cordova/channel'),
+            addEventListener = document.addEventListener;
+
+        //ready as soon as the plugins are
+        channel.onPluginsReady.subscribe(function () {
+            channel.onNativeReady.fire();
+        });
+
+        //pass document online/offline event listeners to window
         document.addEventListener = function (type) {
             if (type === "online" || type === "offline") {
                 window.addEventListener.apply(window, arguments);
             } else {
-                addDocumentEventListener.apply(document, arguments);
-                //Trapping when users add listeners to the webworks ready event
-                //This way we can make sure not to fire the event before there is a listener
-                if (type.toLowerCase() === 'webworksready') {
-                    listenerRegistered = true;
-                    fireWebworksReadyEvent();
-                }
+                addEventListener.apply(document, arguments);
             }
         };
 
-        channel.onDOMContentLoaded.subscribe(function () {
-            document.addEventListener("webworksready", function () {
-                channel.onNativeReady.fire();
-            });
-        });
-
-        channel.onPluginsReady.subscribe(function () {
-            webworksReady = true;
-            fireWebworksReadyEvent();
-        });
-
-
-        //Only fire the webworks event when both webworks is ready and a listener is registered
-        function fireWebworksReadyEvent() {
-            var evt;
-            if (listenerRegistered && webworksReady && !alreadyFired) {
-                alreadyFired = true;
-                evt = document.createEvent('Events');
-                evt.initEvent('webworksready', true, true);
-                document.dispatchEvent(evt);
-            }
+        //map blackberry.event to document
+        if (!window.blackberry) {
+            window.blackberry = {};
         }
-
-        function RemoteFunctionCall(functionUri) {
-            var params = {};
-
-            function composeUri() {
-                return "http://localhost:8472/" + functionUri;
-            }
-
-            function createXhrRequest(uri, isAsync) {
-                var request = new XMLHttpRequest();
-                request.open("POST", uri, isAsync);
-                request.setRequestHeader("Content-Type", "application/json");
-                return request;
-            }
-
-            this.addParam = function (name, value) {
-                params[name] = encodeURIComponent(JSON.stringify(value));
-            };
-
-            this.makeSyncCall = function (success, error) {
-                var requestUri = composeUri(),
-                request = createXhrRequest(requestUri, false),
-                response,
-                errored,
-                cb,
-                data;
-
-                request.send(JSON.stringify(params));
-                response = JSON.parse(decodeURIComponent(request.responseText) || "null");
-                return response;
-            };
-        }
-
-        window.webworks = {
-            exec: function (success, fail, service, action, args) {
-                var uri = service + "/" + action,
-                request = new RemoteFunctionCall(uri),
-                callbackId = service + cordova.callbackId++,
-                response,
-                name,
-                didSucceed;
-
-                for (name in args) {
-                    if (Object.hasOwnProperty.call(args, name)) {
-                        request.addParam(name, args[name]);
-                    }
-                }
-
-                cordova.callbacks[callbackId] = {success:success, fail:fail};
-                request.addParam("callbackId", callbackId);
-
-                response = request.makeSyncCall();
-
-                //Old WebWorks Extension success
-                if (response.code === 42) {
-                    if (success) {
-                        success(response.data, response);
-                    }
-                    delete cordova.callbacks[callbackId];
-                } else if (response.code < 0) {
-                    if (fail) {
-                        fail(response.msg, response);
-                    }
-                    delete cordova.callbacks[callbackId];
-                } else {
-                    didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
-                    cordova.callbackFromNative(callbackId, didSucceed, response.code, [ didSucceed ? response.data : response.msg ], !!response.keepCallback);
-                }
-            },
-            defineReadOnlyField: function (obj, field, value) {
-                Object.defineProperty(obj, field, {
-                    "value": value,
-                    "writable": false
-                });
-            }
+        window.blackberry.event =
+        {
+            addEventListener: document.addEventListener,
+            removeEventListener: document.removeEventListener
         };
+
     }
+
 };
 
 });
