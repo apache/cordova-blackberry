@@ -34,7 +34,7 @@ var require,
         requireStack = [],
     // Map of module ID -> index into requireStack of modules currently being built.
         inProgressModules = {},
-        SEPARATOR = ".";
+        SEPERATOR = ".";
 
 
 
@@ -44,7 +44,7 @@ var require,
                 var resultantId = id;
                 //Its a relative path, so lop off the last portion and add the id (minus "./")
                 if (id.charAt(0) === ".") {
-                    resultantId = module.id.slice(0, module.id.lastIndexOf(SEPARATOR)) + SEPARATOR + id.slice(2);
+                    resultantId = module.id.slice(0, module.id.lastIndexOf(SEPERATOR)) + SEPERATOR + id.slice(2);
                 }
                 return require(resultantId);
             };
@@ -273,7 +273,7 @@ var cordova = {
      * Called by native code when returning error result from an action.
      */
     callbackError: function(callbackId, args) {
-        // TODO: Deprecate callbackSuccess and callbackError in favor of callbackFromNative.
+        // TODO: Deprecate callbackSuccess and callbackError in favour of callbackFromNative.
         // Derive success from status.
         try {
             cordova.callbackFromNative(callbackId, false, args.status, [args.message], args.keepCallback);
