@@ -26,6 +26,7 @@
 
 var build,
     path = require("path"),
+    exit = require('exit'),
     fs = require("fs")
     os = require("os"),
     wrench = require("wrench"),
@@ -69,7 +70,7 @@ function validateProjectPath() {
     if (!process.argv[2]) {
         console.log("You must give a project PATH");
         help();
-        process.exit(ERROR_VALUE);
+        exit(ERROR_VALUE);
         return "";
     } else {
         return path.resolve(process.argv[2]);
@@ -80,7 +81,7 @@ function validate() {
     if (fs.existsSync(project_path)) {
         console.log("The project path must be an empty directory");
         help();
-        process.exit(ERROR_VALUE);
+        exit(ERROR_VALUE);
     }
     if (!validPackageName(app_id)) {
         console.log("[warning] App ID must be sequence of alpha-numeric (optionally separated by '.') characters, no longer than 50 characters.\n" +
@@ -190,10 +191,10 @@ if ( process.argv[2] === "-h" || process.argv[2] === "--help" ) {
         copyFilesToProject();
         updateProject();
         clean();
-        process.exit();
+        exit();
     } catch (ex) {
         console.log("Project creation failed!");
         console.error(os.EOL + ex);
-        process.exit(ERROR_VALUE);
+        exit(ERROR_VALUE);
     }
 }
