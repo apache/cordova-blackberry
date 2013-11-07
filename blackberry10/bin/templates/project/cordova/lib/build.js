@@ -17,6 +17,7 @@
  */
 
 var path = require("path"),
+    exit = require("exit"),
     command = require("commander"),
     os = require("os"),
     utils = require("./utils"),
@@ -59,7 +60,7 @@ try {
     if (command.debug && command.release) {
         console.error("Invalid build command: cannot specify both debug and release parameters.");
         console.log(command.helpInformation());
-        process.exit(ERROR_VALUE);
+        exit(ERROR_VALUE);
     }
 
     utils.series(
@@ -117,6 +118,6 @@ try {
     );
 } catch (e) {
     console.error(os.EOL + e);
-    process.exit(ERROR_VALUE);
+    exit(ERROR_VALUE);
 }
 

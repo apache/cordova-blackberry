@@ -15,6 +15,7 @@
  */
 
 var fs = require('fs'),
+    exit = require('exit'),
     async = require('async'),
     path = require('path'),
     childProcess = require('child_process'),
@@ -365,9 +366,9 @@ _self = {
             } else {
                 console.error("An error has occurred");
             }
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         } else {
-            process.exit(0);
+            exit(0);
         }
     }
 

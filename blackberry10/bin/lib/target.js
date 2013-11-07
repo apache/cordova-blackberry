@@ -16,6 +16,7 @@
  */
 
 var path = require('path'),
+    exit = require('exit'),
     fs = require('fs'),
     utils = require('./utils'),
     commander = require('commander'),
@@ -38,7 +39,7 @@ function isValidIp(ip) {
     if (typeof ip !== 'string') {
         console.log("IP is required");
         console.log(commander.helpInformation());
-        process.exit(ERROR_VALUE);
+        exit(ERROR_VALUE);
     } else {
         ipArray = ip.split('.');
         if (ipArray.length !== 4) {
@@ -60,7 +61,7 @@ function isValidType(type) {
     if (typeof type !== 'string') {
         console.log("target type is required");
         console.log(commander.helpInformation());
-        process.exit(ERROR_VALUE);
+        exit(ERROR_VALUE);
     }
     else if (!(type === 'device' || type === 'simulator')) {
         result = false;
@@ -99,7 +100,7 @@ commander
         if (commander.args.length === 1) {
             console.log("Target details not specified");
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
         name = commander.args[0];
         ip = commander.args[1];
@@ -113,17 +114,17 @@ commander
         if (!isValidIp(ip)) {
             console.log("Invalid IP: " + ip);
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
         if (!isValidType(type)) {
             console.log("Invalid target type: " + type);
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
         if (!isValidPin(pin)) {
             console.log("Invalid PIN: " + pin);
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
         if (properties.targets.hasOwnProperty(name)) {
             console.log("Overwriting target: " + name);
@@ -138,13 +139,13 @@ commander
         if (commander.args.length === 1) {
             console.log('No target specified');
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
         name = commander.args[0];
         if (!properties.targets.hasOwnProperty(name)) {
             console.log("Target: '" + name + "' not found");
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
         if (name === properties.defaultTarget) {
             console.log("Deleting default target, please set a new default target");
@@ -159,7 +160,7 @@ commander
     .action(function () {
         if (commander.args.length === 1) {
             console.log(properties.defaultTarget);
-            process.exit();
+            exit();
         }
         name = commander.args[0];
         if (properties.targets.hasOwnProperty(name)) {
@@ -167,7 +168,7 @@ commander
         } else {
             console.log("Target '" + name + "' not found");
             console.log(commander.helpInformation());
-            process.exit(ERROR_VALUE);
+            exit(ERROR_VALUE);
         }
     });
 
@@ -176,7 +177,7 @@ commander
     .action(function () {
         console.log('Unrecognized command');
         console.log(commander.helpInformation());
-        process.exit(NOTIMPLEMENTED_VALUE);
+        exit(NOTIMPLEMENTED_VALUE);
     });
 
 
@@ -191,7 +192,7 @@ try {
                 console.log('  ' + target);
             }
         });
-        process.exit();
+        exit();
     }
     if (Object.keys(properties.targets).length === 1) {
         properties.defaultTarget = Object.keys(properties.targets)[0];
@@ -200,5 +201,5 @@ try {
     utils.writeToPropertiesFile(properties);
 } catch (e) {
     console.log(e);
-    process.exit();
+    exit();
 }

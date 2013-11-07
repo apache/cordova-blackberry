@@ -20,6 +20,7 @@
 */
 
 var shell = require('shelljs'),
+    exit = require('exit'),
     path  = require('path'),
     fs    = require('fs'),
     ROOT    = path.join(__dirname, '..', '..');
@@ -86,7 +87,7 @@ if (require.main === module) {
         var args = process.argv;
         if (args.length < 3 || (args[2] == '--help' || args[2] == '-h')) {
             console.log('Usage: ' + path.relative(process.cwd(), path.join(__dirname, 'update')) + ' <path_to_project>');
-            process.exit(1);
+            exit(1);
         } else {
             exports.updateProject(args[2]);
         }
