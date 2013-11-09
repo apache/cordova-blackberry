@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 var fs = require('fs'),
     path = require('path'),
     os = require('os'),
@@ -58,7 +59,7 @@ _self = {
     getDefaultPath: getDefaultPath,
 
     getKeyStorePath : function () {
-        // Todo: decide where to put sigtool.p12 which is genereated and used in WebWorks SDK for Tablet OS
+        // Todo: decide where to put sigtool.p12 which is generated and used in WebWorks SDK for Tablet OS
         return getDefaultPathIfExists(AUTHOR_P12);
     },
 
@@ -72,6 +73,30 @@ _self = {
 
     getDbPath : function () {
         return getDefaultPathIfExists(DB);
+    },
+
+    warn: function () {
+        if (!this.getKeyStorePath()) {
+            console.error(
+                "WARNING: Cannot sign applications. Author.p12 file cannot be found at default location: " +
+                getDefaultPath("author.p12")
+            );
+        }
+
+        if (!this.getKeyStorePathBBID()) {
+
+            if (this.getCskPath() && this.getDbPath()) {
+                console.error(
+                    "WARNING: BlackBerry ID tokens can now be used in place of your old signing keys.\n" +
+                    "For more information log in at http://developer.blackberry.com and click on Code Signing"
+                );
+            } else {
+                console.error(
+                    "WARNING: Cannot sign applications. bbidtoken.csk file cannot be found at default location: " +
+                    getDefaultPath("bbidtoken.csk")
+                );
+            }
+        }
     }
 };
 

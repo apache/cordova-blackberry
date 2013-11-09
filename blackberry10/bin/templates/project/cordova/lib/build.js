@@ -21,6 +21,7 @@ var path = require("path"),
     command = require("commander"),
     os = require("os"),
     utils = require("./utils"),
+    signingUtils = require("./signing-utils"),
     bbProperties = utils.getProperties(),
     bbwpArgv = [
         process.argv[0],
@@ -62,6 +63,8 @@ try {
         console.log(command.helpInformation());
         exit(ERROR_VALUE);
     }
+
+    signingUtils.warn();
 
     utils.series(
         [
