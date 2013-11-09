@@ -34,17 +34,6 @@ if (!isNodeNewerThanMin()) {
     exit(ERROR_VALUE);
 }
 
-if (!signingUtils.getKeyStorePath()) {
-    console.log("WARNING: Cannot sign applications. Author.p12 file cannot be found at default location: " + signingUtils.getDefaultPath("author.p12"));
-}
 
-if (!signingUtils.getKeyStorePathBBID()) {
-
-    if (signingUtils.getCskPath() && signingUtils.getDbPath()) {
-        console.log('NOTE: BlackBerry ID tokens can now be used in place of your old signing keys. For more information on linking old signing keys with a BlackBerry ID token, please log in at http://developer.blackberry.com and click on Code Signing in the top menu bar.');
-    } else {
-        console.log('WARNING: Cannot sign applications. bbidtoken.csk file cannot be found at default location: ' + signingUtils.getDefaultPath("bbidtoken.csk"));
-    }
-}
 
 exit(0);
