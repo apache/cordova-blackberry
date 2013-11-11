@@ -22,6 +22,7 @@
 var session = require(__dirname + "/../../../../../templates/project/cordova/lib/session"),
     localize = require(__dirname + "/../../../../../templates/project/cordova/lib/localize"),
     testUtils = require("./test-utilities"),
+    utils = require(__dirname + "/../../../../../templates/project/cordova/lib/utils"),
     path = require("path"),
     fs = require("fs"),
     wrench = require("wrench"),
@@ -31,6 +32,7 @@ describe("Session", function () {
     beforeEach(function () {
         //Do not create the source folder
         spyOn(wrench, "mkdirSyncRecursive");
+        spyOn(utils, "getProperties").andReturn({});
     });
 
     it("sets the source directory correctly when specified [-s C:/sampleApp/mySource]", function () {
@@ -169,16 +171,14 @@ describe("Session", function () {
         it("get params from non-existent file should throw error", function () {
             var data = {
                     args: [ 'C:/sampleApp/sample.zip' ],
-                    params: "blah.json"
-                },
-                result;
+                    params: "blah.json",
+                    keystorepass: "test"
+                };
 
             spyOn(fs, "existsSync").andReturn(false);
 
-            result = session.initialize(data);
-
             expect(function () {
-                result.getParams("blackberry-signer");
+                session.initialize(data);
             }).toThrow(localize.translate("EXCEPTION_PARAMS_FILE_NOT_FOUND", path.resolve("blah.json")));
         });
 
@@ -192,10 +192,8 @@ describe("Session", function () {
             spyOn(path, "resolve").andReturn("test/params-bad.json");
             spyOn(fs, "existsSync").andReturn(true);
 
-            result = session.initialize(data);
-
             expect(function () {
-                result.getParams("blackberry-signer");
+                session.initialize(data);
             }).toThrow(localize.translate("EXCEPTION_PARAMS_FILE_ERROR", path.resolve("blah.json")));
         });
     });

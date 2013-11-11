@@ -25,6 +25,7 @@ var srcPath = __dirname + "/../../../../../templates/project/cordova/lib/",
     localize = require(srcPath + "localize"),
     logger = require(srcPath + "logger"),
     packagerValidator = require(srcPath + "packager-validator"),
+    signingUtils = require(srcPath + "signing-utils"),
     fs = require("fs"),
     cmd,
     extManager = {
@@ -64,32 +65,47 @@ describe("Packager Validator", function () {
         }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_KEY_FILE", "author.p12"));
     });
 
-    it("throws an exception when -g set and barsigner.csk was not found", function () {
+    it("throws an exception when -g set and bbidtoken.csk or barsigner.csk was not found", function () {
         var session = testUtilities.cloneObj(testData.session),
             configObj = testUtilities.cloneObj(testData.config);
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = undefined;
         session.storepass = "myPassword";
 
         expect(function () {
             packagerValidator.validateSession(session, configObj);
-        }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_KEY_FILE", "barsigner.csk"));
+        }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_KEY_FILE", "bbidtoken.csk"));
     });
 
-    it("throws an exception when --buildId set and barsigner.csk was not found", function () {
+    it("does not throw an exception when -g set and barsigner.csk was found", function () {
         var session = testUtilities.cloneObj(testData.session),
             configObj = testUtilities.cloneObj(testData.config);
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
+        session.keystoreCsk = "barsigner.csk";
+        session.keystoreDb = "barsigner.db";
+        session.storepass = "myPassword";
+
+        expect(function () {
+            packagerValidator.validateSession(session, configObj);
+        }).not.toThrow();
+    });
+
+    it("throws an exception when --buildId set and bbbidtoken.csk was not found", function () {
+        var session = testUtilities.cloneObj(testData.session),
+            configObj = testUtilities.cloneObj(testData.config);
+
+        //setup signing parameters
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = undefined;
         session.buildId = "100";
 
         expect(function () {
             packagerValidator.validateSession(session, configObj);
-        }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_KEY_FILE", "barsigner.csk"));
+        }).toThrow(localize.translate("EXCEPTION_MISSING_SIGNING_KEY_FILE", "bbidtoken.csk"));
     });
 
     it("throws an exception when -g set and barsigner.db was not found", function () {
@@ -97,7 +113,7 @@ describe("Packager Validator", function () {
             configObj = testUtilities.cloneObj(testData.config);
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = "c:/barsigner.csk";
         session.keystoreDb = undefined;
         session.storepass = "myPassword";
@@ -112,7 +128,7 @@ describe("Packager Validator", function () {
             configObj = testUtilities.cloneObj(testData.config);
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = "c:/barsigner.csk";
         session.keystoreDb = undefined;
         session.buildId = "100";
@@ -138,7 +154,7 @@ describe("Packager Validator", function () {
         expect(logger.warn).toHaveBeenCalledWith(localize.translate("WARNING_MISSING_SIGNING_KEY_FILE", "author.p12"));
     });
 
-    it("generated a warning when Build ID is set in config and barsigner.csk was not found", function () {
+    it("generated a warning when Build ID is set in config and bbidtoken.csk was not found", function () {
         var session = testUtilities.cloneObj(testData.session),
             configObj = testUtilities.cloneObj(testData.config);
 
@@ -146,13 +162,13 @@ describe("Packager Validator", function () {
         spyOn(logger, "warn");
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = undefined;
         session.buildId = undefined;
         configObj.buildId = "100";
 
         packagerValidator.validateSession(session, configObj);
-        expect(logger.warn).toHaveBeenCalledWith(localize.translate("WARNING_MISSING_SIGNING_KEY_FILE", "barsigner.csk"));
+        expect(logger.warn).toHaveBeenCalledWith(localize.translate("WARNING_MISSING_SIGNING_KEY_FILE", "bbidtoken.csk"));
     });
 
     it("generated a warning when Build ID is set in config and barsigner.db was not found", function () {
@@ -163,7 +179,7 @@ describe("Packager Validator", function () {
         spyOn(logger, "warn");
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = "c:/barsigner.csk";
         session.keystoreDb = undefined;
         session.buildId = undefined;
@@ -192,7 +208,7 @@ describe("Packager Validator", function () {
             configObj = testUtilities.cloneObj(testData.config);
 
         //setup signing parameters
-        session.keystore = "c:/author.p12";
+        session.keystore = signingUtils.getDefaultPath("author.p12");
         session.keystoreCsk = "c:/barsigner.csk";
         session.keystoreDb = "c:/barsigner.db";
         session.storepass = undefined;

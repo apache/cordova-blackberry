@@ -21,6 +21,7 @@ describe("logger", function () {
     describe("when the log level is verbose", function () {
         beforeEach(function () {
             spyOn(console, "log");
+            spyOn(console, "error");
             logger.level('verbose');
         });
 
@@ -31,7 +32,7 @@ describe("logger", function () {
 
         it("logs error messages", function () {
             logger.error("PC LOAD LETTER");
-            expect(console.log).toHaveBeenCalledWith("[ERROR]   PC LOAD LETTER");
+            expect(console.error).toHaveBeenCalledWith("[ERROR]   PC LOAD LETTER");
         });
 
         it("logs warning messages", function () {
@@ -48,6 +49,7 @@ describe("logger", function () {
     describe("when the log level is warn", function () {
         beforeEach(function () {
             spyOn(console, "log");
+            spyOn(console, "error");
             logger.level('warn');
         });
 
@@ -58,7 +60,7 @@ describe("logger", function () {
 
         it("logs error messages", function () {
             logger.error("PC LOAD LETTER");
-            expect(console.log).toHaveBeenCalledWith("[ERROR]   PC LOAD LETTER");
+            expect(console.error).toHaveBeenCalledWith("[ERROR]   PC LOAD LETTER");
         });
 
         it("logs warning messages", function () {
@@ -75,6 +77,7 @@ describe("logger", function () {
     describe("when the log level is error", function () {
         beforeEach(function () {
             spyOn(console, "log");
+            spyOn(console, "error");
             logger.level('error');
         });
 
@@ -85,7 +88,7 @@ describe("logger", function () {
 
         it("logs error messages", function () {
             logger.error("PC LOAD LETTER");
-            expect(console.log).toHaveBeenCalledWith("[ERROR]   PC LOAD LETTER");
+            expect(console.error).toHaveBeenCalledWith("[ERROR]   PC LOAD LETTER");
         });
 
         it("doesn't log warning messages", function () {
