@@ -91,8 +91,13 @@ describe("create tests", function () {
     });
 
     it("Empty dir error", function () {
-        executeScript(CREATE_COMMAND, ["./"], true);
+        wrench.mkdirSyncRecursive(tempFolder);
+        executeScript(CREATE_COMMAND, [tempFolder], true);
         expect(_output).toContain("The project path must be an empty directory");
+        this.after(function () {
+            wrench.rmdirSyncRecursive(tempFolder);
+        });
+
     });
 
     it("Invalid appId error", function () {
