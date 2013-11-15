@@ -106,18 +106,23 @@ _self = {
     },
 
     findConnectedDevice: function (callback) {
-        var defaultIp = '169.254.0.1';
+        var defaultIp = '169.254.0.1',
+            count = 0,
+            i;
         _self.discoverUsb(function (result) {
-            if (!result) {
-                result = defaultIp;
+            if (!result || result.length === 0) {
+                result = [defaultIp];
             }
-            _self.checkConnection(result, 'device', function (connection) {
-                if (connection)  {
-                    callback(result);
-                } else {
-                    callback();
-                }
-            });
+            for (i = 0; i < result.length; i++) {
+                _self.checkConnection(result[i], 'device', function (connection, ip) {
+                    if (connection)  {
+                        callback(ip);
+                        return;
+                    } else if (++count === result.length) {
+                        callback();
+                    }
+                });
+            }
         });
     },
 
@@ -126,6 +131,7 @@ _self = {
             IP_SPLIT_REGEXP = /(169\.254\.\d{1,3}\.)(\d{1,3})/,
             networkInterfaces = os.networkInterfaces(),
             result,
+            matches = [],
             ni,
             i;
 
@@ -135,16 +141,14 @@ _self = {
                     if (networkInterfaces[ni][i].family === IPV4_TYPE) {
                         result = IP_SPLIT_REGEXP.exec(networkInterfaces[ni][i].address);
                         if (result && result[1] && result[2]) {
-                            callback(result[1] + (result[2] - 1));
-                            return;
+                            matches.push(result[1] + (result[2] - 1));
                         }
                     }
                 }
 
             }
         }
-        //If we haven't found anything callback in defeat
-        callback();
+        callback(matches);
     },
 
     findConnectedSimulator: function (callback) {
@@ -239,7 +243,7 @@ _self = {
                 )),
                 isDeviceConnected = (type === "device" && error && error.code === 3);
 
-            callback(isSimConnected || isDeviceConnected);
+            callback(isSimConnected || isDeviceConnected, ip);
         });
     },
 
