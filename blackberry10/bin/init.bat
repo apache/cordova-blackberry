@@ -19,7 +19,7 @@ goto comment
 :comment
 
 set /P CORDOVA_VERSION=<%~dps0..\VERSION
-set CORDOVA_HOME_DIR=%HOME%\.cordova\lib\blackberry10\cordova\%CORDOVA_VERSION%
+set CORDOVA_HOME_DIR=%USERPROFILE%\.cordova\lib\blackberry10\cordova\%CORDOVA_VERSION%
 set LOCAL_NODE_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\node\bin
 set LOCAL_BBTOOLS_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\bb-tools\bin
 
