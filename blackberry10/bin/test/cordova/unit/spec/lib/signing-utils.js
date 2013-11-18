@@ -32,19 +32,13 @@ describe("signing-utils", function () {
 
         beforeEach(function () {
 
-            /* Preserve the value of the HOMEPATH and HOMEDRIVE environment
-             * variables if they are defined. If they are not defined, mark
-             * variable for deletion after the test.*/
-            if (typeof process.env.HOMEPATH === 'undefined') {
-                properties.homepath = "delete";
+            /* Preserve the value of the USERPROFILE environment
+             * variable if it is defined. If it is not defined, mark
+             * the variable for deletion after the test.*/
+            if (typeof process.env.USERPROFILE === 'undefined') {
+                properties.userprofile = "delete";
             } else {
-                properties.homepath = process.env.HOMEPATH;
-            }
-
-            if (typeof process.env.HOMEDRIVE === 'undefined') {
-                properties.homedrive = "delete";
-            } else {
-                properties.homedrive = process.env.HOMEDRIVE;
+                properties.userprofile = process.env.USERPROFILE;
             }
 
             spyOn(os, "type").andReturn("windows");
@@ -52,22 +46,14 @@ describe("signing-utils", function () {
 
         afterEach(function () {
 
-            /* Restore the value of the HOMEPATH and HOMEDRIVE environment
-             * variables if they are defined. If they are not defined, delete
+            /* Restore the value of the USERPROFILE environment
+             * variable if it is defined. If it is not defined, delete
              * the property if it was defined in the test.*/
-            if (typeof process.env.HOMEPATH === 'string') {
-                if (properties.homepath === 'delete') {
-                    delete process.env.HOMEPATH;
+            if (typeof process.env.USERPROFILE === 'string') {
+                if (properties.userprofile === 'delete') {
+                    delete process.env.USERPROFILE;
                 } else {
-                    process.env.HOMEPATH = properties.homepath;
-                }
-            }
-
-            if (typeof process.env.HOMEDRIVE === 'string') {
-                if (properties.homedrive === 'delete') {
-                    delete process.env.HOMEDRIVE;
-                } else {
-                    process.env.HOMEDRIVE = properties.homedrive;
+                    process.env.USERPROFILE = properties.userprofile;
                 }
             }
         });
@@ -153,8 +139,7 @@ describe("signing-utils", function () {
         });
 
         it("can find keys in home path", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "C:";
+            process.env.USERPROFILE = "C:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (p) {
                 return p.indexOf("\\Users\\user") !== -1;
@@ -165,9 +150,7 @@ describe("signing-utils", function () {
         });
 
         it("can find keys on C drive", function () {
-
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "C:";
+            process.env.USERPROFILE = "C:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (p) {
                 return p.indexOf("C:") !== -1;
@@ -178,8 +161,7 @@ describe("signing-utils", function () {
         });
 
         it("can find keys on a drive other than C", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1;
@@ -190,8 +172,7 @@ describe("signing-utils", function () {
         });
 
         it("can find bbidtoken.csk on a drive other than C", function() {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1;
@@ -202,8 +183,7 @@ describe("signing-utils", function () {
         });
 
         it("can find barsigner.csk on a drive other than C", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1;
@@ -214,8 +194,7 @@ describe("signing-utils", function () {
         });
 
         it("can find barsigner.db on a drive other than C", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1;
@@ -226,8 +205,7 @@ describe("signing-utils", function () {
         });
 
         it("can find keys in Local Settings on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "C:";
+            process.env.USERPROFILE = "C:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("C:") !== -1 &&
@@ -240,8 +218,7 @@ describe("signing-utils", function () {
         });
 
         it("can find bbidtoken.csk in Local Settings on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "C:";
+            process.env.USERPROFILE = "C:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("C:") !== -1 &&
@@ -254,8 +231,7 @@ describe("signing-utils", function () {
         });
 
         it("can find barsigner.csk in Local Settings on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1 &&
@@ -268,8 +244,7 @@ describe("signing-utils", function () {
         });
 
         it("can find barsigner.db in Local Settings on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1 &&
@@ -282,8 +257,7 @@ describe("signing-utils", function () {
         });
 
         it("can find keys in AppData on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "C:";
+            process.env.USERPROFILE = "C:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("C:") !== -1 &&
@@ -296,8 +270,7 @@ describe("signing-utils", function () {
         });
 
         it("can find bbidtoken.csk in AppData on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "C:";
+            process.env.USERPROFILE = "C:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("C:") !== -1 &&
@@ -310,8 +283,7 @@ describe("signing-utils", function () {
         });
 
         it("can find barsigner.csk in AppData on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1 &&
@@ -324,8 +296,7 @@ describe("signing-utils", function () {
         });
 
         it("can find barsigner.db in AppData on the correct drive", function () {
-            process.env.HOMEPATH = "\\Users\\user";
-            process.env.HOMEDRIVE = "D:";
+            process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {
                 return path.indexOf("D:") !== -1 &&
