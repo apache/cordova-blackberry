@@ -103,6 +103,13 @@ _self = {
         return myString === "true" ? true : myString === "false" ? false : defaultVal;
     },
 
+    homedir: function () {
+        if (_self.isWindows()) {
+            return process.env.USERPROFILE;
+        } 
+        return process.env.HOME;
+    },
+
     parseUri : function (str) {
         var i, uri = {},
             key = [ "source", "scheme", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor" ],
