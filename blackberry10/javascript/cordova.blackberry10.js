@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.2.0-rc1
+// 3.2.0
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.2.0-rc1';
+var CORDOVA_JS_BUILD_LABEL = '3.2.0';
 // file: lib/scripts/require.js
 
 /*jshint -W079 */
@@ -795,7 +795,8 @@ module.exports = channel;
 // file: lib/blackberry10/exec.js
 define("cordova/exec", function(require, exports, module) {
 
-var cordova = require('cordova');
+var cordova = require('cordova'),
+    execProxy = require('cordova/exec/proxy');
 
 function RemoteFunctionCall(functionUri) {
     var params = {};
@@ -830,6 +831,7 @@ module.exports = function (success, fail, service, action, args) {
     var uri = service + "/" + action,
     request = new RemoteFunctionCall(uri),
     callbackId = service + cordova.callbackId++,
+    proxy,
     response,
     name,
     didSucceed;
@@ -839,30 +841,39 @@ module.exports = function (success, fail, service, action, args) {
         fail: fail
     };
 
-    request.addParam("callbackId", callbackId);
+    proxy = execProxy.get(service, action);
 
-    for (name in args) {
-        if (Object.hasOwnProperty.call(args, name)) {
-            request.addParam(name, args[name]);
-        }
+    if (proxy) {
+        proxy(success, fail, args);
     }
 
-    response = request.makeSyncCall();
+    else {
 
-    if (response.code < 0) {
-        if (fail) {
-            fail(response.msg, response);
+        request.addParam("callbackId", callbackId);
+
+        for (name in args) {
+            if (Object.hasOwnProperty.call(args, name)) {
+                request.addParam(name, args[name]);
+            }
         }
-        delete cordova.callbacks[callbackId];
-    } else {
-        didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
-        cordova.callbackFromNative(
-            callbackId,
-            didSucceed,
-            response.code,
-            [ didSucceed ? response.data : response.msg ],
-            !!response.keepCallback
-        );
+        
+        response = request.makeSyncCall();
+
+        if (response.code < 0) {
+            if (fail) {
+                fail(response.msg, response);
+            }
+            delete cordova.callbacks[callbackId];
+        } else {
+            didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
+            cordova.callbackFromNative(
+                callbackId,
+                didSucceed,
+                response.code,
+                [ didSucceed ? response.data : response.msg ],
+                !!response.keepCallback
+            );
+        }
     }
 
 };

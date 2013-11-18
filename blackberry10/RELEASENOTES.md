@@ -20,6 +20,35 @@
 -->
 ## Release Notes for Cordova BlackBerry ##
 
+### 3.2.0 ###
+
+CB-5317 Move signing warn logic to build/run scripts
+CB-5266 update create.js to copy all shell scripts regardless of host platform
+CB-5254 log useful error info to std err
+CB-5135 Mark scripts as requiring Bash instead of using a random system shell
+Auto-detect started simulator on Linux
+CB-4340 Auto-detect target pin when its not there
+[CB-2980] Added the install-emulator script
+[CB-2988] Added the install-device script
+[CB-4913] Updates warnings to check for BBID token
+CB-4876 removal of playbook implementation
+CB-4875 updated readme with info on accessing last supported versions of BBOS and Playbook
+[CB-4762] Added a fix to the run script to error out when the IP is not found
+[CB-4785] Fixing --no-build flag for run command
+[CB-4734] Added list of files to keep in chrome/lib
+[CB-4734] Fixed issue where plugins are not added to frameworkModules
+[CB-4730] [BlackBerry10] Updating init calls to work on Win 7 64     with long paths.
+[BlackBerry10] Updated init to work on Windows 7 with long paths     with spaces
+[BlackBerry10] Fixing a bug with debugtoken generation without prompt
+[CB-4544] Adds a --query flag to query the user for their password when we need it  - Rewrite the run script for maintenance
+[CB-4065] Remove lib files after frameworkModules.js is generated
+[CB-4564]Only alow .js files into frameworkModules
+[CB-4563] Migrated blackberry.app parameters to preferences
+[CB-3798] Refactored all exec calls to use newly created utility exec function to avoid path with spaces errors
+[CB-4343] Remove parsing of project name from create script.
+[CB-4575] Removing plugman chmod change from creation as we no longer use plugman within the framework
+[CB-4344] Auto-detect started simulator
+
 ### 3.1.0 ###
 
 [CB-4268] Rework util functions to support getting list of connected devices / emulators
