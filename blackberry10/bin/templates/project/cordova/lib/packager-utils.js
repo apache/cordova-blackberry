@@ -140,7 +140,7 @@ _self = {
             } else if (data.length >= 3 && data[0] === 0xEF && data[1] === 0xBB && data[2] === 0xBF) {
                 s = data.toString("utf8", 3);
             } else {
-                s = data.toString("ascii");
+                s = data.toString("utf8");
             }
         }
 
