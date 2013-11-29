@@ -66,7 +66,6 @@ describe("cordova/target tests", function () {
 
         executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
         project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-        expect(project.defaultTarget).toEqual("z10");
         expect(Object.keys(project.targets).length).toEqual(1);
         target = project.targets.z10;
         expect(target.ip).toEqual("169.254.0.1");
@@ -82,26 +81,14 @@ describe("cordova/target tests", function () {
         executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
         executeScript(TARGET_COMMAND , ["remove", "z10"]);
         project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-        expect(project.defaultTarget).toEqual("");
         expect(Object.keys(project.targets).length).toEqual(0);
-        expect(_output).toContain("Deleting default target, please set a new default target");
-    });
-
-    it("should set default target", function () {
-        var project;
-
-        executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
-        executeScript(TARGET_COMMAND, ["add", "q10", "169.254.0.2", "-t", "device", "-p", "p455w02D", "--pin", "FACEFACE"]);
-        executeScript(TARGET_COMMAND, ["default", "q10"]);
-        project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-        expect(project.defaultTarget).toEqual("q10");
     });
 
     it("should list targets", function () {
         executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
         executeScript(TARGET_COMMAND, ["add", "q10", "169.254.0.2", "-t", "device", "-p", "p455w02D", "--pin", "FACEFACE"]);
         executeScript(TARGET_COMMAND, []);
-        expect(_output).toContain("* z10\n  q10");
+        expect(_output).toContain("z10\nq10");
     });
 
     it("should require name for add/remove", function () {
