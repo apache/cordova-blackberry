@@ -89,7 +89,6 @@ commander
         console.log('   $ target');
         console.log('   $ target add <name> <ip> [-t | --type <device | simulator>] [-p | --password <password>] [--pin <devicepin>]');
         console.log('   $ target remove <name>');
-        console.log('   $ target default [name]');
         console.log(' ');
     });
 
@@ -147,29 +146,7 @@ commander
             console.log(commander.helpInformation());
             exit(ERROR_VALUE);
         }
-        if (name === properties.defaultTarget) {
-            console.log("Deleting default target, please set a new default target");
-            properties.defaultTarget = "";
-        }
         delete properties.targets[name];
-    });
-
-commander
-    .command('default')
-    .description("Get or set default target")
-    .action(function () {
-        if (commander.args.length === 1) {
-            console.log(properties.defaultTarget);
-            exit();
-        }
-        name = commander.args[0];
-        if (properties.targets.hasOwnProperty(name)) {
-            properties.defaultTarget = name;
-        } else {
-            console.log("Target '" + name + "' not found");
-            console.log(commander.helpInformation());
-            exit(ERROR_VALUE);
-        }
     });
 
 commander
@@ -186,16 +163,9 @@ try {
 
     if (commander.args.length === 0) {
         Object.keys(properties.targets).forEach(function (target) {
-            if (target === properties.defaultTarget) {
-                console.log('* ' + target);
-            } else {
-                console.log('  ' + target);
-            }
+                console.log(target);
         });
         exit();
-    }
-    if (Object.keys(properties.targets).length === 1) {
-        properties.defaultTarget = Object.keys(properties.targets)[0];
     }
 
     utils.writeToPropertiesFile(properties);
