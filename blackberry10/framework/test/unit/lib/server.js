@@ -181,7 +181,7 @@ describe("server", function () {
             );
         });
 
-        it("returns the result and code 42 when success callback called", function () {
+        it("returns the result and code 1 when success callback called", function () {
             spyOn(plugin, "exec").andCallFake(function (request, succ, fail, body) {
                 succ(["MyFeatureId"]);
             });
@@ -191,14 +191,15 @@ describe("server", function () {
 
             server.handle(req, res);
             expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: 42,
-                data: ["MyFeatureId"]
+                code: 1,
+                data: ["MyFeatureId"],
+                keepCallback: false
             })));
         });
 
-        it("returns the result and code -1 when fail callback called", function () {
+        it("returns the result and code 9 when fail callback called", function () {
             spyOn(plugin, "exec").andCallFake(function (request, succ, fail, body) {
-                fail(-1, "ErrorMessage");
+                fail("ErrorMessage");
             });
 
             req.params.service = "default";
@@ -206,9 +207,9 @@ describe("server", function () {
 
             server.handle(req, res);
             expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: -1,
-                data: null,
-                msg: "ErrorMessage"
+                code: 9,
+                data: "ErrorMessage",
+                keepCallback: false
             })));
         });
     });
@@ -259,7 +260,7 @@ describe("server", function () {
             );
         });
 
-        it("returns the result and code 42 when success callback called", function () {
+        it("returns the result and code 1 when success callback called", function () {
             var expectedResult = {"getReadOnlyFields": "Yogi bear"};
 
             spyOn(applicationAPIServer, "getReadOnlyFields").andCallFake(function (success, fail) {
@@ -269,24 +270,25 @@ describe("server", function () {
             server.handle(req, res);
 
             expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: 42,
-                data: expectedResult
+                code: 1,
+                data: expectedResult,
+                keepCallback: false
             })));
         });
 
-        it("returns the result and code -1 when fail callback called", function () {
+        it("returns the result and code 9 when fail callback called", function () {
             var expectedResult = "omg";
 
             spyOn(applicationAPIServer, "getReadOnlyFields").andCallFake(function (success, fail) {
-                fail(-1, expectedResult);
+                fail(expectedResult);
             });
 
             server.handle(req, res);
 
             expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
-                code: -1,
-                data: null,
-                msg: expectedResult
+                code: 9,
+                data: expectedResult,
+                keepCallback: false
             })));
         });
     });

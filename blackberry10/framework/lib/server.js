@@ -91,19 +91,16 @@ module.exports = {
             plugin[req.params.action](req,
             function (result) {
                 res.send(200, encodeURIComponent(JSON.stringify({
-                    code: 42,
-                    data: result
+                    code: 1,
+                    data: result,
+                    keepCallback: false
                 })));
             },
-            function (code, error, httpCode) {
-                if (!httpCode) {
-                    httpCode = 200;
-                }
-
-                res.send(httpCode, encodeURIComponent(JSON.stringify({
-                    code: Math.abs(code) * -1 || -1,
-                    data: null,
-                    msg: error
+            function (error) {
+                res.send(200, encodeURIComponent(JSON.stringify({
+                    code: 9,
+                    data: error,
+                    keepCallback: false
                 })));
             },
             req.params.args,
