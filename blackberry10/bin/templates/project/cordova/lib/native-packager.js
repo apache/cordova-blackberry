@@ -219,7 +219,7 @@ function generateOptionsFile(session, target, config) {
             debugToken = "-debugToken" + NL;
             debugToken += conf.DEBUG_TOKEN + NL;
         } else {
-            logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND"));
+            logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND", pkgrUtils.homedir()));
         }
     }
 

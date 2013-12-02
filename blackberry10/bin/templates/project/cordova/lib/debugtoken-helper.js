@@ -138,7 +138,7 @@ self.createToken = function (projectProperties, target, keystorepass, callback) 
             callback(-1);
         }
     } else if (!keystorepass) {
-        logger.warn(localize.translate("WARN_NO_SIGNING_PASSWORD_PROVIDED"));
+        logger.warn(localize.translate("WARN_NO_SIGNING_PASSWORD_PROVIDED", pkgrUtils.homedir()));
         if (callback && typeof callback === "function") {
             callback(-1);
         }

@@ -93,7 +93,7 @@ try {
                             done();
                         });
                     } else {
-                        err = "No signing password provided. Please enter a value for 'keystorepass' in %HOME%/.cordova/blackberry10.json or use --keystorepass via command-line";
+                        err = "No signing password provided. Please enter a value for 'keystorepass' in "+pkgrUtils.homedir()+"/.cordova/blackberry10.json or use --keystorepass via command-line";
                     }
                 }
 
