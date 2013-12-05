@@ -107,7 +107,7 @@ describe("Native packager", function () {
 
         nativePkgr.exec(session, target, testData.config, callback);
 
-        expect(logger.warn).toHaveBeenCalledWith(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND"));
+        expect(logger.warn).toHaveBeenCalled();
     });
 
     it("won't show debug token warning when -d options wasn't provided", function () {
