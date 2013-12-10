@@ -68,14 +68,14 @@ try {
 
     utils.series(
         [
-            function clean (done) {
+            function clean(done) {
                 var cmd = utils.isWindows() ? "clean" : "./clean",
                     args = [],
                     opts = { "cwd": path.normalize(__dirname + "/..") };
 
                 utils.exec(cmd, args, opts, done);
             },
-            function releaseBuild (allDone) {
+            function releaseBuild(allDone) {
                 var childTasks = [],
                     keystorepass = session.getKeyStorePass(command),
                     err;
@@ -93,13 +93,13 @@ try {
                             done();
                         });
                     } else {
-                        err = "No signing password provided. Please enter a value for 'keystorepass' in "+pkgrUtils.homedir()+"/.cordova/blackberry10.json or use --keystorepass via command-line";
+                        err = "No signing password provided. Please enter a value for 'keystorepass' in " + pkgrUtils.homedir() + "/.cordova/blackberry10.json or use --keystorepass via command-line";
                     }
                 }
 
-                async.waterfall(childTasks, function (error) { allDone(error || err);});
+                async.waterfall(childTasks, function (error) { allDone(error || err); });
             },
-            function build (done) {
+            function build(done) {
                 //enable webinspector in debug mode or if --webinspector was provided
                 if (!command.release || command.webInspector) {
                     bbwpArgv.push("-d");

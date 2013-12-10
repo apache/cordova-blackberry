@@ -204,7 +204,7 @@ function generateTabletXMLFile(session, config) {
     }
 
     pkgrUtils.writeFile(session.sourceDir, conf.BAR_DESCRIPTOR, xmlData);
- }
+}
 
 function generateOptionsFile(session, target, config) {
     var srcFiles = wrench.readdirSyncRecursive(session.sourceDir),

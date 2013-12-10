@@ -153,7 +153,7 @@ function processWidgetData(data, widgetConfig, session) {
     widgetConfig.autoHideSplashScreen = "true";
 
     //set locally available features to access list
-   if (data.feature) {
+    if (data.feature) {
         featureArray = packagerUtils.isArray(data.feature) ? data.feature : [data.feature];
     }
 
@@ -556,7 +556,7 @@ function processCordovaPreferences(data, widgetConfig) {
 
         // <preference name="HideKeyboardFormAccessoryBar" value="enable/true or disable/false" />
         if (preference.hidekeyboardformaccessorybar) {
-            widgetConfig.enableFormControl = (hideFormControl !== 'enable' ) && (hideFormControl !== 'true');
+            widgetConfig.enableFormControl = (hideFormControl !== 'enable') && (hideFormControl !== 'true');
         }
 
         // <preference name="popupBlocker" value="enable or disable" />
@@ -592,7 +592,7 @@ function processCordovaPreferences(data, widgetConfig) {
 
 function processBgColor(bgColor) {
     //convert bgColor to a number
-    bgColorNum = parseInt(bgColor, 16);
+    var bgColorNum = parseInt(bgColor, 16);
 
     if (isNaN(bgColorNum)) {
         //bgColor is not a number, throw error

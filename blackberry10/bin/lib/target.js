@@ -24,7 +24,7 @@ var path = require('path'),
     ERROR_VALUE = 2,
     NOTIMPLEMENTED_VALUE = 1,
     command,
-    name,
+    targetName,
     ip,
     type,
     password,
@@ -101,7 +101,7 @@ commander
             console.log(commander.helpInformation());
             exit(ERROR_VALUE);
         }
-        name = commander.args[0];
+        targetName = commander.args[0];
         ip = commander.args[1];
         type = commander.type ? commander.type : "device";
         if (commander.password && typeof commander.password === 'string') {
@@ -125,10 +125,10 @@ commander
             console.log(commander.helpInformation());
             exit(ERROR_VALUE);
         }
-        if (properties.targets.hasOwnProperty(name)) {
-            console.log("Overwriting target: " + name);
+        if (properties.targets.hasOwnProperty(targetName)) {
+            console.log("Overwriting target: " + targetName);
         }
-        properties.targets[name] = {"ip": ip, "type": type, "password": password, "pin": pin};
+        properties.targets[targetName] = {"ip": ip, "type": type, "password": password, "pin": pin};
     });
 
 commander
@@ -140,13 +140,13 @@ commander
             console.log(commander.helpInformation());
             exit(ERROR_VALUE);
         }
-        name = commander.args[0];
-        if (!properties.targets.hasOwnProperty(name)) {
-            console.log("Target: '" + name + "' not found");
+        targetName = commander.args[0];
+        if (!properties.targets.hasOwnProperty(targetName)) {
+            console.log("Target: '" + targetName + "' not found");
             console.log(commander.helpInformation());
             exit(ERROR_VALUE);
         }
-        delete properties.targets[name];
+        delete properties.targets[targetName];
     });
 
 commander
@@ -164,7 +164,8 @@ try {
     if (commander.args.length === 0) {
         Object.keys(properties.targets).forEach(function (target) {
                 console.log(target);
-        });
+            }
+        );
         exit();
     }
 

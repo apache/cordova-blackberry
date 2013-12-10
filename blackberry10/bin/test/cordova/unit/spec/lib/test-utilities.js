@@ -57,7 +57,7 @@ module.exports = {
 
     cloneObj: function (obj) {
         var newObj = (obj instanceof Array) ? [] : {}, i;
-
+        /* jshint ignore:start */
         for (i in obj) {
             if (i === 'clone') continue;
 
@@ -67,6 +67,7 @@ module.exports = {
                 newObj[i] = obj[i];
             }
         }
+        /* jshint ignore:end */
 
         return newObj;
     },

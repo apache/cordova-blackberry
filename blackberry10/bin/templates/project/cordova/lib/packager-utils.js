@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+/* globals Buffer */
+
 var fs = require('fs'),
     path = require('path'),
     wrench = require('wrench'),
@@ -185,7 +187,7 @@ _self = {
         if (require('os').type().toLowerCase().indexOf("windows") >= 0) {
             return "\"" + str + "\"";
         } else {
-            return str.replace(/(["\s'$`\\])/g,'\\$1');
+            return str.replace(/(["\s'$`\\])/g, '\\$1');
         }
     }
 

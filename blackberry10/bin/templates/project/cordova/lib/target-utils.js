@@ -114,6 +114,7 @@ _self = {
                 result = [defaultIp];
             }
             for (i = 0; i < result.length; i++) {
+                /* jshint ignore:start */
                 _self.checkConnection(result[i], 'device', function (connection, ip) {
                     if (connection)  {
                         callback(ip);
@@ -122,6 +123,7 @@ _self = {
                         callback();
                     }
                 });
+                /* jshint ignore:end */
             }
         });
     },

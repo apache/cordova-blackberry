@@ -34,47 +34,47 @@ function setShellFatal(value, func) {
 
 
 function updateNativeDir(projectpath) {
-    shell.cp('-rf', path.join(ROOT,'bin','templates','project','native'), path.join(projectpath,'native'));
+    shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'native'), path.join(projectpath, 'native'));
 }
 
 function updateProjectJson(projectpath) {
     var projectJson = require(path.resolve(path.join(projectpath, "project.json")));
-    projectJson.globalFetchDir = path.join(ROOT,'plugins');
+    projectJson.globalFetchDir = path.join(ROOT, 'plugins');
     fs.writeFileSync(path.join(projectpath, "project.json"), JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
 }
 
-function updateCordovaJS(projectpath,version) {
-    var jspath = path.join(projectpath,'lib','cordova'+version,'javascript');
+function updateCordovaJS(projectpath, version) {
+    var jspath = path.join(projectpath, 'lib', 'cordova' + version, 'javascript');
     shell.rm('-rf', path.join(projectpath, 'lib')); //remove old lib tree
     shell.mkdir('-p', jspath); // remake lib dir tree with updated version
-    shell.cp('-f', path.join(ROOT,'javascript','cordova.blackberry10.js'), path.join(jspath,'cordova.js')); // copy new js
-    shell.cp('-f', path.join(ROOT,'javascript','cordova.blackberry10.js'), path.join('www','cordova.js'));
+    shell.cp('-f', path.join(ROOT, 'javascript', 'cordova.blackberry10.js'), path.join(jspath, 'cordova.js')); // copy new js
+    shell.cp('-f', path.join(ROOT, 'javascript', 'cordova.blackberry10.js'), path.join('www', 'cordova.js'));
 }
 
 function updateCordovaTools(projectpath) {
     // update cordova scripts from template
-    shell.cp('-rf', path.join(ROOT,'bin','templates','project','cordova'), path.join(projectpath,'cordova'));
+    shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'cordova'), path.join(projectpath, 'cordova'));
     // update repo level scripts
     updateTargetTool(projectpath);
     updateInitTool(projectpath); 
 }
 
 function updateTargetTool(projectpath) {
-    shell.cp('-f', path.join(ROOT,'bin','target'), path.join(projectpath,'cordova'));
-    shell.cp('-f', path.join(ROOT,'bin','target.bat'), path.join(projectpath,'cordova'));
-    shell.cp('-f', path.join(ROOT,'bin','lib','target.js'), path.join(projectpath,'cordova','lib'));
-    shell.cp('-f', path.join(ROOT,'bin','lib','utils.js'), path.join(projectpath,'cordova','lib'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'target'), path.join(projectpath, 'cordova'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'target.bat'), path.join(projectpath, 'cordova'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'lib', 'target.js'), path.join(projectpath, 'cordova', 'lib'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'lib', 'utils.js'), path.join(projectpath, 'cordova', 'lib'));
 }
 
 function updateInitTool(projectpath) {
-    shell.cp('-f', path.join(ROOT,'bin','init.bat'), path.join(projectpath, 'cordova'));
-    shell.cp('-f', path.join(ROOT,'bin','init'), path.join(projectpath, 'cordova'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'init.bat'), path.join(projectpath, 'cordova'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'init'), path.join(projectpath, 'cordova'));
 }
 
-exports.updateProject = function(projectpath) {
+exports.updateProject = function (projectpath) {
     var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
-    setShellFatal(true, function() {
-        updateCordovaJS(projectpath,version);
+    setShellFatal(true, function () {
+        updateCordovaJS(projectpath, version);
         updateCordovaTools(projectpath);
         updateNativeDir(projectpath);
         updateProjectJson(projectpath); 
@@ -83,9 +83,9 @@ exports.updateProject = function(projectpath) {
 };
 
 if (require.main === module) {
-    (function() {
+    (function () {
         var args = process.argv;
-        if (args.length < 3 || (args[2] == '--help' || args[2] == '-h')) {
+        if (args.length < 3 || (args[2] === '--help' || args[2] === '-h')) {
             console.log('Usage: ' + path.relative(process.cwd(), path.join(__dirname, 'update')) + ' <path_to_project>');
             exit(1);
         } else {

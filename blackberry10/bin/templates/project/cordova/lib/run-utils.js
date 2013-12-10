@@ -26,7 +26,8 @@ var fs = require("fs"),
     async = require("async"),
     session = require("./session"),
     properties = utils.getProperties(),
-    workingdir = path.normalize(__dirname + "/..");
+    workingdir = path.normalize(__dirname + "/.."),
+    _self;
 
 //Options looking for are: (Device | Emulator, query, devicepass). Calls back with:  (error || options object, target object)
 function getTargetName(options, done) {
@@ -44,7 +45,7 @@ function getTargetName(options, done) {
         {
             ip: function (done) {
                 ipFinder(function (ip) {
-                   done(ip ? null : "No connected BlackBerry 10 " + targetType + " found", ip);
+                    done(ip ? null : "No connected BlackBerry 10 " + targetType + " found", ip);
                 });
             },
             devicePass: function (done) {
@@ -98,7 +99,7 @@ function validateTarget(options, targetName, allDone) {
                     });
                 });
             } else {
-                err = "IP is not defined in target \"" + target + "\"";
+                err = "IP is not defined in target \"" + deployTarget.name + "\"";
             }
         }
 
@@ -258,15 +259,15 @@ _self = {
             }
             runTasks = [
                 utils.exec.bind(this, script, args, { "cwd": projectRootDir, _customOptions: {silent: true}}),
-                function listInstalledAppsOutput (stdout, stderr, done) {
+                function listInstalledAppsOutput(stdout, stderr, done) {
                     installedAppsOutput = stdout;
                     fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), done);
                 },
-                function configXMLOutput (result, done) {
+                function configXMLOutput(result, done) {
                     var parser = new xml2js.Parser();
                     parser.parseString(result, done);
                 },
-                function parsedConfigXMLOutput (result, done) {
+                function parsedConfigXMLOutput(result, done) {
                     if (installedAppsOutput.indexOf(result['@'].id) !== -1) {
                         var deployOptions = generateDeployOptions(options, deployTarget, true);
                         execNativeDeploy(deployOptions, done);
@@ -287,13 +288,13 @@ _self = {
 
     //Function returns (error || deployTarget)
     checkBuild : function (deployTarget, allDone) {
-        barPath = path.normalize(__dirname + "/../../build/" +
+        var barPath = path.normalize(__dirname + "/../../build/" +
                 (deployTarget.type === "device" ? "device" : "simulator") +
                 "/" + utils.genBarName() + ".bar");
         if (fs.existsSync(barPath)) {
             allDone(null, deployTarget);
         } else {
-            allDone(err = "No build file exists, please run: build [--debug] [--release] [-k | --keystorepass] [-b | --buildId <number>] [-p | --params <json>] [-ll | --loglevel <level>] ");
+            allDone("No build file exists, please run: build [--debug] [--release] [-k | --keystorepass] [-b | --buildId <number>] [-p | --params <json>] [-ll | --loglevel <level>] ");
         }
 
     },

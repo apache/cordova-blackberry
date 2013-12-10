@@ -26,11 +26,12 @@ var path = require("path"),
 
 function getParams(cmdline, toolName) {
     var properties = utils.getProperties(),
-        params = properties[toolName];
+        params = properties[toolName],
+        paramsPath;
 
     if (cmdline.params) {
         if (!cmdParams) {
-            var paramsPath = path.resolve(cmdline.params);
+            paramsPath = path.resolve(cmdline.params);
 
             if (fs.existsSync(paramsPath)) {
                 try {
@@ -73,7 +74,7 @@ module.exports = {
         } else if (properties.keystorepass) {
             keystorepass = properties.keystorepass;
         } else if (params["-storepass"]) {
-           keystorepass = params["-storepass"];
+            keystorepass = params["-storepass"];
         }
 
         return keystorepass;

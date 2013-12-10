@@ -42,16 +42,18 @@ function unzip(from, to) {
         }
 
         for (p in entries) {
-            if (p.indexOf("__MACOSX") >= 0) {
-                continue;
-            }
+            if (entries.hasOwnProperty(p)) {
+                if (p.indexOf("__MACOSX") >= 0) {
+                    continue;
+                }
 
-            if (p.split("/").length > 1) {
-                parent = p.split("/").slice(0, -1).join("/");
-                wrench.mkdirSyncRecursive(to + "/" + parent, "0755");
-            }
+                if (p.split("/").length > 1) {
+                    parent = p.split("/").slice(0, -1).join("/");
+                    wrench.mkdirSyncRecursive(to + "/" + parent, "0755");
+                }
 
-            fs.writeFileSync(to + "/" + p, entries[p]);
+                fs.writeFileSync(to + "/" + p, entries[p]);
+            }
         }
     } else {
         throw localize.translate("EXCEPTION_WIDGET_ARCHIVE_NOT_FOUND", from);
@@ -137,7 +139,7 @@ function generateFrameworkModulesJS(session) {
         modulesStr += "define('" + module.name + "', function (require, exports, module) {\n" +
                       fs.readFileSync(module.file, "utf-8") + "\n" +
                       "});\n";
-        frameworkModulesStr += "'" + module.name + "'" +  (index !== modulesList.length-1 ? ", " : "");
+        frameworkModulesStr += "'" + module.name + "'" +  (index !== modulesList.length - 1 ? ", " : "");
         // Issue with 10.1 webplatform - requires certain files in chrome/lib
         if (MODULES_TO_KEEP.indexOf(module.name) < 0) {
             fs.unlinkSync(path.normalize(dest.CHROME + "/" + module.name));

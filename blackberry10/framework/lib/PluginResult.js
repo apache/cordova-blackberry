@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function PluginResult (args, env) {
+function PluginResult(args, env) {
 
     var CALLBACK_STATUS_NO_RESULT = 0,
         CALLBACK_STATUS_OK = 1,

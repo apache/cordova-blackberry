@@ -91,6 +91,7 @@ _self = {
 
     //Validation for configObj, iterates through whitelisted features in configObj to remove any non-existing APIs
     validateConfig: function (session, configObj) {
+        var cordovaJsFiles;
         //if packageCordovaJs was set, test for existing cordova.js files
         if (configObj.packageCordovaJs) {
             cordovaJsFiles = packagerUtils.listFiles(session.sourceDir, function (file) {

@@ -171,7 +171,7 @@ describe("signing-utils", function () {
             expect(result).toContain("D:");
         });
 
-        it("can find bbidtoken.csk on a drive other than C", function() {
+        it("can find bbidtoken.csk on a drive other than C", function () {
             process.env.USERPROFILE = "D:\\Users\\user";
 
             spyOn(fs, "existsSync").andCallFake(function (path) {

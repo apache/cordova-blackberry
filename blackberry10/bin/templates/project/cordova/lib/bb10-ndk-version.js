@@ -17,12 +17,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-var bbtools = process.env.CORDOVA_BBTOOLS;
-var reg = /host_\d+_\d+/g;
+var bbtools = process.env.CORDOVA_BBTOOLS,
+    reg = /host_\d+_\d+/g,
+    results;
 
-if(reg.test(bbtools)){
-    var results = bbtools.match(reg);
-    console.log(results[0].split('host_')[1].replace('_','.'));
-}else{
+if (reg.test(bbtools)) {
+    results = bbtools.match(reg);
+    console.log(results[0].split('host_')[1].replace('_', '.'));
+} else {
     return new Error('Unable to find the blackberry ndk on your path.');
 }

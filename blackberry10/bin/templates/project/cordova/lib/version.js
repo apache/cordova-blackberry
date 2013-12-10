@@ -20,7 +20,7 @@ var fs = require("fs"),
     readline = require("readline"),
     util = require("util"),
     path = require('path'),
-    projectPath = path.resolve(__dirname,'../..'),
+    projectPath = path.resolve(__dirname, '../..'),
     filename = path.join(projectPath, 'www/cordova.js');
 
 if (fs.existsSync(filename)) {
@@ -29,12 +29,14 @@ if (fs.existsSync(filename)) {
         terminal: false
     });
 
-    rl.on("line", function(line){
+    rl.on("line", function (line) {
+        var splitSpace,
+            splitDash;
         if (/^\/\/\s\d/.test(line)) {
             rl.close();
-            var splitSpace = line.split(" ");
+            splitSpace = line.split(" ");
             if (splitSpace.length > 1) {
-                var splitDash = splitSpace[1].split("-");
+                splitDash = splitSpace[1].split("-");
                 if (splitDash.length > 0) {
                     console.log(splitDash[0]);
                 }

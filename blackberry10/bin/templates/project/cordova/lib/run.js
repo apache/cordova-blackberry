@@ -21,7 +21,7 @@ var path = require("path"),
     utils = require("./utils"),
     options = require('commander'),
     runUtils = require("./run-utils"),
-    signingUtils = require("./signing-utils");
+    signingUtils = require("./signing-utils"),
     async = require("async");
 
 function install(deployTarget, done) {
@@ -51,7 +51,7 @@ options
     .option('--no-uninstall', 'does not uninstall application from device')
     .option('--no-launch', 'do not launch the application on device')
     .option('--no-build', 'deploy the pre-built bar file and skip building')
-    .on('--help', function() {
+    .on('--help', function () {
         console.log('  Examples:');
         console.log('');
         console.log("  Deploying to a predefined target");

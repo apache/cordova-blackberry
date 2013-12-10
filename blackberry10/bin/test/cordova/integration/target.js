@@ -50,7 +50,7 @@ describe("cordova/target tests", function () {
         utils.copyFile(configPath, path.join(utils.getCordovaDir(), "bb10bak"));
         fs.unlinkSync(configPath);
         if (!testAppCreated) {
-            executeScript(CREATE_COMMAND , [appFolder]);
+            executeScript(CREATE_COMMAND, [appFolder]);
             testAppCreated = true;
         }
     });
@@ -79,7 +79,7 @@ describe("cordova/target tests", function () {
         var project;
 
         executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "-p", "pass", "--pin", "DEADBEEF"]);
-        executeScript(TARGET_COMMAND , ["remove", "z10"]);
+        executeScript(TARGET_COMMAND, ["remove", "z10"]);
         project = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
         expect(Object.keys(project.targets).length).toEqual(0);
     });
@@ -119,7 +119,7 @@ describe("cordova/target tests", function () {
     it("should warn invalid pin", function () {
 
         //keep this in last test to remove test app
-        this.after(function() {
+        this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });
 

@@ -27,7 +27,7 @@ var path = require("path"),
     session;
 
 module.exports = {
-    start: function(callback) {
+    start: function (callback) {
         try {
             cmdline.parse(process.argv);
             session = require("./session").initialize(cmdline.commander);

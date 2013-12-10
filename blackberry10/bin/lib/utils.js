@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+/* globals Buffer */
+
 var fs = require('fs'),
     exit = require('exit'),
     async = require('async'),
@@ -22,7 +24,7 @@ var fs = require('fs'),
     wrench = require('wrench'),
     localize = require("./localize"),
     os = require('os'),
-    prompt = require("prompt"),
+    promptLib = require("prompt"),
     DEFAULT_BAR_NAME = "bb10app",
     PROPERTY_FILE_NAME = 'blackberry10.json',
     CORDOVA_DIR = '.cordova',
@@ -220,15 +222,15 @@ _self = {
 
     exec : function (command, args, options, callback) {
         //Optional params handling [args, options]
-        if (typeof args === "Object" && !Array.isArray(args)) {
+        if (typeof args === "object" && !Array.isArray(args)) {
             callback = options;
             options = args;
             args = [];
-        } else if (typeof args === "function"){
+        } else if (typeof args === "function") {
             callback = args;
             options = {};
             args = [];
-        } else if (typeof options === "function"){
+        } else if (typeof options === "function") {
             callback = options;
             options = {};
         }
@@ -251,7 +253,7 @@ _self = {
                 //put any args with spaces in quotes
                 args[i] = _self.inQuotes(args[i]);
             }
-        };
+        }
 
         //delete _customOptions from options object before sending to exec
         delete options._customOptions;
@@ -271,7 +273,7 @@ _self = {
     },
 
     findHomePath : function () {
-        return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+        return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
     },
 
     getCordovaDir: function () {
@@ -314,15 +316,18 @@ _self = {
     },
 
     clone: function (original) {
-        var clone = {};
+        var clone = {},
+            prop;
         if (typeof original !== "object") {
             clone = original;
         } else if (Array.isArray(original)) {
-            clone =original.slice();
+            clone = original.slice();
         } else {
-            for (var prop in original) {
+            /* jshint ignore:start */
+            for (prop in original) {
                 clone[prop] = original[prop];
             }
+            /* jshint ignore:end */
         }
 
         return clone;
@@ -333,11 +338,11 @@ _self = {
                     "property": options
                 }
             };
-        prompt.start();
-        prompt.colors = false;
-        prompt.message = "";
-        prompt.delimiter = "";
-        prompt.get(promptSchema, function (err, results) {
+        promptLib.start();
+        promptLib.colors = false;
+        promptLib.message = "";
+        promptLib.delimiter = "";
+        promptLib.get(promptSchema, function (err, results) {
             done(err, results.property);
         });
     },
