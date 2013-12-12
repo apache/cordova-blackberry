@@ -20,6 +20,43 @@
 -->
 ## Release Notes for Cordova BlackBerry ##
 
+### 3.3.0 ###
+
+[CB-5434] add homedir() function and use USERPROFILE
+[CB-5443] Windows: Handle installed 64 bit Java
+[CB-5468] improve config.xml encoding handling
+[CB-5509] Remove ability to set default target
+[CB-5510] update response codes for plugin success/fail
+[CB-5433] init.bat use %USERPROFILE% on Windows
+[CB-5413] Device detection - iterate through all 169.254.x networks
+[CB-5317] Move signing warn logic to build/run scripts
+[CB-5329] re-adds rim-permissions element to config.xml
+[CB-5258] use exit library for process.exit
+
+### 3.2.0 ###
+
+[CB-4531] bin/check_reqs scripts exit with code 2 on error 
+[CB-5246] cordova/run disambiguate no target exists message
+[CB-5250] bb init script calls dirname with unquoted path
+[CB-5266] update create.js to copy all shell scripts
+[CB-5254] log useful error info to std err
+[CB-5237] Implemented config-file support in config.xml
+[CB-4403] Combined check_reqs and init to allow prerequists
+[CB-4570] Removing unnecessary <content> check for config
+[CB-5135] Mark scripts as requiring Bash
+[CB-4340] Auto-detect target pin when its not there
+[CB-4768] Remove access_shared from default config.xml
+[CB-4931] Updated signing process to allow passthrough
+[CB-4780] update script with windows support
+[CB-4872] added bb10 ndk version scripts
+[CB-3015] Moving dependencies to .cordova folder to speed
+[CB-3015] Fix syntax issue in definition check in init.bat
+[CB-4774] Adding defaults.xml for new prepare flow
+[CB-4887] Added support for true/false for hidekeyboard
+[CB-2980] Added the install-emulator script
+[CB-2988] Added the install-device script
+[CB-4913] Updates warnings to check for BBID token
+
 ### 3.1.0 ###
 
 [CB-4268] Rework util functions to support getting list of connected devices / emulators
