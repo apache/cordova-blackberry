@@ -17,70 +17,71 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
+setlocal enabledelayedexpansion
 
-set /P CORDOVA_VERSION=<%~dps0..\VERSION
-set CORDOVA_HOME_DIR=%USERPROFILE%\.cordova\lib\blackberry10\cordova\%CORDOVA_VERSION%
-set LOCAL_NODE_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\node\bin
-set LOCAL_BBTOOLS_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\bb-tools\bin
+set /P CORDOVA_VERSION=<"%~dp0..\VERSION"
+set "CORDOVA_HOME_DIR=!USERPROFILE!\.cordova\lib\blackberry10\cordova\!CORDOVA_VERSION!"
+set "LOCAL_NODE_BINARY=!CORDOVA_HOME_DIR!\bin\dependencies\node\bin"
+set "LOCAL_BBTOOLS_BINARY=!CORDOVA_HOME_DIR!\bin\dependencies\bb-tools\bin"
 
-set FOUNDJAVA=
-for %%e in (%PATHEXT%) do (
-  for %%X in (java%%e) do (
-    if not defined FOUNDJAVA (
-      set FOUNDJAVA=%%~$PATH:X
+set FOUNDWHERE=
+for /f "usebackq delims=" %%e in (`where where 2^>nul`) do (
+  if not defined FOUNDWHERE set "FOUNDWHERE=%%e"
+)
+if not defined FOUNDWHERE set "FOUNDWHERE=%~dp0\whereis"
+
+set FOUNDJAVAAT=
+for /f "usebackq delims=" %%e in (`"%FOUNDWHERE%" java 2^>nul`) do (
+  if not defined FOUNDJAVAAT set "FOUNDJAVAAT=%%~dpe"
+)
+:: While we could normally ask where.exe to search an arbitrary environment variable,
+:: it's too complicated to teach whereis.cmd to do that
+:: instead we're going to replace PATH with a special PATH
+:: In case you're curious, you can't nest ::'s inside ()s
+if not defined FOUNDJAVAAT (
+  setlocal enabledelayedexpansion
+  SET "PATH=%ProgramFiles(x86)%\java\jre7\bin;%ProgramW6432%\java\jre7\bin;"
+  for /f "usebackq delims=" %%e in (`"%FOUNDWHERE%" java 2^>nul`) do (
+    set "FOUNDJAVAAT=%%~dpe"
+  )
+  if defined FOUNDJAVAAT (
+    for /f "delims=" %%C in (""!FOUNDJAVAAT!"") do (
+      endlocal
+      set "FOUNDJAVAAT=%%~C"
     )
+    if defined FOUNDJAVAAT (
+      set "PATH=!PATH!;!FOUNDJAVAAT!"
+    )
+  ) else (
+    endlocal
   )
 )
-if not defined FOUNDJAVA (
-  set JAVAPATH="%ProgramFiles(x86)%\java\jre7\bin;%ProgramW6432%\java\jre7\bin;"
-  for %%e in (%PATHEXT%) do (
-    for %%X in (java%%e) do (
-      if not defined FOUNDJAVAAT (
-        set FOUNDJAVAAT=%%~dp$JAVAPATH:X
+:: While there are two endlocal calls, they're mutually exclusive and bookend the setlocal
+
+if defined CORDOVA_NODE (
+  if exist "!CORDOVA_NODE!" (
+    if defined CORDOVA_BBTOOLS (
+      if exist "!CORDOVA_BBTOOLS!" (
+        goto end
       )
     )
   )
 )
-if defined FOUNDJAVAAT (
-  set PATH=%PATH%;%FOUNDJAVAAT%
-)
 
-if defined CORDOVA_NODE (
-    if exist "%CORDOVA_NODE%" (
-        if defined CORDOVA_BBTOOLS (
-            if exist "%CORDOVA_BBTOOLS%" (
-                goto end
-            )
-        )
-    )
-)
-
-if exist "%LOCAL_NODE_BINARY%" (
-    set CORDOVA_NODE=%LOCAL_NODE_BINARY%
+if exist "!LOCAL_NODE_BINARY!" (
+  set "CORDOVA_NODE=!LOCAL_NODE_BINARY!"
 ) else (
-    set FOUNDNODE=
-    for %%e in (%PATHEXT%) do (
-        for %%X in (node%%e) do (
-            if not defined FOUNDNODE (
-                set FOUNDNODE=%%~$PATH:X
-                for %%F in ("%%~$PATH:X") do set CORDOVA_NODE=%%~dpF
-            )
-        )
-    )
+  for /f "usebackq delims=" %%e in (`%FOUNDWHERE% node 2^>nul`) do (
+    set "CORDOVA_NODE=%%~dpe"
+  )
 )
 
-if exist "%LOCAL_BBTOOLS_BINARY%" (
-    set CORDOVA_BBTOOLS=%LOCAL_BBTOOLS_BINARY%
+if exist "!LOCAL_BBTOOLS_BINARY!" (
+  set "CORDOVA_BBTOOLS=!LOCAL_BBTOOLS_BINARY!"
 ) else (
-    set FOUNDBBTOOLS=
-    for %%e in (%PATHEXT%) do (
-        for %%X in (blackberry-nativepackager%%e) do (
-            if not defined FOUNDBBTOOLS (
-                set FOUNDBBTOOLS=%%~$PATH:X
-                for %%F in ("%%~$PATH:X") do set CORDOVA_BBTOOLS=%%~dpF
-            )
-        )
-    )
+  for /f "usebackq delims=" %%e in (`%FOUNDWHERE% blackberry-nativepackager 2^>nul`) do (
+    set "CORDOVA_BBTOOLS=%%~dpe"
+  )
 )
 
 :end
@@ -97,27 +98,38 @@ if exist "%~dp0..\package.json" (
     exit /b 2
   )
 )
-if not defined FOUNDJAVA (
+if not defined FOUNDJAVAAT (
   echo java cannot be found on the path. Aborting.
   exit /b 2
 )
-if not exist "%CORDOVA_BBTOOLS%\blackberry-nativepackager.bat" (
+if not exist "!CORDOVA_BBTOOLS!\blackberry-nativepackager.bat" (
   echo blackberry-nativepackager cannot be found on the path. Aborting.
   exit /b 2
 )
-if not exist "%CORDOVA_BBTOOLS%\blackberry-deploy.bat" (
+if not exist "!CORDOVA_BBTOOLS!\blackberry-deploy.bat" (
   echo blackberry-deploy cannot be found on the path. Aborting.
   exit /b 2
 )
-if not exist "%CORDOVA_BBTOOLS%\blackberry-signer.bat" (
+if not exist "!CORDOVA_BBTOOLS!\blackberry-signer.bat" (
   echo blackberry-signer cannot be found on the path. Aborting.
   exit /b 2
 )
-if not exist "%CORDOVA_BBTOOLS%\blackberry-debugtokenrequest.bat" (
+if not exist "!CORDOVA_BBTOOLS!\blackberry-debugtokenrequest.bat" (
   echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
   exit /b 2
 )
 
-"%CORDOVA_NODE%\node" "%~dp0\check_reqs.js" %*
+"!CORDOVA_NODE!\node" "%~dp0\check_reqs.js" %*
 
+:: Export variables we want to share with the caller
+for /f "delims=" %%A in (""!CORDOVA_NODE!"") do (
+  for /f "delims=" %%B in (""!CORDOVA_BBTOOLS!"") do (
+    for /f "delims=" %%C in (""!PATH!"") do (
+      endlocal
+      set "CORDOVA_NODE=%%~A"
+      set "CORDOVA_BBTOOLS=%%~B"
+      set "PATH=%%~C"
+    )
+  )
+)
 exit /b 0
