@@ -17,7 +17,7 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-call "%~dps0init"
+call "%~dp0init"
 if ERRORLEVEL 1 exit /B 1
 
-"%CORDOVA_NODE%\node.exe" "%~dps0\lib\clean" %*
+"%CORDOVA_NODE%\node.exe" "%~dp0\lib\clean" %*

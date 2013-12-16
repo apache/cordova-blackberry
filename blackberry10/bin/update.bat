@@ -17,5 +17,5 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-call "%~dps0init"
-"%CORDOVA_NODE%\node.exe" "%~dps0\lib\update.js" %*
+call "%~dp0init"
+"%CORDOVA_NODE%\node.exe" "%~dp0\lib\update.js" %*
