@@ -226,7 +226,7 @@ function generateOptionsFile(session, target, config) {
     if (target === "device" && isSigning && config.buildId) {
         optionsStr += "-buildId" + NL;
         optionsStr += config.buildId + NL;
-    } else if (session.debug) {
+    } else if (session.debug && !isSigning) {
         //DebugToken params
         optionsStr += "-devMode" + NL;
         optionsStr += (debugToken ? debugToken : "");
