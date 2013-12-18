@@ -210,26 +210,22 @@ function generateOptionsFile(session, target, config) {
     var srcFiles = wrench.readdirSyncRecursive(session.sourceDir),
         isSigning = session.isSigningRequired(config),
         optionsStr = "-package" + NL,
-        debugToken,
         params = session.getParams("blackberry-nativepackager");
 
-    //if -d was provided and we are not signing [-g], set debugToken
+    //if -d was provided and we are not signing [-g], set debugToken and devMode
     if (session.debug && !isSigning) {
         if (fs.existsSync(conf.DEBUG_TOKEN)) {
-            debugToken = "-debugToken" + NL;
-            debugToken += conf.DEBUG_TOKEN + NL;
+            optionsStr += "-debugToken" + NL;
+            optionsStr += conf.DEBUG_TOKEN + NL;
         } else {
             logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND", pkgrUtils.homedir()));
         }
+        optionsStr += "-devMode" + NL;
     }
 
     if (target === "device" && isSigning && config.buildId) {
         optionsStr += "-buildId" + NL;
         optionsStr += config.buildId + NL;
-    } else if (session.debug) {
-        //DebugToken params
-        optionsStr += "-devMode" + NL;
-        optionsStr += (debugToken ? debugToken : "");
     }
 
     if (params) {
