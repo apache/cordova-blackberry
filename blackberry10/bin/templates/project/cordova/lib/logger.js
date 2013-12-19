@@ -21,18 +21,20 @@ module.exports = {
     },
     info: function (msg) {
         if (level === 'verbose') {
-            console.log("[INFO]    " + msg);
+            console.log("[INFO]    " + msg.replace(/info: /i, ""));
         }
     },
     error: function (msg) {
-        console.error("[ERROR]   " + msg);
+        console.error("[ERROR]   " + msg.replace(/error: /i, ""));
     },
     warn: function (msg) {
         if (level !== 'error') {
-            console.log("[WARN]    " + msg);
+            console.log("[WARN]    " + msg.replace(/warning: /i, ""));
         }
     },
     log: function (msg) {
-        console.log("[BUILD]   " + msg);
+        if (level === "verbose") {
+            console.log("[INFO]    " + msg.replace(/info: /i, ""));
+        }
     }
 };

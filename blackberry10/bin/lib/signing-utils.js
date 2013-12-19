@@ -73,30 +73,6 @@ _self = {
 
     getDbPath : function () {
         return getDefaultPathIfExists(DB);
-    },
-
-    warn: function () {
-        if (!this.getKeyStorePath()) {
-            console.error(
-                "WARNING: Cannot sign applications. Author.p12 file cannot be found at default location: " +
-                getDefaultPath("author.p12")
-            );
-        }
-
-        if (!this.getKeyStorePathBBID()) {
-
-            if (this.getCskPath() && this.getDbPath()) {
-                console.error(
-                    "WARNING: BlackBerry ID tokens can now be used in place of your old signing keys.\n" +
-                    "For more information log in at http://developer.blackberry.com and click on Code Signing"
-                );
-            } else {
-                console.error(
-                    "WARNING: Cannot sign applications. bbidtoken.csk file cannot be found at default location: " +
-                    getDefaultPath("bbidtoken.csk")
-                );
-            }
-        }
     }
 };
 

@@ -21,6 +21,7 @@ var path = require('path'),
     utils = require("./utils"),
     conf = require("./conf"),
     pkgrUtils = require("./packager-utils"),
+    signingUtils = require("./signing-utils"),
     logger = require("./logger"),
     _self;
 
@@ -61,7 +62,28 @@ function execSigner(session, target, callback) {
 }
 
 _self = {
-    execSigner: execSigner
+    execSigner: execSigner,
+
+    warn: function () {
+        if (!signingUtils.getKeyStorePath()) {
+            logger.warn(
+                "Cannot sign applications. Author.p12 file cannot be found at default location: " +
+                signingUtils.getDefaultPath("author.p12")
+            );
+        }
+
+        if (!signingUtils.getKeyStorePathBBID()) {
+
+            if (signingUtils.getCskPath() && signingUtils.getDbPath()) {
+                logger.warn("Using legacy signing keys");
+            } else {
+                logger.warn(
+                    "Cannot sign applications. bbidtoken.csk file cannot be found at default location: " +
+                    signingUtils.getDefaultPath("bbidtoken.csk")
+                );
+            }
+        }
+    }
 };
 
 module.exports = _self;
