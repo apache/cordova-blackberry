@@ -23,28 +23,6 @@ set CORDOVA_HOME_DIR=%USERPROFILE%\.cordova\lib\blackberry10\cordova\%CORDOVA_VE
 set LOCAL_NODE_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\node\bin
 set LOCAL_BBTOOLS_BINARY=%CORDOVA_HOME_DIR%\bin\dependencies\bb-tools\bin
 
-set FOUNDJAVA=
-for %%e in (%PATHEXT%) do (
-  for %%X in (java%%e) do (
-    if not defined FOUNDJAVA (
-      set FOUNDJAVA=%%~$PATH:X
-    )
-  )
-)
-if not defined FOUNDJAVA (
-  set JAVAPATH="%ProgramFiles(x86)%\java\jre7\bin;%ProgramW6432%\java\jre7\bin;"
-  for %%e in (%PATHEXT%) do (
-    for %%X in (java%%e) do (
-      if not defined FOUNDJAVAAT (
-        set FOUNDJAVAAT=%%~dp$JAVAPATH:X
-      )
-    )
-  )
-)
-if defined FOUNDJAVAAT (
-  set PATH=%PATH%;%FOUNDJAVAAT%
-)
-
 if defined CORDOVA_NODE (
     if exist "%CORDOVA_NODE%" (
         if defined CORDOVA_BBTOOLS (
@@ -84,6 +62,15 @@ if exist "%LOCAL_BBTOOLS_BINARY%" (
 )
 
 :end
+
+set FOUNDJAVA=
+for %%e in (%PATHEXT%) do (
+  for %%X in (java%%e) do (
+    if not defined FOUNDJAVA (
+      set FOUNDJAVA=%%~$PATH:X
+    )
+  )
+)
 
 if not exist "%LOCAL_NODE_BINARY%" (
   if not exist "%CORDOVA_NODE%\node.exe" (
