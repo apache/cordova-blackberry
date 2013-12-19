@@ -21,7 +21,7 @@ var path = require("path"),
     command = require("commander"),
     os = require("os"),
     utils = require("./utils"),
-    signingUtils = require("./signing-utils"),
+    signingHelper = require("./signing-helper"),
     bbProperties = utils.getProperties(),
     bbwpArgv = [
         process.argv[0],
@@ -65,7 +65,7 @@ try {
         exit(ERROR_VALUE);
     }
 
-    signingUtils.warn();
+    signingHelper.warn();
 
     utils.series(
         [

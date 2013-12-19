@@ -171,12 +171,14 @@ _self = {
         var msg = data.toString().replace(/[\n\r]/g, '');
 
         if (msg) {
-            if (msg.toLowerCase().indexOf("error: ") >= 0) {
-                logger.error(msg.substring(7));
-            } else if (msg.toLowerCase().indexOf("warn: ") >= 0) {
-                logger.warn(msg.substring(6));
-            } else if (msg.toLowerCase().indexOf("info: ") >= 0) {
-                logger.info(msg.substring(6));
+            if (msg.indexOf("[ERROR] ") >= 0) {
+                logger.error(msg.substring(8).trim());
+            } else if (msg.indexOf("[WARN] ") >= 0) {
+                logger.warn(msg.substring(7).trim());
+            } else if (msg.indexOf("[INFO] ") >= 0) {
+                logger.info(msg.substring(8).trim());
+            } else if (msg.indexOf("[BUILD] ") >= 0) {
+                logger.info(msg.substring(8).trim());
             } else {
                 logger.info(msg);
             }

@@ -21,7 +21,6 @@ var path = require("path"),
     utils = require("./utils"),
     options = require('commander'),
     runUtils = require("./run-utils"),
-    signingUtils = require("./signing-utils"),
     async = require("async");
 
 function install(deployTarget, done) {
@@ -68,8 +67,6 @@ process.argv.forEach(function (argument, index, args) {
 });
 
 options.parse(process.argv);
-
-signingUtils.warn();
 
 utils.waterfall(
     [
