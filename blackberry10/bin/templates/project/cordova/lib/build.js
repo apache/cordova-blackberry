@@ -52,7 +52,7 @@ command
     .option('-k, --keystorepass <password>', 'signing key password')
     .option('-b, --buildId <num>', 'specifies the build number for signing (typically incremented from previous signing).')
     .option('-p, --params <params JSON file>', 'specifies additional parameters to pass to downstream tools.')
-    .option('-ll, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)')
+    .option('-l, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)')
     .option('--web-inspector', 'enables webinspector. Enabled by default in debug mode.).')
     .option('--no-signing', 'when building in release mode, this will skip signing');
 
