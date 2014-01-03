@@ -42,7 +42,7 @@ describe("logger", function () {
 
         it("logs messages", function () {
             logger.log("Hulk Smash!");
-            expect(console.log).toHaveBeenCalledWith("[BUILD]   Hulk Smash!");
+            expect(console.log).toHaveBeenCalledWith("[INFO]    Hulk Smash!");
         });
     });
 
@@ -68,9 +68,9 @@ describe("logger", function () {
             expect(console.log).toHaveBeenCalledWith("[WARN]    beware the ides of march");
         });
 
-        it("logs messages", function () {
+        it("doesn't log messages", function () {
             logger.log("Hulk Smash!");
-            expect(console.log).toHaveBeenCalledWith("[BUILD]   Hulk Smash!");
+            expect(console.log).not.toHaveBeenCalledWith("[INFO]    Hulk Smash!");
         });
     });
 
@@ -96,9 +96,9 @@ describe("logger", function () {
             expect(console.log).not.toHaveBeenCalledWith("[WARN]    beware the ides of march");
         });
 
-        it("logs messages", function () {
+        it("doesn't log messages", function () {
             logger.log("Hulk Smash!");
-            expect(console.log).toHaveBeenCalledWith("[BUILD]   Hulk Smash!");
+            expect(console.log).not.toHaveBeenCalledWith("[INFO]    Hulk Smash!");
         });
     });
 });
