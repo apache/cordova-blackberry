@@ -123,7 +123,7 @@ function validateTarget(options, targetName, allDone) {
 
         if (!deployTarget.pin) {
             runTasks.push(function (done) {
-                targetUtils.getDeviceInfo.bind(deployTarget.ip, deployTarget.devicePass, function (err, result) {
+                targetUtils.getDeviceInfo(deployTarget.ip, deployTarget.password, function (err, result) {
                     deployTarget.pin = result.pin;
                     done(err);
                 });
