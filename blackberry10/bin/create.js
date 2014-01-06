@@ -18,7 +18,7 @@
  */
 
 /*
- * create a cordova/blackberry project
+ * create a cordova/blackberry10 project
  *
  * USAGE
  *  ./create path [package [id [name [template]]]]

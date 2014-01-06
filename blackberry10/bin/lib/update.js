@@ -34,20 +34,19 @@ function setShellFatal(value, func) {
 
 
 function updateNativeDir(projectpath) {
-    shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'native'), path.join(projectpath, 'native'));
+    shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'native'), path.join(projectpath));
 }
 
 function updateCordovaJS(projectpath, version) {
-    var jspath = path.join(projectpath, 'lib', 'cordova' + version, 'javascript');
-    shell.rm('-rf', path.join(projectpath, 'lib')); //remove old lib tree
+    var jspath = path.join(projectpath, 'lib', 'cordova.' + version, 'javascript');
     shell.mkdir('-p', jspath); // remake lib dir tree with updated version
     shell.cp('-f', path.join(ROOT, 'javascript', 'cordova.blackberry10.js'), path.join(jspath, 'cordova.js')); // copy new js
-    shell.cp('-f', path.join(ROOT, 'javascript', 'cordova.blackberry10.js'), path.join('www', 'cordova.js'));
+    shell.cp('-f', path.join(ROOT, 'javascript', 'cordova.blackberry10.js'), path.join(projectpath, 'www', 'cordova.js'));
 }
 
 function updateCordovaTools(projectpath) {
     // update cordova scripts from template
-    shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'cordova'), path.join(projectpath, 'cordova'));
+    shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'cordova'), path.join(projectpath));
     // update repo level scripts
     updateTargetTool(projectpath);
     updateInitTool(projectpath); 
@@ -68,9 +67,11 @@ function updateInitTool(projectpath) {
 exports.updateProject = function (projectpath) {
     var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
     setShellFatal(true, function () {
+        shell.rm('-rf', path.join(projectpath, 'lib')); //remove old lib tree
         updateCordovaJS(projectpath, version);
         updateCordovaTools(projectpath);
         updateNativeDir(projectpath);
+        fs.writeFileSync(path.join(projectpath, 'VERSION'), version + "\n", 'utf-8');
         //console.log('BlackBerry10 project is now at version ' + version);
     });
 };
@@ -79,7 +80,7 @@ if (require.main === module) {
     (function () {
         var args = process.argv;
         if (args.length < 3 || (args[2] === '--help' || args[2] === '-h')) {
-            console.log('Usage: ' + path.relative(process.cwd(), path.join(__dirname, 'update')) + ' <path_to_project>');
+            console.log('Usage: ' + path.relative(process.cwd(), path.join(__dirname, '..', 'update')) + ' <path_to_project>');
             exit(1);
         } else {
             exports.updateProject(args[2]);
