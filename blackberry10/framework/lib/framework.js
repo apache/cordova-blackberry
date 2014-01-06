@@ -108,8 +108,12 @@ var _self = {
             if (!config.enablePopupBlocker) {
                 qnx.webplatform.nativeCall('webview.setBlockPopups', webview.id, false);
             }
-            // Workaround for executeJavascript doing nothing for the first time
 
+            if (config.enableDiskCache) {
+                qnx.webplatform.nativeCall('webview.setEnableDiskCache', webview.id, 'true');
+            }
+
+            // Workaround for executeJavascript doing nothing for the first time
             webview.executeJavascript("1 + 1");
 
             url = url || config.content;

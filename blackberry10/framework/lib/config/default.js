@@ -77,5 +77,6 @@ module.exports = {
     enableFormControl: true,
     enableChildWebView: true,
     enableWebSecurity: true,
+    enableDiskCache: false,
     enablePopupBlocker: false
 };

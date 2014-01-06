@@ -587,6 +587,10 @@ function processCordovaPreferences(data, widgetConfig) {
             logger.warn(localize.translate("WARNING_WEBSECURITY_DISABLED"));
         }
 
+        // <preference name="diskCache" value="enable or disable" />
+        if (preference.diskcache) {
+            widgetConfig.enableDiskCache = (preference.diskcache === 'enable');
+        }
     }
 }
 
