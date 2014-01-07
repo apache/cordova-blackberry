@@ -96,19 +96,14 @@ describe("cordova/target tests", function () {
         expect(_output).toContain("Target details not specified");
     });
 
-    it("should require ip for add", function () {
+    it("should require host for add", function () {
         executeScript(TARGET_COMMAND, ["add", "z10"], true);
-        expect(_output).toContain("IP is required");
+        expect(_output).toContain("host is required");
     });
 
     it("should warn unrecognized command", function () {
         executeScript(TARGET_COMMAND, ["bleh"], true);
         expect(_output).toContain("Unrecognized command");
-    });
-
-    it("should warn invalid ip", function () {
-        executeScript(TARGET_COMMAND, ["add", "z10", "256.254.0.1"], true);
-        expect(_output).toContain("Invalid IP: 256.254.0.1");
     });
 
     it("should warn invalid type", function () {

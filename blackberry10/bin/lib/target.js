@@ -91,6 +91,11 @@ commander
             console.log(commander.helpInformation());
             exit(ERROR_VALUE);
         }
+        if (typeof ip !== 'string') {
+            console.log("host is required");
+            console.log(commander.helpInformation());
+            exit(ERROR_VALUE);
+        }
         if (!isValidPin(pin)) {
             console.log("Invalid PIN: " + pin);
             console.log(commander.helpInformation());
