@@ -33,8 +33,7 @@ function install(deployTarget, done) {
         installTasks.push(utils.exec.bind(this, buildCmd, buildArgs, {"cwd": projectRootDir}));
     }
 
-    installTasks.push(runUtils.uninstall.bind(this, options, deployTarget),
-                      runUtils.deployToTarget.bind(this, options, deployTarget));
+    installTasks.push(runUtils.install.bind(this, options, deployTarget));
 
     async.series(installTasks, done);
 }
@@ -47,10 +46,9 @@ options
     .option('--devicepass <password>', 'device password')
     .option('--target <id>', 'specifies the target to run the application')
     .option('--query', 'query on the commandline when a password is needed')
-    .option('--no-uninstall', 'does not uninstall application from device')
     .option('--no-launch', 'do not launch the application on device')
     .option('--no-build', 'deploy the pre-built bar file and skip building')
-    .on('--help', function () {
+    .on('--help', function() {
         console.log('  Examples:');
         console.log('');
         console.log("  Deploying to a predefined target");

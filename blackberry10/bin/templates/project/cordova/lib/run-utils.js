@@ -183,7 +183,7 @@ function handleDebugToken(options, deployTarget, allDone) {
     }
 }
 
-function generateDeployOptions(options, deployTarget, uninstall) {
+function generateDeployOptions(options, deployTarget) {
     var deployOptions = [],
         barPath = pkgrUtils.escapeStringForShell(
             path.normalize(__dirname + "/../../build/" +
@@ -200,20 +200,14 @@ function generateDeployOptions(options, deployTarget, uninstall) {
 
     deployOptions.push("-package");
     deployOptions.push(barPath);
+    deployOptions.push("-uninstallApp");
+    deployOptions.push("-installApp");
 
-    if (uninstall) {
-        deployOptions.push("-uninstallApp");
-        return deployOptions;
-    } else {
-
-        deployOptions.push("-installApp");
-
-        if (options.launch) {
-            deployOptions.push("-launchApp");
-        }
-
-        return deployOptions;
+    if (options.launch) {
+        deployOptions.push("-launchApp");
     }
+
+    return deployOptions;
 }
 
 function execNativeDeploy(deployOptions, callback) {
@@ -236,16 +230,11 @@ _self = {
             ], callback
         );
     },
-    //options looking for are: (launch) Function returns (error || null)
-    deployToTarget : function (options, deployTarget, callback) {
-        execNativeDeploy(generateDeployOptions(options, deployTarget, false));
-    },
 
-    //options looking for are: (uninstall) Function returns (error || null)
-    uninstall : function (options, deployTarget, allDone) {
+    //Function returns (error || null)
+    install : function (options, deployTarget, allDone) {
         var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
             args = [
-                "-listInstalledApps",
                 "-device",
                 deployTarget.ip
             ],
@@ -253,34 +242,18 @@ _self = {
             installedAppsOutput,
             runTasks = [];
 
-        if (options.uninstall) {
-            if (deployTarget.password) {
-                args.push("-password", deployTarget.password);
-            }
-            runTasks = [
-                utils.exec.bind(this, script, args, { "cwd": projectRootDir, _customOptions: {silent: true}}),
-                function listInstalledAppsOutput(stdout, stderr, done) {
-                    installedAppsOutput = stdout;
-                    fs.readFile(path.join(__dirname + "/../../www/", "config.xml"), done);
-                },
-                function configXMLOutput(result, done) {
-                    var parser = new xml2js.Parser();
-                    parser.parseString(result, done);
-                },
-                function parsedConfigXMLOutput(result, done) {
-                    if (installedAppsOutput.indexOf(result['@'].id) !== -1) {
-                        var deployOptions = generateDeployOptions(options, deployTarget, true);
-                        execNativeDeploy(deployOptions, done);
-                    } else {
-                        done();
-                    }
-                }
-            ];
+        if (deployTarget.password) {
+            args.push("-password", deployTarget.password);
         }
+        runTasks = [
+            function uninstallInstallLaunchApp (result, done) {
+                var deployOptions = generateDeployOptions(options, deployTarget);
+                execNativeDeploy(deployOptions, done);
+            }
+        ];
 
         async.waterfall(runTasks,
             function (err, results) {
-                //Absorb error for uninstallation
                 allDone(null, deployTarget);
             }
         );
@@ -296,7 +269,6 @@ _self = {
         } else {
             allDone("No build file exists, please run: build [--debug] [--release] [-k | --keystorepass] [-b | --buildId <number>] [-p | --params <json>] [-ll | --loglevel <level>] ");
         }
-
     },
 
     //No options needed within function Function returns (error || options, targetName)
