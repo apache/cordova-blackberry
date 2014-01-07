@@ -21,7 +21,7 @@ COMMENT
 # create a cordova/blackberry project
 #
 # USAGE
-#   ./create [path package appname]
+#   ./create path [package [id [name [template]]]]
 #
 
 BIN_DIR=$(dirname "$0")

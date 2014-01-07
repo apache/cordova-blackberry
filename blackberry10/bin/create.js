@@ -21,7 +21,7 @@
  * create a cordova/blackberry project
  *
  * USAGE
- *  ./create [path package appname]
+ *  ./create path [package [id [name [template]]]]
  */
 
 var build,
@@ -34,6 +34,7 @@ var build,
     version = getVersion(),
     project_path = validateProjectPath(),
     app_id = process.argv[3],
+    app_name = process.argv[4] || 'WebWorks Application',
     TARGETS = ["device", "simulator"],
     TEMPLATE_PROJECT_DIR = path.join(__dirname, "templates", "project"),
     ROOT_PROJECT_DIR = path.join(__dirname, ".."),
@@ -46,6 +47,7 @@ var build,
     ERROR_VALUE = 2,
     update_dir = path.join(project_path, "lib", "cordova." + version),
     native_dir = path.join(project_path, "native"),
+    template_dir = process.argv[5] || TEMPLATE_PROJECT_DIR,
     js_path = "javascript",
     js_basename = "cordova.js";
 
@@ -114,7 +116,10 @@ function copyFilesToProject() {
 
     // create project using template directory
     wrench.mkdirSyncRecursive(project_path, 0777);
-    wrench.copyDirSyncRecursive(TEMPLATE_PROJECT_DIR, project_path);
+    wrench.copyDirSyncRecursive(template_dir, project_path);
+    if (template_dir != TEMPLATE_PROJECT_DIR) {
+        wrench.copyDirSyncRecursive(path.join(TEMPLATE_PROJECT_DIR, 'cordova'), path.join(project_path, 'cordova'));
+    }
 
     // copy repo level target tool to project
     utils.copyFile(path.join(BIN_DIR, "target"), path.join(project_path, "cordova"));
@@ -167,7 +172,7 @@ function updateProject() {
 
     if (typeof app_id !== "undefined") {
         xmlString = fs.readFileSync(configXMLPath, "utf-8");
-        fs.writeFileSync(configXMLPath, xmlString.replace("default.app.id", app_id), "utf-8");
+        fs.writeFileSync(configXMLPath, xmlString.replace("default.app.id", app_id).replace("default.app.name", app_name), "utf-8");
     }
 
     projectJson.globalFetchDir = path.join(__dirname, "..", "plugins");
@@ -176,7 +181,7 @@ function updateProject() {
 }
 
 function help() {
-    console.log("\nUsage: create <project path> [package name] \n");
+    console.log("\nUsage: create <project-path> [id [name [template_path]]] \n");
     console.log("Options: \n");
     console.log("   -h, --help      output usage information \n");
 }
