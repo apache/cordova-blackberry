@@ -31,30 +31,6 @@ var path = require('path'),
     pin,
     pinRegex = new RegExp("[0-9A-Fa-f]{8}");
 
-function isValidIp(ip) {
-    var num,
-        result = true,
-        ipArray;
-
-    if (typeof ip !== 'string') {
-        console.log("IP is required");
-        console.log(commander.helpInformation());
-        exit(ERROR_VALUE);
-    } else {
-        ipArray = ip.split('.');
-        if (ipArray.length !== 4) {
-            result = false;
-        }
-        ipArray.forEach(function (quadrant) {
-            num = Number(quadrant);
-            if (isNaN(num) || (num < 0) || (num > 255)) {
-                result = false;
-            }
-        });
-    }
-    return result;
-}
-
 function isValidType(type) {
     var result = true;
 
@@ -87,7 +63,7 @@ commander
     .on('--help', function () {
         console.log('   Synopsis:');
         console.log('   $ target');
-        console.log('   $ target add <name> <ip> [-t | --type <device | simulator>] [-p | --password <password>] [--pin <devicepin>]');
+        console.log('   $ target add <name> <host> [-t | --type <device | simulator>] [-p | --password <password>] [--pin <devicepin>]');
         console.log('   $ target remove <name>');
         console.log(' ');
     });
@@ -109,11 +85,6 @@ commander
         }
         if (commander.pin && typeof commander.pin === 'string') {
             pin = commander.pin;
-        }
-        if (!isValidIp(ip)) {
-            console.log("Invalid IP: " + ip);
-            console.log(commander.helpInformation());
-            exit(ERROR_VALUE);
         }
         if (!isValidType(type)) {
             console.log("Invalid target type: " + type);
