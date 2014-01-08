@@ -20,7 +20,6 @@
 var childProcess = require('child_process'),
     tempFolder = '.tmp/',
     appFolder = tempFolder + 'tempCordovaApp/',
-    projectFile = 'project.json',
     wrench = require('wrench'),
     utils = require('../../../lib/utils'),
     path = require('path'),
@@ -42,10 +41,8 @@ function executeScript(shellCommand, args, shouldError) {
 
 describe("create tests", function () {
     it("creates project", function () {
-        var project,
-            appIdRegExp = /id="default\.app\.id"/g;
+        var appIdRegExp = /id="default\.app\.id"/g;
         executeScript(CREATE_COMMAND, [appFolder]);
-        project = JSON.parse(fs.readFileSync(appFolder + projectFile, "utf-8"));
         expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
         expect(fs.existsSync(appFolder)).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova")).toEqual(true);
@@ -53,9 +50,6 @@ describe("create tests", function () {
         expect(fs.existsSync(appFolder + "/cordova/lib")).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova/third_party")).toEqual(true);
         expect(fs.existsSync(appFolder + "/www")).toEqual(true);
-        expect(project.barName).toEqual("cordova-BB10-app");
-        expect(project.defaultTarget).toEqual("");
-        expect(project.targets).toEqual({});
         expect(fs.existsSync("./build")).toEqual(false);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
@@ -74,12 +68,9 @@ describe("create tests", function () {
     });
 
     it("sets appId and barName", function () {
-        var project,
-            appIdRegExp = /id="com\.example\.bb10app"/g;
+        var appIdRegExp = /id="com\.example\.bb10app"/g;
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app", "bb10appV1"]);
-        project = JSON.parse(fs.readFileSync(appFolder + projectFile, "utf-8"));
         expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
-        expect(project.barName).toEqual("cordova-BB10-app");
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });

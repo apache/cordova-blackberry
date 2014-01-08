@@ -20,7 +20,6 @@
 var childProcess = require('child_process'),
     tempFolder = '.tmp/',
     appFolder = tempFolder + 'tempCordovaApp/',
-    projectFile = 'project.json',
     wrench = require('wrench'),
     utils = require('../../../lib/utils'),
     fs = require('fs'),

@@ -83,7 +83,6 @@ module.exports = {
         var sourceDir,
             signingPassword = module.exports.getKeyStorePass(cmdline),
             outputDir = cmdline.output,
-            properties = require("../../project.json"),
             archivePath = path.resolve(cmdline.args[0] ? cmdline.args[0] : "../../www"),
             archiveName = utils.genBarName(),
             appdesc,

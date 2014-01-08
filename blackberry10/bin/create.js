@@ -166,18 +166,13 @@ function copyFilesToProject() {
 }
 
 function updateProject() {
-    var projectJson = require(path.resolve(path.join(project_path, "project.json"))),
-        configXMLPath = path.resolve(path.join(project_path, "www", "config.xml")),
+    var configXMLPath = path.resolve(path.join(project_path, "www", "config.xml")),
         xmlString;
 
     if (typeof app_id !== "undefined") {
         xmlString = fs.readFileSync(configXMLPath, "utf-8");
         fs.writeFileSync(configXMLPath, xmlString.replace("default.app.id", app_id).replace("default.app.name", app_name), "utf-8");
     }
-
-    projectJson.globalFetchDir = path.join(__dirname, "..", "plugins");
-
-    fs.writeFileSync(path.join(project_path, "project.json"), JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
 }
 
 function help() {
