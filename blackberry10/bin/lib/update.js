@@ -37,12 +37,6 @@ function updateNativeDir(projectpath) {
     shell.cp('-rf', path.join(ROOT, 'bin', 'templates', 'project', 'native'), path.join(projectpath, 'native'));
 }
 
-function updateProjectJson(projectpath) {
-    var projectJson = require(path.resolve(path.join(projectpath, "project.json")));
-    projectJson.globalFetchDir = path.join(ROOT, 'plugins');
-    fs.writeFileSync(path.join(projectpath, "project.json"), JSON.stringify(projectJson, null, 4) + "\n", "utf-8");
-}
-
 function updateCordovaJS(projectpath, version) {
     var jspath = path.join(projectpath, 'lib', 'cordova' + version, 'javascript');
     shell.rm('-rf', path.join(projectpath, 'lib')); //remove old lib tree
@@ -77,7 +71,6 @@ exports.updateProject = function (projectpath) {
         updateCordovaJS(projectpath, version);
         updateCordovaTools(projectpath);
         updateNativeDir(projectpath);
-        updateProjectJson(projectpath); 
         //console.log('BlackBerry10 project is now at version ' + version);
     });
 };

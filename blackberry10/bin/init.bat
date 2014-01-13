@@ -83,7 +83,7 @@ if exist "%LOCAL_BBTOOLS_BINARY%" (
     )
 )
 
-if not exist "%CORDOVA_NODE%\node.exe" (
+if not exist "%LOCAL_NODE_BINARY%" && not exist "%CORDOVA_NODE%\node.exe" (
   echo node cannot be found on the path. Aborting.
   exit /b 2
 )
