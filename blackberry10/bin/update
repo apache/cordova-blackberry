@@ -16,7 +16,7 @@
 #       specific language governing permissions and limitations
 #       under the License.
 #
-# create a cordova/blackberry project
+# update a cordova/blackberry10 project
 #
 # USAGE
 #   ./update [projectpath]
