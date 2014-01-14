@@ -63,7 +63,7 @@ if [ -z "$CORDOVA_NODE" ] && [ -z "$CORDOVA_BBTOOLS" ]; then
     if [ ! -x "$NODE" ]; then
         echo node cannot be found on the path. Aborting.
         EXIT_CODE=2
-    elif [ ! -x "$LOCAL_NODE_BIN" && ! -x "$NPM" ]; then
+    elif [ ! -x "$LOCAL_NODE_BIN" ] && [ ! -x "$NPM" ]; then
         echo npm cannot be found on the path. Aborting.
         EXIT_CODE=2
     elif [ ! -x "$JAVA" ]; then
