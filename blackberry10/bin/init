@@ -23,7 +23,7 @@ LOCAL_NODE_BIN=$CORDOVA_HOME_DIR/bin/dependencies/node/bin
 LOCAL_BBTOOLS=$CORDOVA_HOME_DIR/bin/dependencies/bb-tools/bin
 
 #Skip all logic if init has already been run (env variable have been set already...)
-if [ -z "$CORDOVA_NODE" ] && [ -z "$CORDOVA_BBTOOLS" ]; then
+if [ -z "$CORDOVA_NODE" ] || [ -z "$CORDOVA_BBTOOLS" ]; then
 
     #set CORDOVA_NODE
     if [ -x "$LOCAL_NODE_BIN" ]; then
