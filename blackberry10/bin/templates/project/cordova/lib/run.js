@@ -48,7 +48,7 @@ options
     .option('--query', 'query on the commandline when a password is needed')
     .option('--no-launch', 'do not launch the application on device')
     .option('--no-build', 'deploy the pre-built bar file and skip building')
-    .on('--help', function() {
+    .on('--help', function () {
         console.log('  Examples:');
         console.log('');
         console.log("  Deploying to a predefined target");
