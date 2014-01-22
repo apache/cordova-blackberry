@@ -43,7 +43,7 @@ describe("create tests", function () {
     it("creates project", function () {
         var appIdRegExp = /id="default\.app\.id"/g;
         executeScript(CREATE_COMMAND, [appFolder]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
+        expect(appIdRegExp.test(fs.readFileSync(appFolder + "config.xml", "utf-8"))).toEqual(true);
         expect(fs.existsSync(appFolder)).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova")).toEqual(true);
         expect(fs.existsSync(appFolder + "/cordova/node_modules")).toEqual(true);
@@ -61,7 +61,7 @@ describe("create tests", function () {
             appIdRegExp = /id="com\.example\.bb10app"/g;
 
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app"]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
+        expect(appIdRegExp.test(fs.readFileSync(appFolder + "config.xml", "utf-8"))).toEqual(true);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });
@@ -70,7 +70,7 @@ describe("create tests", function () {
     it("sets appId and barName", function () {
         var appIdRegExp = /id="com\.example\.bb10app"/g;
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app", "bb10appV1"]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
+        expect(appIdRegExp.test(fs.readFileSync(appFolder + "config.xml", "utf-8"))).toEqual(true);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });

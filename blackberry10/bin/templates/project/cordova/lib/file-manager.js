@@ -78,7 +78,8 @@ function copyDirContents(from, to) {
 
 function prepare(session) {
     var conf = session.conf,
-        dest = session.sourcePaths;
+        dest = session.sourcePaths,
+        indexXML;
 
     if (fs.existsSync(session.sourceDir)) {
         wrench.rmdirSyncRecursive(session.sourceDir);
@@ -90,6 +91,10 @@ function prepare(session) {
             unzip(session.archivePath, session.sourceDir);
         } else {
             copyDirContents(session.archivePath, session.sourceDir);
+            indexXML = path.join(path.dirname(session.archivePath), 'config.xml');
+            if (fs.existsSync(indexXML)) {
+                fs.writeFileSync(path.join(session.sourceDir, 'config.xml'), fs.readFileSync(indexXML, "utf-8"), "utf-8");
+            }
         }
     } else {
         throw localize.translate("EXCEPTION_INVALID_ARCHIVE_PATH", session.archivePath);

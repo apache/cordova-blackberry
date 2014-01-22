@@ -166,11 +166,16 @@ function copyFilesToProject() {
 }
 
 function updateProject() {
-    var configXMLPath = path.resolve(path.join(project_path, "www", "config.xml")),
+    var oldXMLPath = path.resolve(path.join(project_path, "www", "config.xml")),
+        configXMLPath = path.resolve(path.join(project_path, "config.xml")),
         xmlString;
 
     if (typeof app_id !== "undefined") {
-        xmlString = fs.readFileSync(configXMLPath, "utf-8");
+        if (fs.existsSync(configXMLPath)) {
+            xmlString = fs.readFileSync(configXMLPath, "utf-8");
+        } else if (fs.existsSync(oldXMLPath)) {
+            xmlString = fs.readFileSync(oldXMLPath, "utf-8");
+        }
         fs.writeFileSync(configXMLPath, xmlString.replace("default.app.id", app_id).replace("default.app.name", app_name), "utf-8");
     }
 }
