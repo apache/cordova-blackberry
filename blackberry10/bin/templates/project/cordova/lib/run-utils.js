@@ -246,7 +246,7 @@ _self = {
             args.push("-password", deployTarget.password);
         }
         runTasks = [
-            function uninstallInstallLaunchApp (result, done) {
+            function uninstallInstallLaunchApp(result, done) {
                 var deployOptions = generateDeployOptions(options, deployTarget);
                 execNativeDeploy(deployOptions, done);
             }
