@@ -17,13 +17,13 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-set BIN_DIR=%~dp0
+set "BIN_DIR=%~dp0"
 
 call "%BIN_DIR%init"
 if ERRORLEVEL 1 exit /B %ERRORLEVEL% 
 
 if exist "%BIN_DIR%..\package.json" (
-    pushd %BIN_DIR%..
+    pushd "%BIN_DIR%.."
     call "%CORDOVA_NODE%\npm" install
     if ERRORLEVEL 1 exit /B 1
     popd

@@ -18,11 +18,6 @@ goto comment
        under the License.
 :comment
 
-set INITCALL="%~dps0init"
-if not exist INITCALL (
-    set INITCALL="%~dp0init"
-)
-
-call %INITCALL%
+call "%~dp0init"
 if ERRORLEVEL 1 exit /B %ERRORLEVEL%
 
