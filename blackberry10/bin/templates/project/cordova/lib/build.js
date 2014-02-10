@@ -45,7 +45,7 @@ function copyArgIfExists(arg) {
 }
 
 command
-    .usage('[--debug | --release] [--query] [-k | --keystorepass] [-b <number> | --buildId <number>] [-p <json> | --params <json>] [-ll <level> | --loglevel <level>] [--web-inspector] [--no-signing]')
+    .usage('[--debug | --release] [--query] [-k | --keystorepass] [-b <number> | --buildId <number>] [-p <json> | --params <json>] [-l <level> | --loglevel <level>] [--web-inspector] [--no-signing]')
     .option('--debug', 'build in debug mode.')
     .option('--release', 'build in release mode. This will sign the resulting bar.')
     .option('--query', 'query on the commandline when a password is needed')
