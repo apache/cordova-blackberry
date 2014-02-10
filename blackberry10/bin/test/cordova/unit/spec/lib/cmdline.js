@@ -64,8 +64,8 @@ describe("Command line", function () {
         expect(cmd.loglevel).toBe("warn");
     });
 
-    it("accepts -ll", function () {
-        cmd.parseOptions(["-ll", "error"]);
+    it("accepts -l", function () {
+        cmd.parseOptions(["-l", "error"]);
         expect(cmd.loglevel).toBe("error");
     });
 

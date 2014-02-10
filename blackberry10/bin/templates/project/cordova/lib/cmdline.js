@@ -30,7 +30,7 @@ command
     .option('-p, --params <params JSON file>', 'Specifies additional parameters to pass to downstream tools.')
     .option('--appdesc <filepath>', 'Optionally specifies the path to the bar descriptor file (bar-descriptor.xml). For internal use only.')
     .option('-v, --verbose', 'Turn on verbose messages')
-	.option('-ll, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)');
+    .option('-l, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)');
 
 function parseArgs(args) {
     var option,

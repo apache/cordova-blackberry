@@ -267,7 +267,7 @@ _self = {
         if (fs.existsSync(barPath)) {
             allDone(null, deployTarget);
         } else {
-            allDone("No build file exists, please run: build [--debug] [--release] [-k | --keystorepass] [-b | --buildId <number>] [-p | --params <json>] [-ll | --loglevel <level>] ");
+            allDone("No build file exists, please run: build [--debug | --release] [-k | --keystorepass] [-b | --buildId <number>] [-p | --params <json>] [-l | --loglevel <level>] ");
         }
     },
 

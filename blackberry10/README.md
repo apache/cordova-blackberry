@@ -103,14 +103,14 @@ where
 
 To build your app in release mode, on the command line, type the following command:
 
-        <path-to-project>/cordova/build debug [<target>] [-k|--keystorepass <password>] [-p|--params <params-JSON-file>] [-ll|--loglevel <error|warn|verbose>]
+        <path-to-project>/cordova/build debug [<target>] [-k|--keystorepass <password>] [-p|--params <params-JSON-file>] [-l|--loglevel <error|warn|verbose>]
 
 where
 
 -   `<target>`  specifies the name of a previously added target. If `<target>`  is not specified, the default target is used, if one has been created. This argument is only required if you want the script to deploy your app to a BlackBerry device or emulator and you have not created a default target. Additionally, if `<target>`  is a device, then that device must be connected to your computer by USB connection or be connected to the same Wi-Fi network as your computer.
 -   `-k|--keystorepass <password>`  specifies the password you defined when you configured your computer to sign applications. This password is also used to create your debug token. This argument is only required if you want the script to create and install the debug token for you.
 -   `-p|--params <params-JSON-file>`  specifies a JSON file containing additional parameters to pass to downstream tools.
--   `-ll|--loglevel <level>`  specifies the log level. The log level may be one of `error`, `warn`, or `verbose`.
+-   `-l|--loglevel <level>`  specifies the log level. The log level may be one of `error`, `warn`, or `verbose`.
 
 Note that all of these parameters are optional. If you have previously defined a default target (and installed a debug token, if that target is a BlackBerry device), you can run the script with no arguments, and the script will package your app and deploy it to the default target. For example:
 
