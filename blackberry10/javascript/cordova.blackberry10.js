@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.5.0-dev-ba3190d
+// 3.5.0-dev-2beb2fa
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.5.0-dev-ba3190d';
+var CORDOVA_JS_BUILD_LABEL = '3.5.0-dev-2beb2fa';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -852,13 +852,24 @@ function RemoteFunctionCall(functionUri) {
 
         request.send(JSON.stringify(params));
     };
+
+    this.makeSyncCall = function () {
+        var requestUri = composeUri(),
+        request = createXhrRequest(requestUri, false),
+        response;
+        request.send(JSON.stringify(params));
+        response = JSON.parse(decodeURIComponent(request.responseText) || "null");
+        return response;
+    };
+
 }
 
-module.exports = function (success, fail, service, action, args) {
+module.exports = function (success, fail, service, action, args, sync) {
     var uri = service + "/" + action,
     request = new RemoteFunctionCall(uri),
     callbackId = service + cordova.callbackId++,
     proxy,
+    response,
     name,
     didSucceed;
 
@@ -883,7 +894,28 @@ module.exports = function (success, fail, service, action, args) {
             }
         }
 
-        request.makeAsyncCall();
+        if (sync !== undefined && !sync) {
+            request.makeAsyncCall();
+            return;
+        }
+
+        response = request.makeSyncCall();
+
+        if (response.code < 0) {
+            if (fail) {
+                fail(response.msg, response);
+            }
+            delete cordova.callbacks[callbackId];
+        } else {
+            didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
+            cordova.callbackFromNative(
+                callbackId,
+                didSucceed,
+                response.code,
+                [ didSucceed ? response.data : response.msg ],
+                !!response.keepCallback
+            );
+        }
     }
 
 };
@@ -1270,7 +1302,7 @@ function findCordovaPath() {
     var scripts = document.getElementsByTagName('script');
     var term = 'cordova.js';
     for (var n = scripts.length-1; n>-1; n--) {
-        var src = scripts[n].src;
+        var src = scripts[n].src.replace(/\?.*$/, ''); // Strip any query param (CB-6007).
         if (src.indexOf(term) == (src.length - term.length)) {
             path = src.substring(0, src.length - term.length);
             break;
