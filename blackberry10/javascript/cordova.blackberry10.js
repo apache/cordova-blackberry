@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.4.0-rc1
+// 3.4.0
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.4.0-rc1';
+var CORDOVA_JS_BUILD_LABEL = '3.4.0';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -852,13 +852,24 @@ function RemoteFunctionCall(functionUri) {
 
         request.send(JSON.stringify(params));
     };
+
+    this.makeSyncCall = function () {
+        var requestUri = composeUri(),
+        request = createXhrRequest(requestUri, false),
+        response;
+        request.send(JSON.stringify(params));
+        response = JSON.parse(decodeURIComponent(request.responseText) || "null");
+        return response;
+    };
+
 }
 
-module.exports = function (success, fail, service, action, args) {
+module.exports = function (success, fail, service, action, args, sync) {
     var uri = service + "/" + action,
     request = new RemoteFunctionCall(uri),
     callbackId = service + cordova.callbackId++,
     proxy,
+    response,
     name,
     didSucceed;
 
@@ -883,7 +894,28 @@ module.exports = function (success, fail, service, action, args) {
             }
         }
 
-        request.makeAsyncCall();
+        if (sync !== undefined && !sync) {
+            request.makeAsyncCall();
+            return;
+        }
+
+        response = request.makeSyncCall();
+
+        if (response.code < 0) {
+            if (fail) {
+                fail(response.msg, response);
+            }
+            delete cordova.callbacks[callbackId];
+        } else {
+            didSucceed = response.code === cordova.callbackStatus.OK || response.code === cordova.callbackStatus.NO_RESULT;
+            cordova.callbackFromNative(
+                callbackId,
+                didSucceed,
+                response.code,
+                [ didSucceed ? response.data : response.msg ],
+                !!response.keepCallback
+            );
+        }
     }
 
 };
