@@ -31,12 +31,13 @@ var fs = require("fs"),
 
 //Options looking for are: (Device | Emulator, query, devicepass). Calls back with:  (error || options object, target object)
 function getTargetName(options, done) {
-    var ipFinder = options.device ? targetUtils.findConnectedDevice : targetUtils.findConnectedSimulator,
-        targetType = options.device ? "device" : "emulator";
+    var ipFinder = options.emulator ? targetUtils.findConnectedSimulator : targetUtils.findConnectedDevice,
+        targetType = options.emulator ? "emulator" : "device";
 
     if (options.target) {
         done(null, options, options.target);
-    } else if (options.device || options.emulator) {
+    } else {
+        
         if (options.device && options.emulator) {
             localize.translate("WARN_RUN_DEVICE_OVERRIDES_EMULATOR");
         }
@@ -51,8 +52,7 @@ function getTargetName(options, done) {
             devicePass: function (done) {
                 if (!options.devicepass && options.devicepass !== "") {
                     if (options.query) {
-                        var description = options.device ? "Please enter your " + targetType +  " password: " : "Please enter your " + targetType +  " password (For no password press Enter): ";
-                        utils.prompt({description: description, hidden: true}, done);
+                        utils.prompt({description: getPasswordPrompt(targetType), hidden: true}, done);
                     } else if (!options.emulator) {
                         done("Please provide device password using --devicepass");
                     } else {
@@ -71,8 +71,6 @@ function getTargetName(options, done) {
                 _self.checkDeviceInfo(options, results.ip, targetType, results.devicePass, done);
             }
         });
-    } else {
-        done(null, options, properties.defaultTarget);
     }
 }
 
@@ -109,8 +107,7 @@ function validateTarget(options, targetName, allDone) {
             } else {
                 if (options.query) {
                     runTasks.push(function (done) {
-                        var description = options.device ? "Please enter your " + deployTarget.type +  " password: " : "Please enter your " + deployTarget.type +  " password (For no password press Enter): ";
-                        utils.prompt({description: description, hidden: true}, function (e, devicePass) {
+                        utils.prompt({description: getPasswordPrompt(deployTarget.type), hidden: true}, function (e, devicePass) {
                             deployTarget.password = devicePass;
                             done(e);
                         });
@@ -219,6 +216,15 @@ function execNativeDeploy(deployOptions, callback) {
     }, callback);
 }
 
+function getPasswordPrompt(targetType) {
+    var prompt = "Please enter your " + targetType + " password";
+    if (targetType === "emulator") {
+        prompt += " (For no password press ENTER)";
+    }
+    prompt += ": ";
+    return prompt;
+}
+
 _self = {
     //options looking for are: (query, devicepass, password, target, (device || emulator)) Function returns (error || deployTarget)
     getValidatedTarget : function (options, callback) {
@@ -246,7 +252,7 @@ _self = {
             args.push("-password", deployTarget.password);
         }
         runTasks = [
-            function uninstallInstallLaunchApp (result, done) {
+            function uninstallInstallLaunchApp(result, done) {
                 var deployOptions = generateDeployOptions(options, deployTarget);
                 execNativeDeploy(deployOptions, done);
             }
