@@ -140,8 +140,8 @@ function validateTarget(options, targetName, allDone) {
 function handleDebugToken(options, deployTarget, allDone) {
     options.keystorepass = session.getKeyStorePass(options);
 
-    // if target has no pin, skip the debug token feature
-    if (deployTarget.pin && !options.emulator) {
+    // deploy debug token for device debug builds only
+    if (deployTarget.pin && !options.emulator && options.build && !options.release) {
         async.waterfall(
             [
                 debugTokenHelper.checkDebugToken.bind(this, deployTarget.pin),
