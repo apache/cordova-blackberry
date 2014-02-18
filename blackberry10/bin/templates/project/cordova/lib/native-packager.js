@@ -256,7 +256,7 @@ function generateOptionsFile(session, target, config) {
         }
     });
 
-    fs.writeFileSync(path.normalize(session.sourceDir + "/options"), optionsStr);
+    fs.writeFileSync(path.normalize(session.sourceDir + "/../options"), optionsStr);
 }
 
 function execNativePackager(session, callback) {
@@ -268,7 +268,7 @@ function execNativePackager(session, callback) {
         script += ".bat";
     }
 
-    nativePkgr = childProcess.spawn(script, ["@options"], {
+    nativePkgr = childProcess.spawn(script, ["@../options"], {
         "cwd": cwd,
         "env": process.env
     });
