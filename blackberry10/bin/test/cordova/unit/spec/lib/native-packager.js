@@ -152,7 +152,7 @@ describe("Native packager", function () {
         nativePkgr.exec(session, target, testData.config, callback);
 
         expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(String));
-        expect(childProcess.spawn).toHaveBeenCalledWith(cmd, ["@options"], {"cwd": session.sourceDir, "env": process.env});
+        expect(childProcess.spawn).toHaveBeenCalledWith(cmd, ["@../options"], {"cwd": session.sourceDir, "env": process.env});
         expect(callback).toHaveBeenCalledWith(0);
     });
 
@@ -344,14 +344,14 @@ describe("Native packager", function () {
 
         nativePkgr.exec(session, "simulator", testData.config, callback);
 
-        expect(fs.writeFileSync.mostRecentCall.args[0]).toBe(path.resolve(session.sourceDir, "options"));
+        expect(fs.writeFileSync.mostRecentCall.args[0]).toBe(path.resolve(session.sourceDir + "/../", "options"));
         expect(fs.writeFileSync.mostRecentCall.args[1]).toContain("-package" + NL);
         expect(fs.writeFileSync.mostRecentCall.args[1]).toContain("-password" + NL);
         expect(fs.writeFileSync.mostRecentCall.args[1]).toContain("abc" + NL);
         expect(fs.writeFileSync.mostRecentCall.args[1]).toContain("-device" + NL);
         expect(fs.writeFileSync.mostRecentCall.args[1]).toContain("192.168.1.114" + NL);
         expect(fs.writeFileSync.mostRecentCall.args[1]).toContain("-installApp" + NL);
-        expect(childProcess.spawn).toHaveBeenCalledWith(cmd, ["@options"], {"cwd": session.sourceDir, "env": process.env});
+        expect(childProcess.spawn).toHaveBeenCalledWith(cmd, ["@../options"], {"cwd": session.sourceDir, "env": process.env});
         expect(callback).toHaveBeenCalledWith(0);
     });
 });
