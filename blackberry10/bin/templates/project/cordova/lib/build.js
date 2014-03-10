@@ -45,10 +45,10 @@ function copyArgIfExists(arg) {
 }
 
 command
-    .usage('[--debug | --release] [--query] [-k | --keystorepass] [-b <number> | --buildId <number>] [-p <json> | --params <json>] [-l <level> | --loglevel <level>] [--web-inspector] [--no-signing]')
+    .usage('[--debug | --release] [--no-query] [-k | --keystorepass] [-b <number> | --buildId <number>] [-p <json> | --params <json>] [-l <level> | --loglevel <level>] [--web-inspector] [--no-signing]')
     .option('--debug', 'build in debug mode.')
     .option('--release', 'build in release mode. This will sign the resulting bar.')
-    .option('--query', 'query on the commandline when a password is needed')
+    .option('--no-query', 'fail if a password is needed and one isn\'t available')
     .option('-k, --keystorepass <password>', 'signing key password')
     .option('-b, --buildId <num>', 'specifies the build number for signing (typically incremented from previous signing).')
     .option('-p, --params <params JSON file>', 'specifies additional parameters to pass to downstream tools.')
@@ -95,7 +95,7 @@ try {
                                 done();
                             });
                         } else {
-                            err = "No signing password provided. Please enter a value for 'keystorepass' in " + pkgrUtils.homedir() + "/.cordova/blackberry10.json or use --keystorepass via command-line";
+                            err = "No signing password provided. You can omit --no-query, use --no-signing, use --keystorepass, or enter a value for 'keystorepass' in " + pkgrUtils.homedir() + "/.cordova/blackberry10.json";
                         }
                     }
                 }
