@@ -90,13 +90,12 @@ To build your app, run the `build` script. You can build the app in either *rele
 
 To build your app in release mode, on the command line, type the following command:
 
-        <path-to-project>/cordova/build release [<target>] <--query | --keystorepass <password>> [--buildId <number>] [--params <params-JSON-file>]
+        <path-to-project>/cordova/build release [<target>] [--keystorepass <password>] [--buildId <number>] [--params <params-JSON-file>]
 
 where
 
 -   `<target>`  specifies the name of a previously added target. If `<target>`  is not specified, the default target is used, if one has been created. This argument is only required if you want the script to deploy your app to a BlackBerry device or emulator and you have not created a default target. Additionally, if `<target>`  is a device, then that device must be connected to your computer by USB connection or be connected to the same Wi-Fi network as your computer.
--   `--query`  will cause you to be prompted for your keystore password
--   `--keystorepass <password>`  specifies the password you defined when you configured your computer to sign applications.
+-   `--keystorepass <password>`  specifies the password you defined when you configured your computer to sign applications (by default you'll be prompted for this if it isn't otherwise configured).
 -   `--buildId <number>`  specifies the build version number of your application. Typically, this number should be incremented from the previous signed version. This argument is optional.
 -   `--params <params-JSON-file>`  specifies a JSON file containing additional parameters to pass to downstream tools. This argument is optional.
 

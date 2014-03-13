@@ -42,14 +42,14 @@ function install(deployTarget, done) {
 }
 
 options
-    .usage('[--device] [--emulator] [--target=<id>] [--release] [--query] [-k | --keystorepass] [--devicepass] [--no-launch] [--no-uninstall] [--no-build]')
+    .usage('[--device] [--emulator] [--target=<id>] [--release] [--no-query] [-k | --keystorepass] [--devicepass] [--no-launch] [--no-uninstall] [--no-build]')
     .option('-k, --keystorepass <password>', 'the password of signing key; needed for creating debug token')
     .option('--device', 'run on connected device')
     .option('--emulator', 'run on BB10 simulator')
     .option('--devicepass <password>', 'device password')
     .option('--target <id>', 'specifies the target to run the application')
     .option('--release', 'build in release mode')
-    .option('--query', 'query on the commandline when a password is needed')
+    .option('--no-query', 'fail if no password is provided and one is needed')
     .option('--no-launch', 'do not launch the application on device')
     .option('--no-build', 'deploy the pre-built bar file and skip building')
     .on('--help', function () {

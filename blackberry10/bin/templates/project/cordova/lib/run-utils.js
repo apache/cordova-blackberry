@@ -113,7 +113,7 @@ function validateTarget(options, targetName, allDone) {
                         });
                     });
                 } else if (!options.emulator) {
-                    err = "Please provide device password using --devicepass or add one to the target " + deployTarget.name + " defined at " + utils.getPropertiesFilePath();
+                    err = "No device password provided. You can omit --no-query, use --devicepass, or enter a value for 'password' to the target " + deployTarget.name + " defined at " + utils.getPropertiesFilePath();
                 }
             }
         }
