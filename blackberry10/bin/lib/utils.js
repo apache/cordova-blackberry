@@ -343,7 +343,7 @@ _self = {
         promptLib.message = "";
         promptLib.delimiter = "";
         promptLib.get(promptSchema, function (err, results) {
-            done(err, results.property);
+            done(err, !err && results.property);
         });
     },
 
