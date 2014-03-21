@@ -167,7 +167,7 @@ _self = {
         // Firstly, check targets in the properties file
         if (targets) {
             for (t in targets) {
-                if (targets.hasOwnProperty(t) && targets[t].type === "simulator" && targets[t].ip) {
+                if (targets.hasOwnProperty(t) && targets[t].type === "emulator" && targets[t].ip) {
                     ipsToTest.push(targets[t].ip);
                 }
             }
@@ -216,7 +216,7 @@ _self = {
 
         console.log("Searching for connected BlackBerry 10 Simulator (" + (index + 1) + "/" + ips.length + ")...");
         ip = ips[index];
-        _self.checkConnection(ip, "simulator", function (connection) {
+        _self.checkConnection(ip, "emulator", function (connection) {
             if (connection) {
                 callback(ip);
             } else {
@@ -236,8 +236,8 @@ _self = {
             };
 
         bb10_utils.exec(script, args, options, function (error, stdout, stderr) {
-            // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected simulator
-            var isSimConnected = (type === "simulator" && (
+            // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected emulator
+            var isSimConnected = (type === "emulator" && (
                     error === null ||
                     stderr.length === 0 ||
                     stderr.indexOf('Error: null') >= 0 ||
