@@ -39,7 +39,7 @@ function isValidType(type) {
         console.log(commander.helpInformation());
         exit(ERROR_VALUE);
     }
-    else if (!(type === 'device' || type === 'simulator')) {
+    else if (!(type === 'device' || type === 'emulator')) {
         result = false;
     }
     return result;
@@ -80,6 +80,9 @@ commander
         targetName = commander.args[0];
         ip = commander.args[1];
         type = commander.type ? commander.type : "device";
+        if (type === "simulator") {
+            type = "emulator";
+        }
         if (commander.password && typeof commander.password === 'string') {
             password = commander.password;
         }

@@ -21,6 +21,23 @@ var _self,
     bb10_utils = require('./utils'),
     blackberryProperties = bb10_utils.getProperties();
 
+
+//fix older blackberry10.json files 
+//these may include 'simulator' type rather than 'emulator'
+function replaceSimulator(targets) {
+    var replace = false;
+    for (t in targets) {
+        if (targets.hasOwnProperty(t) && targets[t].type === "simulator") {
+            targets[t].type = "emulator";
+            replace = true;
+        }
+    }
+    if (replace) {
+        blackberryProperties.targets = targets;
+        bb10_utils.writeToPropertiesFile(blackberryProperties);
+    }
+}
+
 _self = {
     getTargetList : function (type, pruneDisconnected, callback) {
         var targList = [],
@@ -47,6 +64,7 @@ _self = {
             t;
 
         if (targets) {
+            replaceSimulator(targets);
             for (t in targets) {
                 if (targets.hasOwnProperty(t) && targets[t].type === type) {
                     if (pruneDisconnected) {

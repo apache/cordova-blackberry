@@ -16,4 +16,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-require('./target-utils').listTargets('simulator', false);
+require('./target-utils').listTargets('emulator', false);
