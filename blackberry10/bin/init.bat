@@ -92,12 +92,6 @@ if not exist "%LOCAL_NODE_BINARY%" (
     exit /b 2
   )
 )
-if exist "%~dp0..\package.json" (
-  if not exist "%CORDOVA_NODE%\npm" (
-    echo npm cannot be found on the path. Aborting.
-    exit /b 2
-  )
-)
 if not defined FOUNDJAVAAT (
   echo java cannot be found on the path. Aborting.
   exit /b 2

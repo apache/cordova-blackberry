@@ -55,19 +55,14 @@ fi
 
 #-------------check reqs---------------#
 NODE="$CORDOVA_NODE/node"
-NPM="$CORDOVA_NODE/npm"
 JAVA=$(command -v java)
 PACKAGER="$CORDOVA_BBTOOLS/blackberry-nativepackager"
 DEPLOYER="$CORDOVA_BBTOOLS/blackberry-deploy"
 SIGNER="$CORDOVA_BBTOOLS/blackberry-signer"
 DEBUGTOKENREQUEST="$CORDOVA_BBTOOLS/blackberry-debugtokenrequest"
-NPM_PACKAGE_JSON="$BIN_DIR"/../package.json
 
 if [ ! -x "$NODE" ]; then
     echo node cannot be found on the path. Aborting.
-    EXIT_CODE=2
-elif [ ! -x "$LOCAL_NODE_BIN" ] && [ ! -x "$NPM" ] && [ -e "$NPM_PACKAGE_JSON" ]; then
-    echo npm cannot be found on the path. Aborting.
     EXIT_CODE=2
 elif [ ! -x "$JAVA" ]; then
     echo java cannot be found on the path. Aborting.
