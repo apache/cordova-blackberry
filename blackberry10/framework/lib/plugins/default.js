@@ -15,7 +15,22 @@
  */
 
 var Whitelist = require("../policy/whitelist").Whitelist,
+    _clientWebView = require("lib/webview"),
+    _loadedPlugins = [],
+    _listening = false,
     whitelist = new Whitelist();
+
+function registerToReset() {
+    if (_clientWebView && !_listening) {
+        _clientWebView.addEventListener("DocumentLoadCommitted", function () {
+            _loadedPlugins = _loadedPlugins.filter(function (path) {
+                require(path).reset();
+                return false;
+            });
+        });
+        _listening = true;
+    }
+}
 
 module.exports = {
 
@@ -27,6 +42,11 @@ module.exports = {
                 getExtension: function () {
                     if (frameworkModules.indexOf(extPath + ".js") !== -1) {
                         this.extension = require("../utils").loadModule("../" + extPath);
+                        if (requestObj.extension && typeof requestObj.extension.reset === 'function') {
+                            if (_loadedPlugins.indexOf(extPath) === -1) {
+                                _loadedPlugins.push(extPath);
+                            }
+                        }
                         return requestObj;
                     } else {
                         throw {code: 404, msg: "Extension " + request.params.ext + " not found"};
@@ -63,6 +83,7 @@ module.exports = {
 
         try {
             requestObj.getExtension().getMethod().exec();
+            registerToReset();
         } catch (e) {
             console.warn(e.msg);
             fail(-1, e.msg, e.code);
