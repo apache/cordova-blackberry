@@ -22,6 +22,7 @@ var childProcess = require("child_process"),
     logger = require("./logger"),
     pkgrUtils = require("./packager-utils"),
     utils = require("./utils"),
+    getParams = require("./params"),
     workingDir = path.normalize(__dirname + "/.."),
     debugTokenDir = path.normalize(path.join(utils.getCordovaDir(), "blackberry10debugtoken.bar")),
     properties,
@@ -67,15 +68,23 @@ function isDebugTokenValid(pin, data) {
 
 function generateCreateTokenOptions(pins, password) {
     var options = [],
+        params = getParams("blackberry-debugtokenrequest") || {},
         i;
 
-    options.push("-storepass");
-    options.push(password);
+    params["-storepass"] = password;
 
-    for (i = 0; i < pins.length; i++) {
+    Object.getOwnPropertyNames(params).forEach(function (p) {
+        options.push(p);
+
+        if (params[p]) {
+            options.push(params[p]);
+        }
+    });
+
+    pins.forEach(function(pin) {
         options.push("-devicepin");
-        options.push(pins[i]);
-    }
+        options.push(pin);
+    });
 
     options.push(debugTokenDir);
 
@@ -83,18 +92,23 @@ function generateCreateTokenOptions(pins, password) {
 }
 
 function generateDeployTokenOptions(targetIp, targetPassword) {
-    var options = [];
+    var options = [],
+        params = getParams("blackberry-deploy") || {};
 
-    options.push("-installDebugToken");
-    options.push(debugTokenDir);
-
-    options.push("-device");
-    options.push(targetIp);
+    params["-installDebugToken"] = debugTokenDir;
+    params["-device"] = targetIp;
 
     if (targetPassword) {
-        options.push("-password");
-        options.push(targetPassword);
+        params["-password"] = targetPassword;
     }
+
+    Object.getOwnPropertyNames(params).forEach(function (p) {
+        options.push(p);
+
+        if (params[p]) {
+            options.push(params[p]);
+        }
+    });
 
     return options;
 }
