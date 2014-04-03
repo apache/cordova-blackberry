@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012 Research In Motion Limited.
+ *  Copyright 2014 BlackBerry Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,45 +22,13 @@ var path = require("path"),
     signingUtils = require("./signing-utils"),
     barConf = require("./bar-conf"),
     localize = require("./localize"),
-    cmdParams;
-
-function getParams(cmdline, toolName) {
-    var properties = utils.getProperties(),
-        params = properties[toolName],
-        paramsPath;
-
-    if (cmdline.params) {
-        if (!cmdParams) {
-            paramsPath = path.resolve(cmdline.params);
-
-            if (fs.existsSync(paramsPath)) {
-                try {
-                    cmdParams = require(paramsPath);
-                } catch (e) {
-                    throw localize.translate("EXCEPTION_PARAMS_FILE_ERROR", paramsPath);
-                }
-            } else {
-                throw localize.translate("EXCEPTION_PARAMS_FILE_NOT_FOUND", paramsPath);
-            }
-        }
-    }
-
-    if (cmdParams && cmdParams[toolName]) {
-        if (params) {
-            params = utils.mixin(cmdParams[toolName], params);
-        } else {
-            params = cmdParams[toolName];
-        }
-    }
-
-    return params;
-}
+    getParams = require("./params");
 
 
 module.exports = {
     getKeyStorePass: function (cmdline) {
         var properties = utils.getProperties(),
-            params = getParams(cmdline, "blackberry-signer") || {},
+            params = getParams("blackberry-signer", cmdline) || {},
             keystorepass;
 
         //Check commandline first, then properties, then params
@@ -87,7 +55,7 @@ module.exports = {
             archiveName = utils.genBarName(),
             appdesc,
             buildId = cmdline.buildId,
-            signerParams = getParams(cmdline, "blackberry-signer") || {},
+            signerParams = getParams("blackberry-signer", cmdline) || {},
             keystore = signerParams["-keystore"],
             bbidtoken = signerParams["-bbidtoken"];
 
@@ -146,7 +114,7 @@ module.exports = {
             "buildId": buildId,
             "appdesc" : appdesc,
             getParams: function (toolName) {
-                return getParams(cmdline, toolName);
+                return getParams(toolName, cmdline);
             },
             isSigningRequired: function (config) {
                 return (keystore || signingUtils.getKeyStorePath()) && signingPassword;
