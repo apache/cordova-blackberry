@@ -48,9 +48,6 @@ where
 - `<project-name>` specifies the app's display name
 - `<path-to-www-template>` specifies the directory to use as a template
 
-*Note*: the create command bootstraps dependency installation through the `npm install` command. Depending on installation directory and system permissions, this may require admin privileges.
-If a problem is encountered on *OS X*/*Linux*, run `sudo npm install` before using the `create` command. On *Windows*, run `npm install` in a command line utility opened with admin privileges.
-
 Adding and managing targets
 ---------------------------
 
