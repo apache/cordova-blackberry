@@ -148,7 +148,7 @@ function handleDebugToken(options, deployTarget, allDone) {
                     if (!options.keystorepass && options.query) {
                         utils.prompt({description: "Please enter your keystore password: ", hidden: true}, function (err, result) {
                             options.keystorepass = result;
-                            done(err, result);
+                            done(null, result);
                         });
                     } else {
                         done(null, options.keystorepass);
@@ -169,7 +169,7 @@ function handleDebugToken(options, deployTarget, allDone) {
                         allDone(code, deployTarget);
                     });
                 } else {
-                    allDone(err);
+                    allDone(null, deployTarget);
                 }
             }
         );
