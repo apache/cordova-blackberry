@@ -254,16 +254,15 @@ _self = {
             };
 
         bb10_utils.exec(script, args, options, function (error, stdout, stderr) {
-            // error code 3 corresponds to a connected device, null or "Error: null" in stderr corresponds to connected emulator
-            var isSimConnected = (type === "emulator" && (
+            // error code 3 corresponds to connected device with password
+            // null or "Error: null" in stderr corresponds to connected simulator or device without password
+            var connected =
                     error === null ||
+                    (error && error.code === 3) ||
                     stderr.length === 0 ||
                     stderr.indexOf('Error: null') >= 0 ||
-                    stderr.indexOf('Error: Authentication failed') >= 0
-                )),
-                isDeviceConnected = (type === "device" && error && error.code === 3);
-
-            callback(isSimConnected || isDeviceConnected, ip);
+                    stderr.indexOf('Error: Authentication failed') >= 0;
+            callback(connected, ip);
         });
     },
 

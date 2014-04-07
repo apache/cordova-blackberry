@@ -53,8 +53,6 @@ function getTargetName(options, done) {
                 if (!options.devicepass && options.devicepass !== "") {
                     if (options.query) {
                         utils.prompt({description: getPasswordPrompt(targetType), hidden: true}, done);
-                    } else if (!options.emulator) {
-                        done("Please provide device password using --devicepass");
                     } else {
                         done("");
                     }
