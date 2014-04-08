@@ -301,7 +301,11 @@ _self = {
     },
 
     getProperties: function () {
-        return require(_self.getPropertiesFilePath());
+        var props =  require(_self.getPropertiesFilePath());
+        if (!props.targets) {
+            props.targets = {};
+        }
+        return props;
     },
 
     writeToPropertiesFile: function (data) {
