@@ -136,7 +136,6 @@ function copyFilesToProject() {
     utils.copyFile(path.join(ROOT_PROJECT_DIR, "VERSION"), path.join(project_path));
 
     // copy repo level check_reqs script to project
-    utils.copyFile(path.join(BIN_DIR, "check_reqs.js"), path.join(project_path, "cordova"));
     utils.copyFile(path.join(BIN_DIR, "check_reqs.bat"), path.join(project_path, "cordova"));
     utils.copyFile(path.join(BIN_DIR, "check_reqs"), path.join(project_path, "cordova"));
 

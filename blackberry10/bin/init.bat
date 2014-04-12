@@ -113,8 +113,6 @@ if not exist "!CORDOVA_BBTOOLS!\blackberry-debugtokenrequest.bat" (
   exit /b 2
 )
 
-"!CORDOVA_NODE!\node" "%~dp0\check_reqs.js" %*
-
 :: Export variables we want to share with the caller
 for /f "delims=" %%A in (""!CORDOVA_NODE!"") do (
   for /f "delims=" %%B in (""!CORDOVA_BBTOOLS!"") do (

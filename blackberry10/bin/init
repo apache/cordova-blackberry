@@ -79,8 +79,6 @@ elif [ ! -x "$SIGNER" ]; then
 elif [ ! -x "$DEBUGTOKENREQUEST" ]; then
     echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
     EXIT_CODE=2
-else
-    "$NODE" "$CURRENT_DIR/check_reqs.js" "$@"
 fi
 
 if [ ! -z "$EXIT_CODE" ]; then
