@@ -22,5 +22,5 @@ set "BIN_DIR=%~dp0"
 call "%BIN_DIR%init"
 if ERRORLEVEL 1 exit /B %ERRORLEVEL% 
 
-"%CORDOVA_NODE%\node" "%BIN_DIR%create.js" %*
+"%CORDOVA_NODE%\node" "%BIN_DIR%lib\create.js" %*
 if ERRORLEVEL 1 exit /B %ERRORLEVEL%

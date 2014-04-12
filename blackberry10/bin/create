@@ -30,4 +30,4 @@ source "$BIN_DIR/init"
 
 CURRENT_DIR=$(pwd)
 
-"$CORDOVA_NODE/node" "$BIN_DIR"/create.js "$@"
+"$CORDOVA_NODE/node" "$BIN_DIR"/lib/create.js "$@"
