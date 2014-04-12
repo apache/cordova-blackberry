@@ -28,23 +28,23 @@ var build,
     ERROR_VALUE = 2,
     path = require("path"),
     exit = require('exit'),
+    shell = require('shelljs'),
     fs = require("fs")
     os = require("os"),
     wrench = require("wrench"),
-    utils = require(path.join(__dirname, 'lib/utils')),
     version = getVersion(),
     project_path = validateProjectPath(),
     app_id = process.argv[3],
     app_name = process.argv[4] || 'WebWorks Application',
     TARGETS = ["device", "simulator"],
-    TEMPLATE_PROJECT_DIR = path.join(__dirname, "templates", "project"),
-    ROOT_PROJECT_DIR = path.join(__dirname, ".."),
-    MODULES_PROJECT_DIR = path.join(__dirname, "..", "node_modules"),
-    BOOTSTRAP_PROJECT_DIR = path.join(__dirname, "..", "framework", "bootstrap"),
-    FRAMEWORK_LIB_PROJECT_DIR = path.join(__dirname, "..", "framework", "lib"),
-    BIN_DIR = path.join(__dirname),
-    BUILD_DIR = path.join(__dirname, "build"),
-    CORDOVA_JS_SRC = path.join(__dirname, "..", "javascript", "cordova.blackberry10.js"),
+    TEMPLATE_PROJECT_DIR = path.join(__dirname, "..", "templates", "project"),
+    ROOT_PROJECT_DIR = path.join(__dirname, "..", ".."),
+    MODULES_PROJECT_DIR = path.join(__dirname, "..", "..", "node_modules"),
+    BOOTSTRAP_PROJECT_DIR = path.join(__dirname, "..", "..", "framework", "bootstrap"),
+    FRAMEWORK_LIB_PROJECT_DIR = path.join(__dirname, "..", "..", "framework", "lib"),
+    BIN_DIR = path.join(__dirname, ".."),
+    BUILD_DIR = path.join(__dirname, "..", "build"),
+    CORDOVA_JS_SRC = path.join(__dirname, "..", "..", "javascript", "cordova.blackberry10.js"),
     update_dir = path.join(project_path, "lib", "cordova." + version),
     native_dir = path.join(project_path, "native"),
     template_dir = process.argv[5] || TEMPLATE_PROJECT_DIR,
@@ -52,7 +52,7 @@ var build,
     js_basename = "cordova.js";
 
 function getVersion() {
-    var version = fs.readFileSync(path.join(__dirname,  "..", "VERSION"));
+    var version = fs.readFileSync(path.join(__dirname,  "..", "..", "VERSION"));
     if (version) {
         return version.toString().replace( /([^\x00-\xFF]|\s)*$/g, '' );
     }
@@ -99,7 +99,7 @@ function clean() {
 
 function copyJavascript() {
     wrench.mkdirSyncRecursive(path.join(BUILD_DIR, js_path), 0777);
-    utils.copyFile(CORDOVA_JS_SRC, path.join(BUILD_DIR, js_path));
+    shell.cp(CORDOVA_JS_SRC, path.join(BUILD_DIR, js_path));
 
     //rename copied cordova.blackberry10.js file
     fs.renameSync(path.join(BUILD_DIR, js_path, "cordova.blackberry10.js"), path.join(BUILD_DIR, js_path, js_basename));
@@ -122,28 +122,28 @@ function copyFilesToProject() {
     }
 
     // copy repo level target tool to project
-    utils.copyFile(path.join(BIN_DIR, "target"), path.join(project_path, "cordova"));
-    utils.copyFile(path.join(BIN_DIR, "target.bat"), path.join(project_path, "cordova"));
-    utils.copyFile(path.join(BIN_DIR, "lib", "target.js"), path.join(project_path, "cordova", "lib"));
-    utils.copyFile(path.join(BIN_DIR, "lib", "utils.js"), path.join(project_path, "cordova", "lib"));
+    shell.cp(path.join(BIN_DIR, "target"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "target.bat"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "lib", "target.js"), path.join(project_path, "cordova", "lib"));
+    shell.cp(path.join(BIN_DIR, "lib", "utils.js"), path.join(project_path, "cordova", "lib"));
 
     // copy repo level init script to project
-    utils.copyFile(path.join(BIN_DIR, "whereis.cmd"), path.join(project_path, "cordova"));
-    utils.copyFile(path.join(BIN_DIR, "init.bat"), path.join(project_path, "cordova"));
-    utils.copyFile(path.join(BIN_DIR, "init"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "whereis.cmd"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "init.bat"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "init"), path.join(project_path, "cordova"));
 
     //copy VERSION file [used to identify corresponding ~/.cordova/lib directory for dependencies]
-    utils.copyFile(path.join(ROOT_PROJECT_DIR, "VERSION"), path.join(project_path));
+    shell.cp(path.join(ROOT_PROJECT_DIR, "VERSION"), path.join(project_path));
 
     // copy repo level check_reqs script to project
-    utils.copyFile(path.join(BIN_DIR, "check_reqs.bat"), path.join(project_path, "cordova"));
-    utils.copyFile(path.join(BIN_DIR, "check_reqs"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "check_reqs.bat"), path.join(project_path, "cordova"));
+    shell.cp(path.join(BIN_DIR, "check_reqs"), path.join(project_path, "cordova"));
 
     // change file permission for cordova scripts because ant copy doesn't preserve file permissions
     wrench.chmodSyncRecursive(path.join(project_path,"cordova"), 0700);
 
     //copy cordova-*version*.js to www
-    utils.copyFile(path.join(BUILD_DIR, js_path, js_basename), path.join(project_path, "www"));
+    shell.cp(path.join(BUILD_DIR, js_path, js_basename), path.join(project_path, "www"));
 
     //copy node modules to cordova build directory
     wrench.mkdirSyncRecursive(nodeModulesDest, 0777);
