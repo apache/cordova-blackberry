@@ -19,8 +19,7 @@
 
 var MIN_NODE_VER = "0.9.9",
     ERROR_VALUE = 2,
-    exit = require('exit'),
-    signingUtils = require('./lib/signing-utils');
+    exit = require('exit');
 
 function isNodeNewerThanMin () {
     //Current version is stored as a String in format "X.X.X"

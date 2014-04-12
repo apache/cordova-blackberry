@@ -18,6 +18,5 @@ build/
 dist/
 bin/templates/project/lib
 bin/templates/project/cordova/lib/utils.js
-bin/templates/project/cordova/lib/signing-utils.js
 example/
 .tmp

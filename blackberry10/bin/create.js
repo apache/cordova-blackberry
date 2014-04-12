@@ -126,7 +126,6 @@ function copyFilesToProject() {
     utils.copyFile(path.join(BIN_DIR, "target.bat"), path.join(project_path, "cordova"));
     utils.copyFile(path.join(BIN_DIR, "lib", "target.js"), path.join(project_path, "cordova", "lib"));
     utils.copyFile(path.join(BIN_DIR, "lib", "utils.js"), path.join(project_path, "cordova", "lib"));
-    utils.copyFile(path.join(BIN_DIR, "lib", "signing-utils.js"), path.join(project_path, "cordova", "lib"));
 
     // copy repo level init script to project
     utils.copyFile(path.join(BIN_DIR, "whereis.cmd"), path.join(project_path, "cordova"));
