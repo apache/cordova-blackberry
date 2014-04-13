@@ -24,12 +24,11 @@
  *  ./create path [package [id [name [template]]]]
  */
 
-var build,
-    ERROR_VALUE = 2,
+var ERROR_VALUE = 2,
     path = require("path"),
     exit = require('exit'),
     shell = require('shelljs'),
-    fs = require("fs")
+    fs = require("fs"),
     os = require("os"),
     wrench = require("wrench"),
     version = getVersion(),

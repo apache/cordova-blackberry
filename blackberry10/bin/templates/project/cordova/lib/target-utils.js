@@ -25,7 +25,8 @@ var _self,
 //fix older blackberry10.json files 
 //these may include 'simulator' type rather than 'emulator'
 function replaceSimulator(targets) {
-    var replace = false;
+    var replace = false,
+        t;
     for (t in targets) {
         if (targets.hasOwnProperty(t) && targets[t].type === "simulator") {
             targets[t].type = "emulator";
@@ -193,7 +194,7 @@ _self = {
 
         // Secondly, check VMware dhcp.leases file
         if (bb10_utils.isWindows()) {
-            pathUserProfile = process.env['USERPROFILE'];
+            pathUserProfile = process.env.USERPROFILE;
             pathAllUserProfile = pathUserProfile.substr(0, pathUserProfile.lastIndexOf("\\") + 1) + "All Users";
             vmDhcpLeasesFiles = bb10_utils.readdirSyncRecursive(pathAllUserProfile).filter(function (file) {
                 return DHCP_LEASES_REGEX.test(file);

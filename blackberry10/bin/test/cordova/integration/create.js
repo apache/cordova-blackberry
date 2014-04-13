@@ -42,6 +42,9 @@ function executeScript(shellCommand, args, shouldError) {
 describe("create tests", function () {
     it("creates project", function () {
         var appIdRegExp = /id="default\.app\.id"/g;
+        if (fs.existsSync(tempFolder)) {
+            wrench.rmdirSyncRecursive(tempFolder);
+        }
         executeScript(CREATE_COMMAND, [appFolder]);
         expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
         expect(fs.existsSync(appFolder)).toEqual(true);

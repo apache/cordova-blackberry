@@ -32,7 +32,8 @@
     "async": "0.2.9"
   },
   "devDependencies": {
-    "jake":"*",
+    "grunt-contrib-jshint": "*",
+    "grunt-jasmine-node": "*",
     "jasmine-node": "1.7.1"
   },
   "readmeFilename": "README.md"

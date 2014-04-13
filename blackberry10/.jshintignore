@@ -3,3 +3,4 @@ bin/test/cordova/unit/params-bad.json
 bin/templates/project/cordova/lib/xml-helpers.js
 bin/templates/project/cordova/third_party/*
 bin/templates/project/lib/*
+bin/templates/project/www/**/*
