@@ -24,7 +24,6 @@ module.exports = function (done, custom) {
                 "bin/test/cordova/integration",
                 "bin/test/cordova/unit"
             ];
-    utils.copyFile('bin/lib/utils.js', 'bin/templates/project/cordova/lib/', '../');
     jasmine.executeSpecsInFolder({
         'specFolders': specs,
         'onComplete': function (runner) {

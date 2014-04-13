@@ -125,7 +125,6 @@ function copyFilesToProject() {
     shell.cp(path.join(BIN_DIR, "target"), path.join(project_path, "cordova"));
     shell.cp(path.join(BIN_DIR, "target.bat"), path.join(project_path, "cordova"));
     shell.cp(path.join(BIN_DIR, "lib", "target.js"), path.join(project_path, "cordova", "lib"));
-    shell.cp(path.join(BIN_DIR, "lib", "utils.js"), path.join(project_path, "cordova", "lib"));
 
     // copy repo level init script to project
     shell.cp(path.join(BIN_DIR, "whereis.cmd"), path.join(project_path, "cordova"));
