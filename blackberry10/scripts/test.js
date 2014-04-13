@@ -17,7 +17,6 @@
 module.exports = function (done, custom) {
     var jasmine = require('jasmine-node'),
         fs = require('fs'),
-        utils = require('./lib/utils'),
         specs = (custom !== null && fs.existsSync(custom)) ? [custom]  :
             [
                 "framework/test",
