@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 /*
- *  Copyright 2013 Research In Motion Limited.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,9 +16,9 @@
 var path = require('path'),
     exit = require('exit'),
     fs = require('fs'),
-    utils = require('./utils'),
+    config = require('./config'),
     commander = require('commander'),
-    properties = utils.getProperties(),
+    properties = config.getProperties(),
     ERROR_VALUE = 2,
     NOTIMPLEMENTED_VALUE = 1,
     command,
@@ -148,7 +146,7 @@ try {
         exit();
     }
 
-    utils.writeToPropertiesFile(properties);
+    config.writeProperties(properties);
 } catch (e) {
     console.log(e);
     exit();
