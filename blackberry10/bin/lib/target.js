@@ -105,6 +105,7 @@ commander
         if (properties.targets.hasOwnProperty(targetName)) {
             console.log("Overwriting target: " + targetName);
         }
+        targetName = targetName.replace(/ /g, "-");
         properties.targets[targetName] = {"ip": ip, "type": type, "password": password, "pin": pin};
     });
 

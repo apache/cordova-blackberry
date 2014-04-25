@@ -282,7 +282,7 @@ _self = {
 
         targetUtils.getDeviceInfo(ip, devicePass, function (err, device) {
             if (!err) {
-                targetName = device.name + "-" + device.pin;
+                targetName = device.name.replace(/ /g, "-") + "-" + device.pin;
                 props.targets[targetName] = {
                     ip: ip,
                     pin: device.pin,
