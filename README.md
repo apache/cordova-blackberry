@@ -1,14 +1,14 @@
 # Apache Cordova for BlackBerry
 ===
 
-This repo contains cordova projects for the BlackBerry platforms:
+This repo contains **Cordova** *platforms*:
 
-blackberry10 - BB10
+[blackberry10](blackberry10/) - **BlackBerry 10**
 
-playbook - BlackBerry Tablet OS
-    git checkout 2.9.0
+`git checkout 2.9.0` for:
+[playbook](playbook/) - **BlackBerry Tablet OS**
 
-blackberry - BBOS 5 to 7
-    git checkout 2.8.0
+`git checkout 2.8.0` for:
+[blackberry](blackberry/) - **BBOS** 5 to 7
 
 Please see README files in the sub folders for more information.
