@@ -1,16 +1,18 @@
 {
   "name": "cordova-blackberry",
-  "version": "0.0.1",
-  "description": "cordova-blackberry",
-  "repository": "https://git-wip-us.apache.org/repos/asf?p=cordova-blackberry.git",
-  "author": {
-    "name": "BlackBerry",
-    "url": "http://developer.blackberry.com/html5/"
-  },
-  "licenses": [{
-    "type": "Apache 2.0",
-    "url": "http://www.apache.org/licenses/LICENSE-2.0"
-  }],
+  "version": "3.4.0",
+  "description": "cordova-blackberry release",
+  "repository": {
+    "type":"git",
+    "url":"https://git-wip-us.apache.org/repos/asf/cordova-blackberry.git"
+  }
+  "author": "Apache Software Foundation",
+  "licenses": "Apache Version 2.0",
+  "keywords":[
+    "blackberry",
+    "apache",
+    "cordova"
+  ]
   "engines": {
     "node": ">=0.9.9"
   },
