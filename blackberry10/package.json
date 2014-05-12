@@ -5,14 +5,14 @@
   "repository": {
     "type":"git",
     "url":"https://git-wip-us.apache.org/repos/asf/cordova-blackberry.git"
-  }
+  },
   "author": "Apache Software Foundation",
   "licenses": "Apache Version 2.0",
   "keywords":[
     "blackberry",
     "apache",
     "cordova"
-  ]
+  ],
   "engines": {
     "node": ">=0.9.9"
   },
