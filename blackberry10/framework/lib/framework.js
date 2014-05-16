@@ -68,7 +68,7 @@ function showWebInspectorInfo() {
         if (connectedInterface) {
             messageObj.htmlmessage =  "\n ip4:    " + connectedInterface.ipv4Address + ":" + port + "<br/> ip6:    " + connectedInterface.ipv6Address + ":" + port;
         } else {
-            messageObj.message = "";
+            messageObj.message = "Connect to the simulator's IP on port: " + port;
         }
         messageObj.dialogType = 'JavaScriptAlert';
         overlayWebView.showDialog(messageObj);
