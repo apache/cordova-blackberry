@@ -453,6 +453,20 @@ describe("whitelist", function () {
             expect(whitelist.isFeatureAllowed("http://google.com/folder", "blackberry.media.camera")).toEqual(true);
         });
 
+        it("can allow access to whitelisted HTTP URLs with @2x in the file name", function () {
+            var whitelist = new Whitelist({
+                hasMultiAccess : false,
+                accessList : [{
+                    uri : "http://google.com",
+                    allowSubDomain : true,
+                    features : null
+                }]
+            });
+
+            expect(whitelist.isAccessAllowed("http://www.google.com/image@2x.png")).toEqual(true);
+            expect(whitelist.isAccessAllowed("http://www.cnn.com/image@2x.png")).toEqual(false);
+        });
+
         describe("when access uris have subdomains", function () {
             it("can get whitelisted features for subdomains", function () {
                 var whitelist = new Whitelist({
