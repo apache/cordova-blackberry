@@ -151,11 +151,18 @@ function copyFilesToProject() {
     //copy framework bootstrap
     TARGETS.forEach(function (target) {
         var chromeDir = path.join(native_dir, target, "chrome"),
-            frameworkLibDir = path.join(chromeDir, "lib");
+            frameworkLibDir = path.join(chromeDir, "lib"),
+            defaultConfig;
 
         wrench.mkdirSyncRecursive(frameworkLibDir);
         wrench.copyDirSyncRecursive(BOOTSTRAP_PROJECT_DIR, chromeDir);
         wrench.copyDirSyncRecursive(FRAMEWORK_LIB_PROJECT_DIR, frameworkLibDir);
+
+        //apply 'native' Cordova version
+        defaultConfig = fs.readFileSync(path.join(frameworkLibDir,  "config", "default.js"));
+        defaultConfig = defaultConfig.toString().replace("CORDOVA-VERSION", version);
+        fs.writeFileSync(path.join(frameworkLibDir, "config", "default.js"), defaultConfig, "utf-8");
+
     });
 
     // save release

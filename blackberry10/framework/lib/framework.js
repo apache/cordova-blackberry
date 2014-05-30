@@ -80,6 +80,9 @@ var _self = {
         var callback,
             showUrlCallback;
 
+        // log Cordova framework version (which should match JS version)
+        console.log('Apache Cordova native platform version ' + config.cordovaVersion + ' is starting.');
+
         // Set up the controller WebView
         controllerWebView.init(config);
 
