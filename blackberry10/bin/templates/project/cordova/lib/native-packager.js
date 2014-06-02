@@ -218,7 +218,7 @@ function generateOptionsFile(session, target, config) {
             optionsStr += "-debugToken" + NL;
             optionsStr += conf.DEBUG_TOKEN + NL;
         } else {
-            logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND", pkgrUtils.homedir()));
+            logger.warn(localize.translate("EXCEPTION_DEBUG_TOKEN_NOT_FOUND", path.join(pkgrUtils.homedir(), '.cordova', 'blackberry10debugtoken.bar')));
         }
         optionsStr += "-devMode" + NL;
     }
