@@ -20,7 +20,7 @@
 -->
 <!--
   Widget Configuration Reference:
-    http://docs.blackberry.com/en/developers/deliverables/15274/
+    https://developer.blackberry.com/html5/documentation/v2_1/config_doc_elements.html
 -->
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:rim="http://www.blackberry.com/ns/widgets"
