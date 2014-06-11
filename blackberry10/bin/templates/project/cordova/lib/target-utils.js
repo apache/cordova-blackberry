@@ -209,7 +209,7 @@ _self = {
         fs.readFile(pathVmDhcpLeases, 'utf8', function (err, data) {
             if (!err) {
                 // Find all lines that start with "lease xxx.xxx.xxx.xxx "
-                dhcpIPs = data.match(/lease \d{1,3}.\d{1,3}.\d{1,3}.\d{1,3} /g);
+                dhcpIPs = data.match(/lease \d{1,3}.\d{1,3}.\d{1,3}.\d{1,3} /g) || [];
                 dhcpIPs = dhcpIPs.map(function (result) {
                     return result.substr(6, result.indexOf(' ', 7) - 6);
                 });
