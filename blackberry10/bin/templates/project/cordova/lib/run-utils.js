@@ -99,7 +99,7 @@ function validateTarget(options, targetName, allDone) {
             }
         }
 
-        if (!deployTarget.password && deployTarget.password !== "") {
+        if (err === undefined && !deployTarget.password && deployTarget.password !== "") {
             if (options.devicepass || options.devicepass === "") {
                 deployTarget.password = options.devicepass;
             } else {
