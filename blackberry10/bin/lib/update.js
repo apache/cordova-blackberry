@@ -71,7 +71,7 @@ exports.updateProject = function (projectpath) {
         updateCordovaTools(projectpath);
         updateNativeDir(projectpath);
         fs.writeFileSync(path.join(projectpath, 'VERSION'), version + "\n", 'utf-8');
-        //console.log('BlackBerry10 project is now at version ' + version);
+        console.log('BlackBerry10 project is now at version ' + version);
     });
 };
 
