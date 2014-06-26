@@ -17,7 +17,9 @@
     "node": ">=0.9.9"
   },
   "scripts": {
-    "test": "./node_modules/jake/bin/cli.js"
+    "test": "npm run jshint && npm run jasmine",
+    "jshint": "node_modules/grunt-cli/bin/grunt jshint",
+    "jasmine": "node_modules/grunt-cli/bin/grunt jasmine_node"
   },
   "dependencies": {
     "jWorkflow": "0.8.0",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "grunt-contrib-jshint": "*",
     "grunt-jasmine-node": "*",
+    "grunt-cli": "*",
     "jasmine-node": "1.7.1"
   },
   "readmeFilename": "README.md"
