@@ -30,12 +30,12 @@ function getDefaultPath(file) {
     // UNIX or Linux: ~/.rim
     var p = "";
     if (os.type().toLowerCase().indexOf("windows") >= 0) {
-        // Try Windows XP location
-        p = process.env.USERPROFILE + "\\Local Settings\\Application Data\\Research In Motion\\";
-        if (!fs.existsSync(p)) {
-            // Try Windows Vista and Windows 7 location
-            p = process.env.USERPROFILE + "\\AppData\\Local\\Research In Motion\\";
-        }
+        p = process.env.LOCALAPPDATA === undefined ?
+            /* ...-XP */
+            process.env.USERPROFILE + "\\Local Settings\\Application Data" :
+            /* Vista+ */
+            process.env.LOCALAPPDATA;
+        p += "\\Research In Motion\\";
     } else if (os.type().toLowerCase().indexOf("darwin") >= 0) {
         // Try Mac OS location
         p = process.env.HOME + "/Library/Research In Motion/";
