@@ -300,7 +300,12 @@ _self = {
     },
 
     getProperties: function () {
-        var props =  require(_self.getPropertiesFilePath());
+        var props;
+        try {
+            props = require(_self.getPropertiesFilePath());
+        } catch (e) {
+            props = {};
+        }
         if (!props.targets) {
             props.targets = {};
         }
