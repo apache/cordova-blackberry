@@ -18,7 +18,7 @@
   },
   "scripts": {
     "test": "npm run jshint && npm run jasmine",
-    "jshint": "node_modules/grunt-cli/bin/grunt jshint",
+    "jshint": "node_modules/grunt-cli/bin/grunt jshint --force",
     "jasmine": "node_modules/grunt-cli/bin/grunt jasmine_node"
   },
   "dependencies": {
