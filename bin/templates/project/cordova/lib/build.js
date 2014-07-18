@@ -81,8 +81,10 @@ try {
                     keystorepass = session.getKeyStorePass(command),
                     err;
 
+                copyArgIfExists("buildId");
+                copyArgIfExists("signing");
+
                 if (command.release) {
-                    copyArgIfExists("buildId");
                     if (command.signing) {
                         //Note: Packager refers to signing password as "password" not "keystorepass"
                         bbwpArgv.push("--password");

@@ -40,6 +40,7 @@ _self = {
             keysPassword = session.storepass && typeof session.storepass === "string",
             commandLinebuildId = session.buildId && typeof session.buildId === "string",//--buildId
             buildId = widgetConfig.buildId && typeof widgetConfig.buildId === "string",//Finalized Build ID
+            signing = session.signing,
 
             //Constants
             AUTHOR_P12 = "author.p12",
@@ -55,35 +56,37 @@ _self = {
                 throw localize.translate("EXCEPTION_MISSING_SIGNING_KEY_FILE", file);
             };
 
-        //If -g <password> or --buildId is set, but signing key files are missing, throw an error
-        if (keysPassword || commandLinebuildId) {
-            if (!keysFound) {
-                signingFileError(AUTHOR_P12);
-            } else if (keysDefault && !cskFound && !bbidFound) {
-                //Only warn about BBID since the old tokens are deprecated
-                signingFileError(BARSIGNER_BBID);
-            } else if (keysDefault && cskFound && !dbFound) {
-                signingFileError(BARSIGNER_DB);
+        if (signing) {
+            //If -g <password> or --buildId is set, but signing key files are missing, throw an error
+            if ((keysPassword || commandLinebuildId)) {
+                if (!keysFound) {
+                    signingFileError(AUTHOR_P12);
+                } else if (keysDefault && !cskFound && !bbidFound) {
+                    //Only warn about BBID since the old tokens are deprecated
+                    signingFileError(BARSIGNER_BBID);
+                } else if (keysDefault && cskFound && !dbFound) {
+                    signingFileError(BARSIGNER_DB);
+                }
+
+            //If a buildId exists in config, but no keys were found, throw a warning
+            } else if (buildId) {
+                if (!keysFound) {
+                    signingFileWarn(AUTHOR_P12);
+                } else if (keysDefault && !cskFound && !bbidFound) {
+                    //Only warn about BBID since the old tokens are deprecated
+                    signingFileWarn(BARSIGNER_BBID);
+                } else if (keysDefault && cskFound && !dbFound) {
+                    signingFileWarn(BARSIGNER_DB);
+                }
             }
 
-        //If a buildId exists in config, but no keys were found, throw a warning
-        } else if (buildId) {
-            if (!keysFound) {
-                signingFileWarn(AUTHOR_P12);
-            } else if (keysDefault && !cskFound && !bbidFound) {
-                //Only warn about BBID since the old tokens are deprecated
-                signingFileWarn(BARSIGNER_BBID);
-            } else if (keysDefault && cskFound && !dbFound) {
-                signingFileWarn(BARSIGNER_DB);
+            if (commandLinebuildId && !keysPassword) {
+                //if --buildId was provided with NO password, throw error
+                throw localize.translate("EXCEPTION_MISSING_SIGNING_PASSWORD");
             }
         }
 
-        if (commandLinebuildId && !keysPassword) {
-            //if --buildId was provided with NO password, throw error
-            throw localize.translate("EXCEPTION_MISSING_SIGNING_PASSWORD");
-        }
-
-        //if --appdesc was provided, but the file is not existing, throw an error
+        //if --appdesc was provided, but the file does not exist, throw an error
         if (session.appdesc && !fs.existsSync(session.appdesc)) {
             throw localize.translate("EXCEPTION_APPDESC_NOT_FOUND", session.appdesc);
         }

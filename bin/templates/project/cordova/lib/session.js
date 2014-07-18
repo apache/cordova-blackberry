@@ -57,7 +57,8 @@ module.exports = {
             buildId = cmdline.buildId,
             signerParams = getParams("blackberry-signer", cmdline) || {},
             keystore = signerParams["-keystore"],
-            bbidtoken = signerParams["-bbidtoken"];
+            bbidtoken = signerParams["-bbidtoken"],
+            signing = cmdline.signing;
 
         //If -o option was not provided, default output location is the same as .zip
         outputDir = outputDir || path.dirname(archivePath);
@@ -113,6 +114,7 @@ module.exports = {
             "storepass": signingPassword,
             "buildId": buildId,
             "appdesc" : appdesc,
+            "signing" : signing,
             getParams: function (toolName) {
                 return getParams(toolName, cmdline);
             },

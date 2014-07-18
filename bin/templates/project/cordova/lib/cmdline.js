@@ -20,7 +20,7 @@ var command = require("commander"),
 
 command
     .version('1.0.0.0')
-    .usage('[drive:][path]archive [-s [dir]] [[ -g genpassword] [-buildId num]] [-o dir] [-d] [-p paramsjsonfile]')
+    .usage('[drive:][path]archive [-s [dir]] [[ -g genpassword] [-buildId num]] [-o dir] [-d] [-p paramsjsonfile] [--signing]')
     .option('-s, --source [dir]', 'Save source. The default behavior is to not save the source files. If dir is specified then creates dir\\src\\ directory structure. If no dir specified then the path of archive is assumed')
     .option('-g, --password <password>', 'Signing key password')
     .option('-buildId <num>', '[deprecated] Use --buildId.')
@@ -30,7 +30,8 @@ command
     .option('-p, --params <params JSON file>', 'Specifies additional parameters to pass to downstream tools.')
     .option('--appdesc <filepath>', 'Optionally specifies the path to the bar descriptor file (bar-descriptor.xml). For internal use only.')
     .option('-v, --verbose', 'Turn on verbose messages')
-    .option('-l, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)');
+    .option('-l, --loglevel <loglevel>', 'set the logging level (error, warn, verbose)')
+    .option('--signing', 'indicates the build process is trying to sign the app'); // --signing won't be passed to blackberry-nativepackager, package-validator.js uses this flag to check indicate if it is signing
 
 function parseArgs(args) {
     var option,
@@ -50,14 +51,14 @@ function parseArgs(args) {
     command.parse(args);
 
     //Check for any invalid command line args
-    for (i = 0; i < args.length; i++) {
-        //Remove leading dashes if any
-        option = args[i].substring(2);
-        if (args[i].indexOf("--") === 0 && !command[option]) {
-            throw localize.translate("EXCEPTION_CMDLINE_ARG_INVALID", args[i]);
+    args.forEach(function (arg) {
+        if (typeof arg === "string" && arg.indexOf("--") === 0) {
+            var option = arg.substring(2);
+            if (!command[option]) {
+                throw localize.translate("EXCEPTION_CMDLINE_ARG_INVALID", arg);
+            }
         }
-    }
-
+    });
     return this;
 }
 

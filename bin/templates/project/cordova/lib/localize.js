@@ -29,10 +29,10 @@ var Localize = require("localize"),
             "en": "Build ID set in config.xml [version], but signing key file was not found: $[1]"
         },
         "EXCEPTION_MISSING_SIGNING_PASSWORD": {
-            "en": "Cannot sign application - No signing password provided [-g]"
+            "en": "Cannot sign application - No signing password provided [--keystorepass]"
         },
         "WARNING_SIGNING_PASSWORD_EXPECTED": {
-            "en": "Build ID set in config.xml [version], but no signing password was provided [-g]. Bar will be unsigned"
+            "en": "Build ID set in config.xml [version], but no signing password was provided [--keystorepass]. Bar will be unsigned"
         },
         "EXCEPTION_DEBUG_TOKEN_NOT_FOUND": {
             "en": "Failed to find debug token. If you have an existing debug token, please copy it to $[1]. To generate a new debug token, execute the 'run' command."
