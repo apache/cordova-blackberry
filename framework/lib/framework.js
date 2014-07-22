@@ -115,6 +115,14 @@ var _self = {
                 qnx.webplatform.nativeCall('webview.setEnableDiskCache', webview.id, 'true');
             }
 
+            if (config.useSpatialNavigation) {
+                var _webview = webview.getWebViewObj();
+                if ("spatialNavigation" in _webview) {
+                    _webview.spatialNavigation = true;
+                    _webview.pointerInteractionMode = false;
+                }
+            }
+
             // Workaround for executeJavascript doing nothing for the first time
             webview.executeJavascript("1 + 1");
 

@@ -151,6 +151,7 @@ function processWidgetData(data, widgetConfig, session) {
     widgetConfig.autoDeferNetworkingAndJavaScript = true;
     widgetConfig.theme = "default";
     widgetConfig.autoHideSplashScreen = "true";
+    widgetConfig.useSpatialNavigation = false;
 
     //set locally available features to access list
     if (data.feature) {
@@ -539,6 +540,7 @@ function processNameAndDescription(data, widgetConfig) {
 function processCordovaPreferences(data, widgetConfig) {
     if (data.preference) {
         var preference = JSON.parse(JSON.stringify(processParamObj(data.preference)).toLowerCase()),
+            spatialNavigation = preference.spatialnavigation,
             hideFormControl = preference.hidekeyboardformaccessorybar;
 
         widgetConfig.packageCordovaJs = preference.packagecordovajs === "enable";
@@ -555,7 +557,7 @@ function processCordovaPreferences(data, widgetConfig) {
         }
 
         // <preference name="HideKeyboardFormAccessoryBar" value="enable/true or disable/false" />
-        if (preference.hidekeyboardformaccessorybar) {
+        if (hideFormControl) {
             widgetConfig.enableFormControl = (hideFormControl !== 'enable') && (hideFormControl !== 'true');
         }
 
@@ -590,6 +592,11 @@ function processCordovaPreferences(data, widgetConfig) {
         // <preference name="diskCache" value="enable or disable" />
         if (preference.diskcache) {
             widgetConfig.enableDiskCache = (preference.diskcache !== 'disable');
+        }
+
+        // <preference name="spatialNavigation" value="enable/true or disable/false" />
+        if (spatialNavigation) {
+            widgetConfig.useSpatialNavigation = (spatialNavigation === 'enable') || (spatialNavigation === 'true');
         }
     }
 }
