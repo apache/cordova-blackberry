@@ -24,13 +24,13 @@ var utils = require('./utils'),
         pause: {
             event: "inactive",
             trigger: function () {
-                webview.executeJavascript("if (cordova) cordova.fireDocumentEvent('pause')");
+                webview.executeJavascript("if (typeof cordova !== 'undefined') cordova.fireDocumentEvent('pause')");
             }
         },
         resume: {
             event: "active",
             trigger: function () {
-                webview.executeJavascript("if (cordova) cordova.fireDocumentEvent('resume')");
+                webview.executeJavascript("if (typeof cordova !== 'undefined') cordova.fireDocumentEvent('resume')");
             }
         }
     };
