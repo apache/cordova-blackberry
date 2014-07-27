@@ -18,12 +18,12 @@ var fs = require("fs"),
     util = require('util'),
     xml2js = require('xml2js'),
     packagerUtils = require('./packager-utils'),
+    utils = require('./utils'),
     check = require('validator').check,
     sanitize = require('validator').sanitize,
     localize = require("./localize"),
     logger = require("./logger"),
     fileManager = require("./file-manager"),
-    utils = require("./packager-utils"),
     i18nMgr = require("./i18n-manager"),
     et = require("elementtree"),
     _config_doc,
@@ -151,6 +151,7 @@ function processWidgetData(data, widgetConfig, session) {
     widgetConfig.autoDeferNetworkingAndJavaScript = true;
     widgetConfig.theme = "default";
     widgetConfig.autoHideSplashScreen = "true";
+    widgetConfig.barName = utils.defaultBarName();
 
     //set locally available features to access list
     if (data.feature) {
@@ -389,7 +390,7 @@ function processInvokeTargetsData(data, widgetConfig) {
         widgetConfig["invoke-target"] = data["rim:invoke-target"];
 
         //If invoke-target is not an array, wrap the invoke-target in an array
-        utils.wrapPropertyInArray(widgetConfig, "invoke-target");
+        packagerUtils.wrapPropertyInArray(widgetConfig, "invoke-target");
 
         widgetConfig["invoke-target"].forEach(function (invokeTarget) {
             if (invokeTarget.type && !packagerUtils.isEmpty(invokeTarget.type)) {
@@ -397,20 +398,20 @@ function processInvokeTargetsData(data, widgetConfig) {
             }
 
             if (invokeTarget.filter) {
-                utils.wrapPropertyInArray(invokeTarget, "filter");
+                packagerUtils.wrapPropertyInArray(invokeTarget, "filter");
 
                 invokeTarget.filter.forEach(function (filter) {
 
                     if (filter["action"]) {
-                        utils.wrapPropertyInArray(filter, "action");
+                        packagerUtils.wrapPropertyInArray(filter, "action");
                     }
 
                     if (filter["mime-type"]) {
-                        utils.wrapPropertyInArray(filter, "mime-type");
+                        packagerUtils.wrapPropertyInArray(filter, "mime-type");
                     }
 
                     if (filter["property"]) {
-                        utils.wrapPropertyInArray(filter, "property");
+                        packagerUtils.wrapPropertyInArray(filter, "property");
                     }
                 });
             }
@@ -544,6 +545,11 @@ function processCordovaPreferences(data, widgetConfig) {
         widgetConfig.packageCordovaJs = preference.packagecordovajs === "enable";
         widgetConfig.autoHideSplashScreen = preference.autohidesplashscreen !== "false";
 
+        // <preference name="barName" value="string" />
+        if (preference.barname) {
+            widgetConfig.barName = preference.barname;
+        }
+
         // <preference name="backgroundColor" value="hex" />
         if (preference.backgroundcolor) {
             widgetConfig.backgroundColor = processBgColor(preference.backgroundcolor);
@@ -673,7 +679,7 @@ _self = {
         }
 
         var fileData = fs.readFileSync(xmlPath),
-            xml = utils.bufferToString(fileData),
+            xml = packagerUtils.bufferToString(fileData),
             parser = new xml2js.Parser({trim: true, normalize: true, explicitRoot: false});
 
         //Used for config-file injections

@@ -317,7 +317,7 @@ describe("Native packager", function () {
         session.storepass = "password";
         config.buildId = "100";
 
-        session.barPath = path.normalize("c:/%s/" + "Demo.bar");
+        session.barPath = path.normalize("c:/%s/%s.bar");
         session.sourceDir = path.normalize("c:/src/");
         session.isSigningRequired = function () {
             return true;
