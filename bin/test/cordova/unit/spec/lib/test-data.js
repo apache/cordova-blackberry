@@ -38,7 +38,8 @@ module.exports = {
         "description": { 'default': 'This is a test!' },
         "image": 'test.png',
         "autoOrientation": true,
-        "theme": "default"
+        "theme": "default",
+        "barName": "Demo"
     },
     accessList: [{
         uri: "http://google.com",

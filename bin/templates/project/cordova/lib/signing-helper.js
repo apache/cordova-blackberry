@@ -25,7 +25,7 @@ var path = require('path'),
     logger = require("./logger"),
     _self;
 
-function execSigner(session, target, callback) {
+function execSigner(session, target, config, callback) {
     var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-signer"),
         signer,
         params = session.getParams("blackberry-signer"),
@@ -54,7 +54,7 @@ function execSigner(session, target, callback) {
     //Validate arguments
 
 
-    args.push(path.resolve(util.format(session.barPath, target)));
+    args.push(path.resolve(util.format(session.barPath, target, config.barName)));
 
     utils.exec(script, args, {
         "env": process.env

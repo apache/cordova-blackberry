@@ -37,7 +37,7 @@ function getTargetName(options, done) {
     if (options.target) {
         done(null, options, options.target);
     } else {
-        
+
         if (options.device && options.emulator) {
             localize.translate("WARN_RUN_DEVICE_OVERRIDES_EMULATOR");
         }
@@ -178,12 +178,25 @@ function handleDebugToken(options, deployTarget, allDone) {
     }
 }
 
+function getBarName(folder) {
+    var barName,
+        files = fs.readdirSync(folder);
+
+    files.forEach(function(file) {
+        if (file.indexOf(".bar") !== 0) {
+            //  device and simulator folders will always only have one bar file
+            barName = file;
+        }
+    });
+
+    return barName;
+}
+
 function generateDeployOptions(options, deployTarget) {
     var deployOptions = [],
-        barPath = pkgrUtils.escapeStringForShell(
-            path.normalize(__dirname + "/../../build/" +
-                (deployTarget.type === "device" ? "device" : "simulator") +
-                "/" + utils.genBarName() + ".bar"));
+        buildDir = path.normalize(__dirname + "/../../build/" +
+                (deployTarget.type === "device" ? "device" : "simulator")),
+        barPath = pkgrUtils.escapeStringForShell(buildDir + "/" + getBarName(buildDir));
 
     deployOptions.push("-device");
     deployOptions.push(deployTarget.ip);
@@ -265,10 +278,9 @@ _self = {
 
     //Function returns (error || deployTarget)
     checkBuild : function (deployTarget, allDone) {
-        var barPath = path.normalize(__dirname + "/../../build/" +
-                (deployTarget.type === "device" ? "device" : "simulator") +
-                "/" + utils.genBarName() + ".bar");
-        if (fs.existsSync(barPath)) {
+        var buildDir = path.normalize(__dirname + "/../../build/" +
+                (deployTarget.type === "device" ? "device" : "simulator"));
+        if (getBarName(buildDir)) {
             allDone(null, deployTarget);
         } else {
             allDone("No build file exists, please run: build [--debug | --release] [--keystorepass <password>] [--buildId <number>] [--params <json>] [--loglevel <level>] [--web-inspector] [--no-signing]");

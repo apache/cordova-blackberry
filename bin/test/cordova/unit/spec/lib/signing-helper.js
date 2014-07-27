@@ -44,7 +44,7 @@ describe("signing-helper", function () {
             session = testData.session;
             session.keystore = "/blah/author.p12";
             session.storepass = "123";
-            session.barPath = path.normalize("c:/%s/" + "Demo.bar");
+            session.barPath = path.normalize("c:/%s/%s.bar");
 
             spyOn(childProcess, "exec").andReturn({
                 stdout: {
@@ -66,7 +66,7 @@ describe("signing-helper", function () {
                 cmd = "blackberry-signer";
 
             session.getParams = jasmine.createSpy("session getParams").andReturn(null);
-            signingHelper.execSigner(session, "device", callback);
+            signingHelper.execSigner(session, "device", testData.config, callback);
             expect(childProcess.exec).toHaveBeenCalledWith([cmd, "-keystore", session.keystore, "-storepass", session.storepass, path.resolve("c:/device/Demo.bar")].join(" "), jasmine.any(Object), callback);
             expect(stdoutOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
             expect(stderrOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
@@ -80,7 +80,7 @@ describe("signing-helper", function () {
                 "-proxyhost": "abc.com",
                 "-proxyport": "80"
             });
-            signingHelper.execSigner(session, "device", callback);
+            signingHelper.execSigner(session, "device", testData.config, callback);
             expect(childProcess.exec.mostRecentCall.args[0]).toContain(cmd);
             expect(childProcess.exec.mostRecentCall.args[0]).toContain("-keystore");
             expect(childProcess.exec.mostRecentCall.args[0]).toContain(session.keystore);

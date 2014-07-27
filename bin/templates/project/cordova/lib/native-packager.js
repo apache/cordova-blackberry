@@ -238,7 +238,7 @@ function generateOptionsFile(session, target, config) {
         });
     }
 
-    optionsStr += path.resolve(util.format(session.barPath, target)) + NL;
+    optionsStr += path.resolve(util.format(session.barPath, target, config.barName)) + NL;
 
     //to support splash screens/icons for multiple resolutions/devices
     optionsStr += "-barVersion" + NL;

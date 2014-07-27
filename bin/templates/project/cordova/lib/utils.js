@@ -319,7 +319,7 @@ _self = {
         fs.writeFileSync(propertiesFile, contents, 'utf-8');
     },
 
-    genBarName: function () {
+    defaultBarName: function () {
         return DEFAULT_BAR_NAME;
     },
 
@@ -368,7 +368,7 @@ _self = {
         async.series(steps, this.exit_handler);
     },
 
-    waterfall: function (steps) { 
+    waterfall: function (steps) {
         async.waterfall(steps, this.exit_handler);
     },
 
