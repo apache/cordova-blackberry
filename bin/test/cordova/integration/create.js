@@ -39,12 +39,21 @@ function executeScript(shellCommand, args, shouldError) {
     _output = result.output;
 }
 
+function clearTempFolder(args) {
+    if (fs.existsSync(tempFolder)) {
+        wrench.rmdirSyncRecursive(tempFolder);
+    }
+}
+
 describe("create tests", function () {
+    beforeEach(function () {
+        clearTempFolder();
+    });
+    afterEach(function () {
+        clearTempFolder();
+    });
     it("creates project", function () {
         var appIdRegExp = /id="default\.app\.id"/g;
-        if (fs.existsSync(tempFolder)) {
-            wrench.rmdirSyncRecursive(tempFolder);
-        }
         executeScript(CREATE_COMMAND, [appFolder]);
         expect(appIdRegExp.test(fs.readFileSync(path.join(appFolder, "www", "config.xml"), "utf-8"))).toEqual(true);
         expect(fs.existsSync(appFolder)).toEqual(true);
@@ -54,9 +63,6 @@ describe("create tests", function () {
         expect(fs.existsSync(path.join(appFolder, "cordova", "third_party"))).toEqual(true);
         expect(fs.existsSync(path.join(appFolder, "www"))).toEqual(true);
         expect(fs.existsSync("./build")).toEqual(false);
-        this.after(function () {
-            wrench.rmdirSyncRecursive(tempFolder);
-        });
     });
 
     it("sets appId", function () {
@@ -65,18 +71,12 @@ describe("create tests", function () {
 
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app"]);
         expect(appIdRegExp.test(fs.readFileSync(path.join(appFolder, "www", "config.xml"), "utf-8"))).toEqual(true);
-        this.after(function () {
-            wrench.rmdirSyncRecursive(tempFolder);
-        });
     });
 
     it("sets appId and barName", function () {
         var appIdRegExp = /id="com\.example\.bb10app"/g;
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app", "bb10appV1"]);
         expect(appIdRegExp.test(fs.readFileSync(path.join(appFolder, "www", "config.xml"), "utf-8"))).toEqual(true);
-        this.after(function () {
-            wrench.rmdirSyncRecursive(tempFolder);
-        });
     });
 
     it("No args", function () {
@@ -88,10 +88,6 @@ describe("create tests", function () {
         wrench.mkdirSyncRecursive(tempFolder);
         executeScript(CREATE_COMMAND, [tempFolder], true);
         expect(_output).toContain("The project path must be an empty directory");
-        this.after(function () {
-            wrench.rmdirSyncRecursive(tempFolder);
-        });
-
     });
 
     it("Invalid appId error", function () {
