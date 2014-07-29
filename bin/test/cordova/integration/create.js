@@ -18,15 +18,15 @@
 */
 
 var childProcess = require('child_process'),
-    tempFolder = '.tmp/',
-    appFolder = tempFolder + 'tempCordovaApp/',
+    path = require('path'),
+    tempFolder = '.tmp'+Date.now(),
+    appFolder = path.join(tempFolder, 'tempCordovaApp'),
     wrench = require('wrench'),
     utils = require('../../../templates/project/cordova/lib/utils'),
-    path = require('path'),
     fs = require('fs'),
     shell = require("shelljs"),
     _output = "",
-    CREATE_COMMAND = path.normalize(__dirname + "/../../../create") + (utils.isWindows() ? ".bat" : "");
+    CREATE_COMMAND = path.normalize(path.join(__dirname, "..", "..", "..", "create")) + (utils.isWindows() ? ".bat" : "");
 
 function executeScript(shellCommand, args, shouldError) {
     var strCommand = "\"" + shellCommand + "\" " + args.join(" "),
@@ -46,13 +46,13 @@ describe("create tests", function () {
             wrench.rmdirSyncRecursive(tempFolder);
         }
         executeScript(CREATE_COMMAND, [appFolder]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
+        expect(appIdRegExp.test(fs.readFileSync(path.join(appFolder, "www", "config.xml"), "utf-8"))).toEqual(true);
         expect(fs.existsSync(appFolder)).toEqual(true);
-        expect(fs.existsSync(appFolder + "/cordova")).toEqual(true);
-        expect(fs.existsSync(appFolder + "/cordova/node_modules")).toEqual(true);
-        expect(fs.existsSync(appFolder + "/cordova/lib")).toEqual(true);
-        expect(fs.existsSync(appFolder + "/cordova/third_party")).toEqual(true);
-        expect(fs.existsSync(appFolder + "/www")).toEqual(true);
+        expect(fs.existsSync(path.join(appFolder, "cordova"))).toEqual(true);
+        expect(fs.existsSync(path.join(appFolder, "cordova", "node_modules"))).toEqual(true);
+        expect(fs.existsSync(path.join(appFolder, "cordova", "lib"))).toEqual(true);
+        expect(fs.existsSync(path.join(appFolder, "cordova", "third_party"))).toEqual(true);
+        expect(fs.existsSync(path.join(appFolder, "www"))).toEqual(true);
         expect(fs.existsSync("./build")).toEqual(false);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
@@ -64,7 +64,7 @@ describe("create tests", function () {
             appIdRegExp = /id="com\.example\.bb10app"/g;
 
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app"]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
+        expect(appIdRegExp.test(fs.readFileSync(path.join(appFolder, "www", "config.xml"), "utf-8"))).toEqual(true);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });
@@ -73,7 +73,7 @@ describe("create tests", function () {
     it("sets appId and barName", function () {
         var appIdRegExp = /id="com\.example\.bb10app"/g;
         executeScript(CREATE_COMMAND, [appFolder, "com.example.bb10app", "bb10appV1"]);
-        expect(appIdRegExp.test(fs.readFileSync(appFolder + "www/config.xml", "utf-8"))).toEqual(true);
+        expect(appIdRegExp.test(fs.readFileSync(path.join(appFolder, "www", "config.xml"), "utf-8"))).toEqual(true);
         this.after(function () {
             wrench.rmdirSyncRecursive(tempFolder);
         });

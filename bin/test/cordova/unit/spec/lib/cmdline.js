@@ -27,7 +27,7 @@ var srcPath = __dirname + "/../../../../../templates/project/cordova/lib/",
 describe("Command line", function () {
     beforeEach(function () {
         cmd = cmdline
-                .parse(process.argv)
+                .parse([])
                 .commander;
     });
 

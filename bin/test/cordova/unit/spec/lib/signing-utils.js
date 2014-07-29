@@ -28,7 +28,13 @@ var testData = require('./test-data'),
 
 describe("signing-utils", function () {
 
-    describe("on windows", function () {
+    function wdescribe() {
+        if (os.platform() === "win32")
+            return describe;
+        return xdescribe;
+    }
+
+    wdescribe()("on windows", function () {
 
         beforeEach(function () {
 

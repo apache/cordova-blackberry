@@ -18,19 +18,19 @@
 */
 
 var childProcess = require('child_process'),
-    tempFolder = '.tmp/',
-    appFolder = tempFolder + 'tempCordovaApp/',
+    path = require('path'),
+    tempFolder = '.tmp'+Date.now(),
+    appFolder = path.join(tempFolder, 'tempCordovaApp'),
     wrench = require('wrench'),
     utils = require('../../../templates/project/cordova/lib/utils'),
     fs = require('fs'),
-    path = require('path'),
     shell = require("shelljs"),
     configPath = utils.getPropertiesFilePath(),
     testAppCreated = false,
     _output = "",
     _code,
-    CREATE_COMMAND = path.normalize(__dirname + "/../../../create") + (utils.isWindows() ? ".bat" : ""),
-    TARGET_COMMAND = path.normalize(appFolder + "cordova/target") + (utils.isWindows() ? ".bat" : "");
+    CREATE_COMMAND = path.normalize(path.join(__dirname, "..", "..", "..", "create")) + (utils.isWindows() ? ".bat" : ""),
+    TARGET_COMMAND = path.normalize(path.join(appFolder, "cordova", "target")) + (utils.isWindows() ? ".bat" : "");
 
 function executeScript(shellCommand, args, shouldFail) {
     var strCommand = "\"" + shellCommand + "\" " + args.join(" "),

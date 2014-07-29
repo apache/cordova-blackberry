@@ -336,7 +336,7 @@ describe("Native packager", function () {
         var cmd = "blackberry-nativepackager" + (pkgrUtils.isWindows() ? ".bat" : "");
         spyOn(pkgrUtils, "writeFile");
 
-        session.getParams = jasmine.createSpy("session getParams").andReturn({
+        spyOn(session, "getParams").andReturn({
             "-installApp": "",
             "-device": "192.168.1.114",
             "-password": "abc"

@@ -65,9 +65,10 @@ describe("signing-helper", function () {
             var callback = jasmine.createSpy("callback"),
                 cmd = "blackberry-signer";
 
-            session.getParams = jasmine.createSpy("session getParams").andReturn(null);
+            spyOn(session, "getParams").andReturn(null);
             signingHelper.execSigner(session, "device", callback);
-            expect(childProcess.exec).toHaveBeenCalledWith([cmd, "-keystore", session.keystore, "-storepass", session.storepass, path.resolve("c:/device/Demo.bar")].join(" "), jasmine.any(Object), callback);
+            expect(childProcess.exec.mostRecentCall.args[0]).toMatch(RegExp([cmd, "-keystore", session.keystore, "-storepass", session.storepass, path.resolve("c:/device/Demo.bar")].join(" ")));
+            expect(childProcess.exec.mostRecentCall.args[2]).toBe(callback);
             expect(stdoutOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
             expect(stderrOn).toHaveBeenCalledWith("data", pkgrUtils.handleProcessOutput);
         });
@@ -76,7 +77,7 @@ describe("signing-helper", function () {
             var callback = jasmine.createSpy("callback"),
                 cmd = "blackberry-signer";
 
-            session.getParams = jasmine.createSpy("session getParams").andReturn({
+            spyOn(session, "getParams").andReturn({
                 "-proxyhost": "abc.com",
                 "-proxyport": "80"
             });
