@@ -23,6 +23,7 @@ module.exports = {
         "archivePath": path.resolve("bin/test/cordova/unit/test.zip"),
         "conf": require(path.resolve(libPath + "/conf")),
         "targets": ["simulator"],
+        "signing": true,
         isSigningRequired: function () {
             return false;
         },
