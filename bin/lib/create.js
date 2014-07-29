@@ -42,9 +42,7 @@ var ERROR_VALUE = 2,
     BOOTSTRAP_PROJECT_DIR = path.join(__dirname, "..", "..", "framework", "bootstrap"),
     FRAMEWORK_LIB_PROJECT_DIR = path.join(__dirname, "..", "..", "framework", "lib"),
     BIN_DIR = path.join(__dirname, ".."),
-    BUILD_DIR = path.join(__dirname, "..", "build"),
     CORDOVA_JS_SRC = path.join(__dirname, "..", "..", "javascript", "cordova.blackberry10.js"),
-    update_dir = path.join(project_path, "lib", "cordova." + version),
     native_dir = path.join(project_path, "native"),
     template_dir = process.argv[5] || TEMPLATE_PROJECT_DIR,
     js_path = "javascript",
@@ -90,20 +88,6 @@ function validate() {
     }
 }
 
-function clean() {
-    if (fs.existsSync(BUILD_DIR)) {
-        wrench.rmdirSyncRecursive(BUILD_DIR);
-    }
-}
-
-function copyJavascript() {
-    wrench.mkdirSyncRecursive(path.join(BUILD_DIR, js_path), 0777);
-    shell.cp(CORDOVA_JS_SRC, path.join(BUILD_DIR, js_path));
-
-    //rename copied cordova.blackberry10.js file
-    fs.renameSync(path.join(BUILD_DIR, js_path, "cordova.blackberry10.js"), path.join(BUILD_DIR, js_path, js_basename));
-}
-
 function copyFilesToProject() {
     var nodeModulesDest = path.join(project_path, "cordova", "node_modules"),
         bbtoolsBinDest = path.join(project_path, "cordova", "dependencies", "bb-tools", "bin"),
@@ -142,7 +126,8 @@ function copyFilesToProject() {
     wrench.chmodSyncRecursive(path.join(project_path,"cordova"), 0700);
 
     //copy cordova-*version*.js to www
-    shell.cp(path.join(BUILD_DIR, js_path, js_basename), path.join(project_path, "www"));
+    shell.cp(CORDOVA_JS_SRC, path.join(project_path, "www"));
+    fs.renameSync(path.join(project_path, "www", "cordova.blackberry10.js"), path.join(project_path, "www", js_basename));
 
     //copy node modules to cordova build directory
     wrench.mkdirSyncRecursive(nodeModulesDest, 0777);
@@ -164,10 +149,6 @@ function copyFilesToProject() {
         fs.writeFileSync(path.join(frameworkLibDir, "config", "default.js"), defaultConfig, "utf-8");
 
     });
-
-    // save release
-    wrench.mkdirSyncRecursive(update_dir, 0777);
-    wrench.copyDirSyncRecursive(BUILD_DIR, update_dir);
 }
 
 function updateProject() {
@@ -191,11 +172,8 @@ if ( process.argv[2] === "-h" || process.argv[2] === "--help" ) {
 } else {
     try {
         validate();
-        clean();
-        copyJavascript();
         copyFilesToProject();
         updateProject();
-        clean();
         exit();
     } catch (ex) {
         console.log("Project creation failed!");
