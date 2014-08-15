@@ -19,18 +19,19 @@
 
 var childProcess = require('child_process'),
     path = require('path'),
-    tempFolder = '.tmp'+Date.now(),
-    appFolder = path.join(tempFolder, 'tempCordovaApp'),
-    wrench = require('wrench'),
     utils = require('../../../templates/project/cordova/lib/utils'),
     fs = require('fs'),
     shell = require("shelljs"),
-    configPath = utils.getPropertiesFilePath(),
-    testAppCreated = false,
-    _output = "",
+    homevar = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME',
+    envhome = process.env[homevar],
+    extension = utils.isWindows() ? ".bat" : "",
+    CREATE_COMMAND = path.normalize(path.join(__dirname, "..", "..", "..", "create")) + extension,
+    TARGET_COMMAND,
+    _output,
     _code,
-    CREATE_COMMAND = path.normalize(path.join(__dirname, "..", "..", "..", "create")) + (utils.isWindows() ? ".bat" : ""),
-    TARGET_COMMAND = path.normalize(path.join(appFolder, "cordova", "target")) + (utils.isWindows() ? ".bat" : "");
+    tempFolder,
+    appFolder,
+    configPath;
 
 function executeScript(shellCommand, args, shouldFail) {
     var strCommand = "\"" + shellCommand + "\" " + args.join(" "),
@@ -46,17 +47,18 @@ function executeScript(shellCommand, args, shouldFail) {
 
 describe("cordova/target tests", function () {
     beforeEach(function () {
-        utils.copyFile(configPath, path.join(utils.getCordovaDir(), "bb10bak"));
-        fs.unlinkSync(configPath);
-        if (!testAppCreated) {
-            executeScript(CREATE_COMMAND, [appFolder]);
-            testAppCreated = true;
-        }
+        tempFolder = path.resolve('.tmp'+Date.now());
+        appFolder = path.join(tempFolder, 'tempCordovaApp');
+        TARGET_COMMAND = path.normalize(path.join(appFolder, "cordova", "target")) + extension;
+        process.env[homevar] = tempFolder;
+        shell.mkdir('-p', tempFolder);
+        configPath = utils.getPropertiesFilePath();
+        executeScript(CREATE_COMMAND, [appFolder]);
+        _output = "";
     });
-
     afterEach(function () {
-        utils.copyFile(path.join(utils.getCordovaDir(), "bb10bak", utils.getPropertiesFileName()), path.join(utils.getCordovaDir()));
-        wrench.rmdirSyncRecursive(path.join(utils.getCordovaDir(), "bb10bak"));
+        shell.rm('-rf', tempFolder);
+        process.env[homevar] = envhome;
     });
 
     it("should add a target", function () {
@@ -111,12 +113,6 @@ describe("cordova/target tests", function () {
     });
 
     it("should warn invalid pin", function () {
-
-        //keep this in last test to remove test app
-        this.after(function () {
-            wrench.rmdirSyncRecursive(tempFolder);
-        });
-
         executeScript(TARGET_COMMAND, ["add", "z10", "169.254.0.1", "-t", "device", "--pin", "NOTAPIN!"], true);
         expect(_output).toContain("Invalid PIN: NOTAPIN!");
     });
