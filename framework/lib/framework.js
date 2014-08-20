@@ -53,7 +53,7 @@ function removeEvents() {
 
 function showWebInspectorInfo() {
     var port = window.qnx.webplatform.getApplication().webInspectorPort,
-        messageObj = {};
+        message = "WebInspector Address\n";
 
     qnx.webplatform.device.getNetworkInterfaces(function (networkInfo) {
         var connectedInterface;
@@ -64,14 +64,13 @@ function showWebInspectorInfo() {
             }
         }, this);
 
-        messageObj.title = "Web Inspector Enabled";
         if (connectedInterface) {
-            messageObj.htmlmessage =  "\n ip4:    " + connectedInterface.ipv4Address + ":" + port + "<br/> ip6:    " + connectedInterface.ipv6Address + ":" + port;
+            message +=  connectedInterface.ipv4Address + ":" + port;
         } else {
-            messageObj.message = "Connect to the simulator's IP on port: " + port;
+            message += "Connect to the simulator's IP on port: " + port;
         }
-        messageObj.dialogType = 'JavaScriptAlert';
-        overlayWebView.showDialog(messageObj);
+
+        overlayWebView.showToast(message, {buttonText: "dismiss", timeout: 30000}); // 30 seconds with a dismiss button
     });
 }
 

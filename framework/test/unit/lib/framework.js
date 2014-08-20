@@ -303,7 +303,7 @@ describe("framework", function () {
     describe('shows the webinspector dialog', function () {
         it('show the webinspector dialog', function () {
             var flag = false;
-            spyOn(overlayWebView, "showDialog");
+            spyOn(overlayWebView, "showToast");
 
             window.qnx.webplatform.device.getNetworkInterfaces = function (callback) {
                 callback();
@@ -315,14 +315,14 @@ describe("framework", function () {
                 return flag;
             });
             runs(function () {
-                expect(overlayWebView.showDialog).toHaveBeenCalled();
+                expect(overlayWebView.showToast).toHaveBeenCalled();
             });
         });
 
         it('show the webinspector dialog with the correct IP address', function () {
             var flag = false,
             messageObj;
-            spyOn(overlayWebView, "showDialog");
+            spyOn(overlayWebView, "showToast");
 
             window.qnx.webplatform.device.getNetworkInterfaces = function (callback) {
                 var dummyData = {
@@ -372,12 +372,8 @@ describe("framework", function () {
                 return flag;
             });
             runs(function () {
-                messageObj = {
-                    title : "Web Inspector Enabled",
-                    htmlmessage : "\n ip4:    169.254.0.1:1337<br/> ip6:    fe80::70aa:b2ff:fef9:b374:1337",
-                    dialogType : "JavaScriptAlert"
-                };
-                expect(overlayWebView.showDialog).toHaveBeenCalledWith(messageObj);
+                message = "WebInspector Address\n169.254.0.1:1337";
+                expect(overlayWebView.showToast).toHaveBeenCalledWith(message, jasmine.any(Object));
             });
         });
 
