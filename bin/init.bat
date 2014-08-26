@@ -20,7 +20,7 @@ goto comment
 setlocal enabledelayedexpansion
 
 set /P CORDOVA_VERSION=<"%~dp0..\VERSION"
-set "CORDOVA_HOME_DIR=!USERPROFILE!\.cordova\lib\blackberry10\cordova\!CORDOVA_VERSION!"
+set "CORDOVA_HOME_DIR=!USERPROFILE!\.cordova\lib\npm_cache\cordova-blackberry10\!CORDOVA_VERSION!"\package
 set "LOCAL_NODE_BINARY=!CORDOVA_HOME_DIR!\bin\dependencies\node\bin"
 set "LOCAL_BBTOOLS_BINARY=!CORDOVA_HOME_DIR!\bin\dependencies\bb-tools\bin"
 
