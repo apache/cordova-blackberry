@@ -35,6 +35,20 @@
     "prompt": "0.2.11",
     "async": "0.2.9"
   },
+  "bundledDependencies": [
+    "jWorkflow",
+    "commander",
+    "localize",
+    "zip",
+    "xml2js",
+    "validator",
+    "wrench",
+    "shelljs",
+    "exit",
+    "elementtree",
+    "prompt",
+    "async"
+  ],
   "devDependencies": {
     "grunt-contrib-jshint": "*",
     "grunt-jasmine-node": "*",
