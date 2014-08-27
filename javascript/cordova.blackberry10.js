@@ -1,5 +1,5 @@
 // Platform: blackberry10
-// 3.6.0-dev-7e845f3
+// 3.7.0-dev-8f41e8d
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.6.0-dev-7e845f3';
+var CORDOVA_JS_BUILD_LABEL = '3.7.0-dev-8f41e8d';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -265,7 +265,7 @@ var cordova = {
         try {
             cordova.callbackFromNative(callbackId, true, args.status, [args.message], args.keepCallback);
         } catch (e) {
-            console.log("Error in error callback: " + callbackId + " = "+e);
+            console.log("Error in success callback: " + callbackId + " = "+e);
         }
     },
 
@@ -868,8 +868,13 @@ function RemoteFunctionCall(functionUri) {
         var requestUri = composeUri(),
         request = createXhrRequest(requestUri, false),
         response;
-        request.send(JSON.stringify(params));
-        response = JSON.parse(decodeURIComponent(request.responseText) || "null");
+        try {
+            request.send(JSON.stringify(params));
+            response = JSON.parse(decodeURIComponent(request.responseText) || "null");
+        } catch (e) {
+            console.error('makeSyncCall failed', e);
+            response = { code: 500, msg: 'exec bridge failure' };
+        }
         return response;
     };
 
@@ -1412,11 +1417,11 @@ function handlePluginsObject(path, moduleList, finishPluginLoading) {
 function findCordovaPath() {
     var path = null;
     var scripts = document.getElementsByTagName('script');
-    var term = 'cordova.js';
+    var term = '/cordova.js';
     for (var n = scripts.length-1; n>-1; n--) {
         var src = scripts[n].src.replace(/\?.*$/, ''); // Strip any query param (CB-6007).
         if (src.indexOf(term) == (src.length - term.length)) {
-            path = src.substring(0, src.length - term.length);
+            path = src.substring(0, src.length - term.length) + '/';
             break;
         }
     }
