@@ -20,6 +20,42 @@
 -->
 ## Release Notes for Cordova BlackBerry ##
 
+### 3.6.0 ###
+
+* Set VERSION to 3.6.0 (via coho)
+* Update JS snapshot to version 3.6.0 (via coho)
+* CB-7409 update CORDOVA_HOME_DIR based on npm_cache
+* CB-7411 Make version in version script easier to replace by coho
+* CB-7336 Add bundledDependencies to package.json
+* CB-7211 jshint: force to see all errors
+* CB-7210 cleanup create remove clean/copyJavascript
+* CB-7250 test/cordova/integration/target use private home
+* CB-7209 Improve tests including adding parallelism support
+* CB-7209 Improve tests including adding parallelism support
+* CB-7186 fix up packager-validator tests to indicate signing
+* CB-7186 --no-signing will be ignored if --buildId is set
+* Update package name to match convention (cordova-[platform name])
+* CB-5815 cordova not defined when pausing w/o cordova.js included
+* CB-7119 cordova run --target xxx dies if blackberry10.json is empty
+* CB-7087 Retire blackberry10/ directory
+* CB-6492 AppData hint is wrong for wXP
+* CB-7036 make npm test work again (using grunt instead of jake)
+* CB-7025 report platform update
+* CB-6968 fix bashism (source) in update script and bb10-ndk-version
+* CB-6934 run should complain about target w/o ip before password
+* CB-6925 simulator detection: fail gracefully w/ no DHCP leases
+* CB-6904 Improve Markdown in README.md
+* CB-5436 Update defaults.xml and config.xml configuration reference
+* CB-6850 use path.join() for blackberry10debugtoken.bar warning
+* CB-6757 Provide useful hint when simulator does not seem to know its IP
+* CB-5654 Log 'native' Cordova version during framework bootstrap
+* CB-6786 Add license to CONTRIBUTING.md
+* CB-6730: Tweak whitelist URI parsing to fix whitelist issues with @2x resource naming
+* CB-6554 fix malformed json file
+* updated package.json version
+* Update JS snapshot to version 3.6.0-dev (via coho)
+* Set VERSION to 3.6.0-dev (via coho)
+
 ### 3.1.0 ###
 
 [CB-4268] Rework util functions to support getting list of connected devices / emulators
