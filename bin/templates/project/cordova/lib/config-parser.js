@@ -589,7 +589,7 @@ function processCordovaPreferences(data, widgetConfig) {
 
         // <preference name="diskCache" value="enable or disable" />
         if (preference.diskcache) {
-            widgetConfig.enableDiskCache = (preference.diskcache === 'enable');
+            widgetConfig.enableDiskCache = (preference.diskcache !== 'disable');
         }
     }
 }
