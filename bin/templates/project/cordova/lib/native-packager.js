@@ -193,7 +193,9 @@ function generateTabletXMLFile(session, config) {
     xmlData = data2xml('qnx', xmlObject);
 
     //Inject any config-file modifications for bar-descriptor.xml
-    if (config.configFileInjections && Array.isArray(config.configFileInjections)) {
+    if (config.configFileInjections &&
+        Array.isArray(config.configFileInjections) &&
+        config.configFileInjections.length) {
         xmlDoc = new et.ElementTree(et.XML(xmlData));
         config.configFileInjections.forEach(function (config_file) {
             if (config_file.attrib["parent"] && config_file.attrib["target"]  && config_file.attrib["target"] === "bar-descriptor.xml") {
