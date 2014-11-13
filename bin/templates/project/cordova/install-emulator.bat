@@ -17,7 +17,7 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-call "%~dp0init"
+call "%~dp0init_reqs"
 if ERRORLEVEL 1 exit /B 1
 
 "%CORDOVA_NODE%\node.exe" "%~dp0\lib\install-emulator" %*

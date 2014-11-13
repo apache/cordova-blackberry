@@ -24,10 +24,10 @@ COMMENT
 #   ./create path [package [id [name [template]]]]
 #
 
-BIN_DIR=$(dirname "$0")
+CORDOVA_DIR=$(dirname "$0")
 
-source "$BIN_DIR/init"
+source "$CORDOVA_DIR/init"
 
 CURRENT_DIR=$(pwd)
 
-"$CORDOVA_NODE/node" "$BIN_DIR"/lib/create.js "$@"
+"$CORDOVA_NODE/node" "$CORDOVA_DIR"/lib/create.js "$@"

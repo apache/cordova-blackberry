@@ -18,6 +18,6 @@
        under the License.
 COMMENT
 CORDOVA_DIR=$(dirname "$0")
-source "$CORDOVA_DIR/init"
+source "$CORDOVA_DIR/init_reqs"
 
 "$CORDOVA_NODE/node" "$CORDOVA_DIR/lib/install-emulator" "$@"

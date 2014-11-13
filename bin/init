@@ -52,36 +52,3 @@ if [ -z "$CORDOVA_NODE" ] || [ -z "$CORDOVA_BBTOOLS" ]; then
     export CORDOVA_BBTOOLS=$CORDOVA_BBTOOLS
 
 fi
-
-#-------------check reqs---------------#
-NODE="$CORDOVA_NODE/node"
-JAVA=$(command -v java)
-PACKAGER="$CORDOVA_BBTOOLS/blackberry-nativepackager"
-DEPLOYER="$CORDOVA_BBTOOLS/blackberry-deploy"
-SIGNER="$CORDOVA_BBTOOLS/blackberry-signer"
-DEBUGTOKENREQUEST="$CORDOVA_BBTOOLS/blackberry-debugtokenrequest"
-
-if [ ! -x "$NODE" ]; then
-    echo node cannot be found on the path. Aborting.
-    EXIT_CODE=2
-elif [ ! -x "$JAVA" ]; then
-    echo java cannot be found on the path. Aborting.
-    EXIT_CODE=2
-elif [ ! -x "$PACKAGER" ]; then
-    echo blackberry-nativepackager cannot be found on the path. Aborting.
-    EXIT_CODE=2
-elif [ ! -x "$DEPLOYER" ]; then
-    echo blackberry-deploy cannot be found on the path. Aborting.
-    EXIT_CODE=2
-elif [ ! -x "$SIGNER" ]; then
-    echo blackberry-signer cannot be found on the path. Aborting.
-    EXIT_CODE=2
-elif [ ! -x "$DEBUGTOKENREQUEST" ]; then
-    echo blackberry-debugtokenrequest cannot be found on the path. Aborting.
-    EXIT_CODE=2
-fi
-
-if [ ! -z "$EXIT_CODE" ]; then
-    exit $EXIT_CODE
-fi
-

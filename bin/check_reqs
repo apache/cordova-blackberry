@@ -17,7 +17,6 @@
        specific language governing permissions and limitations
        under the License.
 COMMENT
-BIN_DIR=$(dirname "$0")
+CORDOVA_DIR=$(dirname "$0")
 
-#init will execute check reqs logic
-source "$BIN_DIR/init"
+source "$CORDOVA_DIR/init_reqs"

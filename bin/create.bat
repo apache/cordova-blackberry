@@ -17,10 +17,10 @@ goto comment
        specific language governing permissions and limitations
        under the License.
 :comment
-set "BIN_DIR=%~dp0"
+set "CORDOVA_DIR=%~dp0"
 
-call "%BIN_DIR%init"
+call "%CORDOVA_DIR%init"
 if ERRORLEVEL 1 exit /B %ERRORLEVEL% 
 
-"%CORDOVA_NODE%\node" "%BIN_DIR%lib\create.js" %*
+"%CORDOVA_NODE%\node" "%CORDOVA_DIR%lib\create.js" %*
 if ERRORLEVEL 1 exit /B %ERRORLEVEL%

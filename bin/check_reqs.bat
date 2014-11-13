@@ -18,6 +18,5 @@ goto comment
        under the License.
 :comment
 
-call "%~dp0init"
+call "%~dp0init_reqs"
 if ERRORLEVEL 1 exit /B %ERRORLEVEL%
-
