@@ -63,8 +63,13 @@ options
     });
 
 process.argv.forEach(function (argument, index, args) {
+    //Also accept --target <target name>
     if (argument.match(/^--target=/)) {
         args.splice(index, 1, "--target", argument.substr("--target=".length));
+    }
+    //Cordova CLI has adopted '--nobuild'; change it to --no-build
+    if (argument === '--nobuild') {
+        args[index] = '--no-build';
     }
 });
 
