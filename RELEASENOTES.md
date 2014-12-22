@@ -20,6 +20,17 @@
 -->
 ## Release Notes for Cordova BlackBerry ##
 
+## 3.7.0 ###
+
+* CB-8161 Run: accept --nobuild as alias to --no-build
+
+## 3.6.3 ###
+
+* CB-7835 Control whether applications run with spatialNavigation mode
+* CB-7658 generateTabletXMLFile only do munging if config.configFileInjections has elements
+* CB-7535 DiskCache - change default to enable
+* CB-7462 Change WebInspector dialog to a toast
+
 ### 3.6.0 ###
 
 * Set VERSION to 3.6.0 (via coho)
