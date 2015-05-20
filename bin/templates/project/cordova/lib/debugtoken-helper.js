@@ -114,7 +114,7 @@ function generateDeployTokenOptions(targetIp, targetPassword) {
 }
 
 function execNativeScript(script, options, callback) {
-    var fullPath = path.join(process.env.CORDOVA_BBTOOLS, script);
+    var fullPath = path.join(process.env.CORDOVA_BBTOOLS || "", script);
 
     utils.exec(fullPath, options, {
         "cwd" : workingDir,
