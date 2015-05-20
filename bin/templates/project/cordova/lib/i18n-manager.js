@@ -20,6 +20,12 @@ var path = require("path"),
     pkgrUtils = require("./packager-utils"),
     LOCALES_DIR = "locales";
 
+function copyPWWW(session, file) {
+    var base = path.join(session.conf.PROJECT_ROOT, 'platform_www');
+    var from = path.join(base, file);
+    pkgrUtils.copyFile(from, session.sourceDir, base);
+}
+
 // Given a list of locale files (as follows), based on un-localized splash/icon definition, generate
 // localized splash/icon metadata.
 //
@@ -32,7 +38,7 @@ var path = require("path"),
 // zh/a.gif
 // zh/b.gif
 // zh/c.gif
-function generateLocalizedMetadataForSplashScreenIcon(config, configKey, xmlObject, xmlObjectKey, localeFiles) {
+function generateLocalizedMetadataForSplashScreenIcon(session, config, configKey, xmlObject, files, xmlObjectKey, localeFiles) {
     // localeMap looks like this:
     // {
     //     "zh-hans-cn": ["a.gif", "f.gif", "images/splash-1024x600.png", "images/splash-600x1024.png"],
@@ -74,17 +80,22 @@ function generateLocalizedMetadataForSplashScreenIcon(config, configKey, xmlObje
             Object.getOwnPropertyNames(localeMap).forEach(function (locale) {
                 if (localeMap[locale].indexOf(imgPath) !== -1) {
                     // localized image found for locale
+                    var file = LOCALES_DIR + "/" + locale + "/" + imgPath;
+                    files.push(file);
+                    copyPWWW(session, file);
                     xmlObject[xmlObjectKey]["image"].push({
                         text: {
                             _attr: {
                                 "xml:lang": locale
                             },
-                            _value: LOCALES_DIR + "/" + locale + "/" + imgPath
+                            _value: file
                         }
                     });
                 }
             });
 
+            files.push(imgPath);
+            copyPWWW(session, imgPath);
             xmlObject[xmlObjectKey]["image"].push({
                 _value: imgPath
             });
@@ -117,7 +128,7 @@ function generateLocalizedText(session, config, xmlObject, key) {
     };
 }
 
-function generateLocalizedMetadata(session, config, xmlObject, key) {
+function generateLocalizedMetadata(session, config, xmlObject, files, key) {
     if (config.icon || config["rim:splash"]) {
         var localeFiles,
             normalizedLocaleFiles = [];
@@ -135,7 +146,7 @@ function generateLocalizedMetadata(session, config, xmlObject, key) {
             }
         }
 
-        generateLocalizedMetadataForSplashScreenIcon(config, key, xmlObject, key === "rim:splash" ? "splashScreens" : key, normalizedLocaleFiles);
+        generateLocalizedMetadataForSplashScreenIcon(session, config, key, xmlObject, files, key === "rim:splash" ? "splashScreens" : key, normalizedLocaleFiles);
     }
 }
 

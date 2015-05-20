@@ -109,8 +109,8 @@ function generateTabletXMLFile(session, config) {
         i18nMgr.generateLocalizedText(session, config, xmlObject, "description");
     }
 
-    i18nMgr.generateLocalizedMetadata(session, config, xmlObject, "icon");
-    i18nMgr.generateLocalizedMetadata(session, config, xmlObject, "rim:splash");
+    i18nMgr.generateLocalizedMetadata(session, config, xmlObject, files, "icon");
+    i18nMgr.generateLocalizedMetadata(session, config, xmlObject, files, "rim:splash");
 
     if (config["invoke-target"]) {
         xmlObject["invoke-target"] = [];
