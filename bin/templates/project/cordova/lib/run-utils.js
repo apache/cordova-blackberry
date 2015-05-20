@@ -237,7 +237,7 @@ _self = {
 
     //Function returns (error || null)
     install : function (options, deployTarget, allDone) {
-        var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-deploy"),
+        var script = path.join(process.env.CORDOVA_BBTOOLS || "", "blackberry-deploy"),
             args = [
                 "-device",
                 deployTarget.ip

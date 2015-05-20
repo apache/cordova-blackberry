@@ -84,7 +84,7 @@ _self = {
     },
 
     getDeviceInfo: function (ip, password, callback) {
-        var cmd = path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy'),
+        var cmd = path.join(process.env.CORDOVA_BBTOOLS || '', 'blackberry-deploy'),
             args = [
                 '-listDeviceInfo',
                 ip
@@ -245,7 +245,7 @@ _self = {
     },
 
     checkConnection: function (ip, type, callback) {
-        var script = path.join(process.env.CORDOVA_BBTOOLS, 'blackberry-deploy'),
+        var script = path.join(process.env.CORDOVA_BBTOOLS || '', 'blackberry-deploy'),
             args = [
                 '-test',
                 ip

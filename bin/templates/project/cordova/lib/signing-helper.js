@@ -26,7 +26,7 @@ var path = require('path'),
     _self;
 
 function execSigner(session, target, callback) {
-    var script = path.join(process.env.CORDOVA_BBTOOLS, "blackberry-signer"),
+    var script = path.join(process.env.CORDOVA_BBTOOLS || "", "blackberry-signer"),
         signer,
         params = session.getParams("blackberry-signer"),
         args = [];
