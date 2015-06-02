@@ -66,7 +66,7 @@ module.exports = {
                 fileManager.cleanSource(session);
             } catch (ex) {
             } finally {
-                logger.error(e);
+                logger.error(e.message);
                 if (callback && typeof callback === "function") {
                     callback(e);
                 }
