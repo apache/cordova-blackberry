@@ -65,7 +65,7 @@ module.exports.check_bbtools = function () {
         requirement.metadata.version = "";
     } else {
         requirement.installed = false;
-        requirement.metadata.reason = "BBTools not found on path. Download this set of tools, unzip, and add the bin folder to your PATH: https://developer.blackberry.com/android/tools/#commandline";
+        requirement.metadata.reason = "BBTools not found on path. Download BB-Tools.zip, unzip, and add the bin folder to your PATH: https://developer.blackberry.com/html5/download/";
     }
     return requirement;
 };
