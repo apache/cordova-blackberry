@@ -45,7 +45,7 @@ module.exports.check_java = function () {
         }
     } else {
         requirement.installed = false;
-        requirement.metadata.reason = "Java is not installed. Please get it from here: http://www.oracle.com/technetwork/java/javase/downloads";
+        requirement.metadata.reason = "Please get the latest Java from here: http://www.oracle.com/technetwork/java/javase/downloads";
     }
     return requirement;
 };
@@ -65,7 +65,7 @@ module.exports.check_bbtools = function () {
         requirement.metadata.version = "";
     } else {
         requirement.installed = false;
-        requirement.metadata.reason = "BBTools not found on path. Download BB-Tools.zip, unzip, and add the bin folder to your PATH: https://developer.blackberry.com/html5/download/";
+        requirement.metadata.reason = "Download BB-Tools.zip, unzip, and add the bin folder to your PATH: https://developer.blackberry.com/html5/download/";
     }
     return requirement;
 };
@@ -81,7 +81,7 @@ module.exports.check_authorp12 = function () {
     var requirement = new Requirement('author.p12', 'Author Certificate');
     if (!signingUtils.getKeyStorePath()) {
         requirement.installed = false;
-        requirement.metadata.reason = "Author Certificate not found. Visit this page for instructions to create certificate: https://developer.blackberry.com/html5/documentation/v2_2/testing_and_signing_setup.html";
+        requirement.metadata.reason = "Visit this page for instructions to create an Author certificate: https://developer.blackberry.com/html5/documentation/v2_2/testing_and_signing_setup.html";
     } else {
         requirement.installed = true;
         requirement.metadata.version = "";
@@ -105,7 +105,7 @@ module.exports.check_signingkeys = function () {
             requirement.metadata.version = "Legacy Signing Keys";
         } else {
             requirement.installed = false;
-            requirement.metadata.reason = "Signing Keys are not installed. Visit this page for instructions to set up keys: https://developer.blackberry.com/html5/documentation/v2_2/testing_and_signing_setup.html";
+            requirement.metadata.reason = "Visit this page for instructions to set up Signing Keys: https://developer.blackberry.com/html5/documentation/v2_2/testing_and_signing_setup.html";
         }
     } else {
         requirement.installed = true;
