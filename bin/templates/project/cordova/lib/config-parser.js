@@ -197,7 +197,11 @@ function processWidgetData(data, widgetConfig, session) {
                         throw localize.translate("EXCEPTION_FEATURE_DEFINED_WITH_WILDCARD_ACCESS_URI_OR_ORIGIN");
                     }
                     widgetConfig.hasMultiAccess = true;
-                } else {
+                } else if (originExist && attribs.origin.indexOf("//*.") > 0) {
+                    // handle <access origin="http://*.google.com" /> CB-8941
+                    var baseOrigin = attribs.origin.replace("//*.", "//");
+                    widgetConfig.accessList.push(createAccessListObj(baseOrigin, true));
+                }else {
                     attribs.subdomains = packagerUtils.toBoolean(attribs.subdomains);
                     if (attribs.uri || attribs.origin) {
                         if (uriExist === true && originExist === true) {
