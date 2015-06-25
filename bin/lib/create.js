@@ -130,6 +130,7 @@ function copyFilesToProject() {
     //copy cordova-*version*.js to www
     shell.cp(CORDOVA_JS_SRC, path.join(project_path, "www"));
     fs.renameSync(path.join(project_path, "www", "cordova.blackberry10.js"), path.join(project_path, "www", js_basename));
+    shell.cp('-rf', path.join(ROOT_PROJECT_DIR, 'cordova-js-src'), path.join(project_path, 'platform_www'));
 
     //copy node modules to cordova build directory
     wrench.mkdirSyncRecursive(nodeModulesDest, 0777);
