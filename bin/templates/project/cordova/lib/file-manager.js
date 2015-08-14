@@ -177,6 +177,87 @@ function copyWebworks(session) {
     }
 }
 
+function handleCSP(session, config) {
+    var filename = config.content;
+    if (filename.indexOf('local://') === 0) {
+        filename = filename.substring(7);
+        filename = path.join(path.normalize(session.sourceDir), filename);
+        var contents = fs.readFileSync(filename, 'utf-8');
+        // Meta tag is replaced as needed with our required port
+        var updated = parsePolicy(contents);
+        fs.writeFileSync(filename, updated, 'utf8');
+    }
+}
+
+/*
+Accepts the list of policy directives in the form: "default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *".
+Parses the list and will add http://localhost:8472 to the connect-src directive if it's not found in either default-src or connect-src.
+Returns the list with any necessary additions.
+*/
+function updateCSP(policy) {
+    var src = 'http://localhost:8472';
+    var directives = policy.split(';');
+    var connectSrc = -1;
+    for (var dir in directives) {
+        var sources = directives[dir].trim().split(' ');
+        if (sources[0] === 'default-src') {
+            if (checkSourceForPort(directives[dir], src)) {
+                // found user defined port
+                return policy;
+            }
+        } else if (sources[0] === 'connect-src') {
+            connectSrc = dir;
+            if (checkSourceForPort(directives[dir], src)) {
+                // found user defined port
+                return policy;
+            }
+        }
+    }
+    // Didn't find it previously defined
+    if (connectSrc >=0) {
+        // Found a pre-existing directive to use
+        directives[connectSrc] = directives[connectSrc] + ' ' + src;
+        return directives.join(';');
+    } else {
+        // Add the directive
+        return policy + '; connect-src ' + src;
+    }
+
+}
+
+function checkSourceForPort(sourceList, src) {
+    if (sourceList.indexOf(src) > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/*
+Accepts a string which should be the document to check for the Content-Security-Policy meta tag.
+If found, the tag is updated to include the necessary ports for BlackBerry10 plugins.
+Returns the modified document.
+*/
+function parsePolicy(doc) {
+    // Find the meta tag in the document
+    var policyMetaTag = /<meta(\s+|\s+.*\s+)http-equiv\s*=\s*"Content-Security-Policy".*>/i;
+    // Find the content value in the meta tag
+    var contentAttr = /\s+content\s*=\s*"(.*)"/i;
+    var policy = policyMetaTag.exec(doc);
+    if (!policy) {
+        // no policy to update
+        return doc;
+    }
+    // policy[0] is the full meta tag as found
+    var content = contentAttr.exec(policy[0]);
+    // content[1] is the list of directives in the meta tag
+    var newPolicy = ' content=\"'+updateCSP(content[1]) + '\"';
+    var newMetaTag = policy[0].replace(contentAttr, newPolicy);
+    logger.log("Checking and updating Content-Security-Policy as needed to allow BlackBerry 10 Plugins to function.");
+    logger.log("The tag has been set in the BlackBerry project to:\n" + newMetaTag);
+    return doc.replace(policyMetaTag, newMetaTag);
+}
+
 function hasValidExtension(file) {
     return VALID_EXTENSIONS.some(function (element, index, array) {
         return path.extname(file) === element;
@@ -193,6 +274,8 @@ module.exports = {
     copyNative: copyNative,
 
     copyWebworks : copyWebworks,
+
+    handleCSP : handleCSP,
 
     prepareOutputFiles: prepare,
 

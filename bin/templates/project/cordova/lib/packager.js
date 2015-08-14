@@ -44,6 +44,8 @@ module.exports = {
                 //validage configuration object
                 packagerValidator.validateConfig(session, configObj);
 
+                fileManager.handleCSP(session, configObj);
+
                 //generate user.js
                 logger.log(localize.translate("PROGRESS_GEN_OUTPUT"));
                 //Adding debuEnabled property to user.js. Framework will enable/disable WebInspector based on that variable.
