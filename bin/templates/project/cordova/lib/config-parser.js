@@ -15,6 +15,7 @@
  */
 /*jshint sub:true*/
 var fs = require("fs"),
+    path = require("path"),
     util = require('util'),
     xml2js = require('xml2js'),
     packagerUtils = require('./packager-utils'),
@@ -271,8 +272,8 @@ function processIconData(data, widgetConfig, session) {
     //
     var default_icon_filename = "default-icon.png",
         default_icon_src = session.conf.DEFAULT_ICON,
-        default_icon_dst = session.sourceDir;
-
+        default_icon_dst = path.join(session.conf.PROJECT_ROOT, 'platform_www');
+        
     processSplashScreenIconSrc(data, widgetConfig, "icon");
 
     if (!widgetConfig.icon) {
