@@ -20,6 +20,20 @@
 -->
 ## Release Notes for Cordova BlackBerry ##
 
+## 3.8.0 ###
+
+* CB-8306 Fix parseUri to handle http://foo/bar?a@b.com&whatever
+* CB-7807 Add BlackBerry10 platform to a project on any workstation OS
+* CB-8417 moved platform specific js into platform
+* CB-8417 renamed platform_modules into cordova-js-src
+* CB-8899 stick to grunt-jasmine-node@0.2.1
+* CB-9072 Fix exception logging in packager.js
+* CB-9010 Adds check_reqs implementation
+* CB-8941 Adds support for subdomain whitelisting
+* CB-6768 Handle icons outside of www/.
+* CB-9009 include http://localhost:8472 in Content-Security-Policy header
+* CB-6768 Default Icon is now copied into platform_www.
+
 ## 3.7.0 ###
 
 * CB-8161 Run: accept --nobuild as alias to --no-build
