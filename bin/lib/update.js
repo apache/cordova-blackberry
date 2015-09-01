@@ -61,6 +61,8 @@ function updateTargetTool(projectpath) {
 function updateInitTool(projectpath) {
     shell.cp('-f', path.join(ROOT, 'bin', 'init.bat'), path.join(projectpath, 'cordova'));
     shell.cp('-f', path.join(ROOT, 'bin', 'init'), path.join(projectpath, 'cordova'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'init_reqs.bat'), path.join(projectpath, 'cordova'));
+    shell.cp('-f', path.join(ROOT, 'bin', 'init_reqs'), path.join(projectpath, 'cordova'));
 }
 
 exports.updateProject = function (projectpath) {
