@@ -4,7 +4,7 @@
     "description": "cordova-blackberry release",
     "repository": {
         "type": "git",
-        "url": "https://git-wip-us.apache.org/repos/asf/cordova-blackberry.git"
+        "url": "https://github.com/apache/cordova-blackberry"
     },
     "author": "Apache Software Foundation",
     "licenses": "Apache Version 2.0",
