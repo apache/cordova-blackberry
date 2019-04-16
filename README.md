@@ -1,6 +1,16 @@
 Apache Cordova for BlackBerry 10
 ================================
 
+---
+📌 **Deprecation Notice**
+
+This repository is deprecated and no more work will be done on this by Apache Cordova. You can continue to use this and it should work as-is but any future issues will not be fixed by the Cordova community.
+
+Feel free to fork this repository and improve your fork. Existing forks are listed in [Network](network) and [Forks](network/members).
+
+- Learn more: https://github.com/apache/cordova/blob/master/deprecated.md#deprecated-platforms
+---
+
 **Apache Cordova** is an application development platform that allows you to use common web technologies, primarily **HTML5**, **JavaScript**, and **CSS**, to create applications for mobile devices. **Cordova** uses a standard set of APIs to access common device features. Additional plugins allow you to access **BlackBerry 10** specific APIs, so that you can extend your application to tightly integrate with the **BlackBerry 10 OS**.
 
 Requirements
